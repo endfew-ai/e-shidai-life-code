@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090d13" />
+    <title>e世代生命密碼分析儀</title>
+    <meta
+      name="description"
+      content="輸入一組數字，探索你的核心特質、溝通模式與下一步行動提醒。資料只在瀏覽器內計算。"
+    />
+    <meta property="og:title" content="e世代生命密碼分析儀" />
+    <meta property="og:description" content="從數字出發，閱讀你的行動慣性、溝通模式與成長提醒。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_TW" />
+    <meta property="og:image" content="https://endfew-ai.github.io/e-shidai-life-code/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <main class="site-shell">
+      <div class="ambient ambient-one" aria-hidden="true"></div>
+      <div class="ambient ambient-two" aria-hidden="true"></div>
+
+      <header class="hero">
+        <div class="brand-mark" aria-hidden="true"><span>易</span></div>
+        <p class="eyebrow">I CHING · NUMEROLOGY · SELF REFLECTION</p>
+        <h1>e世代<span>生命密碼</span>分析儀</h1>
+        <p class="hero-copy">以數字收斂為起點，閱讀你的行動慣性、溝通模式與成長提醒。</p>
+        <div class="hero-note" role="note">
+          <span class="note-dot" aria-hidden="true"></span>
+          所有計算只在你的瀏覽器內完成，不儲存、不傳送輸入內容。
+        </div>
+      </header>
+
+      <section class="analyzer-card" aria-labelledby="analyzer-title">
+        <div class="analyzer-heading">
+          <div>
+            <p class="section-kicker">開始分析</p>
+            <h2 id="analyzer-title">輸入一組對你有意義的數字</h2>
+          </div>
+          <span class="step-badge">01</span>
+        </div>
+
+        <form id="analyzer-form" novalidate>
+          <label for="number-code">數字符碼</label>
+          <div class="input-row">
+            <input
+              id="number-code"
+              name="number-code"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              maxlength="40"
+              placeholder="例如：19950102"
+              aria-describedby="input-help input-message"
+            />
+            <button type="submit" class="primary-button">
+              解碼核心特質
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <div class="form-meta">
+            <p id="input-help">可輸入生日、手機末碼或自訂數字；為保護隱私，請勿輸入完整身分證號。</p>
+            <button type="button" class="text-button" id="clear-button" hidden>清除</button>
+          </div>
+          <p id="input-message" class="form-message" role="alert" aria-live="polite"></p>
+        </form>
+
+        <div class="method-strip" aria-label="分析流程">
+          <span>提取數字</span><i aria-hidden="true"></i>
+          <span>逐位加總</span><i aria-hidden="true"></i>
+          <span>收斂至 1–9</span><i aria-hidden="true"></i>
+          <span>對照特質</span>
+        </div>
+      </section>
+
+      <section class="results" id="results" aria-labelledby="result-title" aria-live="polite" hidden>
+        <div class="result-hero">
+          <div class="number-orbit" aria-hidden="true"><span id="life-number">0</span></div>
+          <div class="result-heading">
+            <p class="section-kicker">你的核心原型</p>
+            <h2 id="result-title">—</h2>
+            <p id="result-symbol">—</p>
+          </div>
+          <div class="energy-color">
+            <span id="color-swatch" aria-hidden="true"></span>
+            <div><small>能量共振色</small><strong id="color-name">—</strong></div>
+          </div>
+        </div>
+
+        <div class="insight-grid">
+          <article class="insight-card">
+            <span class="card-index">A</span><p class="card-label">CORE PATTERN</p>
+            <h3>核心人格特質</h3><p id="traits-text"></p>
+          </article>
+          <article class="insight-card shadow-card">
+            <span class="card-index">B</span><p class="card-label">BLIND SPOT</p>
+            <h3>壓力下的盲點</h3><p id="shadow-text"></p>
+          </article>
+          <article class="insight-card">
+            <span class="card-index">C</span><p class="card-label">WELLBEING</p>
+            <h3>身心照顧提醒</h3><p id="wellbeing-text"></p>
+          </article>
+          <article class="insight-card language-card">
+            <span class="card-index">D</span><p class="card-label">LANGUAGE MARKER</p>
+            <h3>常見防禦語句</h3><blockquote id="marker-text"></blockquote><p id="marker-description"></p>
+          </article>
+        </div>
+
+        <article class="advice-card">
+          <div class="advice-symbol" aria-hidden="true">策</div>
+          <div>
+            <p class="section-kicker">本次行動建議</p>
+            <h3>讓洞察成為下一步</h3>
+            <p id="advice-text"></p>
+          </div>
+        </article>
+
+        <div class="result-actions">
+          <button type="button" class="secondary-button" id="reset-button">重新分析另一組數字</button>
+        </div>
+      </section>
+
+      <section class="disclaimer" aria-labelledby="disclaimer-title">
+        <span aria-hidden="true">※</span>
+        <div>
+          <h2 id="disclaimer-title">使用提醒</h2>
+          <p>本工具內容屬文化娛樂與自我反思用途，不是科學測驗、醫療診斷、心理評估或專業建議。重要的健康、財務、工作或關係決定，請依實際情況並諮詢合格專業人士。</p>
+        </div>
+      </section>
+
+      <footer>
+        <p>© <span id="copyright-year"></span> e世代生命密碼研究中心</p>
+        <p>易經河洛意象 × 數字原型 × 自我覺察</p>
+      </footer>
+    </main>
+  </body>
+</html>
