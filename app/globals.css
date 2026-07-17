@@ -434,6 +434,71 @@ form label {
   border-radius: 18px;
 }
 
+.ai-module-card {
+  --module-glow: #d9ad50;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 286px;
+  border-color: color-mix(in srgb, var(--module-glow) 24%, rgba(232, 205, 139, 0.14));
+  background-image:
+    linear-gradient(90deg, rgba(8, 12, 18, 0.98) 0%, rgba(10, 15, 22, 0.94) 42%, rgba(10, 15, 22, 0.6) 72%, rgba(8, 12, 18, 0.3) 100%),
+    var(--module-image);
+  background-position: center, center;
+  background-size: cover, cover;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 50px rgba(3, 6, 10, 0.32),
+    0 20px 54px rgba(0, 0, 0, 0.26),
+    0 0 28px color-mix(in srgb, var(--module-glow) 6%, transparent);
+}
+
+.ai-module-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--module-glow) 9%, transparent), transparent 36%),
+    radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--module-glow) 14%, transparent), transparent 34%);
+  pointer-events: none;
+}
+
+.ai-module-card > * {
+  position: relative;
+  z-index: 2;
+  max-width: 72%;
+}
+
+.ai-module-card .card-index {
+  max-width: none;
+  color: color-mix(in srgb, var(--module-glow) 34%, transparent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--module-glow) 22%, transparent);
+}
+
+.ai-module-card::before {
+  z-index: 2;
+  width: 58px;
+  background: linear-gradient(90deg, var(--module-glow), transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--module-glow) 45%, transparent);
+}
+
+.core-module {
+  --module-glow: #d9ad50;
+}
+
+.shadow-module {
+  --module-glow: #c27674;
+}
+
+.wellbeing-module {
+  --module-glow: #49c7d9;
+}
+
+.language-module {
+  --module-glow: #987fe3;
+}
+
 .insight-card::before {
   content: "";
   position: absolute;
@@ -464,6 +529,11 @@ form label {
   color: #b4b1a7;
   font-size: 14px;
   line-height: 1.9;
+}
+
+.ai-module-card > p:last-child {
+  color: #d1cec5;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.74);
 }
 
 .shadow-card::before {
@@ -635,6 +705,18 @@ footer p {
 
   .insight-card {
     min-height: auto;
+  }
+
+  .ai-module-card {
+    min-height: 310px;
+    background-image:
+      linear-gradient(180deg, rgba(8, 12, 18, 0.72) 0%, rgba(8, 12, 18, 0.94) 52%, rgba(8, 12, 18, 0.99) 100%),
+      var(--module-image);
+    background-position: center, 64% center;
+  }
+
+  .ai-module-card > * {
+    max-width: 100%;
   }
 
   footer {

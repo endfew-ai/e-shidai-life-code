@@ -304,25 +304,37 @@ export default function Home() {
           </div>
 
           <div className="insight-grid">
-            <article className="insight-card">
+            <article
+              className="insight-card ai-module-card core-module"
+              style={{ "--module-image": "url('/ai-modules/core-orbit.webp')" } as React.CSSProperties}
+            >
               <span className="card-index">A</span>
               <p className="card-label">CORE PATTERN</p>
               <h3>核心人格特質</h3>
               <p>{profile.traits}</p>
             </article>
-            <article className="insight-card shadow-card">
+            <article
+              className="insight-card ai-module-card shadow-card shadow-module"
+              style={{ "--module-image": "url('/ai-modules/shadow-prism.webp')" } as React.CSSProperties}
+            >
               <span className="card-index">B</span>
               <p className="card-label">BLIND SPOT</p>
               <h3>壓力下的盲點</h3>
               <p>{profile.shadow}</p>
             </article>
-            <article className="insight-card">
+            <article
+              className="insight-card ai-module-card wellbeing-module"
+              style={{ "--module-image": "url('/ai-modules/wellbeing-flow.webp')" } as React.CSSProperties}
+            >
               <span className="card-index">C</span>
               <p className="card-label">WELLBEING</p>
               <h3>身心照顧提醒</h3>
               <p>{profile.wellbeing}</p>
             </article>
-            <article className="insight-card language-card">
+            <article
+              className="insight-card ai-module-card language-card language-module"
+              style={{ "--module-image": "url('/ai-modules/language-signal.webp')" } as React.CSSProperties}
+            >
               <span className="card-index">D</span>
               <p className="card-label">LANGUAGE MARKER</p>
               <h3>常見防禦語句</h3>

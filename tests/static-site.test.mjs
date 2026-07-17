@@ -23,5 +23,11 @@ test("GitHub Pages entrypoint contains required public-use safeguards", async ()
     access(new URL("../styles.css", import.meta.url)),
     access(new URL("../og.png", import.meta.url)),
     access(new URL("../.nojekyll", import.meta.url)),
+    access(new URL("../public/ai-modules/core-orbit.webp", import.meta.url)),
+    access(new URL("../public/ai-modules/shadow-prism.webp", import.meta.url)),
+    access(new URL("../public/ai-modules/wellbeing-flow.webp", import.meta.url)),
+    access(new URL("../public/ai-modules/language-signal.webp", import.meta.url)),
   ]);
+  assert.match(html, /ai-module-card core-module/);
+  assert.match(html, /public\/ai-modules\/language-signal\.webp/);
 });
