@@ -17,6 +17,7 @@ const modeContent = {
     button: "分析生日命碼",
     help: "只需西元生日，不需姓名、時辰或身分證字號。",
     art: "public/visuals/birthday-panel-b-v3.webp",
+    titleArt: "public/visuals/brush/title-birthday-v4.webp",
     alt: "古金曆法年輪與生日節點模組背景",
   },
   code: {
@@ -25,6 +26,7 @@ const modeContent = {
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
     art: "public/visuals/digit-spectrum-panel-b-v3.webp",
+    titleArt: "public/visuals/brush/title-spectrum-v4.webp",
     alt: "古金數字頻率波形與九點節律模組背景",
   },
   iching: {
@@ -33,6 +35,7 @@ const modeContent = {
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "public/visuals/iching-instrument-b-v3.webp",
+    titleArt: "public/visuals/brush/title-iching-v4.webp",
     alt: "低亮古金六爻測量儀視覺",
   },
 };
@@ -49,6 +52,16 @@ function imageElement(src, alt = "") {
   image.src = src;
   image.alt = alt;
   return image;
+}
+
+function brushTitleElement(src, text, className = "") {
+  const title = element("span", `brush-title ${className}`.trim());
+  const accessibleText = element("span", "sr-only", text);
+  const image = imageElement(src, "");
+  image.className = "brush-title-image";
+  image.setAttribute("aria-hidden", "true");
+  title.append(accessibleText, image);
+  return title;
 }
 
 function panelHeading(kicker, title, badge) {
@@ -165,12 +178,13 @@ function createNumerologyResult(result, onReset) {
 
   const hero = element("header", "result-hero");
   const copy = element("div", "result-copy");
-  copy.append(element("p", "section-index", result.kind === "birthday" ? "生日命碼結果" : "數字頻譜結果"));
-  const title = element("h2");
+  const title = element("h2", "brush-result-title");
   title.id = "result-title";
   title.tabIndex = -1;
-  title.append(document.createTextNode(result.headlineValue), element("small", "", profile.title));
-  copy.append(title, element("p", "", `${profile.symbol}。以下內容只作文化娛樂與自我提問參考。`));
+  title.append(brushTitleElement("public/visuals/brush/title-result-v4.webp", "數理結果"));
+  const value = element("div", "result-value");
+  value.append(document.createTextNode(result.headlineValue), element("small", "", profile.title));
+  copy.append(title, value, element("p", "", `${profile.symbol}。以下內容只作文化娛樂與自我提問參考。`));
   const art = element("figure", "result-art");
   art.append(
     imageElement(result.kind === "birthday" ? "public/visuals/numerology-result-panel-b-v3.webp" : "public/visuals/digit-spectrum-panel-b-v3.webp", "古金數理節點分析模組背景"),
@@ -252,8 +266,9 @@ function createOriginalTextPanel(result) {
   panel.setAttribute("aria-labelledby", "classic-title");
   const summary = element("summary", "classic-summary");
   const summaryCopy = element("span");
-  const headingTitle = element("strong", "", "易經本文");
+  const headingTitle = element("strong");
   headingTitle.id = "classic-title";
+  headingTitle.append(brushTitleElement("public/visuals/brush/title-classic-v4.webp", "易經本文", "brush-classic"));
   summaryCopy.append(element("small", "", "補充資料"), headingTitle);
   summary.append(summaryCopy, element("em", "", "展開卦辭、彖、象與六爻原文"), element("i", "", "只列原文，不解卦"));
   const art = imageElement("public/visuals/iching-manuscript-b-v3.webp", "");
@@ -321,10 +336,11 @@ function createIChingResult(result, onReset) {
   section.setAttribute("aria-labelledby", "iching-result-title");
   const heading = element("header", "iching-result-heading");
   const titleCopy = element("div");
-  const title = element("h2", "", "本卦・互卦・變卦");
+  const title = element("h2", "brush-iching-title");
   title.id = "iching-result-title";
   title.tabIndex = -1;
-  titleCopy.append(element("p", "section-index", "補充工具結果"), title);
+  title.append(brushTitleElement("public/visuals/brush/title-iching-v4.webp", "三數取卦"));
+  titleCopy.append(title, element("p", "iching-structure", "本卦・互卦・變卦"));
   const summary = element("p");
   summary.append(document.createTextNode("動爻為"), element("strong", "", result.moving.name), document.createTextNode(`，${result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。`));
   heading.append(titleCopy, summary);
@@ -368,7 +384,8 @@ function initializeAnalyzer() {
   const help = document.querySelector("#input-help");
   const clearButton = document.querySelector("#clear-button");
   const analyzeButton = document.querySelector("#analyze-button");
-  const analyzerTitle = document.querySelector("#analyzer-title");
+  const analyzerTitleText = document.querySelector("#analyzer-title-text");
+  const analyzerTitleImage = document.querySelector("#analyzer-title-image");
   const analyzerDescription = document.querySelector("#analyzer-description");
   const modeArt = document.querySelector("#mode-art-image");
   const resultAnchor = document.querySelector("#result-anchor");
@@ -399,7 +416,8 @@ function initializeAnalyzer() {
     mode = nextMode;
     for (const panel of modePanels) panel.hidden = panel.dataset.modePanel !== mode;
     for (const label of modeLabels) label.classList.toggle("is-active", label.dataset.modeLabel === mode);
-    analyzerTitle.textContent = modeContent[mode].label;
+    analyzerTitleText.textContent = modeContent[mode].label;
+    analyzerTitleImage.src = modeContent[mode].titleArt;
     analyzerDescription.textContent = modeContent[mode].description;
     help.textContent = modeContent[mode].help;
     analyzeButton.firstChild.textContent = modeContent[mode].button;

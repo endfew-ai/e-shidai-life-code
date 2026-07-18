@@ -22,6 +22,12 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-b-v3\.png/);
   assert.match(html, /hero-brush-title-b-v3\.webp/);
   assert.match(html, /birthday-panel-b-v3\.webp/);
+  assert.match(html, /brand-life-code-v4\.webp/);
+  assert.match(html, /theme-xuanxing-v4\.webp/);
+  assert.match(html, /title-birthday-v4\.webp/);
+  assert.match(html, /title-spectrum-v4\.webp/);
+  assert.match(html, /title-iching-v4\.webp/);
+  assert.match(html, /title-rules-v4\.webp/);
   assert.doesNotMatch(html, /birth-orbit-b-v2\.webp/);
   assert.match(html, /<link rel="icon" href="public\/favicon\.svg"/);
   assert.match(appSource, /from "\.\/calculator-core\.js"/);
@@ -51,6 +57,14 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
     access(new URL("../public/visuals/numerology-result-panel-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/iching-instrument-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/iching-manuscript-b-v3.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/theme-xuanxing-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/brand-life-code-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-birthday-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-spectrum-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-iching-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-result-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-classic-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-rules-v4.webp", import.meta.url)),
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
   ]);
 });

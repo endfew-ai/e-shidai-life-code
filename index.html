@@ -26,27 +26,27 @@
   <body>
     <main class="site-shell">
       <nav class="topbar" aria-label="主要導覽">
-        <a class="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong>e世代生命密碼</strong></a>
+        <a class="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong class="brush-title brush-brand"><span class="sr-only">e世代生命密碼</span><img class="brush-title-image" src="public/visuals/brush/brand-life-code-v4.webp" alt="" aria-hidden="true" /></strong></a>
         <div><a href="#analyzer">開始分析</a><a href="#method-source">規則來源</a></div>
       </nav>
 
       <header class="hero" id="top">
         <h1 class="sr-only">看見你的數字軌跡</h1>
         <img class="hero-art" src="public/visuals/hero-brush-title-b-v3.webp" alt="金墨毛筆字寫著看見你的數字軌跡，右側為古金曆法星軌" />
-        <div class="hero-rail"><p><strong>玄星觀象</strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
+        <div class="hero-rail"><p><strong class="brush-title brush-theme"><span class="sr-only">玄星觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-xuanxing-v4.webp" alt="" aria-hidden="true" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
       </header>
 
       <section class="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
         <form class="analyzer-card" id="analyzer-form" novalidate>
           <fieldset class="mode-switch">
             <legend class="sr-only">分析模式</legend>
-            <label class="is-active" data-mode-label="birthday"><input type="radio" name="analysis-mode" value="birthday" checked /><span><strong>生日命碼<em>主要</em></strong><small>生命路徑、生日數、態度數與個人流年</small></span></label>
-            <label data-mode-label="code"><input type="radio" name="analysis-mode" value="code" /><span><strong>數字頻譜<em>次要</em></strong><small>任意號碼的加總、核心數與數字分布</small></span></label>
-            <label data-mode-label="iching"><input type="radio" name="analysis-mode" value="iching" /><span><strong>三數取卦<em>補充</em></strong><small>固定卦表推算本卦、互卦、動爻與變卦</small></span></label>
+            <label class="is-active" data-mode-label="birthday"><input type="radio" name="analysis-mode" value="birthday" checked /><span><strong><span class="brush-title brush-mode"><span class="sr-only">生日命碼</span><img class="brush-title-image" src="public/visuals/brush/title-birthday-v4.webp" alt="" aria-hidden="true" /></span><em>主要</em></strong><small>生命路徑、生日數、態度數與個人流年</small></span></label>
+            <label data-mode-label="code"><input type="radio" name="analysis-mode" value="code" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">數字頻譜</span><img class="brush-title-image" src="public/visuals/brush/title-spectrum-v4.webp" alt="" aria-hidden="true" /></span><em>次要</em></strong><small>任意號碼的加總、核心數與數字分布</small></span></label>
+            <label data-mode-label="iching"><input type="radio" name="analysis-mode" value="iching" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-v4.webp" alt="" aria-hidden="true" /></span><em>補充</em></strong><small>固定卦表推算本卦、互卦、動爻與變卦</small></span></label>
           </fieldset>
 
           <div class="mode-workbench">
-            <figure class="mode-art"><img id="mode-art-image" src="public/visuals/birthday-panel-b-v3.webp" alt="古金曆法年輪與生日節點模組背景" /><figcaption><p class="section-index">當前分析模式</p><h2 id="analyzer-title">生日命碼</h2><span id="analyzer-description">生命路徑、生日數、態度數與個人流年</span></figcaption></figure>
+            <figure class="mode-art"><img id="mode-art-image" src="public/visuals/birthday-panel-b-v3.webp" alt="古金曆法年輪與生日節點模組背景" /><figcaption><p class="section-index">當前分析模式</p><h2 id="analyzer-title" class="brush-heading current-mode-heading"><span id="analyzer-title-text" class="sr-only">生日命碼</span><img id="analyzer-title-image" class="brush-title-image" src="public/visuals/brush/title-birthday-v4.webp" alt="" aria-hidden="true" /></h2><span id="analyzer-description">生命路徑、生日數、態度數與個人流年</span></figcaption></figure>
             <div class="mode-controls">
               <div class="input-panel" data-mode-panel="birthday"><label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label></div>
               <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
@@ -65,7 +65,7 @@
 
       <section class="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
-          <summary><span>規則與來源</span><strong id="method-source-title">查看固定規則、古籍本文與使用邊界</strong><small>可展開核對</small></summary>
+          <summary><span>固定規則</span><strong id="method-source-title" class="brush-title brush-rules"><span class="sr-only">規則與來源</span><img class="brush-title-image" src="public/visuals/brush/title-rules-v4.webp" alt="" aria-hidden="true" /></strong><small>可展開核對</small></summary>
           <div class="method-source-body"><div class="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article></div>
           <div class="data-source" id="data-source"><div><h2>方法與本文來源</h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></div></div>
         </details>

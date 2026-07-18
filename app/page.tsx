@@ -28,6 +28,7 @@ const modeContent = {
     button: "分析生日命碼",
     help: "只需西元生日，不需姓名、時辰或身分證字號。",
     art: "/visuals/birthday-panel-b-v3.webp",
+    titleArt: "/visuals/brush/title-birthday-v4.webp",
     artAlt: "古金曆法年輪與生日節點模組背景",
   },
   code: {
@@ -37,6 +38,7 @@ const modeContent = {
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
     art: "/visuals/digit-spectrum-panel-b-v3.webp",
+    titleArt: "/visuals/brush/title-spectrum-v4.webp",
     artAlt: "古金數字頻率波形與九點節律模組背景",
   },
   iching: {
@@ -46,9 +48,14 @@ const modeContent = {
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "/visuals/iching-instrument-b-v3.webp",
+    titleArt: "/visuals/brush/title-iching-v4.webp",
     artAlt: "低亮古金六爻測量儀視覺",
   },
 } as const;
+
+function BrushTitle({ src, text, className = "" }: { src: string; text: string; className?: string }) {
+  return <span className={`brush-title ${className}`.trim()}><span className="sr-only">{text}</span><img className="brush-title-image" src={src} alt="" aria-hidden="true" /></span>;
+}
 
 function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
   return (
@@ -132,8 +139,8 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
     <section className="results" aria-labelledby="result-title">
       <header className="result-hero">
         <div className="result-copy">
-          <p className="section-index">{result.kind === "birthday" ? "生日命碼結果" : "數字頻譜結果"}</p>
-          <h2 id="result-title" tabIndex={-1}>{result.headlineValue}<small>{profile.title}</small></h2>
+          <h2 id="result-title" className="brush-result-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-result-v4.webp" text="數理結果" /></h2>
+          <div className="result-value">{result.headlineValue}<small>{profile.title}</small></div>
           <p>{profile.symbol}。以下內容只作文化娛樂與自我提問參考。</p>
         </div>
         <figure className="result-art"><img src={resultArt} alt="古金數字節點分析視覺" /><figcaption>核心數 {result.headlineValue}</figcaption></figure>
@@ -194,7 +201,7 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
   const sourceUrl = `https://zh.wikisource.org/wiki/${encodeURIComponent(original.sourceTitle)}`;
   return (
     <details className="classic-panel" aria-labelledby="classic-title">
-      <summary className="classic-summary"><span><small>補充資料</small><strong id="classic-title">易經本文</strong></span><em>展開卦辭、彖、象與六爻原文</em><i>只列原文，不解卦</i></summary>
+      <summary className="classic-summary"><span><small>補充資料</small><strong id="classic-title"><BrushTitle src="/visuals/brush/title-classic-v4.webp" text="易經本文" className="brush-classic" /></strong></span><em>展開卦辭、彖、象與六爻原文</em><i>只列原文，不解卦</i></summary>
       <img className="classic-panel-art" src="/visuals/iching-manuscript-b-v3.webp" alt="" aria-hidden="true" />
       <div className="classic-panel-inner">
         <div className="classic-name"><span aria-hidden="true">{original.symbol}</span><div><small>第 {original.id} 卦</small><h3>{original.name}・{original.fullName}</h3></div></div>
@@ -227,7 +234,7 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
 function IChingResults({ result, onReset }: { result: IChingResult; onReset: () => void }) {
   return (
     <section className="iching-results" aria-labelledby="iching-result-title">
-      <header className="iching-result-heading"><div><p className="section-index">補充工具結果</p><h2 id="iching-result-title" tabIndex={-1}>本卦・互卦・變卦</h2></div><p>動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p></header>
+      <header className="iching-result-heading"><div><h2 id="iching-result-title" className="brush-iching-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" /></h2><p className="iching-structure">本卦・互卦・變卦</p></div><p>動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p></header>
       <div className="hexagram-grid">
         <HexagramCard label="本卦" value={result.original} movingIndex={result.moving.index} mark="動" />
         <HexagramCard label="互卦" value={result.mutual} />
@@ -300,14 +307,14 @@ export default function Home() {
   return (
     <main className="site-shell">
       <nav className="topbar" aria-label="主要導覽">
-        <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong>e世代生命密碼</strong></a>
+        <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-code-v4.webp" text="e世代生命密碼" className="brush-brand" /></strong></a>
         <div><a href="#analyzer">開始分析</a><a href="#method-source">規則來源</a></div>
       </nav>
 
       <header className="hero" id="top">
         <h1 className="sr-only">看見你的數字軌跡</h1>
         <img className="hero-art" src="/visuals/hero-brush-title-b-v3.webp" alt="金墨毛筆字寫著看見你的數字軌跡，右側為古金曆法星軌" />
-        <div className="hero-rail"><p><strong>玄星觀象</strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
+        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
       </header>
 
       <section className="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
@@ -317,13 +324,13 @@ export default function Home() {
             {(Object.keys(modeContent) as AnalysisMode[]).map((key) => (
               <label className={mode === key ? "is-active" : ""} key={key}>
                 <input type="radio" name="analysis-mode" value={key} checked={mode === key} onChange={() => changeMode(key)} />
-                <span><strong>{modeContent[key].label}<em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
+                <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
               </label>
             ))}
           </fieldset>
 
           <div className="mode-workbench">
-            <figure className="mode-art"><img src={modeContent[mode].art} alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title">{modeContent[mode].label}</h2><span>{modeContent[mode].description}</span></figcaption></figure>
+            <figure className="mode-art"><img src={modeContent[mode].art} alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title" className="brush-heading current-mode-heading"><BrushTitle src={modeContent[mode].titleArt} text={modeContent[mode].label} /></h2><span>{modeContent[mode].description}</span></figcaption></figure>
             <div className="mode-controls">
               <div className="input-panel">
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { setBirthday(event.target.value); setMessage(""); }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
@@ -344,7 +351,7 @@ export default function Home() {
 
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
-          <summary><span>規則與來源</span><strong id="method-source-title">查看固定規則、古籍本文與使用邊界</strong><small>可展開核對</small></summary>
+          <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
           <div className="method-source-body"><div className="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article></div>
           <div className="data-source" id="data-source"><div><h2>方法與本文來源</h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></div></div>
         </details>
