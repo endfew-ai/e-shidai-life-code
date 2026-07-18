@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+test.use({ timezoneId: "Asia/Taipei" });
+
 function collectBrowserErrors(page) {
   const errors = [];
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
@@ -17,6 +19,41 @@ async function expectNoHorizontalOverflow(page) {
 async function expectAllImagesLoaded(page) {
   const failed = await page.locator("img").evaluateAll((images) => images.filter((image) => !image.complete || image.naturalWidth === 0).map((image) => image.getAttribute("src")));
   expect(failed).toEqual([]);
+}
+
+async function unlockKangjie(page) {
+  const gate = page.locator("[data-access-gate]");
+  await expect(gate).toBeVisible();
+  const password = gate.locator('[name="password"]');
+  await password.fill("1111");
+  await gate.locator('button[type="submit"]').click();
+  await expect(gate.locator("[data-access-message]")).toContainText("密碼不正確");
+  await password.fill("0000");
+  await gate.locator('button[type="submit"]').click();
+  await expect(gate).toBeHidden();
+  await expect(page.locator("[data-protected-content]")).not.toHaveAttribute("aria-hidden", "true");
+}
+
+async function expectCurrentTimeApplied(page) {
+  const status = page.locator("[data-current-time-detect]");
+  const calendar = page.locator("#form-calendar");
+  await expect(status).toHaveAttribute("data-state", "ready");
+  await expect(status.locator("[data-current-time]")).not.toHaveText("正在偵測裝置時間");
+  await expect(status.locator("[data-current-lunar]")).toContainText("農曆");
+  const values = await calendar.evaluate((form) => ({
+    yearBranch: Number(form.elements.yearBranch.value),
+    lunarMonth: Number(form.elements.lunarMonth.value),
+    lunarDay: Number(form.elements.lunarDay.value),
+    hourBranch: Number(form.elements.hourBranch.value),
+  }));
+  expect(values.yearBranch).toBeGreaterThanOrEqual(1);
+  expect(values.yearBranch).toBeLessThanOrEqual(12);
+  expect(values.lunarMonth).toBeGreaterThanOrEqual(1);
+  expect(values.lunarMonth).toBeLessThanOrEqual(12);
+  expect(values.lunarDay).toBeGreaterThanOrEqual(1);
+  expect(values.lunarDay).toBeLessThanOrEqual(30);
+  expect(values.hourBranch).toBeGreaterThanOrEqual(1);
+  expect(values.hourBranch).toBeLessThanOrEqual(12);
 }
 
 async function openAllDetails(page) {
@@ -98,6 +135,31 @@ async function expectVisibleBrushTitlesUnclipped(page) {
   expect(report.clippedArtwork).toEqual([]);
 }
 
+test("fixed Taipei time fills the exact lunar date and branches", async ({ page }) => {
+  await page.addInitScript(({ fixedTime }) => {
+    const NativeDate = Date;
+    class FixedDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : [fixedTime])); }
+      static now() { return fixedTime; }
+    }
+    Object.defineProperty(window, "Date", { configurable: true, value: FixedDate });
+  }, { fixedTime: Date.parse("2026-07-19T02:44:00.000Z") });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+  await expectCurrentTimeApplied(page);
+  const calendar = page.locator("#form-calendar");
+  await expect(calendar.locator('[name="yearBranch"]')).toHaveValue("7");
+  await expect(calendar.locator('[name="lunarMonth"]')).toHaveValue("6");
+  await expect(calendar.locator('[name="lunarDay"]')).toHaveValue("6");
+  await expect(calendar.locator('[name="hourBranch"]')).toHaveValue("6");
+  await expect(calendar.locator("[data-current-lunar]")).toHaveText("農曆六月初六・午年・巳時");
+  await calendar.locator('[name="yearBranch"]').selectOption("5");
+  await expect(calendar.locator("[data-current-time-note]")).toContainText("你已手動修正");
+  await calendar.locator("[data-detect-current-time]").click();
+  await expect(calendar.locator('[name="yearBranch"]')).toHaveValue("7");
+  await expect(calendar.locator("[data-current-time-note]")).toContainText("已依裝置時間自動填入");
+});
+
 test("desktop entry, four derivations, tabs, sources and screenshots", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -133,7 +195,11 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
 
   await page.locator("a.kangjie-mode-entry").click();
   await expect(page).toHaveURL(/\/kangjie(?:\.html)?(?:[?#]|$)/);
-  await expect(page.locator("h1 .sr-only")).toHaveText("象數觀物");
+  await page.screenshot({ path: "output/playwright/kangjie-access-gate-1440.png", fullPage: false });
+  await unlockKangjie(page);
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.locator("[data-access-gate]")).toBeHidden();
+  await expect(page.locator(".kangjie-hero h1 .sr-only")).toHaveText("象數觀物");
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
@@ -142,12 +208,19 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await pageTabs.first().focus();
   await page.keyboard.press("ArrowRight");
   await expect(page.locator('[data-kangjie-tab="meihua"]')).toHaveAttribute("aria-selected", "true");
+  await expectCurrentTimeApplied(page);
 
   const calendar = page.locator("#form-calendar");
   await calendar.locator('[name="yearBranch"]').selectOption("5");
   await calendar.locator('[name="lunarMonth"]').fill("12");
   await calendar.locator('[name="lunarDay"]').fill("17");
   await calendar.locator('[name="hourBranch"]').selectOption("9");
+  await expect(calendar.locator("[data-current-time-note]")).toContainText("你已手動修正");
+  await page.waitForTimeout(1100);
+  await expect(calendar.locator('[name="yearBranch"]')).toHaveValue("5");
+  await expect(calendar.locator('[name="lunarMonth"]')).toHaveValue("12");
+  await expect(calendar.locator('[name="lunarDay"]')).toHaveValue("17");
+  await expect(calendar.locator('[name="hourBranch"]')).toHaveValue("9");
   await calendar.locator('button[type="submit"]').click();
   await expect(page.locator("#kangjie-result")).toContainText("澤火革");
   await expect(page.locator("#kangjie-result")).toContainText("天風姤");
@@ -212,9 +285,12 @@ for (const width of [390, 320]) {
     await expectVisibleBrushTitlesUnclipped(page);
     await expectNoHorizontalOverflow(page);
     await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+    if (width === 390) await page.screenshot({ path: "output/playwright/kangjie-access-gate-390.png", fullPage: false });
+    await unlockKangjie(page);
     await expect(page.locator('[data-kangjie-tab="meihua"]')).toHaveAttribute("aria-selected", "true");
     await expectNoHorizontalOverflow(page);
     await expectAllImagesLoaded(page);
+    await expectCurrentTimeApplied(page);
     const calendar = page.locator("#form-calendar");
     await calendar.locator('[name="yearBranch"]').selectOption("5");
     await calendar.locator('[name="lunarMonth"]').fill("12");

@@ -8,7 +8,46 @@ import {
   calculateObjectHexagram,
   countHanCharacters,
   decomposeHuangjiYears,
+  detectCurrentCalendarParts,
 } from "../kangjie-core.js";
+
+test("自動偵測將台北當下時間換成農曆年月日時", () => {
+  const detected = detectCurrentCalendarParts(new Date("2026-07-19T02:44:00.000Z"), "Asia/Taipei");
+  assert.equal(detected.gregorianLabel.includes("10:44:00"), true);
+  assert.equal(detected.relatedYear, 2026);
+  assert.equal(detected.yearBranch, 7);
+  assert.equal(detected.yearBranchName, "午");
+  assert.equal(detected.lunarMonth, 6);
+  assert.equal(detected.lunarDay, 6);
+  assert.equal(detected.hourBranch, 6);
+  assert.equal(detected.hourBranchName, "巳");
+  assert.equal(detected.lunarLabel, "農曆六月初六・午年・巳時");
+  assert.match(detected.timeZoneLabel, /^Asia\/Taipei・GMT\+8$/);
+});
+
+test("自動偵測保留閏月提示並正確處理子時", () => {
+  const leap = detectCurrentCalendarParts(new Date("2023-03-22T04:00:00.000Z"), "Asia/Taipei");
+  const late = detectCurrentCalendarParts(new Date("2026-07-19T15:30:00.000Z"), "Asia/Taipei");
+  assert.equal(leap.isLeapMonth, true);
+  assert.equal(leap.lunarMonth, 2);
+  assert.match(leap.lunarLabel, /^農曆閏二月初一/);
+  assert.equal(late.hour24, 23);
+  assert.equal(late.hourBranch, 1);
+  assert.equal(late.hourBranchName, "子");
+  assert.throws(() => detectCurrentCalendarParts("不是日期", "Asia/Taipei"), /裝置時間無法辨識/);
+});
+
+test("自動偵測支援冬月、臘月與跨農曆新年", () => {
+  const winter = detectCurrentCalendarParts(new Date("2025-12-20T04:00:00.000Z"), "Asia/Taipei");
+  const twelfth = detectCurrentCalendarParts(new Date("2026-01-19T04:00:00.000Z"), "Asia/Taipei");
+  const newYear = detectCurrentCalendarParts(new Date("2026-02-17T04:00:00.000Z"), "Asia/Taipei");
+  assert.deepEqual([winter.relatedYear, winter.lunarMonth, winter.lunarDay, winter.yearBranch], [2025, 11, 1, 6]);
+  assert.equal(winter.lunarLabel.startsWith("農曆冬月初一・巳年"), true);
+  assert.deepEqual([twelfth.relatedYear, twelfth.lunarMonth, twelfth.lunarDay, twelfth.yearBranch], [2025, 12, 1, 6]);
+  assert.equal(twelfth.lunarLabel.startsWith("農曆臘月初一・巳年"), true);
+  assert.deepEqual([newYear.relatedYear, newYear.lunarMonth, newYear.lunarDay, newYear.yearBranch], [2026, 1, 1, 7]);
+  assert.equal(newYear.lunarLabel.startsWith("農曆正月初一・午年"), true);
+});
 
 test("年月日時重現觀梅占的固定卦象", () => {
   const result = calculateCalendarHexagram({ yearBranch: 5, lunarMonth: 12, lunarDay: 17, hourBranch: 9 });

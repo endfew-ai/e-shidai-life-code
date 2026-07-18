@@ -1,3 +1,187 @@
+.kangjie-locked,
+.kangjie-locked body {
+  overflow: hidden;
+}
+
+.kangjie-locked [data-protected-content] {
+  visibility: hidden;
+}
+
+.is-access-locked {
+  visibility: hidden;
+}
+
+.kangjie-unlocked .access-gate,
+.access-gate[hidden] {
+  display: none;
+}
+
+.access-gate {
+  align-items: center;
+  background: #030a12;
+  display: grid;
+  inset: 0;
+  justify-items: center;
+  min-height: 100svh;
+  overflow: hidden;
+  padding: 18px;
+  position: fixed;
+  z-index: 10000;
+}
+
+.access-gate::before {
+  background: linear-gradient(135deg, rgba(3, 10, 18, 0.93), rgba(4, 13, 23, 0.64) 58%, rgba(3, 10, 18, 0.9));
+  content: "";
+  inset: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.access-gate-art {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  opacity: 0.48;
+  position: absolute;
+  width: 100%;
+}
+
+.access-gate-card {
+  background: linear-gradient(145deg, rgba(8, 22, 36, 0.97), rgba(3, 11, 19, 0.98));
+  border: 1px solid rgba(199, 154, 69, 0.52);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.48), inset 0 0 44px rgba(199, 154, 69, 0.04);
+  max-width: 500px;
+  padding: 26px;
+  position: relative;
+  width: min(100%, 500px);
+  z-index: 2;
+}
+
+.access-gate-card::before,
+.access-gate-card::after {
+  border-color: var(--gold-bright);
+  border-style: solid;
+  content: "";
+  height: 13px;
+  position: absolute;
+  width: 13px;
+}
+
+.access-gate-card::before {
+  border-width: 1px 0 0 1px;
+  left: 7px;
+  top: 7px;
+}
+
+.access-gate-card::after {
+  border-width: 0 1px 1px 0;
+  bottom: 7px;
+  right: 7px;
+}
+
+.access-gate-index {
+  color: var(--gold-bright);
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
+.access-gate-card h1 {
+  margin: 8px 0 4px;
+}
+
+.brush-access-gate .brush-title-image {
+  height: 47px;
+  max-width: 280px;
+}
+
+.access-gate-card > p {
+  color: var(--paper-soft);
+  font-family: var(--sans);
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 3px 0 16px;
+}
+
+.access-gate-card form > label {
+  color: var(--gold-bright);
+  display: block;
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  margin-bottom: 5px;
+}
+
+.access-gate-card form > div {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 132px;
+}
+
+.access-gate-card input,
+.access-gate-card button {
+  border-radius: 2px;
+  font-family: var(--sans);
+  min-height: 45px;
+}
+
+.access-gate-card input {
+  background: rgba(1, 7, 12, 0.78);
+  border: 1px solid var(--line);
+  color: var(--paper);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.22em;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.access-gate-card input:focus {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 0 3px rgba(199, 154, 69, 0.1);
+  outline: none;
+}
+
+.access-gate-card button {
+  background: linear-gradient(135deg, #c99c49, #9f702a);
+  border: 1px solid #e0b86f;
+  color: #07111b;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 12px;
+}
+
+.access-gate-card button:hover,
+.access-gate-card button:focus-visible {
+  filter: brightness(1.08);
+  outline: 1px solid var(--paper);
+  outline-offset: 2px;
+}
+
+.access-gate-card [data-access-message] {
+  color: #df9a80;
+  font-family: var(--sans);
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 5px 0 0;
+  min-height: 15px;
+}
+
+.access-gate-card > a {
+  color: var(--muted);
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 9px;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.access-gate-card > a:hover,
+.access-gate-card > a:focus-visible {
+  color: var(--gold-bright);
+}
+
 .kangjie-shell {
   --kangjie-panel: rgba(8, 20, 33, 0.97);
   --kangjie-gold-wash: rgba(199, 154, 69, 0.08);
@@ -383,6 +567,101 @@
   font-size: 10px;
   line-height: 1.65;
   margin: 0;
+}
+
+.current-time-detect {
+  align-items: center;
+  background: linear-gradient(110deg, rgba(199, 154, 69, 0.09), rgba(3, 11, 19, 0.72) 58%);
+  border: 1px solid rgba(199, 154, 69, 0.3);
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 0 10px;
+  min-height: 62px;
+  padding: 8px 10px 8px 14px;
+  position: relative;
+}
+
+.current-time-detect::before {
+  background: var(--gold-bright);
+  bottom: 8px;
+  box-shadow: 0 0 12px rgba(230, 187, 103, 0.45);
+  content: "";
+  left: 0;
+  position: absolute;
+  top: 8px;
+  width: 2px;
+}
+
+.current-time-detect[data-state="error"] {
+  border-color: rgba(211, 128, 99, 0.55);
+}
+
+.current-time-detect[data-state="error"]::before {
+  background: #d38063;
+}
+
+.current-time-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.current-time-copy > span,
+.current-time-actions > span {
+  color: var(--gold-bright);
+  font-family: var(--sans);
+  font-size: 8px;
+  letter-spacing: 0.13em;
+}
+
+.current-time-copy strong {
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.current-time-copy small {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.current-time-actions {
+  align-items: flex-end;
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+}
+
+.current-time-actions > span {
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.current-time-actions button {
+  background: rgba(199, 154, 69, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--gold-bright);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 9px;
+  min-height: 31px;
+  padding: 0 11px;
+  white-space: nowrap;
+}
+
+.current-time-actions button:hover,
+.current-time-actions button:focus-visible {
+  background: rgba(199, 154, 69, 0.16);
+  border-color: var(--gold-bright);
+  outline: none;
 }
 
 .quad-input-grid,
@@ -876,6 +1155,11 @@
 }
 
 @media (max-width: 650px) {
+  .access-gate { padding: 12px; }
+  .access-gate-card { padding: 20px 16px; }
+  .brush-access-gate .brush-title-image { height: 41px; max-width: 240px; }
+  .access-gate-card form > div { grid-template-columns: 1fr; }
+  .access-gate-card button { min-height: 42px; }
   .kangjie-shell .topbar > div { gap: 16px; }
   .kangjie-shell .topbar > div a:first-child { display: inline; }
   .kangjie-shell .topbar > div > :last-child { display: none; }
@@ -919,6 +1203,10 @@
   .kangjie-form { padding: 11px; }
   .form-intro { align-items: start; gap: 2px; grid-template-columns: 1fr; margin-bottom: 10px; }
   .form-intro p { font-size: 9px; }
+  .current-time-detect { gap: 7px; grid-template-columns: 1fr; min-height: 0; padding: 8px 9px 8px 13px; }
+  .current-time-copy strong { font-size: 12px; }
+  .current-time-actions { align-items: center; display: flex; justify-content: space-between; }
+  .current-time-actions button { min-height: 30px; }
   .brush-kangjie-form-title .brush-title-image { height: 32px; max-width: 180px; }
   .brush-kangjie-form-long .brush-title-image { height: 29px; max-width: 238px; }
   .quad-input-grid, .dual-input-grid { grid-template-columns: repeat(2, 1fr); }

@@ -49,7 +49,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../styles.css", import.meta.url), "utf8"),
   ]);
-  assert.match(html, /<html lang="zh-Hant-TW">/);
+  assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
   assert.match(html, /生日命碼/);
   assert.match(html, /數字頻譜/);
   assert.match(html, /三數取卦/);
@@ -136,14 +136,15 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
 });
 
 test("Shao Kangjie static page keeps every primary title in an independent brush asset and exposes all supported derivations", async () => {
-  const [html, appSource, coreSource, styles] = await Promise.all([
+  const [html, scriptSource, coreSource, styles, appSource] = await Promise.all([
     readFile(new URL("../kangjie.html", import.meta.url), "utf8"),
     readFile(new URL("../kangjie.js", import.meta.url), "utf8"),
     readFile(new URL("../kangjie-core.js", import.meta.url), "utf8"),
     readFile(new URL("../kangjie.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/kangjie/page.tsx", import.meta.url), "utf8"),
   ]);
 
-  assert.match(html, /<html lang="zh-Hant-TW">/);
+  assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
   assert.match(html, /title-kangjie-entry-v1\.webp/);
   assert.match(html, /theme-kangjie-v1\.webp/);
   assert.match(html, /title-kangjie-hero-v1\.webp/);
@@ -160,6 +161,14 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /data-method-panel="object"/);
   assert.match(html, /data-method-panel="sound"/);
   assert.match(html, /data-method-panel="text"/);
+  assert.match(html, /data-access-gate/);
+  assert.match(html, /data-current-time-detect/);
+  assert.match(html, /重新套用現在/);
+  assert.match(html, /自動偵測，可手動選/);
+  assert.match(scriptSource, /input\.value === "0000"/);
+  assert.match(scriptSource, /initializeCurrentTimeDetection/);
+  assert.match(appSource, /password === "0000"/);
+  assert.match(appSource, /detectCurrentCalendarParts/);
   assert.match(html, /一世 30 年/);
   assert.match(html, /不把現代西元年對讀成唯一正統位置/);
   assert.match(html, /ctext\.org\/wiki\.pl\?chapter=867487/);
@@ -168,6 +177,7 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(coreSource, /calculateDoubleSoundHexagram/);
   assert.match(coreSource, /calculateLongTextHexagram/);
   assert.match(coreSource, /decomposeHuangjiYears/);
+  assert.match(coreSource, /detectCurrentCalendarParts/);
   assert.match(styles, /@media \(max-width: 650px\)/);
   assert.match(styles, /grid-template-columns: repeat\(2, 1fr\)/);
   assert.doesNotMatch(html, /[—–]/);

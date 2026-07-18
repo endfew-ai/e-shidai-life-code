@@ -18,9 +18,27 @@ export type HuangjiAnalysis = {
   equation: string;
 };
 
+export type CurrentCalendarParts = {
+  instantIso: string;
+  timeZone: string;
+  timeZoneLabel: string;
+  gregorianLabel: string;
+  lunarLabel: string;
+  relatedYear: number;
+  yearBranch: number;
+  yearBranchName: string;
+  lunarMonth: number;
+  lunarDay: number;
+  isLeapMonth: boolean;
+  hour24: number;
+  hourBranch: number;
+  hourBranchName: string;
+};
+
 export const earthlyBranches: Array<{ value: number; name: string }>;
 export const huangjiUnits: { yuan: bigint; hui: bigint; yun: bigint; shi: bigint };
 
+export function detectCurrentCalendarParts(date?: Date | string | number, timeZone?: string): CurrentCalendarParts;
 export function calculateCalendarHexagram(values: { yearBranch?: FormDataEntryValue | string | number; lunarMonth?: FormDataEntryValue | string | number; lunarDay?: FormDataEntryValue | string | number; hourBranch?: FormDataEntryValue | string | number }): KangjieAnalysis;
 export function calculateObjectHexagram(values: { count?: FormDataEntryValue | string | number; hourBranch?: FormDataEntryValue | string | number }): KangjieAnalysis;
 export function calculateDoubleSoundHexagram(values: { firstCount?: FormDataEntryValue | string | number; secondCount?: FormDataEntryValue | string | number; hourBranch?: FormDataEntryValue | string | number }): KangjieAnalysis;

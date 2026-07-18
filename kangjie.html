@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant-TW" class="kangjie-locked">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,9 +12,24 @@
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="kangjie.css" />
+    <script>try{if(sessionStorage.getItem("kangjie-access-v1")==="granted")document.documentElement.className="kangjie-unlocked"}catch{}</script>
   </head>
   <body>
-    <main class="site-shell kangjie-shell">
+    <section class="access-gate" data-access-gate aria-labelledby="access-gate-title">
+      <img class="access-gate-art" src="public/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
+      <div class="access-gate-card">
+        <span class="access-gate-index">PRIVATE ACCESS・專頁存取</span>
+        <h1 id="access-gate-title"><span class="brush-title brush-access-gate"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-v1.webp" alt="" aria-hidden="true" /></span></h1>
+        <p>輸入四位密碼，驗證後進入年月日時與梅花易數衍算。</p>
+        <form data-access-form novalidate>
+          <label for="kangjie-password">存取密碼</label>
+          <div><input id="kangjie-password" name="password" type="password" inputmode="numeric" autocomplete="current-password" maxlength="4" pattern="[0-9]{4}" placeholder="輸入 4 位數字" required /><button type="submit">驗證後進入</button></div>
+          <p data-access-message role="alert" aria-live="polite"></p>
+        </form>
+        <a href="index.html">返回首頁</a>
+      </div>
+    </section>
+    <main class="site-shell kangjie-shell" data-protected-content inert aria-hidden="true">
       <nav class="topbar" aria-label="邵康節專頁導覽">
         <a class="wordmark kangjie-wordmark" href="index.html"><span aria-hidden="true"><i>易</i></span><strong><span class="brush-title brush-brand"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-v1.webp" alt="" aria-hidden="true" /></span></strong></a>
         <div><a href="index.html">返回首頁</a><a href="#workspace">開始衍算</a><a href="#sources" data-open-tab="sources">原文來源</a></div>
@@ -51,7 +66,7 @@
           </header>
           <div class="origin-ledger">
             <article><span>先天數序</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-card"><span class="sr-only">乾一至坤八</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-origin-sequence-v2.webp" alt="" aria-hidden="true" /></span></h3><p>乾 1、兌 2、離 3、震 4、巽 5、坎 6、艮 7、坤 8。卦數整除 8 時歸坤。</p></article>
-            <article><span>年月日時</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-card brush-kangjie-card-long"><span class="sr-only">傳統曆序手動輸入</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-origin-calendar-v2.webp" alt="" aria-hidden="true" /></span></h3><p>年支、農曆月、農曆日、時支各自取數。原典沒有公曆自動換算、閏月與換日規則。</p></article>
+            <article><span>年月日時</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-card brush-kangjie-card-long"><span class="sr-only">傳統曆序手動輸入</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-origin-calendar-v2.webp" alt="" aria-hidden="true" /></span></h3><p>原典沒有公曆自動換算；本頁只把裝置時間當便利預填，仍保留手動修正。</p></article>
             <article><span>物、聲、字</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-card brush-kangjie-card-long"><span class="sr-only">每個入口各守其法</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-origin-boundaries-v2.webp" alt="" aria-hidden="true" /></span></h3><p>可數之物、兩段聲數與十一字以上字數法分開，避免把任意號碼冒充通用古法。</p></article>
             <article><span>皇極數制</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-card brush-kangjie-card-long"><span class="sr-only">只做時間長度分解</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-origin-duration-v2.webp" alt="" aria-hidden="true" /></span></h3><p>一世 30 年、一運 360 年、一會 10,800 年、一元 129,600 年。這是傳統數制，不是科學宇宙週期。</p></article>
           </div>
@@ -77,13 +92,17 @@
           <div class="method-forms">
             <form class="kangjie-form" id="form-calendar" role="tabpanel" aria-labelledby="method-calendar" data-method-panel="calendar" novalidate>
               <div class="form-intro"><div><span>原典公式</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-form-title"><span class="sr-only">年月日時起例</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-form-calendar-v2.webp" alt="" aria-hidden="true" /></span></h3></div><p>年支加農曆月日取上卦，再加時支取下卦與動爻。</p></div>
+              <div class="current-time-detect" data-current-time-detect data-state="loading" role="status" aria-live="polite">
+                <div class="current-time-copy"><span>裝置當下時間</span><strong data-current-time>正在偵測裝置時間</strong><small data-current-lunar>準備換算農曆年月日時</small></div>
+                <div class="current-time-actions"><span data-current-timezone>本機時區</span><button type="button" data-detect-current-time>重新套用現在</button></div>
+              </div>
               <div class="quad-input-grid">
                 <label class="field-block"><span>年支<small>子 1 至亥 12</small></span><select name="yearBranch" required><option value="">請選年支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
                 <label class="field-block"><span>農曆月<small>正月為 1</small></span><input name="lunarMonth" type="number" inputmode="numeric" min="1" max="12" placeholder="1 至 12" required /></label>
                 <label class="field-block"><span>農曆日<small>初一為 1</small></span><input name="lunarDay" type="number" inputmode="numeric" min="1" max="30" placeholder="1 至 30" required /></label>
-                <label class="field-block"><span>時支<small>子 1 至亥 12</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+                <label class="field-block"><span>時支<small>自動偵測，可手動選</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
               </div>
-              <p class="form-note">請自行確認農曆值。閏月、子初換日與年界需要依採用曆法另行核對。</p>
+              <p class="form-note" data-current-time-note>首次開啟會自動填入，仍可手動修正。閏月、子初換日與年界需要依採用曆法另行核對。</p>
               <p class="form-message" role="alert" aria-live="polite"></p>
               <button class="primary-button" type="submit">依年月日時衍算<span aria-hidden="true">↘</span></button>
             </form>
@@ -92,7 +111,7 @@
               <div class="form-intro"><div><span>原典公式</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-form-title"><span class="sr-only">物數起例</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-form-object-v2.webp" alt="" aria-hidden="true" /></span></h3></div><p>可數之物作上卦，時支配作下卦，兩數合計取動爻。</p></div>
               <div class="dual-input-grid">
                 <label class="field-block"><span>可數之物數量<small>大於 0 的整數</small></span><input name="count" type="text" inputmode="numeric" placeholder="例如：8" required /></label>
-                <label class="field-block"><span>時支<small>子 1 至亥 12</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+                <label class="field-block"><span>時支<small>自動偵測，可手動選</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
               </div>
               <p class="form-note">只用真正可數的物件數量，不把生日、手機號碼或隨機數列混入。</p>
               <p class="form-message" role="alert" aria-live="polite"></p>
@@ -104,7 +123,7 @@
               <div class="triple-input-grid">
                 <label class="field-block"><span>第一段聲數<small>大於 0 的整數</small></span><input name="firstCount" type="text" inputmode="numeric" placeholder="例如：1" required /></label>
                 <label class="field-block"><span>第二段聲數<small>大於 0 的整數</small></span><input name="secondCount" type="text" inputmode="numeric" placeholder="例如：5" required /></label>
-                <label class="field-block"><span>時支<small>子 1 至亥 12</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+                <label class="field-block"><span>時支<small>自動偵測，可手動選</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
               </div>
               <p class="form-note">本頁採卷一兩段敲門聲的明確算例，不把方向、物類或單段聲數的其他分支混在一起。</p>
               <p class="form-message" role="alert" aria-live="polite"></p>

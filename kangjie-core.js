@@ -22,6 +22,121 @@ export const huangjiUnits = {
   shi: 30n,
 };
 
+const lunarMonthNumbers = new Map([
+  ["正", 1], ["一", 1], ["二", 2], ["三", 3], ["四", 4], ["五", 5], ["六", 6],
+  ["七", 7], ["八", 8], ["九", 9], ["十", 10], ["十一", 11], ["冬", 11],
+  ["十二", 12], ["臘", 12], ["腊", 12],
+]);
+
+function positiveModulo(value, modulus) {
+  return ((value % modulus) + modulus) % modulus;
+}
+
+function parseLunarMonth(rawValue) {
+  const value = String(rawValue ?? "").replace(/[閏闰月\s]/g, "");
+  if (/^\d+$/.test(value)) return Number(value);
+  return lunarMonthNumbers.get(value) ?? Number.NaN;
+}
+
+function parseLunarDay(rawValue) {
+  const value = String(rawValue ?? "").trim();
+  if (/^\d+$/.test(value)) return Number(value);
+  const digits = { "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9 };
+  if (value === "初十" || value === "十") return 10;
+  if (value === "二十") return 20;
+  if (value === "三十") return 30;
+  const prefix = value.startsWith("初") ? 0 : value.startsWith("十") ? 10 : value.startsWith("廿") ? 20 : 0;
+  const last = digits[value.at(-1)] ?? Number.NaN;
+  return Number.isNaN(last) ? Number.NaN : prefix + last;
+}
+
+function lunarDayLabel(day) {
+  const digits = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+  if (day <= 9) return `初${digits[day]}`;
+  if (day === 10) return "初十";
+  if (day < 20) return `十${digits[day - 10]}`;
+  if (day === 20) return "二十";
+  if (day < 30) return `廿${digits[day - 20]}`;
+  return "三十";
+}
+
+function timeZoneOffsetLabel(date, timeZone) {
+  try {
+    return new Intl.DateTimeFormat("zh-TW", { timeZone, timeZoneName: "shortOffset" })
+      .formatToParts(date)
+      .find((part) => part.type === "timeZoneName")?.value ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function detectCurrentCalendarParts(rawDate = new Date(), requestedTimeZone = "") {
+  const date = rawDate instanceof Date ? new Date(rawDate.getTime()) : new Date(rawDate);
+  if (Number.isNaN(date.getTime())) throw new Error("裝置時間無法辨識，請確認系統日期與時間設定。");
+
+  const timeZone = requestedTimeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const lunarFormatter = new Intl.DateTimeFormat("zh-TW-u-ca-chinese", {
+    timeZone,
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  if (lunarFormatter.resolvedOptions().calendar !== "chinese") {
+    throw new Error("此瀏覽器不支援農曆換算，請保留手動輸入並自行核對。");
+  }
+  const lunarParts = lunarFormatter.formatToParts(date);
+  const relatedYear = Number(lunarParts.find((part) => part.type === "relatedYear" || part.type === "year")?.value);
+  const monthText = lunarParts.find((part) => part.type === "month")?.value ?? "";
+  const dayText = lunarParts.find((part) => part.type === "day")?.value ?? "";
+  const lunarMonth = parseLunarMonth(monthText);
+  const lunarDay = parseLunarDay(dayText);
+  if (!Number.isInteger(relatedYear) || !Number.isInteger(lunarMonth) || lunarMonth < 1 || lunarMonth > 12 || !Number.isInteger(lunarDay) || lunarDay < 1 || lunarDay > 30) {
+    throw new Error("此瀏覽器無法完成農曆換算，請保留手動輸入並自行核對。");
+  }
+
+  const hourText = new Intl.DateTimeFormat("zh-TW", {
+    timeZone,
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date).find((part) => part.type === "hour")?.value;
+  const hour = Number(hourText);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) throw new Error("裝置時區無法辨識，請手動選擇時支。");
+
+  const yearBranch = positiveModulo(relatedYear - 4, 12) + 1;
+  const hourBranch = Math.floor(((hour + 1) % 24) / 2) + 1;
+  const isLeapMonth = /^[閏闰]/.test(monthText);
+  const cleanMonthText = monthText.replace(/^[閏闰]/, "").replace(/月$/, "");
+  const offset = timeZoneOffsetLabel(date, timeZone);
+  const gregorianLabel = new Intl.DateTimeFormat("zh-TW", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
+
+  return {
+    instantIso: date.toISOString(),
+    timeZone,
+    timeZoneLabel: offset ? `${timeZone}・${offset}` : timeZone,
+    gregorianLabel,
+    lunarLabel: `農曆${isLeapMonth ? "閏" : ""}${cleanMonthText}月${lunarDayLabel(lunarDay)}・${branch(yearBranch).name}年・${branch(hourBranch).name}時`,
+    relatedYear,
+    yearBranch,
+    yearBranchName: branch(yearBranch).name,
+    lunarMonth,
+    lunarDay,
+    isLeapMonth,
+    hour24: hour,
+    hourBranch,
+    hourBranchName: branch(hourBranch).name,
+  };
+}
+
 function integerInRange(rawValue, label, minimum, maximum) {
   const value = String(rawValue ?? "").trim();
   if (!/^\d+$/.test(value)) throw new Error(`${label}必須是 ${minimum} 至 ${maximum} 的完整正整數。`);

@@ -7,6 +7,7 @@ import {
   calculateObjectHexagram,
   countHanCharacters,
   decomposeHuangjiYears,
+  detectCurrentCalendarParts,
 } from "./kangjie-core.js";
 
 const fixedBrushTitles = {
@@ -19,6 +20,54 @@ const fixedBrushTitles = {
   "動爻原文": "public/visuals/brush/title-moving-line-v2.webp",
   "變卦本文": "public/visuals/brush/title-changed-text-v2.webp",
 };
+
+function initializeAccessGate() {
+  const gate = document.querySelector("[data-access-gate]");
+  const form = gate?.querySelector("[data-access-form]");
+  const input = form?.querySelector('[name="password"]');
+  const message = form?.querySelector("[data-access-message]");
+  const content = document.querySelector("[data-protected-content]");
+  if (!gate || !form || !input || !message || !content) return;
+
+  function unlock({ focus = true } = {}) {
+    try {
+      sessionStorage.setItem("kangjie-access-v1", "granted");
+    } catch {
+      // 隱私模式可能停用 sessionStorage；本次頁面仍可正常解鎖。
+    }
+    document.documentElement.classList.remove("kangjie-locked");
+    document.documentElement.classList.add("kangjie-unlocked");
+    gate.hidden = true;
+    content.inert = false;
+    content.removeAttribute("aria-hidden");
+    if (focus) content.querySelector("a, button")?.focus();
+  }
+
+  try {
+    if (sessionStorage.getItem("kangjie-access-v1") === "granted") {
+      unlock({ focus: false });
+      return;
+    }
+  } catch {
+    // 無法讀取儲存空間時維持密碼門。
+  }
+
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/\D/g, "").slice(0, 4);
+    message.textContent = "";
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (input.value === "0000") {
+      unlock();
+      return;
+    }
+    message.textContent = "密碼不正確，請重新輸入四位數字。";
+    input.select();
+    input.focus();
+  });
+  window.setTimeout(() => input.focus(), 50);
+}
 
 function element(tag, className = "", text = "") {
   const node = document.createElement(tag);
@@ -229,6 +278,76 @@ function formValues(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+function initializeCurrentTimeDetection() {
+  const status = document.querySelector("[data-current-time-detect]");
+  const clock = status?.querySelector("[data-current-time]");
+  const lunar = status?.querySelector("[data-current-lunar]");
+  const timeZone = status?.querySelector("[data-current-timezone]");
+  const note = document.querySelector("[data-current-time-note]");
+  const applyButton = status?.querySelector("[data-detect-current-time]");
+  const trackedFields = [...document.querySelectorAll('.kangjie-form [name="yearBranch"], .kangjie-form [name="lunarMonth"], .kangjie-form [name="lunarDay"], .kangjie-form [name="hourBranch"]')];
+  if (!status || !clock || !lunar || !timeZone || !note || !applyButton) return;
+
+  let manualOverride = false;
+
+  function applyFields(detected) {
+    const calendar = document.querySelector("#form-calendar");
+    const values = {
+      yearBranch: detected.yearBranch,
+      lunarMonth: detected.lunarMonth,
+      lunarDay: detected.lunarDay,
+    };
+    for (const [name, value] of Object.entries(values)) {
+      const field = calendar?.querySelector(`[name="${name}"]`);
+      if (field) field.value = String(value);
+    }
+    for (const field of document.querySelectorAll('.kangjie-form [name="hourBranch"]')) {
+      field.value = String(detected.hourBranch);
+    }
+  }
+
+  function refresh({ applyValues = false } = {}) {
+    try {
+      const detected = detectCurrentCalendarParts(new Date());
+      clock.textContent = detected.gregorianLabel;
+      lunar.textContent = detected.lunarLabel;
+      timeZone.textContent = detected.timeZoneLabel;
+      status.dataset.state = "ready";
+      if (applyValues) applyFields(detected);
+      note.textContent = manualOverride
+        ? `你已手動修正，欄位不會被時鐘覆蓋；按「重新套用現在」可恢復自動值。${detected.isLeapMonth ? "目前為閏月，月份取值仍需核對。" : "子初換日與年界仍需依採用曆法核對。"}`
+        : detected.isLeapMonth
+          ? `已自動填入同名月份 ${detected.lunarMonth}。目前為閏月，月份取值、子初換日與年界仍需依採用曆法核對。`
+          : "已依裝置時間自動填入。子初換日與年界仍需依採用曆法另行核對，也可手動修正。";
+    } catch (error) {
+      status.dataset.state = "error";
+      clock.textContent = "無法自動偵測";
+      lunar.textContent = error instanceof Error ? error.message : "請手動輸入年月日時。";
+      timeZone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "本機時區";
+      note.textContent = "請保留手動輸入並確認裝置日期、時間與瀏覽器支援。";
+    }
+  }
+
+  for (const field of trackedFields) {
+    const markManual = () => {
+      manualOverride = true;
+      refresh();
+    };
+    field.addEventListener("input", markManual);
+    field.addEventListener("change", markManual);
+  }
+  applyButton.addEventListener("click", () => {
+    manualOverride = false;
+    refresh({ applyValues: true });
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") refresh({ applyValues: !manualOverride });
+  });
+
+  refresh({ applyValues: true });
+  window.setInterval(() => refresh({ applyValues: !manualOverride }), 1000);
+}
+
 function initializeMeihuaForms() {
   const anchor = document.querySelector("#kangjie-result");
   for (const form of document.querySelectorAll(".kangjie-form")) {
@@ -305,7 +424,9 @@ function initializeHuangjiForm() {
   });
 }
 
+initializeAccessGate();
 initializePageTabs();
 initializeMethodTabs();
+initializeCurrentTimeDetection();
 initializeMeihuaForms();
 initializeHuangjiForm();

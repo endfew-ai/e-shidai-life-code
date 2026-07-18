@@ -53,6 +53,9 @@ test("server-renders the complete Shao Kangjie route", async () => {
   assert.match(html, /原文來源/);
   assert.match(html, /現行傳本/);
   assert.match(html, /不是科學宇宙週期/);
+  assert.match(html, /PRIVATE ACCESS・專頁存取/);
+  assert.match(html, /type="password"/);
+  assert.match(html, /驗證後進入/);
   assert.doesNotMatch(html, developmentPreviewMeta);
 });
 
