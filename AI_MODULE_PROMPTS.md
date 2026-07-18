@@ -124,12 +124,60 @@ Begin with one clearly recognizable lowercase Latin letter e, immediately follow
 Character lock: {CHARACTER_1} / {CHARACTER_2} / {CHARACTER_3} / {CHARACTER_4...}. Render all characters in exact left-to-right order as structurally correct Traditional Chinese. Keep authentic irregular hand-brush pressure, split bristles, flying-white gaps and antique-gold mineral pigment. Do not use geometric font outlines or typeset proportions.
 ```
 
-正式檔案另以 `scripts/audit-kangjie-brush-assets.py` 檢查 RGBA、四角透明與半透明邊緣的綠色溢光；9 張必須全部為 0 個可見綠邊像素才可發布。
+## 模組 09：主頁固定標題完整字模化
+
+主頁計算區、結果洞察及《周易》原文區的固定結構標題，全部各用一次獨立生圖呼叫製作。計算出的數值與卦名仍保留為真實 HTML 資料，不烘焙進字模。
+
+| 精確文字 | 網站檔案 |
+| --- | --- |
+| 這個結果怎麼算 | `public/visuals/brush/title-calculation-explain-v2.webp` |
+| 生日數字九宮分布 | `public/visuals/brush/title-grid-birthday-v2.webp` |
+| 自訂數字九宮分布 | `public/visuals/brush/title-grid-code-v2.webp` |
+| 核心傾向 | `public/visuals/brush/title-insight-core-v2.webp` |
+| 壓力提醒 | `public/visuals/brush/title-insight-pressure-v2.webp` |
+| 日常照顧 | `public/visuals/brush/title-insight-care-v2.webp` |
+| 溝通提醒 | `public/visuals/brush/title-insight-communication-v2.webp` |
+| 本次自我提問 | `public/visuals/brush/title-self-question-v2.webp` |
+| 卦辭 | `public/visuals/brush/title-judgment-v2.webp` |
+| 彖曰 | `public/visuals/brush/title-tuan-v2.webp` |
+| 象曰 | `public/visuals/brush/title-image-saying-v2.webp` |
+| 六爻原文 | `public/visuals/brush/title-six-lines-v2.webp` |
+
+## 模組 10：康節專頁次級標題完整字模化
+
+功能摘要、分頁、方法選擇、表單、卦象角色及古籍節錄標題也全部拆成獨立透明字模。這 22 張不由合圖裁切，也不重複使用錯誤文字。
+
+| 精確文字 | 網站檔案 |
+| --- | --- |
+| 四種起卦入口 | `public/visuals/brush/title-kangjie-overview-entry-v2.webp` |
+| 三層卦象 | `public/visuals/brush/title-kangjie-overview-layers-v2.webp` |
+| 五級時間尺度 | `public/visuals/brush/title-kangjie-overview-scale-v2.webp` |
+| 乾一至坤八 | `public/visuals/brush/title-kangjie-origin-sequence-v2.webp` |
+| 傳統曆序手動輸入 | `public/visuals/brush/title-kangjie-origin-calendar-v2.webp` |
+| 每個入口各守其法 | `public/visuals/brush/title-kangjie-origin-boundaries-v2.webp` |
+| 只做時間長度分解 | `public/visuals/brush/title-kangjie-origin-duration-v2.webp` |
+| 年月日時 | `public/visuals/brush/title-kangjie-method-calendar-v2.webp` |
+| 物數 | `public/visuals/brush/title-kangjie-method-object-v2.webp` |
+| 雙段聲數 | `public/visuals/brush/title-kangjie-method-sound-v2.webp` |
+| 十一字以上 | `public/visuals/brush/title-kangjie-method-text-v2.webp` |
+| 年月日時起例 | `public/visuals/brush/title-kangjie-form-calendar-v2.webp` |
+| 物數起例 | `public/visuals/brush/title-kangjie-form-object-v2.webp` |
+| 雙段敲聲法 | `public/visuals/brush/title-kangjie-form-sound-v2.webp` |
+| 十一字以上字數法 | `public/visuals/brush/title-kangjie-form-text-v2.webp` |
+| 本卦 | `public/visuals/brush/title-hex-original-v2.webp` |
+| 互卦 | `public/visuals/brush/title-hex-mutual-v2.webp` |
+| 變卦 | `public/visuals/brush/title-hex-changed-v2.webp` |
+| 本卦原文節錄 | `public/visuals/brush/title-kangjie-classic-v2.webp` |
+| 動爻原文 | `public/visuals/brush/title-moving-line-v2.webp` |
+| 變卦本文 | `public/visuals/brush/title-changed-text-v2.webp` |
+| 原文與來源 | `public/visuals/brush/title-kangjie-tab-source-v2.webp` |
+
+正式檔案以 `scripts/audit-brush-assets.py` 統一檢查兩頁實際引用的全部字模。發布門檻為：檔案存在、RGBA、四邊透明、四角透明及可見綠邊像素為 0；另輸出 34 張本次新增字模的接觸表作人工校字。
 
 ## 使用規則
 
 1. 除了逐字校對的固定毛筆標題，AI 圖不可承載資料、公式、卦序、按鈕或輸入欄。
-2. 每個毛筆字模都必須搭配真實 HTML 隱藏文字；動態標題與說明維持可選取的 HTML。
+2. 每個固定毛筆字模都必須搭配真實 HTML 隱藏文字；動態算出的卦名、數值、年份、公式與說明維持可選取的 HTML，且不冒充固定結構標題。
 3. 生日命碼永遠是最亮、最先出現的主功能；數字頻譜次之；三數取卦為補充；邵康節易學使用第 4 入口開啟獨立專頁。
 4. 手機版可裁切或降低背景圖對比，但不可把操作文字做進圖片。
 5. `iching-manuscript-b-v3.webp` 右下索引只是裝飾，不可當成六十四卦資料來源。

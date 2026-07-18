@@ -53,8 +53,32 @@ const modeContent = {
   },
 } as const;
 
+const fixedBrushTitles: Record<string, string> = {
+  "這個結果怎麼算": "/visuals/brush/title-calculation-explain-v2.webp",
+  "生日數字九宮分布": "/visuals/brush/title-grid-birthday-v2.webp",
+  "自訂數字九宮分布": "/visuals/brush/title-grid-code-v2.webp",
+  "核心傾向": "/visuals/brush/title-insight-core-v2.webp",
+  "壓力提醒": "/visuals/brush/title-insight-pressure-v2.webp",
+  "日常照顧": "/visuals/brush/title-insight-care-v2.webp",
+  "溝通提醒": "/visuals/brush/title-insight-communication-v2.webp",
+  "本次自我提問": "/visuals/brush/title-self-question-v2.webp",
+  "本卦": "/visuals/brush/title-hex-original-v2.webp",
+  "互卦": "/visuals/brush/title-hex-mutual-v2.webp",
+  "變卦": "/visuals/brush/title-hex-changed-v2.webp",
+  "卦辭": "/visuals/brush/title-judgment-v2.webp",
+  "彖曰": "/visuals/brush/title-tuan-v2.webp",
+  "象曰": "/visuals/brush/title-image-saying-v2.webp",
+  "六爻原文": "/visuals/brush/title-six-lines-v2.webp",
+};
+
 function BrushTitle({ src, text, className = "" }: { src: string; text: string; className?: string }) {
   return <span className={`brush-title ${className}`.trim()}><span className="sr-only">{text}</span><img className="brush-title-image" src={src} alt="" aria-hidden="true" /></span>;
+}
+
+function FixedBrushTitle({ text, className = "" }: { text: string; className?: string }) {
+  const src = fixedBrushTitles[text];
+  if (!src) throw new Error(`缺少固定毛筆標題資產：${text}`);
+  return <BrushTitle src={src} text={text} className={className} />;
 }
 
 function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
@@ -74,7 +98,7 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
       <summary><span><small>數字分布</small><strong>查看完整九宮</strong></span><em>出現 {9 - result.missing.length} 種・缺少 {result.missing.length} 種</em></summary>
       <div className="disclosure-body">
         <header className="panel-heading">
-          <div><p>數字分布</p><h3>{title}</h3></div>
+          <div><p>數字分布</p><h3 className="brush-fixed-heading"><FixedBrushTitle text={title} className="brush-panel-title" /></h3></div>
           <span>數字 0 出現 {result.zeroCount} 次</span>
         </header>
         <p className="panel-copy">採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。</p>
@@ -100,7 +124,7 @@ function CalculationDetails({ result }: { result: NumerologyResult }) {
     <details className="result-disclosure calculation-card">
       <summary><span><small>計算軌跡</small><strong>查看完整算式</strong></span><em>{result.calculations.length} 步可逐項核對</em></summary>
       <div className="disclosure-body">
-        <header className="panel-heading"><div><p>計算軌跡</p><h3>這個結果怎麼算</h3></div><span>可逐步核對</span></header>
+        <header className="panel-heading"><div><p>計算軌跡</p><h3 className="brush-fixed-heading"><FixedBrushTitle text="這個結果怎麼算" className="brush-panel-title" /></h3></div><span>可逐步核對</span></header>
         <ol className="calculation-list">
           {result.calculations.map((item) => <li key={item.label}><span>{item.label}</span><code>{item.text}</code></li>)}
         </ol>
@@ -157,14 +181,14 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
       <details className="insight-ledger" aria-labelledby="insight-title">
         <summary><span><small>原型參考</small><strong id="insight-title"><BrushTitle src="/visuals/brush/title-insight-v5.webp" text="把結果變成可觀察的問題" className="brush-insight" /></strong></span><em>4 項觀察提醒</em></summary>
         <div>
-          <article><span>01</span><h4>核心傾向</h4><p>{profile.traits}</p></article>
-          <article><span>02</span><h4>壓力提醒</h4><p>{profile.shadow}</p></article>
-          <article><span>03</span><h4>日常照顧</h4><p>{profile.wellbeing}</p></article>
-          <article><span>04</span><h4>溝通提醒</h4><blockquote>「{profile.marker}」</blockquote><p>{profile.markerDesc}</p></article>
+          <article><span>01</span><h4 className="brush-fixed-heading"><FixedBrushTitle text="核心傾向" className="brush-card-title" /></h4><p>{profile.traits}</p></article>
+          <article><span>02</span><h4 className="brush-fixed-heading"><FixedBrushTitle text="壓力提醒" className="brush-card-title" /></h4><p>{profile.shadow}</p></article>
+          <article><span>03</span><h4 className="brush-fixed-heading"><FixedBrushTitle text="日常照顧" className="brush-card-title" /></h4><p>{profile.wellbeing}</p></article>
+          <article><span>04</span><h4 className="brush-fixed-heading"><FixedBrushTitle text="溝通提醒" className="brush-card-title" /></h4><blockquote>「{profile.marker}」</blockquote><p>{profile.markerDesc}</p></article>
         </div>
       </details>
 
-      <article className="advice-card"><span aria-hidden="true">策</span><div><h3>本次自我提問</h3><p>{profile.advice}</p></div></article>
+      <article className="advice-card"><span aria-hidden="true">策</span><div><h3 className="brush-fixed-heading"><FixedBrushTitle text="本次自我提問" className="brush-advice-title" /></h3><p>{profile.advice}</p></div></article>
       <div className="result-actions"><button type="button" className="secondary-button" onClick={onReset}>重新分析另一筆資料</button></div>
     </section>
   );
@@ -188,7 +212,7 @@ function HexagramCard({ label, value, movingIndex, mark }: { label: string; valu
   const text = getIChingText(value.hexId);
   return (
     <article className="hexagram-card">
-      <header><div><p>{label}</p><h3><span>{text.symbol}</span>{value.name}</h3></div><small>第 {value.hexId} 卦</small></header>
+      <header><div><h3 className="hexagram-role-title brush-fixed-heading"><FixedBrushTitle text={label} className="brush-hexagram-role" /></h3><p className="hexagram-computed-name"><span>{text.symbol}</span>{value.name}</p></div><small>第 {value.hexId} 卦</small></header>
       <p>上{value.upper.name}（{value.upper.nature}）・下{value.lower.name}（{value.lower.nature}）</p>
       <HexagramLines lines={value.lines} movingIndex={movingIndex} mark={mark} />
     </article>
@@ -204,16 +228,16 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
       <summary className="classic-summary"><span><small>補充資料</small><strong id="classic-title"><BrushTitle src="/visuals/brush/title-classic-v4.webp" text="易經本文" className="brush-classic" /></strong></span><em>展開卦辭、彖、象與六爻原文</em><i>只列原文，不解卦</i></summary>
       <img className="classic-panel-art" src="/visuals/iching-manuscript-b-v3.webp" alt="" aria-hidden="true" />
       <div className="classic-panel-inner">
-        <div className="classic-name"><span aria-hidden="true">{original.symbol}</span><div><small>第 {original.id} 卦</small><h3>{original.name}・{original.fullName}</h3></div></div>
+        <div className="classic-name"><span aria-hidden="true">{original.symbol}</span><div><small>第 {original.id} 卦</small><p className="classic-computed-name">{original.name}・{original.fullName}</p></div></div>
 
         <div className="classic-columns">
-          <article><h4>卦辭</h4><p>{original.judgment}</p></article>
-          <article><h4>彖曰</h4><p>{original.tuan}</p></article>
-          <article><h4>象曰</h4><p>{original.image}</p></article>
+          <article><h4 className="brush-fixed-heading"><FixedBrushTitle text="卦辭" className="brush-classic-label" /></h4><p>{original.judgment}</p></article>
+          <article><h4 className="brush-fixed-heading"><FixedBrushTitle text="彖曰" className="brush-classic-label" /></h4><p>{original.tuan}</p></article>
+          <article><h4 className="brush-fixed-heading"><FixedBrushTitle text="象曰" className="brush-classic-label" /></h4><p>{original.image}</p></article>
         </div>
 
         <div className="line-texts">
-          <h4>六爻原文</h4>
+          <h4 className="brush-fixed-heading"><FixedBrushTitle text="六爻原文" className="brush-classic-label brush-six-lines" /></h4>
           {original.lines.map((line, index) => (
             <article className={index === result.moving.index ? "is-active" : ""} key={line.position}>
               <span>{index === result.moving.index ? "動爻" : String(line.position).padStart(2, "0")}</span>
@@ -224,7 +248,7 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
         </div>
 
         {original.wenyan && <details className="classic-details"><summary>展開《文言》原文</summary><p>{original.wenyan}</p></details>}
-        <details className="classic-details"><summary>查看變卦第 {transformed.id} 卦「{transformed.name}」本文</summary><div><h4>卦辭</h4><p>{transformed.judgment}</p><h4>象曰</h4><p>{transformed.image}</p></div></details>
+        <details className="classic-details"><summary>查看變卦第 {transformed.id} 卦「{transformed.name}」本文</summary><div><h4 className="brush-fixed-heading"><FixedBrushTitle text="卦辭" className="brush-classic-label" /></h4><p>{transformed.judgment}</p><h4 className="brush-fixed-heading"><FixedBrushTitle text="象曰" className="brush-classic-label" /></h4><p>{transformed.image}</p></div></details>
         <p className="classic-source">本文來源：<a href={sourceUrl} target="_blank" rel="noreferrer">維基文庫《周易》</a>，修訂版本 {original.sourceRevision}。</p>
       </div>
     </details>
@@ -353,7 +377,7 @@ export default function Home() {
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
-          <div className="method-source-body"><div className="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article><article><span>邵康節易學</span><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
+          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-v4.webp" text="生日命碼" className="brush-method-card" /><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-v4.webp" text="數字頻譜" className="brush-method-card" /><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-method-card" /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-method-card" /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
           <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie.html#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>

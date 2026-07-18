@@ -40,6 +40,24 @@ const modeContent = {
   },
 };
 
+const fixedBrushTitles = {
+  "這個結果怎麼算": "public/visuals/brush/title-calculation-explain-v2.webp",
+  "生日數字九宮分布": "public/visuals/brush/title-grid-birthday-v2.webp",
+  "自訂數字九宮分布": "public/visuals/brush/title-grid-code-v2.webp",
+  "核心傾向": "public/visuals/brush/title-insight-core-v2.webp",
+  "壓力提醒": "public/visuals/brush/title-insight-pressure-v2.webp",
+  "日常照顧": "public/visuals/brush/title-insight-care-v2.webp",
+  "溝通提醒": "public/visuals/brush/title-insight-communication-v2.webp",
+  "本次自我提問": "public/visuals/brush/title-self-question-v2.webp",
+  "本卦": "public/visuals/brush/title-hex-original-v2.webp",
+  "互卦": "public/visuals/brush/title-hex-mutual-v2.webp",
+  "變卦": "public/visuals/brush/title-hex-changed-v2.webp",
+  "卦辭": "public/visuals/brush/title-judgment-v2.webp",
+  "彖曰": "public/visuals/brush/title-tuan-v2.webp",
+  "象曰": "public/visuals/brush/title-image-saying-v2.webp",
+  "六爻原文": "public/visuals/brush/title-six-lines-v2.webp",
+};
+
 function element(tag, className = "", text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -64,10 +82,18 @@ function brushTitleElement(src, text, className = "") {
   return title;
 }
 
+function fixedBrushTitleElement(text, className = "") {
+  const src = fixedBrushTitles[text];
+  if (!src) throw new Error(`缺少固定毛筆標題資產：${text}`);
+  return brushTitleElement(src, text, className);
+}
+
 function panelHeading(kicker, title, badge) {
   const header = element("header", "panel-heading");
   const copy = element("div");
-  copy.append(element("p", "", kicker), element("h3", "", title));
+  const heading = element("h3", "brush-fixed-heading");
+  heading.append(fixedBrushTitleElement(title, "brush-panel-title"));
+  copy.append(element("p", "", kicker), heading);
   header.append(copy);
   if (badge) header.append(element("span", "", badge));
   return header;
@@ -154,7 +180,9 @@ function createInsightLedger(profile) {
   ];
   for (const [index, title, copy] of items) {
     const article = element("article");
-    article.append(element("span", "", index), element("h4", "", title));
+    const heading = element("h4", "brush-fixed-heading");
+    heading.append(fixedBrushTitleElement(title, "brush-card-title"));
+    article.append(element("span", "", index), heading);
     if (index === "04") article.append(element("blockquote", "", `「${profile.marker}」`));
     article.append(element("p", "", copy));
     grid.append(article);
@@ -226,7 +254,9 @@ function createNumerologyResult(result, onReset) {
   const adviceMark = element("span", "", "策");
   adviceMark.setAttribute("aria-hidden", "true");
   const adviceCopy = element("div");
-  adviceCopy.append(element("h3", "", "本次自我提問"), element("p", "", profile.advice));
+  const adviceTitle = element("h3", "brush-fixed-heading");
+  adviceTitle.append(fixedBrushTitleElement("本次自我提問", "brush-advice-title"));
+  adviceCopy.append(adviceTitle, element("p", "", profile.advice));
   advice.append(adviceMark, adviceCopy);
   section.append(advice, createResetButton("重新分析另一筆資料", onReset));
   return section;
@@ -252,9 +282,11 @@ function createHexagramCard(label, value, movingIndex = -1, mark = "") {
   const card = element("article", "hexagram-card");
   const header = element("header");
   const heading = element("div");
-  const title = element("h3");
-  title.append(element("span", "", text.symbol), document.createTextNode(value.name));
-  heading.append(element("p", "", label), title);
+  const roleTitle = element("h3", "hexagram-role-title brush-fixed-heading");
+  roleTitle.append(fixedBrushTitleElement(label, "brush-hexagram-role"));
+  const computedName = element("p", "hexagram-computed-name");
+  computedName.append(element("span", "", text.symbol), document.createTextNode(value.name));
+  heading.append(roleTitle, computedName);
   header.append(heading, element("small", "", `第 ${value.hexId} 卦`));
   card.append(header, element("p", "", `上${value.upper.name}（${value.upper.nature}）・下${value.lower.name}（${value.lower.nature}）`), createHexagramLines(value.lines, movingIndex, mark));
   return card;
@@ -281,18 +313,22 @@ function createOriginalTextPanel(result) {
   const symbol = element("span", "", original.symbol);
   symbol.setAttribute("aria-hidden", "true");
   const nameCopy = element("div");
-  nameCopy.append(element("small", "", `第 ${original.id} 卦`), element("h3", "", `${original.name}・${original.fullName}`));
+  nameCopy.append(element("small", "", `第 ${original.id} 卦`), element("p", "classic-computed-name", `${original.name}・${original.fullName}`));
   name.append(symbol, nameCopy);
 
   const columns = element("div", "classic-columns");
   for (const [title, copy] of [["卦辭", original.judgment], ["彖曰", original.tuan], ["象曰", original.image]]) {
     const article = element("article");
-    article.append(element("h4", "", title), element("p", "", copy));
+    const heading = element("h4", "brush-fixed-heading");
+    heading.append(fixedBrushTitleElement(title, "brush-classic-label"));
+    article.append(heading, element("p", "", copy));
     columns.append(article);
   }
 
   const lines = element("div", "line-texts");
-  lines.append(element("h4", "", "六爻原文"));
+  const linesTitle = element("h4", "brush-fixed-heading");
+  linesTitle.append(fixedBrushTitleElement("六爻原文", "brush-classic-label brush-six-lines"));
+  lines.append(linesTitle);
   for (const [index, line] of original.lines.entries()) {
     const article = element("article", index === result.moving.index ? "is-active" : "");
     const copy = element("div");
@@ -317,7 +353,11 @@ function createOriginalTextPanel(result) {
   }
   const transformedDetails = element("details", "classic-details");
   const transformedCopy = element("div");
-  transformedCopy.append(element("h4", "", "卦辭"), element("p", "", transformed.judgment), element("h4", "", "象曰"), element("p", "", transformed.image));
+  const transformedJudgment = element("h4", "brush-fixed-heading");
+  transformedJudgment.append(fixedBrushTitleElement("卦辭", "brush-classic-label"));
+  const transformedImage = element("h4", "brush-fixed-heading");
+  transformedImage.append(fixedBrushTitleElement("象曰", "brush-classic-label"));
+  transformedCopy.append(transformedJudgment, element("p", "", transformed.judgment), transformedImage, element("p", "", transformed.image));
   transformedDetails.append(element("summary", "", `查看變卦第 ${transformed.id} 卦「${transformed.name}」本文`), transformedCopy);
   inner.append(transformedDetails);
 

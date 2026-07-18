@@ -16,9 +16,10 @@ https://endfew-ai.github.io/e-shidai-life-code/kangjie.html
 
 - 採 B「玄星觀象」：深靛黑、古金、精密星軌與宋明書卷感。
 - 主要視覺與分析模組使用專案專屬生成圖，不把易經符號當成首頁主題。
-- 品牌、主題與主要功能標題各自使用逐字校對的黃金墨水毛筆字模；Hero 星軌背景與主標語也是兩個獨立檔案。HTML 同時保留隱藏真實文字，搜尋與讀屏不受影響。
+- 品牌、主題與所有固定結構標題各自使用逐字校對的黃金墨水毛筆字模；Hero 星軌背景與主標語也是兩個獨立檔案。HTML 同時保留隱藏真實文字，搜尋與讀屏不受影響。
 - 生日命碼是第一層入口，數字頻譜為次要功能，三數取卦為補充工具，邵康節易學則使用同網域獨立專頁。
-- 新專頁的入口、主題、主標與六個主要標題均為各自獨立生成、逐字校對、透明去背的黃金墨水毛筆字模。
+- 新專頁的入口、主題、主標、分頁、方法、表單、卦象角色與原文區標題均為各自獨立生成、逐字校對、透明去背的黃金墨水毛筆字模。
+- 動態算出的卦名、數值、年份與公式保留為可選取的真實文字，避免 AI 假字及資料失真。
 - 桌機與手機共用同一個高密度工作台；主頁四個入口在手機採 2×2 排列，完整長文採原生可展開區塊。
 - 參考圖反推母提示詞與各模組 Image2 提示詞收錄在 [`AI_MODULE_PROMPTS.md`](AI_MODULE_PROMPTS.md)。
 
@@ -62,7 +63,7 @@ npm run dev
 npm test
 npm run lint
 npx playwright test -c playwright.config.mjs
-python scripts\audit-kangjie-brush-assets.py
+python scripts\audit-brush-assets.py --contact-sheet output\brush-title-contact-sheet.jpg
 ```
 
 ## 發布

@@ -4,8 +4,8 @@
 }
 
 .kangjie-wordmark .brush-brand .brush-title-image {
-  height: 29px;
-  max-width: 172px;
+  height: 35px;
+  max-width: 198px;
 }
 
 .kangjie-shell .topbar .nav-button {
@@ -76,8 +76,8 @@
 }
 
 .kangjie-rail .brush-kangjie-theme .brush-title-image {
-  height: 20px;
-  max-width: 92px;
+  height: 28px;
+  max-width: 126px;
 }
 
 .kangjie-overview {
@@ -114,6 +114,11 @@
   font-weight: 500;
 }
 
+.kangjie-overview .brush-kangjie-overview .brush-title-image {
+  height: 29px;
+  max-width: 190px;
+}
+
 .kangjie-overview p {
   color: var(--muted);
   font-family: var(--sans);
@@ -138,11 +143,14 @@
 
 .kangjie-tabs button,
 .method-selector button {
+  align-items: center;
   background: rgba(4, 12, 22, 0.58);
   border: 0;
   border-right: 1px solid var(--line-soft);
   cursor: pointer;
+  display: flex;
   font-family: var(--serif);
+  justify-content: center;
   position: relative;
 }
 
@@ -158,12 +166,17 @@
   border-right: 0;
 }
 
-.kangjie-tabs button span {
+.kangjie-tabs button .tab-index {
   color: var(--gold-dim);
   font-family: var(--sans);
   font-size: 9px;
   letter-spacing: 0.12em;
   margin-right: 8px;
+}
+
+.kangjie-tabs .brush-kangjie-tab .brush-title-image {
+  height: 31px;
+  max-width: 170px;
 }
 
 .kangjie-tabs button::after,
@@ -222,8 +235,8 @@
 }
 
 .brush-kangjie-section .brush-title-image {
-  height: 43px;
-  max-width: 190px;
+  height: 50px;
+  max-width: 226px;
 }
 
 .brush-kangjie-source .brush-title-image {
@@ -265,6 +278,16 @@
   font-size: 17px;
   font-weight: 500;
   margin: 4px 0 7px;
+}
+
+.brush-kangjie-card .brush-title-image {
+  height: 32px;
+  max-width: 170px;
+}
+
+.brush-kangjie-card-long .brush-title-image {
+  height: 30px;
+  max-width: 235px;
 }
 
 .origin-ledger p {
@@ -315,6 +338,11 @@
   padding: 7px 10px;
 }
 
+.method-selector .brush-kangjie-method .brush-title-image {
+  height: 29px;
+  max-width: 150px;
+}
+
 .method-forms {
   border: 1px solid var(--line-soft);
   border-top: 0;
@@ -336,6 +364,16 @@
 
 .form-intro h3 {
   margin-bottom: 0;
+}
+
+.brush-kangjie-form-title .brush-title-image {
+  height: 35px;
+  max-width: 190px;
+}
+
+.brush-kangjie-form-long .brush-title-image {
+  height: 32px;
+  max-width: 260px;
 }
 
 .form-intro p,
@@ -462,8 +500,8 @@
 }
 
 .brush-kangjie-result .brush-title-image {
-  height: 40px;
-  max-width: 180px;
+  height: 47px;
+  max-width: 212px;
 }
 
 .result-input-summary,
@@ -569,6 +607,11 @@
   font-weight: 500;
 }
 
+.kangjie-classic-excerpt .brush-kangjie-classic .brush-title-image {
+  height: 34px;
+  max-width: 210px;
+}
+
 .kangjie-classic-excerpt summary span {
   color: var(--muted);
   font-family: var(--sans);
@@ -596,6 +639,31 @@
   font-size: 13px;
   font-weight: 500;
   margin: 0 0 5px;
+}
+
+.kangjie-classic-excerpt .brush-classic-label .brush-title-image {
+  height: 27px;
+  max-width: 120px;
+}
+
+.kangjie-classic-excerpt .brush-moving-line .brush-title-image,
+.kangjie-classic-excerpt .brush-changed-text .brush-title-image {
+  max-width: 150px;
+}
+
+.kangjie-classic-excerpt .classic-computed-label {
+  color: var(--gold-bright);
+  font-family: var(--serif);
+  font-size: 13px;
+  margin: 2px 0 5px;
+}
+
+.hexagram-role-note {
+  color: var(--muted);
+  display: block;
+  font-family: var(--sans);
+  font-size: 8px;
+  margin-top: 2px;
 }
 
 .kangjie-classic-excerpt p {
@@ -786,8 +854,8 @@
 }
 
 .brush-kangjie-boundary .brush-title-image {
-  height: 31px;
-  max-width: 150px;
+  height: 37px;
+  max-width: 178px;
 }
 
 .kangjie-boundary p {
@@ -811,29 +879,33 @@
   .kangjie-shell .topbar > div { gap: 16px; }
   .kangjie-shell .topbar > div a:first-child { display: inline; }
   .kangjie-shell .topbar > div > :last-child { display: none; }
-  .kangjie-wordmark .brush-brand .brush-title-image { height: 24px; max-width: 130px; }
+  .kangjie-wordmark .brush-brand .brush-title-image { height: 29px; max-width: 154px; }
   .kangjie-hero { height: 232px; }
   .kangjie-hero::before { inset-bottom: 36px; }
   .kangjie-hero-copy { left: 14px; top: 42%; width: min(70%, 350px); }
   .kangjie-hero-copy .section-index { font-size: 8px; margin-bottom: 5px; }
   .kangjie-hero-copy > p:last-child { font-size: 9px; line-height: 1.5; margin-top: 5px; }
   .kangjie-hero-title { width: min(100%, 320px); }
-  .kangjie-rail .brush-kangjie-theme .brush-title-image { height: 17px; max-width: 75px; }
+  .kangjie-rail .brush-kangjie-theme .brush-title-image { height: 21px; max-width: 94px; }
   .kangjie-overview { grid-template-columns: 1fr; }
   .kangjie-overview article { border-bottom: 1px solid var(--line-soft); border-right: 0; padding: 9px 11px; }
   .kangjie-overview article:last-child { border-bottom: 0; }
+  .kangjie-overview .brush-kangjie-overview .brush-title-image { height: 27px; max-width: 176px; }
   .kangjie-tabs { grid-template-columns: repeat(2, 1fr); }
-  .kangjie-tabs button { border-bottom: 1px solid var(--line-soft); font-size: 13px; min-height: 48px; }
+  .kangjie-tabs button { border-bottom: 1px solid var(--line-soft); font-size: 13px; min-height: 58px; }
+  .kangjie-tabs .brush-kangjie-tab .brush-title-image { height: 27px; max-width: 146px; }
   .kangjie-tabs button:nth-child(2) { border-right: 0; }
   .kangjie-tabs button:nth-last-child(-n + 2) { border-bottom: 0; }
   .kangjie-panel { padding: 12px; }
   .kangjie-panel-heading { align-items: start; gap: 5px; grid-template-columns: 1fr; padding-bottom: 10px; }
-  .brush-kangjie-section .brush-title-image { height: 35px; max-width: 168px; }
+  .brush-kangjie-section .brush-title-image { height: 42px; max-width: 198px; }
   .brush-kangjie-source .brush-title-image { max-width: 220px; }
   .kangjie-panel-heading > p { font-size: 9px; }
   .origin-ledger { grid-template-columns: 1fr; }
   .origin-ledger article, .origin-ledger article:nth-child(2) { border-bottom: 1px solid var(--line-soft); border-right: 0; min-height: 0; padding: 11px 4px; }
   .origin-ledger article:last-child { border-bottom: 0; }
+  .brush-kangjie-card .brush-title-image { height: 30px; max-width: 164px; }
+  .brush-kangjie-card-long .brush-title-image { height: 28px; max-width: 230px; }
   .method-map { align-items: stretch; display: grid; gap: 4px; grid-template-columns: 1fr; padding: 9px 10px; }
   .method-map i { display: none; }
   .method-map span { border-bottom: 1px solid var(--line-soft); padding: 4px; }
@@ -843,9 +915,12 @@
   .method-selector button { border-bottom: 1px solid var(--line-soft); }
   .method-selector button:nth-child(2) { border-right: 0; }
   .method-selector button:nth-last-child(-n + 2) { border-bottom: 0; }
+  .method-selector .brush-kangjie-method .brush-title-image { height: 27px; max-width: 140px; }
   .kangjie-form { padding: 11px; }
   .form-intro { align-items: start; gap: 2px; grid-template-columns: 1fr; margin-bottom: 10px; }
   .form-intro p { font-size: 9px; }
+  .brush-kangjie-form-title .brush-title-image { height: 32px; max-width: 180px; }
+  .brush-kangjie-form-long .brush-title-image { height: 29px; max-width: 238px; }
   .quad-input-grid, .dual-input-grid { grid-template-columns: repeat(2, 1fr); }
   .quad-input-grid .field-block > span, .dual-input-grid .field-block > span, .kangjie-form .triple-input-grid .field-block > span { font-size: 10px; min-height: 36px; }
   .quad-input-grid .field-block > span small, .dual-input-grid .field-block > span small, .kangjie-form .triple-input-grid .field-block > span small { font-size: 8px; }
@@ -854,7 +929,7 @@
   .text-field { display: block; }
   .text-field output { display: block; margin: 3px 0 0; text-align: right; }
   .kangjie-result-heading { align-items: start; flex-direction: column; gap: 4px; }
-  .brush-kangjie-result .brush-title-image { height: 32px; max-width: 150px; }
+  .brush-kangjie-result .brush-title-image { height: 39px; max-width: 180px; }
   .kangjie-trace { grid-template-columns: 1fr; }
   .kangjie-trace div { border-bottom: 1px solid var(--line-soft); border-right: 0; padding: 7px 9px; }
   .kangjie-trace div:last-child { border-bottom: 0; }
@@ -864,6 +939,8 @@
   .kangjie-classic-excerpt > div { grid-template-columns: 1fr; }
   .kangjie-classic-excerpt article, .kangjie-classic-excerpt article:nth-child(odd) { border-bottom: 1px solid var(--line-soft); border-right: 0; padding: 9px 2px; }
   .kangjie-classic-excerpt article:last-of-type { border-bottom: 0; }
+  .kangjie-classic-excerpt .brush-kangjie-classic .brush-title-image { height: 29px; max-width: 178px; }
+  .kangjie-classic-excerpt .brush-classic-label .brush-title-image { height: 25px; max-width: 108px; }
   .huangji-scale { grid-template-columns: repeat(2, 1fr); }
   .huangji-scale article:nth-child(2) { border-right: 0; }
   .huangji-scale article:nth-child(-n + 2) { border-bottom: 1px solid var(--line-soft); }
@@ -876,7 +953,7 @@
   .source-ledger a, .source-ledger a:nth-child(odd), .source-ledger a:nth-last-child(-n + 2) { border-bottom: 1px solid var(--line-soft); border-right: 0; }
   .source-ledger a:last-child { border-bottom: 0; }
   .kangjie-boundary { padding: 9px 10px; }
-  .brush-kangjie-boundary .brush-title-image { height: 26px; max-width: 135px; }
+  .brush-kangjie-boundary .brush-title-image { height: 31px; max-width: 154px; }
 }
 
 @media (max-width: 379px) {

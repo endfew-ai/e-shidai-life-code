@@ -41,11 +41,10 @@ def _trim_alpha(image: Image.Image) -> Image.Image:
     if bbox is None:
         raise ValueError("The alpha image has no visible pixels.")
     padding = max(18, round(min(image.size) * 0.025))
-    left = max(0, bbox[0] - padding)
-    top = max(0, bbox[1] - padding)
-    right = min(image.width, bbox[2] + padding)
-    bottom = min(image.height, bbox[3] + padding)
-    return image.crop((left, top, right, bottom))
+    cropped = image.crop(bbox)
+    padded = Image.new("RGBA", (cropped.width + padding * 2, cropped.height + padding * 2), (0, 0, 0, 0))
+    padded.alpha_composite(cropped, (padding, padding))
+    return padded
 
 
 def _resize(image: Image.Image, max_width: int) -> Image.Image:

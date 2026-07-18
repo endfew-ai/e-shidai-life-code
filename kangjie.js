@@ -9,6 +9,17 @@ import {
   decomposeHuangjiYears,
 } from "./kangjie-core.js";
 
+const fixedBrushTitles = {
+  "本卦": "public/visuals/brush/title-hex-original-v2.webp",
+  "互卦": "public/visuals/brush/title-hex-mutual-v2.webp",
+  "變卦": "public/visuals/brush/title-hex-changed-v2.webp",
+  "本卦原文節錄": "public/visuals/brush/title-kangjie-classic-v2.webp",
+  "卦辭": "public/visuals/brush/title-judgment-v2.webp",
+  "象曰": "public/visuals/brush/title-image-saying-v2.webp",
+  "動爻原文": "public/visuals/brush/title-moving-line-v2.webp",
+  "變卦本文": "public/visuals/brush/title-changed-text-v2.webp",
+};
+
 function element(tag, className = "", text = "") {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -26,6 +37,12 @@ function brushTitleElement(src, text, className = "") {
   image.setAttribute("aria-hidden", "true");
   wrapper.append(image);
   return wrapper;
+}
+
+function fixedBrushTitleElement(text, className = "") {
+  const src = fixedBrushTitles[text];
+  if (!src) throw new Error(`缺少固定毛筆標題資產：${text}`);
+  return brushTitleElement(src, text, className);
 }
 
 function activateTabs(tabSelector, panelSelector, nextName, { focus = false } = {}) {
@@ -108,15 +125,17 @@ function createHexagramLines(lines, movingIndex = -1, mark = "") {
   return wrapper;
 }
 
-function createHexagramCard(label, value, movingIndex = -1, mark = "") {
+function createHexagramCard(label, value, movingIndex = -1, mark = "", note = "") {
   const text = getIChingText(value.hexId);
   const card = element("article", "hexagram-card");
   const header = element("header");
   const copy = element("div");
-  copy.append(element("p", "", label));
-  const title = element("h3");
-  title.append(element("span", "", text.symbol), document.createTextNode(value.name));
-  copy.append(title);
+  const roleTitle = element("h3", "hexagram-role-title brush-fixed-heading");
+  roleTitle.append(fixedBrushTitleElement(label, "brush-hexagram-role"));
+  const computedName = element("p", "hexagram-computed-name");
+  computedName.append(element("span", "", text.symbol), document.createTextNode(value.name));
+  copy.append(roleTitle, computedName);
+  if (note) copy.append(element("small", "hexagram-role-note", note));
   header.append(copy, element("small", "", `第 ${value.hexId} 卦`));
   card.append(header, element("p", "", `上${value.upper.name}（${value.upper.nature}）・下${value.lower.name}（${value.lower.nature}）`), createHexagramLines(value.lines, movingIndex, mark));
   return card;
@@ -127,17 +146,27 @@ function createClassicExcerpt(result) {
   const transformed = getIChingText(result.transformed.hexId);
   const details = element("details", "kangjie-classic-excerpt");
   const summary = element("summary");
-  summary.append(element("strong", "", "查看本卦原文節錄"), element("span", "", "卦辭・象曰・動爻"));
+  const summaryTitle = element("strong");
+  summaryTitle.append(fixedBrushTitleElement("本卦原文節錄", "brush-kangjie-classic"));
+  summary.append(summaryTitle, element("span", "", "卦辭・象曰・動爻"));
   const body = element("div");
   const judgment = element("article");
-  judgment.append(element("h4", "", `${original.symbol} ${original.name}・卦辭`), element("p", "", original.judgment));
+  const judgmentTitle = element("h4", "brush-fixed-heading");
+  judgmentTitle.append(fixedBrushTitleElement("卦辭", "brush-classic-label"));
+  judgment.append(judgmentTitle, element("p", "classic-computed-label", `${original.symbol} ${original.name}`), element("p", "", original.judgment));
   const image = element("article");
-  image.append(element("h4", "", "象曰"), element("p", "", original.image));
+  const imageTitle = element("h4", "brush-fixed-heading");
+  imageTitle.append(fixedBrushTitleElement("象曰", "brush-classic-label"));
+  image.append(imageTitle, element("p", "", original.image));
   const moving = original.lines[result.moving.index];
   const line = element("article", "is-moving-copy");
-  line.append(element("h4", "", `${result.moving.name}・${moving.text}`), element("p", "", `《象》曰：${moving.image}`));
+  const movingTitle = element("h4", "brush-fixed-heading");
+  movingTitle.append(fixedBrushTitleElement("動爻原文", "brush-classic-label brush-moving-line"));
+  line.append(movingTitle, element("p", "classic-computed-label", `${result.moving.name}・${moving.text}`), element("p", "", `《象》曰：${moving.image}`));
   const changed = element("article");
-  changed.append(element("h4", "", `變卦 ${transformed.symbol} ${transformed.name}`), element("p", "", transformed.judgment));
+  const changedTitle = element("h4", "brush-fixed-heading");
+  changedTitle.append(fixedBrushTitleElement("變卦本文", "brush-classic-label brush-changed-text"));
+  changed.append(changedTitle, element("p", "classic-computed-label", `${transformed.symbol} ${transformed.name}`), element("p", "", transformed.judgment));
   const source = element("p", "classic-source");
   const link = element("a", "", "中國哲學書電子化計劃《周易》");
   link.href = "https://ctext.org/book-of-changes/zh";
@@ -166,7 +195,7 @@ function createKangjieResult(result) {
   const grid = element("div", "hexagram-grid");
   grid.append(
     createHexagramCard("本卦", result.original, result.moving.index, "動"),
-    createHexagramCard(result.mutualSource === "transformed" ? "互卦・取自變卦" : "互卦", result.mutual),
+    createHexagramCard("互卦", result.mutual, -1, "", result.mutualSource === "transformed" ? "取自變卦" : ""),
     createHexagramCard("變卦", result.transformed, result.moving.index, "變"),
   );
 

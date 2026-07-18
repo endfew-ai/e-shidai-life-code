@@ -19,17 +19,123 @@ async function expectAllImagesLoaded(page) {
   expect(failed).toEqual([]);
 }
 
+async function openAllDetails(page) {
+  await page.locator("details").evaluateAll((details) => details.forEach((detail) => { detail.open = true; }));
+}
+
+async function expectVisibleBrushTitlesUnclipped(page) {
+  const report = await page.evaluate(async () => {
+    const visible = (element) => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      const closedDetails = element.closest("details:not([open])");
+      const hiddenByDetails = closedDetails && !element.closest("summary");
+      return !hiddenByDetails && element.getClientRects().length > 0 && style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0;
+    };
+    const alphaBounds = window.__brushAlphaBounds instanceof Map ? window.__brushAlphaBounds : new Map();
+    window.__brushAlphaBounds = alphaBounds;
+    const getAlphaBounds = async (image) => {
+      if (alphaBounds.has(image.currentSrc)) return alphaBounds.get(image.currentSrc);
+      if (image.decode) await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      context.drawImage(image, 0, 0);
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+      let left = canvas.width;
+      let top = canvas.height;
+      let right = 0;
+      let bottom = 0;
+      for (let y = 0; y < canvas.height; y += 1) {
+        for (let x = 0; x < canvas.width; x += 1) {
+          if (pixels[(y * canvas.width + x) * 4 + 3] > 3) {
+            left = Math.min(left, x);
+            top = Math.min(top, y);
+            right = Math.max(right, x + 1);
+            bottom = Math.max(bottom, y + 1);
+          }
+        }
+      }
+      const bounds = { left, top, right, bottom };
+      alphaBounds.set(image.currentSrc, bounds);
+      return bounds;
+    };
+    const missingArtwork = [...document.querySelectorAll("h1, h2, h3, h4")]
+      .filter(visible)
+      .filter((heading) => !heading.querySelector("img.brush-title-image"))
+      .map((heading) => heading.textContent?.trim().slice(0, 80) || heading.outerHTML.slice(0, 120));
+    const clippedArtwork = [];
+    for (const image of [...document.querySelectorAll("img.brush-title-image")].filter(visible)) {
+        const opaque = await getAlphaBounds(image);
+        const imageRect = image.getBoundingClientRect();
+        const scaleX = imageRect.width / image.naturalWidth;
+        const scaleY = imageRect.height / image.naturalHeight;
+        const inkRect = {
+          left: imageRect.left + opaque.left * scaleX,
+          right: imageRect.left + opaque.right * scaleX,
+          top: imageRect.top + opaque.top * scaleY,
+          bottom: imageRect.top + opaque.bottom * scaleY,
+        };
+        let ancestor = image.parentElement;
+        while (ancestor && ancestor !== document.documentElement) {
+          const style = getComputedStyle(ancestor);
+          const ancestorRect = ancestor.getBoundingClientRect();
+          const clipsX = ["hidden", "clip"].includes(style.overflowX);
+          const clipsY = ["hidden", "clip"].includes(style.overflowY);
+          if ((clipsX && (inkRect.left < ancestorRect.left - 1 || inkRect.right > ancestorRect.right + 1)) ||
+              (clipsY && (inkRect.top < ancestorRect.top - 1 || inkRect.bottom > ancestorRect.bottom + 1))) {
+            const ancestorName = `${ancestor.tagName.toLowerCase()}${ancestor.id ? `#${ancestor.id}` : ""}${ancestor.className ? `.${String(ancestor.className).trim().replace(/\s+/g, ".")}` : ""}`;
+            clippedArtwork.push(`${image.getAttribute("src") || "unknown brush asset"} clipped by ${ancestorName}`);
+            break;
+          }
+          ancestor = ancestor.parentElement;
+        }
+    }
+    return { missingArtwork, clippedArtwork };
+  });
+  expect(report.missingArtwork).toEqual([]);
+  expect(report.clippedArtwork).toEqual([]);
+}
+
 test("desktop entry, four derivations, tabs, sources and screenshots", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/index.html", { waitUntil: "networkidle" });
   await expect(page.locator("a.kangjie-mode-entry")).toBeVisible();
   await expect(page.locator("a.kangjie-mode-entry .sr-only")).toHaveText("邵康節易學");
+  await expectAllImagesLoaded(page);
+  await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
+
+  await page.locator("#birthday-input").fill("1990-08-12");
+  await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+  await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+  await openAllDetails(page);
+  await expectAllImagesLoaded(page);
+  await expectVisibleBrushTitlesUnclipped(page);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({ path: "output/playwright/home-birthday-result-1440.png", fullPage: true });
+
+  await page.locator('[data-mode-label="iching"]').click();
+  const threeNumbers = page.locator(".iching-input");
+  await threeNumbers.nth(0).fill("9");
+  await threeNumbers.nth(1).fill("13");
+  await threeNumbers.nth(2).fill("20");
+  await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+  await expect(page.locator("#result-anchor")).toContainText("天風姤");
+  await expect(page.locator("#result-anchor")).toContainText("天山遯");
+  await openAllDetails(page);
+  await expectAllImagesLoaded(page);
+  await expectVisibleBrushTitlesUnclipped(page);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({ path: "output/playwright/home-iching-result-1440.png", fullPage: true });
+
   await page.locator("a.kangjie-mode-entry").click();
-  await expect(page).toHaveURL(/kangjie\.html/);
+  await expect(page).toHaveURL(/\/kangjie(?:\.html)?(?:[?#]|$)/);
   await expect(page.locator("h1 .sr-only")).toHaveText("象數觀物");
   await expectAllImagesLoaded(page);
+  await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
 
   const pageTabs = page.locator("[data-kangjie-tab]");
@@ -47,6 +153,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expect(page.locator("#kangjie-result")).toContainText("天風姤");
   await expect(page.locator("#kangjie-result")).toContainText("澤山咸");
   await expect(page.locator("#kangjie-result")).toContainText("體卦");
+  await expectVisibleBrushTitlesUnclipped(page);
   await page.screenshot({ path: "output/playwright/kangjie-desktop-result.png", fullPage: true });
 
   await page.locator('[data-method-tab="object"]').click();
@@ -83,6 +190,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expect(page.locator("#panel-sources")).toContainText("梅花易數・卷一");
   await expect(page.locator("#panel-sources")).toContainText("推演界線");
   await expectAllImagesLoaded(page);
+  await expectVisibleBrushTitlesUnclipped(page);
   expect(errors).toEqual([]);
 });
 
@@ -92,8 +200,17 @@ for (const width of [390, 320]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/index.html", { waitUntil: "networkidle" });
     await expect(page.locator("a.kangjie-mode-entry")).toBeVisible();
+    await expectAllImagesLoaded(page);
+    await expectVisibleBrushTitlesUnclipped(page);
     await expectNoHorizontalOverflow(page);
     if (width === 390) await page.screenshot({ path: "output/playwright/home-four-options-390.png", fullPage: false });
+    await page.locator("#birthday-input").fill("1990-08-12");
+    await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+    await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+    await openAllDetails(page);
+    await expectAllImagesLoaded(page);
+    await expectVisibleBrushTitlesUnclipped(page);
+    await expectNoHorizontalOverflow(page);
     await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
     await expect(page.locator('[data-kangjie-tab="meihua"]')).toHaveAttribute("aria-selected", "true");
     await expectNoHorizontalOverflow(page);
@@ -105,6 +222,7 @@ for (const width of [390, 320]) {
     await calendar.locator('[name="hourBranch"]').selectOption("9");
     await calendar.locator('button[type="submit"]').click();
     await expect(page.locator("#kangjie-result")).toContainText("澤火革");
+    await expectVisibleBrushTitlesUnclipped(page);
     await expectNoHorizontalOverflow(page);
     await page.screenshot({ path: `output/playwright/kangjie-${width}.png`, fullPage: true });
     expect(errors).toEqual([]);

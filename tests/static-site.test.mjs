@@ -2,6 +2,46 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
+const mainFixedBrushAssets = [
+  "title-calculation-explain-v2.webp",
+  "title-grid-birthday-v2.webp",
+  "title-grid-code-v2.webp",
+  "title-insight-core-v2.webp",
+  "title-insight-pressure-v2.webp",
+  "title-insight-care-v2.webp",
+  "title-insight-communication-v2.webp",
+  "title-self-question-v2.webp",
+  "title-judgment-v2.webp",
+  "title-tuan-v2.webp",
+  "title-image-saying-v2.webp",
+  "title-six-lines-v2.webp",
+];
+
+const kangjieFixedBrushAssets = [
+  "title-kangjie-overview-entry-v2.webp",
+  "title-kangjie-overview-layers-v2.webp",
+  "title-kangjie-overview-scale-v2.webp",
+  "title-kangjie-origin-sequence-v2.webp",
+  "title-kangjie-origin-calendar-v2.webp",
+  "title-kangjie-origin-boundaries-v2.webp",
+  "title-kangjie-origin-duration-v2.webp",
+  "title-kangjie-method-calendar-v2.webp",
+  "title-kangjie-method-object-v2.webp",
+  "title-kangjie-method-sound-v2.webp",
+  "title-kangjie-method-text-v2.webp",
+  "title-kangjie-form-calendar-v2.webp",
+  "title-kangjie-form-object-v2.webp",
+  "title-kangjie-form-sound-v2.webp",
+  "title-kangjie-form-text-v2.webp",
+  "title-hex-original-v2.webp",
+  "title-hex-mutual-v2.webp",
+  "title-hex-changed-v2.webp",
+  "title-kangjie-classic-v2.webp",
+  "title-moving-line-v2.webp",
+  "title-changed-text-v2.webp",
+  "title-kangjie-tab-source-v2.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -38,6 +78,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /title-disclaimer-v5\.webp/);
   assert.match(appSource, /title-insight-v5\.webp/);
   assert.match(reactSource, /title-insight-v5\.webp/);
+  for (const asset of mainFixedBrushAssets) {
+    assert.ok(appSource.includes(asset), `${asset} must be referenced by the static application`);
+    assert.ok(reactSource.includes(asset), `${asset} must be referenced by the React application`);
+  }
   assert.match(html, /<span class="sr-only">看見你的數字軌跡<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-hero-v5\.webp"/);
   assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-v5\.webp"/);
   assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-v5\.webp"/);
@@ -86,6 +130,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/visuals/brush/title-insight-v5.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-source-v5.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-disclaimer-v5.webp", import.meta.url)),
+    ...mainFixedBrushAssets.map((asset) => access(new URL(`../public/visuals/brush/${asset}`, import.meta.url))),
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
   ]);
 });
@@ -108,6 +153,9 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /title-kangjie-source-v1\.webp/);
   assert.match(html, /title-kangjie-boundary-v1\.webp/);
   assert.match(appSource, /title-kangjie-result-v1\.webp/);
+  for (const asset of kangjieFixedBrushAssets) {
+    assert.ok(`${html}\n${appSource}`.includes(asset), `${asset} must be referenced by the static Kangjie page`);
+  }
   assert.match(html, /data-method-panel="calendar"/);
   assert.match(html, /data-method-panel="object"/);
   assert.match(html, /data-method-panel="sound"/);
@@ -125,8 +173,8 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.doesNotMatch(html, /[—–]/);
   assert.doesNotMatch(appSource, /[—–]/);
 
-  const primaryTextHeading = /<h[12][^>]*>\s*[^\s<]/i;
-  assert.doesNotMatch(html, primaryTextHeading);
+  const fixedTextHeading = /<h[1-4][^>]*>\s*[^\s<]/i;
+  assert.doesNotMatch(html, fixedTextHeading);
 
   await Promise.all([
     access(new URL("../kangjie.html", import.meta.url)),
@@ -144,5 +192,6 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
     access(new URL("../public/visuals/brush/title-kangjie-result-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-kangjie-source-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-kangjie-boundary-v1.webp", import.meta.url)),
+    ...kangjieFixedBrushAssets.map((asset) => access(new URL(`../public/visuals/brush/${asset}`, import.meta.url))),
   ]);
 });
