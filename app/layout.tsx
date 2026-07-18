@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: "https://endfew-ai.github.io/e-shidai-life-code/",
     images: [
       {
-        url: "https://endfew-ai.github.io/e-shidai-life-code/og-b-v2.png",
+        url: "https://endfew-ai.github.io/e-shidai-life-code/og-b-v3.png",
         width: 1200,
         height: 630,
         alt: "深靛古金數字軌跡與生日命碼主視覺",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "e世代生命密碼分析儀",
     description: "看見你的數字軌跡。從生日命碼開始，逐步核對完整算式。",
-    images: ["https://endfew-ai.github.io/e-shidai-life-code/og-b-v2.png"],
+    images: ["https://endfew-ai.github.io/e-shidai-life-code/og-b-v3.png"],
   },
 };
 

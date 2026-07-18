@@ -11,14 +11,14 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:url" content="https://endfew-ai.github.io/e-shidai-life-code/" />
-    <meta property="og:image" content="https://endfew-ai.github.io/e-shidai-life-code/og-b-v2.png" />
+    <meta property="og:image" content="https://endfew-ai.github.io/e-shidai-life-code/og-b-v3.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="深靛古金數字軌跡與生日命碼主視覺" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="e世代生命密碼分析儀" />
     <meta name="twitter:description" content="看見你的數字軌跡。從生日命碼開始，逐步核對完整算式。" />
-    <meta name="twitter:image" content="https://endfew-ai.github.io/e-shidai-life-code/og-b-v2.png" />
+    <meta name="twitter:image" content="https://endfew-ai.github.io/e-shidai-life-code/og-b-v3.png" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <script type="module" src="app.js"></script>
@@ -27,22 +27,16 @@
     <main class="site-shell">
       <nav class="topbar" aria-label="主要導覽">
         <a class="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong>e世代生命密碼</strong></a>
-        <div><a href="#analyzer">分析工具</a><a href="#method-source">計算方法</a><a href="#data-source">資料來源</a></div>
+        <div><a href="#analyzer">開始分析</a><a href="#method-source">規則來源</a></div>
       </nav>
 
       <header class="hero" id="top">
-        <div class="hero-copy-block">
-          <p class="eyebrow">玄星觀象・數理分析儀</p>
-          <h1>看見你的<br /><span>數字軌跡</span></h1>
-          <p>從生日命碼開始，逐步核對生命路徑、生日數、態度數與個人流年。</p>
-          <a class="primary-button hero-cta" href="#analyzer">開始生日分析<span aria-hidden="true">↘</span></a>
-          <dl class="hero-facts"><div><dt>4</dt><dd>項生日指標</dd></div><div><dt>1 至 9</dt><dd>數字分布</dd></div><div><dt>100%</dt><dd>瀏覽器本機運算</dd></div></dl>
-        </div>
-        <figure class="hero-visual"><img src="public/visuals/birth-orbit-b-v2.webp" alt="古金曆法軌道與生日命碼主視覺" /><figcaption><span>01</span><strong>生日命碼</strong><small>主要分析功能</small></figcaption></figure>
+        <h1 class="sr-only">看見你的數字軌跡</h1>
+        <img class="hero-art" src="public/visuals/hero-brush-title-b-v3.webp" alt="金墨毛筆字寫著看見你的數字軌跡，右側為古金曆法星軌" />
+        <div class="hero-rail"><p><strong>玄星觀象</strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
       </header>
 
       <section class="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
-        <header class="analyzer-heading"><div><p class="section-index">主分析儀 01</p><h2 id="analyzer-title">生日命碼</h2><p id="analyzer-description">生命路徑、生日數、態度數與個人流年</p></div><span>所有資料只在本機處理</span></header>
         <form class="analyzer-card" id="analyzer-form" novalidate>
           <fieldset class="mode-switch">
             <legend class="sr-only">分析模式</legend>
@@ -52,17 +46,17 @@
           </fieldset>
 
           <div class="mode-workbench">
+            <figure class="mode-art"><img id="mode-art-image" src="public/visuals/birthday-panel-b-v3.webp" alt="古金曆法年輪與生日節點模組背景" /><figcaption><p class="section-index">當前分析模式</p><h2 id="analyzer-title">生日命碼</h2><span id="analyzer-description">生命路徑、生日數、態度數與個人流年</span></figcaption></figure>
             <div class="mode-controls">
-              <div data-mode-panel="birthday"><label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label></div>
-              <div data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
-              <div data-mode-panel="iching" hidden><div class="triple-input-grid"><label class="field-block"><span>第一個整數<small>取上卦・除以 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第二個整數<small>取下卦・除以 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第三個整數<small>取動爻・除以 6</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message" /></label></div></div>
+              <div class="input-panel" data-mode-panel="birthday"><label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label></div>
+              <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
+              <div class="input-panel" data-mode-panel="iching" hidden><div class="triple-input-grid"><label class="field-block"><span>第一個整數<small>取上卦・除以 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第二個整數<small>取下卦・除以 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第三個整數<small>取動爻・除以 6</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message" /></label></div></div>
               <div class="form-meta"><p id="input-help">只需西元生日，不需姓名、時辰或身分證字號。</p><button type="button" class="text-button" id="clear-button" hidden>清除輸入</button></div>
               <p id="input-message" class="form-message" role="alert" aria-live="polite"></p>
               <button type="submit" class="primary-button analyze-submit" id="analyze-button">分析生日命碼<span aria-hidden="true">↘</span></button>
             </div>
-            <figure class="mode-art"><img id="mode-art-image" src="public/visuals/birth-orbit-b-v2.webp" alt="古金曆法軌道與生日節點視覺" /><figcaption id="mode-art-caption">生日命碼・固定規則</figcaption></figure>
           </div>
-          <ol class="method-strip" aria-label="分析流程"><li><span>01</span>辨識資料</li><li><span>02</span>套用規則</li><li><span>03</span>顯示算式</li><li><span>04</span>核對結果</li></ol>
+          <ul class="method-strip" aria-label="分析承諾"><li>固定規則</li><li>顯示完整算式</li><li>資料不上傳</li></ul>
         </form>
       </section>
 
@@ -70,11 +64,12 @@
       <noscript><p class="form-message">請啟用瀏覽器 JavaScript，才能在本機執行計算。</p></noscript>
 
       <section class="method-source" id="method-source" aria-labelledby="method-source-title">
-        <header><p>規則透明</p><h2 id="method-source-title">每個結果都能回頭核對</h2></header>
-        <div><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article></div>
+        <details>
+          <summary><span>規則與來源</span><strong id="method-source-title">查看固定規則、古籍本文與使用邊界</strong><small>可展開核對</small></summary>
+          <div class="method-source-body"><div class="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article></div>
+          <div class="data-source" id="data-source"><div><h2>方法與本文來源</h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></div></div>
+        </details>
       </section>
-
-      <section class="data-source" id="data-source"><div><h2>方法與本文來源</h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></section>
 
       <section class="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title">使用提醒</h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
       <footer><p>© <span id="copyright-year"></span> e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>

@@ -1,0 +1,71 @@
+# 玄星觀象 B 版：Image2 模組提示詞
+
+本文件記錄參考圖的反推風格，以及本次實際交付的 AI 視覺模組。圖片只負責材質、構圖與文化氛圍；標題、輸入欄、按鈕、數字、卦名與結果全部由 HTML 顯示，避免假字並保留無障礙與響應式能力。
+
+## 反推母提示詞
+
+```text
+Use case: responsive website module background.
+Create a museum-grade East Asian celestial calculation instrument on edge-to-edge deep indigo-black lacquered handmade paper. Use precise antique-gold and aged-brass engraved linework, subtle natural fibers, sparse celestial dust, restrained low-key museum lighting, matte material, crisp geometry, dense but calm composition, and a contemporary luxury Taiwanese/Chinese heritage mood.
+
+Compose as a wide horizontal banner. Put the strongest instrument motif on the right half and preserve a calm dark safe area on the left-center for real accessible HTML. Important motifs must survive both desktop and narrow mobile crops. Use one restrained antique-gold accent only.
+
+No readable text, letters, digits, Chinese characters, pseudo-text, equations, logo, watermark, people, faces, animals, UI controls, input fields, buttons, tabs, cards, device frames, game HUD, cyberpunk, purple neon, electric-blue glow, glassmorphism, glossy 3D, excessive particles, temples, dragons, or occult horror.
+```
+
+## 模組 01：金墨毛筆主視覺
+
+- 網站檔案：`public/visuals/hero-brush-title-b-v3.webp`
+- 社群預覽：`og-b-v3.png`、`public/og-b-v3.png`
+
+```text
+Use the supplied dashboard only as a style reference. Create a premium deep-indigo and antique-gold hero artwork. On the left, hand-paint exactly two lines of expressive Traditional Chinese calligraphy in metallic golden ink: 「看見你的」 and 「數字軌跡」. The brushwork must show real bristle splits, dry-brush edges, uneven ink pooling and hand-written rhythm, never a computer font. On the right, place an antique brass birth-calendar orbit with fine celestial paths and nodes. No other text, logo, UI, I Ching hexagram or yin-yang symbol. Wide responsive composition with safe central cropping.
+```
+
+## 模組 02：生日命碼
+
+- 網站檔案：`public/visuals/birthday-panel-b-v3.webp`
+
+```text
+Apply the mother prompt. Visualize birth date as intersecting calendar rings, solar and lunar orbital paths, abstract day and month tick marks, and a few precise brass nodes. This is the primary and brightest functional module. Put the calendar mechanism and sun-moon assembly on the right 42 percent; preserve the left-center 55 percent as a dark HTML safe area. Abstract ticks must not resemble readable numerals. Do not use I Ching, bagua, yin-yang or divination symbols.
+```
+
+## 模組 03：數字頻譜
+
+- 網站檔案：`public/visuals/digit-spectrum-panel-b-v3.webp`
+
+```text
+Apply the mother prompt. Create a refined nine-node rhythmic matrix connected by fine brass paths, crossed by one graceful horizontal harmonic waveform, frequency trails and small resonance arcs. Keep the visual luminosity about 20 percent lower than the birthday module. Place the matrix and waveform across the right two-thirds, leaving a dark left-center HTML safe area. Nodes must be plain geometry, never digits. Do not use calendar rings, planets or I Ching symbols.
+```
+
+## 模組 04：數理結果摘要
+
+- 網站檔案：`public/visuals/numerology-result-panel-b-v3.webp`
+
+```text
+Apply the mother prompt. Build an abstract nine-position Lo Shu spatial lattice without numbers. Use nine plain brass nodes in a precise three-by-three relationship, with several thin segmented reduction paths converging into one result point and nested calculation arcs. Weight the composition to the right; preserve the left 52 percent and central horizontal band for real result text and metrics. No equations, operators, labels, planets or divination symbols.
+```
+
+## 模組 05：三數取卦補充儀
+
+- 網站檔案：`public/visuals/iching-instrument-b-v3.webp`
+
+```text
+Apply the mother prompt at lower visual weight. Create a precision six-line measuring instrument using six horizontal solid-or-split brass rails, tiny ticks, concentric arcs and one restrained mechanical pivot. Place it on the right and leave the left half dark for HTML. It may suggest line measurement but must contain no卦名、可讀文字、吉凶符號、八卦輪或陰陽圖。Keep it clearly subordinate to birthday numerology.
+```
+
+## 模組 06：易經本文紙材
+
+- 網站檔案：`public/visuals/iching-manuscript-b-v3.webp`
+
+```text
+Apply the mother prompt at the lowest visual weight. Create a dark-indigo archival manuscript background with warm handmade-paper fibers, restrained brass registration lines, torn paper edges and a small low-contrast abstract hexagram index in the lower-right. Preserve a very large calm central area for real HTML《周易》text. No readable writing, no labels and no interpretation. Any generated index is decoration only and must never be used as a factual 64-hexagram table.
+```
+
+## 使用規則
+
+1. AI 圖不可承載資料、公式、卦序、按鈕或輸入欄。
+2. 每個功能模組上方都要有真正的 HTML 標題與說明。
+3. 生日命碼永遠是最亮、最先出現的主功能；數字頻譜次之；三數取卦為補充。
+4. 手機版可裁切或降低背景圖對比，但不可把操作文字做進圖片。
+5. `iching-manuscript-b-v3.webp` 右下索引只是裝飾，不可當成六十四卦資料來源。

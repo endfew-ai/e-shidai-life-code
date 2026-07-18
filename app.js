@@ -16,23 +16,23 @@ const modeContent = {
     description: "生命路徑、生日數、態度數與個人流年",
     button: "分析生日命碼",
     help: "只需西元生日，不需姓名、時辰或身分證字號。",
-    art: "public/visuals/birth-orbit-b-v2.webp",
-    alt: "古金曆法軌道與生日節點視覺",
+    art: "public/visuals/birthday-panel-b-v3.webp",
+    alt: "古金曆法年輪與生日節點模組背景",
   },
   code: {
     label: "數字頻譜",
     description: "任意號碼的加總、核心數與數字分布",
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
-    art: "public/visuals/digit-wave-b-v2.webp",
-    alt: "古金數字波形與頻率刻度視覺",
+    art: "public/visuals/digit-spectrum-panel-b-v3.webp",
+    alt: "古金數字頻率波形與九點節律模組背景",
   },
   iching: {
     label: "三數取卦",
     description: "固定卦表推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
-    art: "public/visuals/iching-instrument-b-v2.webp",
+    art: "public/visuals/iching-instrument-b-v3.webp",
     alt: "低亮古金六爻測量儀視覺",
   },
 };
@@ -67,15 +67,20 @@ function createMetricCard(label, value, note) {
 }
 
 function createCalculationCard(result) {
-  const card = element("article", "calculation-card");
-  card.append(panelHeading("計算軌跡", "這個結果怎麼算", "可逐步核對"));
+  const card = element("details", "result-disclosure calculation-card");
+  const summary = element("summary");
+  const summaryCopy = element("span");
+  summaryCopy.append(element("small", "", "計算軌跡"), element("strong", "", "查看完整算式"));
+  summary.append(summaryCopy, element("em", "", `${result.calculations.length} 步可逐項核對`));
+  const body = element("div", "disclosure-body");
+  body.append(panelHeading("計算軌跡", "這個結果怎麼算", "可逐步核對"));
   const list = element("ol", "calculation-list");
   for (const item of result.calculations) {
     const row = element("li");
     row.append(element("span", "", item.label), element("code", "", item.text));
     list.append(row);
   }
-  card.append(list);
+  body.append(list);
 
   if (result.kind === "birthday") {
     const cycles = element("div", "year-cycle");
@@ -85,16 +90,22 @@ function createCalculationCard(result) {
       cycleCard.append(element("span", "", cycle.year), element("strong", "", cycle.value), element("small", "", cycle.year === result.personalYear.year ? "今年" : "流年"));
       cycles.append(cycleCard);
     }
-    card.append(cycles);
+    body.append(cycles);
   }
+  card.append(summary, body);
   return card;
 }
 
 function createDigitDistribution(result) {
   const title = result.kind === "birthday" ? "生日數字九宮分布" : "自訂數字九宮分布";
-  const card = element("article", "calculation-card digit-distribution");
-  card.append(panelHeading("數字分布", title, `數字 0 出現 ${result.zeroCount} 次`));
-  card.append(element("p", "panel-copy", "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。"));
+  const card = element("details", "result-disclosure calculation-card digit-distribution");
+  const summary = element("summary");
+  const summaryCopy = element("span");
+  summaryCopy.append(element("small", "", "數字分布"), element("strong", "", "查看完整九宮"));
+  summary.append(summaryCopy, element("em", "", `出現 ${9 - result.missing.length} 種・缺少 ${result.missing.length} 種`));
+  const body = element("div", "disclosure-body");
+  body.append(panelHeading("數字分布", title, `數字 0 出現 ${result.zeroCount} 次`));
+  body.append(element("p", "panel-copy", "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。"));
   const grid = element("div", "lo-shu-grid");
   grid.setAttribute("aria-label", "一到九數字出現次數");
   for (const digit of LO_SHU_ORDER) {
@@ -106,18 +117,20 @@ function createDigitDistribution(result) {
     cell.append(element("strong", "", digit), element("span", "", count ? `${count} 次` : "未出現"), bar);
     grid.append(cell);
   }
-  card.append(grid, element("p", "missing-summary", result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"));
+  body.append(grid, element("p", "missing-summary", result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"));
+  card.append(summary, body);
   return card;
 }
 
 function createInsightLedger(profile) {
-  const section = element("section", "insight-ledger");
+  const section = element("details", "insight-ledger");
   section.setAttribute("aria-labelledby", "insight-title");
-  const header = element("header");
-  const heading = element("div");
-  heading.append(element("p", "", "原型參考"), element("h3", "", "把結果變成可觀察的問題"));
-  heading.lastElementChild.id = "insight-title";
-  header.append(heading);
+  const summary = element("summary");
+  const heading = element("span");
+  const headingTitle = element("strong", "", "把結果變成可觀察的問題");
+  headingTitle.id = "insight-title";
+  heading.append(element("small", "", "原型參考"), headingTitle);
+  summary.append(heading, element("em", "", "4 項觀察提醒"));
   const grid = element("div");
   const items = [
     ["01", "核心傾向", profile.traits],
@@ -132,7 +145,7 @@ function createInsightLedger(profile) {
     article.append(element("p", "", copy));
     grid.append(article);
   }
-  section.append(header, grid);
+  section.append(summary, grid);
   return section;
 }
 
@@ -160,7 +173,7 @@ function createNumerologyResult(result, onReset) {
   copy.append(title, element("p", "", `${profile.symbol}。以下內容只作文化娛樂與自我提問參考。`));
   const art = element("figure", "result-art");
   art.append(
-    imageElement(result.kind === "birthday" ? "public/visuals/birth-grid-b-v2.webp" : "public/visuals/digit-nodes-b-v2.webp", "古金數字節點分析視覺"),
+    imageElement(result.kind === "birthday" ? "public/visuals/numerology-result-panel-b-v3.webp" : "public/visuals/digit-spectrum-panel-b-v3.webp", "古金數理節點分析模組背景"),
     element("figcaption", "", `核心數 ${result.headlineValue}`),
   );
   hero.append(copy, art);
@@ -235,19 +248,18 @@ function createHexagramCard(label, value, movingIndex = -1, mark = "") {
 function createOriginalTextPanel(result) {
   const original = getIChingText(result.original.hexId);
   const transformed = getIChingText(result.transformed.hexId);
-  const panel = element("section", "classic-panel");
+  const panel = element("details", "classic-panel");
   panel.setAttribute("aria-labelledby", "classic-title");
-  const art = imageElement("public/visuals/iching-manuscript-b-v2.webp", "");
+  const summary = element("summary", "classic-summary");
+  const summaryCopy = element("span");
+  const headingTitle = element("strong", "", "易經本文");
+  headingTitle.id = "classic-title";
+  summaryCopy.append(element("small", "", "補充資料"), headingTitle);
+  summary.append(summaryCopy, element("em", "", "展開卦辭、彖、象與六爻原文"), element("i", "", "只列原文，不解卦"));
+  const art = imageElement("public/visuals/iching-manuscript-b-v3.webp", "");
   art.className = "classic-panel-art";
   art.setAttribute("aria-hidden", "true");
   const inner = element("div", "classic-panel-inner");
-
-  const heading = element("header", "classic-heading");
-  const headingCopy = element("div");
-  const headingTitle = element("h2", "", "易經本文");
-  headingTitle.id = "classic-title";
-  headingCopy.append(element("p", "", "補充資料"), headingTitle);
-  heading.append(headingCopy, element("span", "", "只列原文，不解卦"));
 
   const name = element("div", "classic-name");
   const symbol = element("span", "", original.symbol);
@@ -281,7 +293,7 @@ function createOriginalTextPanel(result) {
     lines.append(article);
   }
 
-  inner.append(heading, name, columns, lines);
+  inner.append(name, columns, lines);
   if (original.wenyan) {
     const details = element("details", "classic-details");
     details.append(element("summary", "", "展開《文言》原文"), element("p", "", original.wenyan));
@@ -300,7 +312,7 @@ function createOriginalTextPanel(result) {
   link.rel = "noreferrer";
   source.append(link, document.createTextNode(`，修訂版本 ${original.sourceRevision}。`));
   inner.append(source);
-  panel.append(art, inner);
+  panel.append(summary, art, inner);
   return panel;
 }
 
@@ -359,7 +371,6 @@ function initializeAnalyzer() {
   const analyzerTitle = document.querySelector("#analyzer-title");
   const analyzerDescription = document.querySelector("#analyzer-description");
   const modeArt = document.querySelector("#mode-art-image");
-  const modeArtCaption = document.querySelector("#mode-art-caption");
   const resultAnchor = document.querySelector("#result-anchor");
   let mode = "birthday";
 
@@ -394,7 +405,6 @@ function initializeAnalyzer() {
     analyzeButton.firstChild.textContent = modeContent[mode].button;
     modeArt.src = modeContent[mode].art;
     modeArt.alt = modeContent[mode].alt;
-    modeArtCaption.textContent = `${modeContent[mode].label}・固定規則`;
     message.textContent = "";
     setInvalid(false);
     clearResult();
