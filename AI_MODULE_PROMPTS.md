@@ -13,14 +13,16 @@ Compose as a wide horizontal banner. Put the strongest instrument motif on the r
 No readable text, letters, digits, Chinese characters, pseudo-text, equations, logo, watermark, people, faces, animals, UI controls, input fields, buttons, tabs, cards, device frames, game HUD, cyberpunk, purple neon, electric-blue glow, glassmorphism, glossy 3D, excessive particles, temples, dragons, or occult horror.
 ```
 
-## 模組 01：金墨毛筆主視覺
+## 模組 01：無字主視覺背景
 
-- 網站檔案：`public/visuals/hero-brush-title-b-v3.webp`
+- 網站檔案：`public/visuals/hero-celestial-background-v4.webp`
 - 社群預覽：`og-b-v3.png`、`public/og-b-v3.png`
 
 ```text
-Use the supplied dashboard only as a style reference. Create a premium deep-indigo and antique-gold hero artwork. On the left, hand-paint exactly two lines of expressive Traditional Chinese calligraphy in metallic golden ink: 「看見你的」 and 「數字軌跡」. The brushwork must show real bristle splits, dry-brush edges, uneven ink pooling and hand-written rhythm, never a computer font. On the right, place an antique brass birth-calendar orbit with fine celestial paths and nodes. No other text, logo, UI, I Ching hexagram or yin-yang symbol. Wide responsive composition with safe central cropping.
+Edit the supplied hero artwork into a background-only asset. Remove all Chinese characters and calligraphy completely. Reconstruct the left side as deep indigo-black celestial handmade-paper texture with subtle gold dust. Preserve the antique brass astrolabe, orbital lines, star points, lighting and premium composition on the right. No text, letters, logo, watermark or writing-like symbols. Leave a calm left safe area for a separate transparent title module.
 ```
+
+主標語不再烘焙於背景中；前端另外疊放 `public/visuals/brush/title-hero-v5.webp`。
 
 ## 模組 02：生日命碼
 
@@ -76,6 +78,10 @@ Apply the mother prompt at the lowest visual weight. Create a dark-indigo archiv
 | 數理結果 | `public/visuals/brush/title-result-v4.webp` |
 | 易經本文 | `public/visuals/brush/title-classic-v4.webp` |
 | 規則與來源 | `public/visuals/brush/title-rules-v4.webp` |
+| 看見你的／數字軌跡 | `public/visuals/brush/title-hero-v5.webp` |
+| 把結果變成可觀察的問題 | `public/visuals/brush/title-insight-v5.webp` |
+| 方法與本文來源 | `public/visuals/brush/title-source-v5.webp` |
+| 使用提醒 | `public/visuals/brush/title-disclaimer-v5.webp` |
 
 ```text
 Use case: logo-brand.
@@ -103,3 +109,4 @@ Begin with one clearly recognizable lowercase Latin letter e, immediately follow
 3. 生日命碼永遠是最亮、最先出現的主功能；數字頻譜次之；三數取卦為補充。
 4. 手機版可裁切或降低背景圖對比，但不可把操作文字做進圖片。
 5. `iching-manuscript-b-v3.webp` 右下索引只是裝飾，不可當成六十四卦資料來源。
+6. Hero 背景與「看見你的／數字軌跡」必須維持兩個不同檔案，禁止再次合成為單張 UI 圖。

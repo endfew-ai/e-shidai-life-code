@@ -140,8 +140,9 @@ function createInsightLedger(profile) {
   section.setAttribute("aria-labelledby", "insight-title");
   const summary = element("summary");
   const heading = element("span");
-  const headingTitle = element("strong", "", "把結果變成可觀察的問題");
+  const headingTitle = element("strong");
   headingTitle.id = "insight-title";
+  headingTitle.append(brushTitleElement("public/visuals/brush/title-insight-v5.webp", "把結果變成可觀察的問題", "brush-insight"));
   heading.append(element("small", "", "原型參考"), headingTitle);
   summary.append(heading, element("em", "", "4 項觀察提醒"));
   const grid = element("div");

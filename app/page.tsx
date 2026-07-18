@@ -155,7 +155,7 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
       <div className="result-overview"><CalculationDetails result={result} /><DigitDistribution result={result} /></div>
 
       <details className="insight-ledger" aria-labelledby="insight-title">
-        <summary><span><small>原型參考</small><strong id="insight-title">把結果變成可觀察的問題</strong></span><em>4 項觀察提醒</em></summary>
+        <summary><span><small>原型參考</small><strong id="insight-title"><BrushTitle src="/visuals/brush/title-insight-v5.webp" text="把結果變成可觀察的問題" className="brush-insight" /></strong></span><em>4 項觀察提醒</em></summary>
         <div>
           <article><span>01</span><h4>核心傾向</h4><p>{profile.traits}</p></article>
           <article><span>02</span><h4>壓力提醒</h4><p>{profile.shadow}</p></article>
@@ -312,8 +312,8 @@ export default function Home() {
       </nav>
 
       <header className="hero" id="top">
-        <h1 className="sr-only">看見你的數字軌跡</h1>
-        <img className="hero-art" src="/visuals/hero-brush-title-b-v3.webp" alt="金墨毛筆字寫著看見你的數字軌跡，右側為古金曆法星軌" />
+        <img className="hero-art" src="/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
+        <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-v5.webp" text="看見你的數字軌跡" className="brush-hero" /></h1>
         <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
       </header>
 
@@ -353,11 +353,11 @@ export default function Home() {
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
           <div className="method-source-body"><div className="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article></div>
-          <div className="data-source" id="data-source"><div><h2>方法與本文來源</h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></div></div>
+          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></div></div>
         </details>
       </section>
 
-      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title">使用提醒</h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
+      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
       <footer><p>© {new Date().getFullYear()} e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>
     </main>
   );

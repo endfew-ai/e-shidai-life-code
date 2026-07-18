@@ -3,9 +3,10 @@ import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("GitHub Pages entrypoint is numerology-first with three isolated modes and safeguards", async () => {
-  const [html, appSource, styles] = await Promise.all([
+  const [html, appSource, reactSource, styles] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../app.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../styles.css", import.meta.url), "utf8"),
   ]);
   assert.match(html, /<html lang="zh-Hant-TW">/);
@@ -20,7 +21,9 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-b-v3\.png/);
-  assert.match(html, /hero-brush-title-b-v3\.webp/);
+  assert.match(html, /hero-celestial-background-v4\.webp/);
+  assert.match(html, /title-hero-v5\.webp/);
+  assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
   assert.match(html, /birthday-panel-b-v3\.webp/);
   assert.match(html, /brand-life-code-v4\.webp/);
   assert.match(html, /theme-xuanxing-v4\.webp/);
@@ -28,6 +31,16 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
   assert.match(html, /title-spectrum-v4\.webp/);
   assert.match(html, /title-iching-v4\.webp/);
   assert.match(html, /title-rules-v4\.webp/);
+  assert.match(html, /title-source-v5\.webp/);
+  assert.match(html, /title-disclaimer-v5\.webp/);
+  assert.match(appSource, /title-insight-v5\.webp/);
+  assert.match(reactSource, /title-insight-v5\.webp/);
+  assert.match(html, /<span class="sr-only">看見你的數字軌跡<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-hero-v5\.webp"/);
+  assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-v5\.webp"/);
+  assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-v5\.webp"/);
+  assert.match(appSource, /brushTitleElement\("public\/visuals\/brush\/title-insight-v5\.webp", "把結果變成可觀察的問題"/);
+  assert.doesNotMatch(html, /<h2>方法與本文來源<\/h2>/);
+  assert.doesNotMatch(html, /<h2 id="disclaimer-title">使用提醒<\/h2>/);
   assert.doesNotMatch(html, /birth-orbit-b-v2\.webp/);
   assert.match(html, /<link rel="icon" href="public\/favicon\.svg"/);
   assert.match(appSource, /from "\.\/calculator-core\.js"/);
@@ -51,7 +64,7 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
     access(new URL("../public/ai-modules/shadow-prism.webp", import.meta.url)),
     access(new URL("../public/ai-modules/wellbeing-flow.webp", import.meta.url)),
     access(new URL("../public/ai-modules/language-signal.webp", import.meta.url)),
-    access(new URL("../public/visuals/hero-brush-title-b-v3.webp", import.meta.url)),
+    access(new URL("../public/visuals/hero-celestial-background-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/birthday-panel-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/digit-spectrum-panel-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/numerology-result-panel-b-v3.webp", import.meta.url)),
@@ -65,6 +78,10 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
     access(new URL("../public/visuals/brush/title-result-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-classic-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-rules-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-hero-v5.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-insight-v5.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-source-v5.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-disclaimer-v5.webp", import.meta.url)),
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
   ]);
 });
