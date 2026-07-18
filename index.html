@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#090d13" />
     <title>e世代生命密碼分析儀</title>
-    <meta
-      name="description"
-      content="輸入一組數字，探索你的核心特質、溝通模式與下一步行動提醒。資料只在瀏覽器內計算。"
-    />
+    <meta name="description" content="生日命碼、數字頻譜與三數取卦分開計算，提供可逐步核對的完整算式。資料只在瀏覽器內處理。" />
     <meta property="og:title" content="e世代生命密碼分析儀" />
-    <meta property="og:description" content="從數字出發，閱讀你的行動慣性、溝通模式與成長提醒。" />
+    <meta property="og:description" content="三種資料、三套固定規則；每一步都能核對。" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="zh_TW" />
     <meta property="og:image" content="https://endfew-ai.github.io/e-shidai-life-code/og.png" />
@@ -25,116 +22,111 @@
 
       <header class="hero">
         <div class="brand-mark" aria-hidden="true"><span>易</span></div>
-        <p class="eyebrow">I CHING · NUMEROLOGY · SELF REFLECTION</p>
+        <p class="eyebrow">I CHING · NUMEROLOGY · TRANSPARENT LOGIC</p>
         <h1>e世代<span>生命密碼</span>分析儀</h1>
-        <p class="hero-copy">以數字收斂為起點，閱讀你的行動慣性、溝通模式與成長提醒。</p>
-        <div class="hero-note" role="note">
-          <span class="note-dot" aria-hidden="true"></span>
-          所有計算只在你的瀏覽器內完成，不儲存、不傳送輸入內容。
-        </div>
+        <p class="hero-copy">三種資料、三套獨立規則。每一步都能核對，不把生日、號碼與易經混成同一種答案。</p>
+        <div class="hero-note" role="note"><span class="note-dot" aria-hidden="true"></span>所有計算只在你的瀏覽器內完成，不儲存、不傳送輸入內容。</div>
       </header>
 
       <section class="analyzer-card" aria-labelledby="analyzer-title">
         <div class="analyzer-heading">
-          <div>
-            <p class="section-kicker">開始分析</p>
-            <h2 id="analyzer-title">輸入一組對你有意義的數字</h2>
-          </div>
+          <div><p class="section-kicker">選擇分析方式</p><h2 id="analyzer-title">先確認你要分析哪一種資料</h2></div>
           <span class="step-badge">01</span>
         </div>
 
         <form id="analyzer-form" novalidate>
-          <label for="number-code">數字符碼</label>
-          <div class="input-row">
-            <input
-              id="number-code"
-              name="number-code"
-              type="text"
-              inputmode="numeric"
-              autocomplete="off"
-              maxlength="40"
-              placeholder="例如：19950102"
-              aria-describedby="input-help input-message"
-            />
-            <button type="submit" class="primary-button">
-              解碼核心特質
-              <span aria-hidden="true">→</span>
-            </button>
+          <fieldset class="mode-switch">
+            <legend class="sr-only">分析模式</legend>
+            <label class="is-active" data-mode-label="birthday">
+              <input type="radio" name="analysis-mode" value="birthday" checked />
+              <span><strong>生日命碼</strong><small>生命路徑、生日數、態度數與個人流年</small></span>
+            </label>
+            <label data-mode-label="code">
+              <input type="radio" name="analysis-mode" value="code" />
+              <span><strong>數字頻譜</strong><small>任意號碼的加總、核心數與數字分布</small></span>
+            </label>
+            <label data-mode-label="iching">
+              <input type="radio" name="analysis-mode" value="iching" />
+              <span><strong>三數取卦</strong><small>固定卦表推算本卦、互卦、動爻與變卦</small></span>
+            </label>
+          </fieldset>
+
+          <div class="mode-panel">
+            <div data-mode-panel="birthday">
+              <label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label>
+            </div>
+            <div data-mode-panel="code" hidden>
+              <label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label>
+            </div>
+            <div data-mode-panel="iching" hidden>
+              <div class="triple-input-grid">
+                <label class="field-block"><span>第一個整數<small>取上卦・除以 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" /></label>
+                <label class="field-block"><span>第二個整數<small>取下卦・除以 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" /></label>
+                <label class="field-block"><span>第三個整數<small>取動爻・除以 6</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" /></label>
+              </div>
+            </div>
           </div>
-          <div class="form-meta">
-            <p id="input-help">可輸入生日、手機末碼或自訂數字；為保護隱私，請勿輸入完整身分證號。</p>
-            <button type="button" class="text-button" id="clear-button" hidden>清除</button>
-          </div>
+
+          <div class="form-meta"><p id="input-help">只需生日，不需姓名、時辰或身分證字號。</p><button type="button" class="text-button" id="clear-button" hidden>清除</button></div>
           <p id="input-message" class="form-message" role="alert" aria-live="polite"></p>
+          <button type="submit" class="primary-button analyze-submit" id="analyze-button">分析生日數理<span aria-hidden="true">→</span></button>
         </form>
 
-        <div class="method-strip" aria-label="分析流程">
-          <span>提取數字</span><i aria-hidden="true"></i>
-          <span>逐位加總</span><i aria-hidden="true"></i>
-          <span>收斂至 1–9</span><i aria-hidden="true"></i>
-          <span>對照特質</span>
-        </div>
+        <ol class="method-strip" aria-label="分析流程"><li><span>1</span>辨識資料類型</li><li><span>2</span>套用固定規則</li><li><span>3</span>顯示完整算式</li><li><span>4</span>對照結果</li></ol>
       </section>
 
-      <section class="results" id="results" aria-labelledby="result-title" aria-live="polite" hidden>
-        <div class="result-hero">
-          <div class="number-orbit" aria-hidden="true"><span id="life-number">0</span></div>
-          <div class="result-heading">
-            <p class="section-kicker">你的核心原型</p>
-            <h2 id="result-title">—</h2>
-            <p id="result-symbol">—</p>
+      <div class="result-anchor" id="result-anchor">
+        <section class="results" id="numerology-results" aria-labelledby="result-title" hidden>
+          <div class="result-hero">
+            <div class="number-orbit"><span id="headline-number">0</span></div>
+            <div class="result-heading"><p class="section-kicker" id="result-kicker">核心原型</p><h2 id="result-title" tabindex="-1">—</h2><p id="result-symbol">—</p></div>
+            <div class="energy-color"><span id="color-swatch" aria-hidden="true"></span><div><small>視覺識別色</small><strong id="color-name">—</strong></div></div>
           </div>
-          <div class="energy-color">
-            <span id="color-swatch" aria-hidden="true"></span>
-            <div><small>能量共振色</small><strong id="color-name">—</strong></div>
+
+          <div class="metric-grid" id="metric-grid"></div>
+          <div class="master-note" id="master-note" role="note" hidden><strong id="master-title"></strong><p id="master-text"></p></div>
+
+          <div class="result-overview">
+            <article class="calculation-card">
+              <div class="panel-heading"><div><p class="card-label">CALCULATION TRACE</p><h3>這個結果怎麼算</h3></div><span class="verified-badge">可逐步核對</span></div>
+              <ol class="calculation-list" id="calculation-list"></ol>
+              <div class="year-cycle" id="year-cycle" hidden></div>
+            </article>
+            <article class="calculation-card digit-distribution">
+              <div class="panel-heading"><div><p class="card-label">DIGIT MAP</p><h3 id="digit-map-title">數字九宮分布</h3></div><span class="zero-count" id="zero-count">0 出現 0 次</span></div>
+              <p class="panel-copy">採洛書 4・9・2／3・5・7／8・1・6 版位呈現出現次數；這是現代數字視覺化，不宣稱為古法命盤。</p>
+              <div class="lo-shu-grid" id="lo-shu-grid" aria-label="一到九數字出現次數"></div>
+              <p class="missing-summary" id="missing-summary"></p>
+            </article>
           </div>
-        </div>
 
-        <div class="insight-grid">
-          <article class="insight-card ai-module-card core-module" style="--module-image: url('public/ai-modules/core-orbit.webp')">
-            <span class="card-index">A</span><p class="card-label">CORE PATTERN</p>
-            <h3>核心人格特質</h3><p id="traits-text"></p>
-          </article>
-          <article class="insight-card ai-module-card shadow-card shadow-module" style="--module-image: url('public/ai-modules/shadow-prism.webp')">
-            <span class="card-index">B</span><p class="card-label">BLIND SPOT</p>
-            <h3>壓力下的盲點</h3><p id="shadow-text"></p>
-          </article>
-          <article class="insight-card ai-module-card wellbeing-module" style="--module-image: url('public/ai-modules/wellbeing-flow.webp')">
-            <span class="card-index">C</span><p class="card-label">WELLBEING</p>
-            <h3>身心照顧提醒</h3><p id="wellbeing-text"></p>
-          </article>
-          <article class="insight-card ai-module-card language-card language-module" style="--module-image: url('public/ai-modules/language-signal.webp')">
-            <span class="card-index">D</span><p class="card-label">LANGUAGE MARKER</p>
-            <h3>常見防禦語句</h3><blockquote id="marker-text"></blockquote><p id="marker-description"></p>
-          </article>
-        </div>
-
-        <article class="advice-card">
-          <div class="advice-symbol" aria-hidden="true">策</div>
-          <div>
-            <p class="section-kicker">本次行動建議</p>
-            <h3>讓洞察成為下一步</h3>
-            <p id="advice-text"></p>
+          <div class="insight-grid">
+            <article class="insight-card ai-module-card core-module" style="--module-image: url('public/ai-modules/core-orbit.webp')"><span class="card-index">A</span><p class="card-label">CORE PATTERN</p><h3>核心傾向</h3><p id="traits-text"></p></article>
+            <article class="insight-card ai-module-card shadow-card shadow-module" style="--module-image: url('public/ai-modules/shadow-prism.webp')"><span class="card-index">B</span><p class="card-label">BLIND SPOT</p><h3>壓力提醒</h3><p id="shadow-text"></p></article>
+            <article class="insight-card ai-module-card wellbeing-module" style="--module-image: url('public/ai-modules/wellbeing-flow.webp')"><span class="card-index">C</span><p class="card-label">WELLBEING</p><h3>日常照顧提示</h3><p id="wellbeing-text"></p></article>
+            <article class="insight-card ai-module-card language-card language-module" style="--module-image: url('public/ai-modules/language-signal.webp')"><span class="card-index">D</span><p class="card-label">LANGUAGE MARKER</p><h3>溝通提醒</h3><blockquote id="marker-text"></blockquote><p id="marker-description"></p></article>
           </div>
-        </article>
+          <article class="advice-card"><div class="advice-symbol" aria-hidden="true">策</div><div><p class="section-kicker">本次自我提問</p><h3>讓洞察成為下一步</h3><p id="advice-text"></p></div></article>
+          <div class="result-actions"><button type="button" class="secondary-button reset-button">重新分析另一筆資料</button></div>
+        </section>
 
-        <div class="result-actions">
-          <button type="button" class="secondary-button" id="reset-button">重新分析另一組數字</button>
-        </div>
-      </section>
+        <section class="iching-results" id="iching-results" aria-labelledby="iching-result-title" hidden>
+          <div class="iching-result-heading"><div><p class="section-kicker">固定卦表推算結果</p><h2 id="iching-result-title" tabindex="-1">本卦・互卦・變卦</h2></div><p id="moving-summary"></p></div>
+          <div class="hexagram-grid" id="hexagram-grid"></div>
+          <div class="iching-trace" id="iching-trace"></div>
+          <p class="iching-boundary">本模式採現代三數先天數法，與生日命碼完全分開；只做固定卦象計算，不提供吉凶或決策建議。</p>
+          <div class="result-actions"><button type="button" class="secondary-button reset-button">重新輸入三個數字</button></div>
+        </section>
+      </div>
 
-      <section class="disclaimer" aria-labelledby="disclaimer-title">
-        <span aria-hidden="true">※</span>
-        <div>
-          <h2 id="disclaimer-title">使用提醒</h2>
-          <p>本工具內容屬文化娛樂與自我反思用途，不是科學測驗、醫療診斷、心理評估或專業建議。重要的健康、財務、工作或關係決定，請依實際情況並諮詢合格專業人士。</p>
-        </div>
-      </section>
+      <section class="method-source" aria-labelledby="method-source-title"><details><summary id="method-source-title">方法來源與採用範圍</summary><div>
+        <p>生日命碼固定採西方數字命理的月、日、年分段化簡規則；生命路徑與生日核心保留 11、22、33，態度數及個人流年一律化簡至 1～9。</p>
+        <p>九宮只用來呈現 1～9 出現次數。傳統年月日時起卦需要農曆與時辰，本網站不會拿西元生日直接假造傳統卦象；三數取卦另列為獨立的現代先天數法。</p>
+        <p class="source-links"><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算來源</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》原文</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦流派說明</a></p>
+      </div></details></section>
 
-      <footer>
-        <p>© <span id="copyright-year"></span> e世代生命密碼研究中心</p>
-        <p>易經河洛意象 × 數字原型 × 自我覺察</p>
-      </footer>
+      <section class="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title">使用提醒</h2><p>本工具內容屬文化娛樂與自我反思用途，不是科學人格測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
+      <footer><p>© <span id="copyright-year"></span> e世代生命密碼研究中心</p><p>固定規則 × 可核對算式 × 本機隱私</p></footer>
     </main>
   </body>
 </html>
