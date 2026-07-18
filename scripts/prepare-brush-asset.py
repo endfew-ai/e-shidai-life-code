@@ -29,6 +29,8 @@ def _clean_fringe(image: Image.Image) -> Image.Image:
             )
             if alpha < 8 or is_green_fringe:
                 pixels[x, y] = (0, 0, 0, 0)
+            elif alpha < 192 and green > red + 16 and green > blue + 24:
+                pixels[x, y] = (red, min(green, red + 8), blue, alpha)
     return image
 
 
