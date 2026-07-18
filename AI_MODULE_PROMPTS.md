@@ -102,11 +102,35 @@ Constraints: no other text, seal, stamp, logo, icon, frame, diagram, ornament, s
 Begin with one clearly recognizable lowercase Latin letter e, immediately followed by 世代生命密碼. Character order: e / 世 / 代 / 生 / 命 / 密 / 碼. Do not use uppercase E or simplified 码.
 ```
 
+## 模組 08：邵康節專頁獨立字模
+
+新專頁的入口、頁面主題、頁面主標、四個內容區標題、結果標題與使用界線全部分開生成，不重複裁切同一張圖。每張使用上方共用字模提示詞，再以逐字鎖定句指定下列精確文字：
+
+| 用途 | 精確文字 | 網站檔案 |
+| --- | --- | --- |
+| 主頁第 4 入口 | 邵康節易學 | `public/visuals/brush/title-kangjie-entry-v1.webp` |
+| 專頁主題 | 康節觀象 | `public/visuals/brush/theme-kangjie-v1.webp` |
+| 專頁主標 | 象數觀物 | `public/visuals/brush/title-kangjie-hero-v1.webp` |
+| 傳本說明 | 原典脈絡 | `public/visuals/brush/title-kangjie-origins-v1.webp` |
+| 起卦工作台 | 梅花起卦 | `public/visuals/brush/title-kangjie-meihua-v1.webp` |
+| 皇極工作台 | 皇極尺度 | `public/visuals/brush/title-kangjie-huangji-v1.webp` |
+| 動態結果 | 衍算結果 | `public/visuals/brush/title-kangjie-result-v1.webp` |
+| 來源分頁 | 原文與來源 | `public/visuals/brush/title-kangjie-source-v1.webp` |
+| 使用界線 | 推演界線 | `public/visuals/brush/title-kangjie-boundary-v1.webp` |
+
+逐字鎖定句模板：
+
+```text
+Character lock: {CHARACTER_1} / {CHARACTER_2} / {CHARACTER_3} / {CHARACTER_4...}. Render all characters in exact left-to-right order as structurally correct Traditional Chinese. Keep authentic irregular hand-brush pressure, split bristles, flying-white gaps and antique-gold mineral pigment. Do not use geometric font outlines or typeset proportions.
+```
+
+正式檔案另以 `scripts/audit-kangjie-brush-assets.py` 檢查 RGBA、四角透明與半透明邊緣的綠色溢光；9 張必須全部為 0 個可見綠邊像素才可發布。
+
 ## 使用規則
 
 1. 除了逐字校對的固定毛筆標題，AI 圖不可承載資料、公式、卦序、按鈕或輸入欄。
 2. 每個毛筆字模都必須搭配真實 HTML 隱藏文字；動態標題與說明維持可選取的 HTML。
-3. 生日命碼永遠是最亮、最先出現的主功能；數字頻譜次之；三數取卦為補充。
+3. 生日命碼永遠是最亮、最先出現的主功能；數字頻譜次之；三數取卦為補充；邵康節易學使用第 4 入口開啟獨立專頁。
 4. 手機版可裁切或降低背景圖對比，但不可把操作文字做進圖片。
 5. `iching-manuscript-b-v3.webp` 右下索引只是裝飾，不可當成六十四卦資料來源。
 6. Hero 背景與「看見你的／數字軌跡」必須維持兩個不同檔案，禁止再次合成為單張 UI 圖。

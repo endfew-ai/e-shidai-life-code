@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#06111d" />
+    <meta name="description" content="邵康節易學專頁，以現行本梅花易數與皇極經世數制製作可核對的文化演算。" />
+    <meta property="og:title" content="邵康節易學｜象數觀物" />
+    <meta property="og:description" content="年月日時、物數、雙段聲數、字數起卦與元會運世尺度分解。" />
+    <meta property="og:image" content="https://endfew-ai.github.io/e-shidai-life-code/og-b-v3.png" />
+    <title>邵康節易學｜象數觀物</title>
+    <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="kangjie.css" />
+  </head>
+  <body>
+    <main class="site-shell kangjie-shell">
+      <nav class="topbar" aria-label="邵康節專頁導覽">
+        <a class="wordmark kangjie-wordmark" href="index.html"><span aria-hidden="true"><i>易</i></span><strong><span class="brush-title brush-brand"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-v1.webp" alt="" aria-hidden="true" /></span></strong></a>
+        <div><a href="index.html">返回首頁</a><a href="#workspace">開始衍算</a><a href="#sources" data-open-tab="sources">原文來源</a></div>
+      </nav>
+
+      <header class="hero kangjie-hero" id="top">
+        <img class="hero-art" src="public/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
+        <div class="kangjie-hero-copy">
+          <p class="section-index">同網域獨立專頁・固定規則・本機運算</p>
+          <h1 class="hero-title kangjie-hero-title"><span class="brush-title brush-kangjie-hero"><span class="sr-only">象數觀物</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-hero-v1.webp" alt="" aria-hidden="true" /></span></h1>
+          <p>把現行本所載公式逐步展開。只算卦象結構與時間尺度，不生成吉凶斷語。</p>
+        </div>
+        <div class="hero-rail kangjie-rail"><p><strong><span class="brush-title brush-kangjie-theme"><span class="sr-only">康節觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-kangjie-v1.webp" alt="" aria-hidden="true" /></span></strong><span>相傳邵雍所撰的現行傳本規則</span></p><p>梅花易數・皇極經世・完整算式可核對</p></div>
+      </header>
+
+      <section class="kangjie-overview" aria-label="專頁功能摘要">
+        <article><span>01</span><strong>四種起卦入口</strong><p>年月日時、物數、雙段聲數、十一字以上字數法互不混用。</p></article>
+        <article><span>02</span><strong>三層卦象</strong><p>固定呈現本卦、互卦、變卦、動爻與體用位置。</p></article>
+        <article><span>03</span><strong>五級時間尺度</strong><p>把任意年數拆成元、會、運、世、年，不套用爭議西元基準。</p></article>
+      </section>
+
+      <section class="kangjie-workspace" id="workspace" aria-label="邵康節易學內容與衍算">
+        <div class="kangjie-tabs" role="tablist" aria-label="專頁分頁">
+          <button type="button" role="tab" aria-selected="true" aria-controls="panel-origins" id="tab-origins" data-kangjie-tab="origins"><span>壹</span>原典脈絡</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-meihua" id="tab-meihua" data-kangjie-tab="meihua" tabindex="-1"><span>貳</span>梅花起卦</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-huangji" id="tab-huangji" data-kangjie-tab="huangji" tabindex="-1"><span>參</span>皇極尺度</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="panel-sources" id="tab-sources" data-kangjie-tab="sources" tabindex="-1"><span>肆</span>原文來源</button>
+        </div>
+
+        <section class="kangjie-panel" role="tabpanel" id="panel-origins" aria-labelledby="tab-origins" data-kangjie-panel="origins">
+          <header class="kangjie-panel-heading">
+            <div><p class="section-index">傳本與方法邊界</p><h2><span class="brush-title brush-kangjie-section"><span class="sr-only">原典脈絡</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-origins-v1.webp" alt="" aria-hidden="true" /></span></h2></div>
+            <p>本頁依現行本《梅花易數》及《皇極經世書》整理。書目常署宋邵雍撰，也有資料採「相傳」；本頁不宣稱現行傳本全為邵雍親筆。</p>
+          </header>
+          <div class="origin-ledger">
+            <article><span>先天數序</span><h3>乾一至坤八</h3><p>乾 1、兌 2、離 3、震 4、巽 5、坎 6、艮 7、坤 8。卦數整除 8 時歸坤。</p></article>
+            <article><span>年月日時</span><h3>傳統曆序手動輸入</h3><p>年支、農曆月、農曆日、時支各自取數。原典沒有公曆自動換算、閏月與換日規則。</p></article>
+            <article><span>物、聲、字</span><h3>每個入口各守其法</h3><p>可數之物、兩段聲數與十一字以上字數法分開，避免把任意號碼冒充通用古法。</p></article>
+            <article><span>皇極數制</span><h3>只做時間長度分解</h3><p>一世 30 年、一運 360 年、一會 10,800 年、一元 129,600 年。這是傳統數制，不是科學宇宙週期。</p></article>
+          </div>
+          <div class="method-map" aria-label="演算流程">
+            <span>選定原典入口</span><i aria-hidden="true">→</i><span>取得上卦與下卦</span><i aria-hidden="true">→</i><span>除六取動爻</span><i aria-hidden="true">→</i><span>建立互卦與變卦</span><i aria-hidden="true">→</i><span>逐步核對</span>
+          </div>
+          <button class="primary-button panel-next" type="button" data-open-tab="meihua">進入梅花起卦<span aria-hidden="true">↘</span></button>
+        </section>
+
+        <section class="kangjie-panel" role="tabpanel" id="panel-meihua" aria-labelledby="tab-meihua" data-kangjie-panel="meihua" hidden>
+          <header class="kangjie-panel-heading">
+            <div><p class="section-index">四個獨立入口</p><h2><span class="brush-title brush-kangjie-section"><span class="sr-only">梅花起卦</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-meihua-v1.webp" alt="" aria-hidden="true" /></span></h2></div>
+            <p>請先選方法，再輸入該方法真正需要的數。所有資料只留在目前瀏覽器頁面，不儲存、不上傳。</p>
+          </header>
+
+          <div class="method-selector" role="tablist" aria-label="梅花起卦方法">
+            <button type="button" role="tab" aria-selected="true" aria-controls="form-calendar" id="method-calendar" data-method-tab="calendar">年月日時</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="form-object" id="method-object" data-method-tab="object" tabindex="-1">物數</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="form-sound" id="method-sound" data-method-tab="sound" tabindex="-1">雙段聲數</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="form-text" id="method-text" data-method-tab="text" tabindex="-1">十一字以上</button>
+          </div>
+
+          <div class="method-forms">
+            <form class="kangjie-form" id="form-calendar" role="tabpanel" aria-labelledby="method-calendar" data-method-panel="calendar" novalidate>
+              <div class="form-intro"><div><span>原典公式</span><h3>年月日時起例</h3></div><p>年支加農曆月日取上卦，再加時支取下卦與動爻。</p></div>
+              <div class="quad-input-grid">
+                <label class="field-block"><span>年支<small>子 1 至亥 12</small></span><select name="yearBranch" required><option value="">請選年支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+                <label class="field-block"><span>農曆月<small>正月為 1</small></span><input name="lunarMonth" type="number" inputmode="numeric" min="1" max="12" placeholder="1 至 12" required /></label>
+                <label class="field-block"><span>農曆日<small>初一為 1</small></span><input name="lunarDay" type="number" inputmode="numeric" min="1" max="30" placeholder="1 至 30" required /></label>
+                <label class="field-block"><span>時支<small>子 1 至亥 12</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+              </div>
+              <p class="form-note">請自行確認農曆值。閏月、子初換日與年界需要依採用曆法另行核對。</p>
+              <p class="form-message" role="alert" aria-live="polite"></p>
+              <button class="primary-button" type="submit">依年月日時衍算<span aria-hidden="true">↘</span></button>
+            </form>
+
+            <form class="kangjie-form" id="form-object" role="tabpanel" aria-labelledby="method-object" data-method-panel="object" hidden novalidate>
+              <div class="form-intro"><div><span>原典公式</span><h3>物數起例</h3></div><p>可數之物作上卦，時支配作下卦，兩數合計取動爻。</p></div>
+              <div class="dual-input-grid">
+                <label class="field-block"><span>可數之物數量<small>大於 0 的整數</small></span><input name="count" type="text" inputmode="numeric" placeholder="例如：8" required /></label>
+                <label class="field-block"><span>時支<small>子 1 至亥 12</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+              </div>
+              <p class="form-note">只用真正可數的物件數量，不把生日、手機號碼或隨機數列混入。</p>
+              <p class="form-message" role="alert" aria-live="polite"></p>
+              <button class="primary-button" type="submit">依物數衍算<span aria-hidden="true">↘</span></button>
+            </form>
+
+            <form class="kangjie-form" id="form-sound" role="tabpanel" aria-labelledby="method-sound" data-method-panel="sound" hidden novalidate>
+              <div class="form-intro"><div><span>原典明確驗例</span><h3>雙段敲聲法</h3></div><p>第一段聲數作上卦、第二段聲數作下卦，再加時支取動爻。</p></div>
+              <div class="triple-input-grid">
+                <label class="field-block"><span>第一段聲數<small>大於 0 的整數</small></span><input name="firstCount" type="text" inputmode="numeric" placeholder="例如：1" required /></label>
+                <label class="field-block"><span>第二段聲數<small>大於 0 的整數</small></span><input name="secondCount" type="text" inputmode="numeric" placeholder="例如：5" required /></label>
+                <label class="field-block"><span>時支<small>子 1 至亥 12</small></span><select name="hourBranch" required><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+              </div>
+              <p class="form-note">本頁採卷一兩段敲門聲的明確算例，不把方向、物類或單段聲數的其他分支混在一起。</p>
+              <p class="form-message" role="alert" aria-live="polite"></p>
+              <button class="primary-button" type="submit">依雙段聲數衍算<span aria-hidden="true">↘</span></button>
+            </form>
+
+            <form class="kangjie-form" id="form-text" role="tabpanel" aria-labelledby="method-text" data-method-panel="text" hidden novalidate>
+              <div class="form-intro"><div><span>原典限定範圍</span><h3>十一字以上字數法</h3></div><p>十一至一百字不用平仄，只依字數少分上卦、多分下卦，合數取動爻。</p></div>
+              <label class="field-block text-field"><span>輸入 11 至 100 個漢字<small>空格、標點、數字、拉丁字母與符號不計</small></span><textarea name="text" rows="4" placeholder="例如：天地定位山澤通氣雷風相薄" required></textarea><output data-character-count>已計 0 個漢字</output></label>
+              <p class="form-note">四至十字在原典另涉及古代平上去入聲調，本頁不以現代讀音自動代算。</p>
+              <p class="form-message" role="alert" aria-live="polite"></p>
+              <button class="primary-button" type="submit">依字數衍算<span aria-hidden="true">↘</span></button>
+            </form>
+          </div>
+          <div class="kangjie-result-anchor" id="kangjie-result" aria-live="polite"></div>
+        </section>
+
+        <section class="kangjie-panel" role="tabpanel" id="panel-huangji" aria-labelledby="tab-huangji" data-kangjie-panel="huangji" hidden>
+          <header class="kangjie-panel-heading">
+            <div><p class="section-index">元・會・運・世・年</p><h2><span class="brush-title brush-kangjie-section"><span class="sr-only">皇極尺度</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-huangji-v1.webp" alt="" aria-hidden="true" /></span></h2></div>
+            <p>這裡只把一段時間長度依固定倍率拆解，不把現代西元年對讀成唯一正統位置，也不產生預言。</p>
+          </header>
+          <div class="huangji-scale" aria-label="皇極經世時間尺度">
+            <article><span>世</span><strong>30</strong><small>年</small></article>
+            <article><span>運</span><strong>360</strong><small>年・12 世</small></article>
+            <article><span>會</span><strong>10,800</strong><small>年・30 運</small></article>
+            <article><span>元</span><strong>129,600</strong><small>年・12 會</small></article>
+          </div>
+          <form class="huangji-form" id="huangji-form" novalidate>
+            <label class="field-block"><span>要分解的時間長度<small>輸入大於 0 的完整年數</small></span><input name="years" type="text" inputmode="numeric" placeholder="例如：130000" required /></label>
+            <p class="form-message" role="alert" aria-live="polite"></p>
+            <button class="primary-button" type="submit">分解元會運世<span aria-hidden="true">↘</span></button>
+          </form>
+          <div class="huangji-result-anchor" id="huangji-result" aria-live="polite"></div>
+        </section>
+
+        <section class="kangjie-panel" role="tabpanel" id="panel-sources" aria-labelledby="tab-sources" data-kangjie-panel="sources" hidden>
+          <header class="kangjie-panel-heading" id="sources">
+            <div><p class="section-index">可回到原文逐條核對</p><h2><span class="brush-title brush-kangjie-section brush-kangjie-source"><span class="sr-only">原文與來源</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-source-v1.webp" alt="" aria-hidden="true" /></span></h2></div>
+            <p>來源連結直達電子古籍或館藏影像。本頁只節錄方法，不大量複製電子轉錄全文。</p>
+          </header>
+          <div class="source-ledger">
+            <a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer"><span>梅花易數・卷一</span><strong>卦數、年月日時、物數、聲數、字數公式</strong><small>中國哲學書電子化計劃 ↗</small></a>
+            <a href="https://ctext.org/wiki.pl?chapter=475043&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer"><span>梅花易數・卷二</span><strong>體用、生剋、占法界線與不動不占</strong><small>中國哲學書電子化計劃 ↗</small></a>
+            <a href="https://ctext.org/book-of-changes/zh" target="_blank" rel="noreferrer"><span>周易</span><strong>六十四卦名與卦爻辭核對</strong><small>中國哲學書電子化計劃 ↗</small></a>
+            <a href="https://www.kanripo.org/text/KR3g0005/001" target="_blank" rel="noreferrer"><span>皇極經世書・卷一</span><strong>元會運世表與固定數制</strong><small>漢籍リポジトリ ↗</small></a>
+            <a href="https://ctext.org/wiki.pl?chapter=404769&amp;if=gb" target="_blank" rel="noreferrer"><span>觀物篇六十</span><strong>元、會、運、世的層級關係</strong><small>中國哲學書電子化計劃 ↗</small></a>
+            <a href="https://commons.wikimedia.org/wiki/File:NLC416-12jh005426-44577_%E6%A2%85%E8%8A%B1%E6%98%93%E6%95%B8.pdf" target="_blank" rel="noreferrer"><span>1925 年影印本</span><strong>中國國家圖書館藏版本旁證</strong><small>Wikimedia Commons ↗</small></a>
+          </div>
+          <aside class="kangjie-boundary" aria-labelledby="boundary-title"><span aria-hidden="true">※</span><div><h2 id="boundary-title"><span class="brush-title brush-kangjie-boundary"><span class="sr-only">推演界線</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-boundary-v1.webp" alt="" aria-hidden="true" /></span></h2><p>本工具依現行傳本製作，供傳統文化研究、演算核對與娛樂。它不是科學預測，不主張唯一正統，也不作醫療、法律、投資、工作、人事或重大人生決策依據。原文未明、版本有異或屬程式必要判定之處，均應視為實作解讀。</p></div></aside>
+        </section>
+      </section>
+
+      <footer><p>© 2026 e世代生命密碼・邵康節易學專頁</p><p>同一網址體系，自動適配手機與電腦</p></footer>
+    </main>
+    <script type="module" src="kangjie.js"></script>
+  </body>
+</html>

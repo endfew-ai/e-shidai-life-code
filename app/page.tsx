@@ -308,7 +308,7 @@ export default function Home() {
     <main className="site-shell">
       <nav className="topbar" aria-label="主要導覽">
         <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-code-v4.webp" text="e世代生命密碼" className="brush-brand" /></strong></a>
-        <div><a href="#analyzer">開始分析</a><a href="#method-source">規則來源</a></div>
+        <div><a href="#analyzer">開始分析</a><a href="/kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a></div>
       </nav>
 
       <header className="hero" id="top">
@@ -327,6 +327,7 @@ export default function Home() {
                 <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
               </label>
             ))}
+            <a className="kangjie-mode-entry" href="/kangjie.html"><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
           </fieldset>
 
           <div className="mode-workbench">
@@ -352,8 +353,8 @@ export default function Home() {
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
-          <div className="method-source-body"><div className="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article></div>
-          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://zh.wikisource.org/zh-hant/梅花易數/卷一" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="https://www.eee-learning.com/article/6506" target="_blank" rel="noreferrer">三數取卦說明</a></p></div></div>
+          <div className="method-source-body"><div className="method-grid"><article><span>生日命碼</span><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><span>數字頻譜</span><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><span>三數取卦</span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article><article><span>邵康節易學</span><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
+          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie.html#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>
 

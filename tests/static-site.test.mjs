@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("GitHub Pages entrypoint is numerology-first with three isolated modes and safeguards", async () => {
+test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../app.js", import.meta.url), "utf8"),
@@ -13,6 +13,8 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
   assert.match(html, /生日命碼/);
   assert.match(html, /數字頻譜/);
   assert.match(html, /三數取卦/);
+  assert.match(html, /邵康節易學/);
+  assert.match(html, /href="kangjie\.html"/);
   assert.match(html, /本卦、互卦、動爻與變卦/);
   assert.ok(html.indexOf("生日命碼") < html.indexOf("三數取卦"));
   assert.match(html, /看見你的/);
@@ -30,6 +32,7 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
   assert.match(html, /title-birthday-v4\.webp/);
   assert.match(html, /title-spectrum-v4\.webp/);
   assert.match(html, /title-iching-v4\.webp/);
+  assert.match(html, /title-kangjie-entry-v1\.webp/);
   assert.match(html, /title-rules-v4\.webp/);
   assert.match(html, /title-source-v5\.webp/);
   assert.match(html, /title-disclaimer-v5\.webp/);
@@ -75,6 +78,7 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
     access(new URL("../public/visuals/brush/title-birthday-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-spectrum-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-iching-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-entry-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-result-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-classic-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-rules-v4.webp", import.meta.url)),
@@ -83,5 +87,62 @@ test("GitHub Pages entrypoint is numerology-first with three isolated modes and 
     access(new URL("../public/visuals/brush/title-source-v5.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-disclaimer-v5.webp", import.meta.url)),
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
+  ]);
+});
+
+test("Shao Kangjie static page keeps every primary title in an independent brush asset and exposes all supported derivations", async () => {
+  const [html, appSource, coreSource, styles] = await Promise.all([
+    readFile(new URL("../kangjie.html", import.meta.url), "utf8"),
+    readFile(new URL("../kangjie.js", import.meta.url), "utf8"),
+    readFile(new URL("../kangjie-core.js", import.meta.url), "utf8"),
+    readFile(new URL("../kangjie.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(html, /<html lang="zh-Hant-TW">/);
+  assert.match(html, /title-kangjie-entry-v1\.webp/);
+  assert.match(html, /theme-kangjie-v1\.webp/);
+  assert.match(html, /title-kangjie-hero-v1\.webp/);
+  assert.match(html, /title-kangjie-origins-v1\.webp/);
+  assert.match(html, /title-kangjie-meihua-v1\.webp/);
+  assert.match(html, /title-kangjie-huangji-v1\.webp/);
+  assert.match(html, /title-kangjie-source-v1\.webp/);
+  assert.match(html, /title-kangjie-boundary-v1\.webp/);
+  assert.match(appSource, /title-kangjie-result-v1\.webp/);
+  assert.match(html, /data-method-panel="calendar"/);
+  assert.match(html, /data-method-panel="object"/);
+  assert.match(html, /data-method-panel="sound"/);
+  assert.match(html, /data-method-panel="text"/);
+  assert.match(html, /一世 30 年/);
+  assert.match(html, /不把現代西元年對讀成唯一正統位置/);
+  assert.match(html, /ctext\.org\/wiki\.pl\?chapter=867487/);
+  assert.match(coreSource, /calculateCalendarHexagram/);
+  assert.match(coreSource, /calculateObjectHexagram/);
+  assert.match(coreSource, /calculateDoubleSoundHexagram/);
+  assert.match(coreSource, /calculateLongTextHexagram/);
+  assert.match(coreSource, /decomposeHuangjiYears/);
+  assert.match(styles, /@media \(max-width: 650px\)/);
+  assert.match(styles, /grid-template-columns: repeat\(2, 1fr\)/);
+  assert.doesNotMatch(html, /[—–]/);
+  assert.doesNotMatch(appSource, /[—–]/);
+
+  const primaryTextHeading = /<h[12][^>]*>\s*[^\s<]/i;
+  assert.doesNotMatch(html, primaryTextHeading);
+
+  await Promise.all([
+    access(new URL("../kangjie.html", import.meta.url)),
+    access(new URL("../kangjie.js", import.meta.url)),
+    access(new URL("../kangjie-core.js", import.meta.url)),
+    access(new URL("../kangjie-core.d.ts", import.meta.url)),
+    access(new URL("../kangjie.css", import.meta.url)),
+    access(new URL("../app/kangjie/page.tsx", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-entry-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/theme-kangjie-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-hero-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-origins-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-meihua-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-huangji-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-result-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-source-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-boundary-v1.webp", import.meta.url)),
   ]);
 });

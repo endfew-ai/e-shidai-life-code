@@ -187,11 +187,11 @@ summary::-webkit-details-marker { display: none; }
   border: 0;
   border-bottom: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 1.35fr 1fr 1fr;
+  grid-template-columns: 1.25fr 1fr 1fr 1fr;
   margin: 0;
   padding: 0;
 }
-.mode-switch label {
+.mode-switch label, .mode-switch .kangjie-mode-entry {
   align-items: center;
   border-right: 1px solid var(--line-soft);
   cursor: pointer;
@@ -201,8 +201,8 @@ summary::-webkit-details-marker { display: none; }
   position: relative;
   transition: background 160ms ease;
 }
-.mode-switch label:last-child { border-right: 0; }
-.mode-switch label::after {
+.mode-switch > :last-child { border-right: 0; }
+.mode-switch label::after, .mode-switch .kangjie-mode-entry::after {
   background: var(--gold);
   bottom: -1px;
   content: "";
@@ -212,13 +212,16 @@ summary::-webkit-details-marker { display: none; }
   transition: left 160ms ease, width 160ms ease;
   width: 0;
 }
-.mode-switch label.is-active { background: rgba(199, 154, 69, 0.08); }
+.mode-switch label.is-active, .mode-switch .kangjie-mode-entry:hover, .mode-switch .kangjie-mode-entry:focus-visible { background: rgba(199, 154, 69, 0.08); }
 .mode-switch label.is-active::after { left: 14px; width: calc(100% - 28px); }
 .mode-switch input { opacity: 0; position: absolute; }
 .mode-switch label:has(input:focus-visible) { outline: 2px solid var(--gold-bright); outline-offset: -4px; }
-.mode-switch label > span { min-width: 0; width: 100%; }
+.mode-switch label > span, .mode-switch .kangjie-mode-entry > span { min-width: 0; width: 100%; }
+.mode-switch .kangjie-mode-entry { color: inherit; text-decoration: none; }
+.mode-switch .kangjie-mode-entry:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: -4px; }
 .mode-switch strong { align-items: center; display: flex; font-size: 18px; font-weight: 500; gap: 8px; line-height: 1.25; }
 .mode-switch .brush-mode .brush-title-image { height: 32px; max-width: 132px; }
+.mode-switch .brush-kangjie-entry .brush-title-image { max-width: 148px; }
 .mode-switch em {
   border: 1px solid var(--line);
   color: var(--gold-bright);
@@ -563,7 +566,7 @@ summary::-webkit-details-marker { display: none; }
 .method-source summary > small { color: var(--muted); font-family: var(--sans); font-size: 9px; margin-left: auto; }
 .method-source details[open] > summary { border-bottom: 1px solid var(--line-soft); }
 .method-source-body { padding: 0 16px 14px; }
-.method-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+.method-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
 .method-grid article { border-right: 1px solid var(--line-soft); padding: 16px; }
 .method-grid article:last-child { border-right: 0; }
 .method-grid article span { color: var(--gold-bright); font-size: 14px; }
@@ -588,7 +591,7 @@ footer p { margin: 0; }
 @media (max-width: 840px) {
   .site-shell { padding: 0 20px; }
   .hero { height: 220px; }
-  .mode-switch { grid-template-columns: 1.2fr 1fr 1fr; }
+  .mode-switch { grid-template-columns: 1.2fr 1fr 1fr 1fr; }
   .mode-switch label { padding: 9px 12px; }
   .mode-switch small { font-size: 10px; }
   .field-block { grid-template-columns: 130px minmax(180px, 1fr); }
@@ -606,7 +609,7 @@ footer p { margin: 0; }
   .site-shell { padding: 0 14px; }
   .topbar { height: 56px; }
   .topbar > div a:first-child { display: none; }
-  .topbar > div { gap: 0; }
+  .topbar > div { gap: 12px; }
   .wordmark { gap: 10px; }
   .wordmark > span { font-size: 14px; height: 27px; width: 27px; }
   .wordmark .brush-brand .brush-title-image { height: 23px; max-width: 112px; }
@@ -621,9 +624,10 @@ footer p { margin: 0; }
 
   .analyzer-section { padding: 10px 0 22px; }
   .mode-switch { grid-template-columns: 1fr 1fr; }
-  .mode-switch label { min-height: 50px; padding: 8px 10px; }
-  .mode-switch label:first-of-type { border-bottom: 1px solid var(--line-soft); border-right: 0; grid-column: 1 / -1; }
-  .mode-switch label:nth-of-type(2) { border-right: 1px solid var(--line-soft); }
+  .mode-switch label, .mode-switch .kangjie-mode-entry { min-height: 50px; padding: 8px 10px; }
+  .mode-switch label:first-of-type { border-bottom: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft); grid-column: auto; }
+  .mode-switch label:nth-of-type(2) { border-bottom: 1px solid var(--line-soft); border-right: 0; }
+  .mode-switch label:nth-of-type(3) { border-right: 1px solid var(--line-soft); }
   .mode-switch strong { font-size: 16px; justify-content: center; }
   .mode-switch .brush-mode .brush-title-image { height: 28px; max-width: 120px; }
   .mode-switch em, .mode-switch small { display: none; }

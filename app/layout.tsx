@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "e世代生命密碼分析儀",
-  description: "以生日命碼為主，提供數字頻譜與三數取卦補充工具；固定規則、完整算式、本機運算。",
+  description: "以生日命碼為主，提供數字頻譜、三數取卦與邵康節易學獨立專頁；固定規則、完整算式、本機運算。",
   applicationName: "e世代生命密碼分析儀",
   icons: { icon: "/favicon.svg" },
   openGraph: {

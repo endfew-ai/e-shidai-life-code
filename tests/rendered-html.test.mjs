@@ -5,13 +5,13 @@ import test from "node:test";
 const developmentPreviewMeta =
   /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
 
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
+    new Request(`http://localhost${pathname}`, { headers: { accept: "text/html" } }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
     { waitUntil() {}, passThroughOnException() {} },
   );
@@ -28,6 +28,7 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /生日命碼/);
   assert.match(html, /數字頻譜/);
   assert.match(html, /三數取卦/);
+  assert.match(html, /邵康節易學/);
   assert.match(html, /分析生日命碼/);
   assert.match(html, /所有資料只在本機處理/);
   assert.match(html, /看見你的/);
@@ -35,6 +36,24 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /文化娛樂與自我反思用途/);
   assert.doesNotMatch(html, developmentPreviewMeta);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/);
+});
+
+test("server-renders the complete Shao Kangjie route", async () => {
+  const response = await render("/kangjie");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /<title>邵康節易學｜象數觀物<\/title>/);
+  assert.match(html, /象數觀物/);
+  assert.match(html, /康節觀象/);
+  assert.match(html, /原典脈絡/);
+  assert.match(html, /年月日時/);
+  assert.match(html, /雙段聲數/);
+  assert.match(html, /十一字以上/);
+  assert.match(html, /皇極尺度/);
+  assert.match(html, /原文來源/);
+  assert.match(html, /現行傳本/);
+  assert.match(html, /不是科學宇宙週期/);
+  assert.doesNotMatch(html, developmentPreviewMeta);
 });
 
 test("removes all disposable starter markers", async () => {
