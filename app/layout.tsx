@@ -3,27 +3,29 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "e世代生命密碼分析儀",
-  description: "生日命碼、數字頻譜與三數取卦分開計算，提供可逐步核對的完整算式。資料只在瀏覽器內處理。",
+  description: "以生日命碼為主，提供數字頻譜與三數取卦補充工具；固定規則、完整算式、本機運算。",
   applicationName: "e世代生命密碼分析儀",
+  icons: { icon: "/favicon.svg" },
   openGraph: {
     title: "e世代生命密碼分析儀",
-    description: "三種資料、三套固定規則；每一步都能核對。",
+    description: "看見你的數字軌跡。從生日命碼開始，逐步核對完整算式。",
     type: "website",
     locale: "zh_TW",
+    url: "https://endfew-ai.github.io/e-shidai-life-code/",
     images: [
       {
-        url: "https://endfew-ai.github.io/e-shidai-life-code/og.png",
-        width: 1792,
-        height: 922,
-        alt: "e世代生命密碼分析儀",
+        url: "https://endfew-ai.github.io/e-shidai-life-code/og-b-v2.png",
+        width: 1200,
+        height: 630,
+        alt: "深靛古金數字軌跡與生日命碼主視覺",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "e世代生命密碼分析儀",
-    description: "三種資料、三套固定規則；每一步都能核對。",
-    images: ["https://endfew-ai.github.io/e-shidai-life-code/og.png"],
+    description: "看見你的數字軌跡。從生日命碼開始，逐步核對完整算式。",
+    images: ["https://endfew-ai.github.io/e-shidai-life-code/og-b-v2.png"],
   },
 };
 

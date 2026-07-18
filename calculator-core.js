@@ -237,8 +237,8 @@ function normalizeFullWidthDigits(value) {
 export function analyzeDigitCode(rawValue) {
   const normalized = normalizeFullWidthDigits(String(rawValue).trim());
   if (!normalized) throw new Error("請輸入至少一個數字。");
-  if (!/^[0-9\s\-–—]+$/.test(normalized)) {
-    throw new Error("僅接受 0–9、全形數字、空白與連字號。");
+  if (!/^[0-9\s\-]+$/.test(normalized)) {
+    throw new Error("僅接受 0 到 9、全形數字、空白與半形連字號。");
   }
 
   const digits = normalized.match(/\d/g)?.map(Number) ?? [];

@@ -28,8 +28,10 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /生日命碼/);
   assert.match(html, /數字頻譜/);
   assert.match(html, /三數取卦/);
-  assert.match(html, /分析生日數理/);
-  assert.match(html, /所有計算只在你的瀏覽器內完成/);
+  assert.match(html, /分析生日命碼/);
+  assert.match(html, /所有資料只在本機處理/);
+  assert.match(html, /看見你的/);
+  assert.match(html, /數字軌跡/);
   assert.match(html, /文化娛樂與自我反思用途/);
   assert.doesNotMatch(html, developmentPreviewMeta);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/);
@@ -47,6 +49,8 @@ test("removes all disposable starter markers", async () => {
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.match(page, /inputMode="numeric"/);
   assert.match(page, /type="date"/);
-  assert.match(page, /不會拿西元生日直接假造傳統卦象/);
+  assert.match(page, /生日命碼完全分開/);
   assert.match(page, /calculateIChing/);
+  assert.match(page, /getIChingText/);
+  assert.match(page, /只列原文，不解卦/);
 });
