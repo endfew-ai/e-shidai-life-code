@@ -30,7 +30,7 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /三數取卦/);
   assert.match(html, /邵康節易學/);
   assert.match(html, /分析生日命碼/);
-  assert.match(html, /所有資料只在本機處理/);
+  assert.match(html, /所有分析輸入只在本機處理/);
   assert.match(html, /看見你的/);
   assert.match(html, /數字軌跡/);
   assert.match(html, /Cheiro 原書色彩章/);
@@ -38,6 +38,10 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /本站延伸/);
   assert.match(html, /archive\.org\/details\/in\.ernet\.dli\.2015\.70770/);
   assert.match(html, /文化娛樂與自我反思用途/);
+  assert.match(html, /累積造訪/);
+  assert.match(html, /受保護模式・需密碼/);
+  assert.match(html, /iching-access-password-react/);
+  assert.match(html, /不包含上述輸入內容/);
   assert.doesNotMatch(html, /科學證明|科學認證|保證改運|保證帶來/);
   assert.doesNotMatch(html, developmentPreviewMeta);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/);

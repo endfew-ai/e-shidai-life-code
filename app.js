@@ -9,6 +9,12 @@ import {
   profiles,
 } from "./calculator-core.js";
 import { getIChingText } from "./iching-text.js";
+import {
+  hasIChingAccess,
+  isIChingAccessCode,
+  loadCumulativeVisitCount,
+  rememberIChingAccess,
+} from "./site-services.js";
 
 const modeContent = {
   birthday: {
@@ -31,7 +37,7 @@ const modeContent = {
   },
   iching: {
     label: "三數取卦",
-    description: "固定卦表推算本卦、互卦、動爻與變卦",
+    description: "輸入密碼後推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "public/visuals/iching-instrument-b-v3.webp",
@@ -542,7 +548,13 @@ function initializeAnalyzer() {
   const analyzerDescription = document.querySelector("#analyzer-description");
   const modeArt = document.querySelector("#mode-art-image");
   const resultAnchor = document.querySelector("#result-anchor");
+  const accessDialog = document.querySelector("#iching-access-dialog");
+  const accessForm = document.querySelector("#iching-access-form");
+  const accessInput = document.querySelector("#iching-access-password");
+  const accessMessage = document.querySelector("[data-iching-access-message]");
+  const accessCancel = document.querySelector("[data-iching-access-cancel]");
   let mode = "birthday";
+  let ichingUnlocked = hasIChingAccess();
 
   birthdayInput.max = localDateString();
   document.querySelector("#copyright-year").textContent = new Date().getFullYear();
@@ -563,6 +575,33 @@ function initializeAnalyzer() {
       resultAnchor.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
       resultAnchor.querySelector("h2")?.focus({ preventScroll: true });
     }, 80);
+  }
+
+  function restoreSelectedMode() {
+    const selected = modeInputs.find((input) => input.value === mode);
+    if (selected) selected.checked = true;
+  }
+
+  function closeAccessDialog() {
+    if (accessDialog?.open && typeof accessDialog.close === "function") accessDialog.close();
+    else accessDialog?.removeAttribute("open");
+    if (accessInput) {
+      accessInput.value = "";
+      accessInput.setAttribute("aria-invalid", "false");
+    }
+    if (accessMessage) accessMessage.textContent = "";
+    restoreSelectedMode();
+  }
+
+  function openAccessDialog() {
+    restoreSelectedMode();
+    if (!accessDialog) return;
+    if (typeof accessDialog.showModal === "function") {
+      if (!accessDialog.open) accessDialog.showModal();
+    } else {
+      accessDialog.setAttribute("open", "");
+    }
+    window.setTimeout(() => accessInput?.focus(), 0);
   }
 
   function changeMode(nextMode) {
@@ -592,7 +631,15 @@ function initializeAnalyzer() {
     currentInputs()[0].focus();
   }
 
-  for (const input of modeInputs) input.addEventListener("change", () => changeMode(input.value));
+  for (const input of modeInputs) {
+    input.addEventListener("change", () => {
+      if (input.value === "iching" && !ichingUnlocked) {
+        openAccessDialog();
+        return;
+      }
+      changeMode(input.value);
+    });
+  }
   for (const input of [birthdayInput, codeInput, ...ichingInputs]) {
     input.addEventListener("input", () => {
       message.textContent = "";
@@ -620,7 +667,58 @@ function initializeAnalyzer() {
   });
 
   clearButton.addEventListener("click", resetCurrent);
+  accessInput?.addEventListener("input", () => {
+    accessInput.value = accessInput.value.replace(/\D/g, "").slice(0, 4);
+    accessInput.setAttribute("aria-invalid", "false");
+    if (accessMessage) accessMessage.textContent = "";
+  });
+  accessForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!isIChingAccessCode(accessInput?.value ?? "")) {
+      if (accessMessage) accessMessage.textContent = "密碼不正確，請重新輸入四位數字。";
+      accessInput?.setAttribute("aria-invalid", "true");
+      accessInput?.select();
+      return;
+    }
+    rememberIChingAccess();
+    ichingUnlocked = true;
+    closeAccessDialog();
+    const ichingMode = modeInputs.find((input) => input.value === "iching");
+    if (ichingMode) ichingMode.checked = true;
+    changeMode("iching");
+  });
+  accessCancel?.addEventListener("click", closeAccessDialog);
+  accessDialog?.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closeAccessDialog();
+  });
   updateClearButton();
 }
 
-if (typeof document !== "undefined") initializeAnalyzer();
+function initializeVisitCounter() {
+  const container = document.querySelector("[data-visit-counter]");
+  const output = document.querySelector("[data-visit-count]");
+  if (!container || !output) return;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 6000);
+  loadCumulativeVisitCount({ signal: controller.signal })
+    .then(({ value }) => {
+      const formatted = new Intl.NumberFormat("zh-TW").format(value);
+      output.textContent = formatted;
+      container.dataset.state = "ready";
+      container.setAttribute("aria-label", `累積造訪 ${formatted} 次`);
+      container.title = "累積造訪次數；同一瀏覽器分頁重新整理不重複累加";
+    })
+    .catch(() => {
+      output.textContent = "--";
+      container.dataset.state = "unavailable";
+      container.setAttribute("aria-label", "累積造訪次數暫時無法讀取");
+      container.title = "計數服務暫時無法讀取，其他功能仍可正常使用";
+    })
+    .finally(() => window.clearTimeout(timeout));
+}
+
+if (typeof document !== "undefined") {
+  initializeAnalyzer();
+  initializeVisitCounter();
+}

@@ -2,6 +2,14 @@ import { expect, test } from "@playwright/test";
 
 test.use({ timezoneId: "Asia/Taipei" });
 
+test.beforeEach(async ({ page }) => {
+  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ count: 1284 }),
+  }));
+});
+
 function collectBrowserErrors(page) {
   const errors = [];
   page.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
@@ -32,6 +40,48 @@ async function unlockKangjie(page) {
   await gate.locator('button[type="submit"]').click();
   await expect(gate).toBeHidden();
   await expect(page.locator("[data-protected-content]")).not.toHaveAttribute("aria-hidden", "true");
+}
+
+async function unlockIChingMode(page) {
+  await page.locator('[data-mode-label="iching"]').click();
+  const dialog = page.locator("#iching-access-dialog");
+  await expect(dialog).toBeVisible();
+  await expect(page.locator('[data-mode-panel="iching"]')).toBeHidden();
+  const password = dialog.locator('[name="password"]');
+  await expect(password).toBeFocused();
+  await password.fill("1111");
+  await dialog.locator('button[type="submit"]').click();
+  await expect(dialog.locator("[data-iching-access-message]")).toContainText("密碼不正確");
+  await expect(dialog).toBeVisible();
+  await password.fill("0000");
+  await dialog.locator('button[type="submit"]').click();
+  await expect(dialog).toBeHidden();
+  await expect(page.locator('input[name="analysis-mode"][value="iching"]')).toBeChecked();
+  await expect(page.locator('[data-mode-panel="iching"]')).toBeVisible();
+  await expect(page.locator(".iching-input").first()).toBeFocused();
+}
+
+async function expectReadableExplanations(page) {
+  const report = await page.evaluate(() => {
+    const requirements = [
+      [".form-meta p", 16],
+      [".color-role-copy > p", 16],
+      [".color-guide-explanation p", 16],
+      [".color-guide-disclaimer", 16],
+      [".insight-ledger p", 16],
+      [".advice-card p", 16],
+      [".method-grid article p", 16],
+      [".disclaimer p", 16],
+    ];
+    return requirements.map(([selector, minimum]) => {
+      const element = [...document.querySelectorAll(selector)].find((node) => node.getClientRects().length > 0);
+      return { selector, minimum, size: element ? Number.parseFloat(getComputedStyle(element).fontSize) : null };
+    });
+  });
+  for (const item of report) {
+    expect(item.size, `${item.selector} should be visible`).not.toBeNull();
+    expect(item.size, item.selector).toBeGreaterThanOrEqual(item.minimum);
+  }
 }
 
 async function expectCurrentTimeApplied(page) {
@@ -216,8 +266,17 @@ test("fixed Taipei time fills the exact lunar date and branches", async ({ page 
 
 test("desktop entry, four derivations, tabs, sources and screenshots", async ({ page }) => {
   const errors = collectBrowserErrors(page);
+  const counterRequests = [];
+  page.on("request", (request) => {
+    if (request.url().startsWith("https://api.counterapi.dev/")) counterRequests.push(request.url());
+  });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/index.html", { waitUntil: "networkidle" });
+  await expect(page.locator("[data-visit-count]")).toHaveText("1,284");
+  expect(counterRequests.at(-1)).toMatch(/homepage-visits\/up$/);
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.locator("[data-visit-count]")).toHaveText("1,284");
+  expect(counterRequests.at(-1)).toMatch(/homepage-visits\/$/);
   await expect(page.locator("a.kangjie-mode-entry")).toBeVisible();
   await expect(page.locator("a.kangjie-mode-entry .sr-only")).toHaveText("邵康節易學");
   await expectAllImagesLoaded(page);
@@ -233,6 +292,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
+  await expectReadableExplanations(page);
   await page.screenshot({ path: "output/playwright/home-birthday-result-1440.png", fullPage: true });
 
   await page.locator('[data-mode-label="code"]').click();
@@ -241,7 +301,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expect(page.locator("#result-anchor")).toContainText("核心數");
   await expect(page.locator("[data-personal-color-guide]")).toHaveCount(0);
 
-  await page.locator('[data-mode-label="iching"]').click();
+  await unlockIChingMode(page);
   const threeNumbers = page.locator(".iching-input");
   await threeNumbers.nth(0).fill("9");
   await threeNumbers.nth(1).fill("13");
@@ -254,7 +314,22 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
+  const ichingCopySizes = await page.evaluate(() => ({
+    trace: Number.parseFloat(getComputedStyle(document.querySelector(".iching-trace strong")).fontSize),
+    boundary: Number.parseFloat(getComputedStyle(document.querySelector(".iching-boundary")).fontSize),
+    classic: Number.parseFloat(getComputedStyle(document.querySelector(".classic-columns p")).fontSize),
+  }));
+  expect(ichingCopySizes.trace).toBeGreaterThanOrEqual(14);
+  expect(ichingCopySizes.boundary).toBeGreaterThanOrEqual(16);
+  expect(ichingCopySizes.classic).toBeGreaterThanOrEqual(18);
   await page.screenshot({ path: "output/playwright/home-iching-result-1440.png", fullPage: true });
+
+  await page.reload({ waitUntil: "networkidle" });
+  await page.locator('[data-mode-label="iching"]').click();
+  await expect(page.locator("#iching-access-dialog")).toBeHidden();
+  await expect(page.locator('[data-mode-panel="iching"]')).toBeVisible();
+  expect(counterRequests.at(-1)).toMatch(/homepage-visits\/$/);
+  expect(counterRequests.every((url) => /^https:\/\/api\.counterapi\.dev\/v1\/endfew-ai-e-shidai-life-code\/homepage-visits\/(?:up)?$/.test(url))).toBe(true);
 
   await page.locator("a.kangjie-mode-entry").click();
   await expect(page).toHaveURL(/\/kangjie(?:\.html)?(?:[?#]|$)/);
@@ -335,10 +410,30 @@ for (const width of [390, 360, 320]) {
     const errors = collectBrowserErrors(page);
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/index.html", { waitUntil: "networkidle" });
+    await expect(page.locator("[data-visit-count]")).toHaveText("1,284");
     await expect(page.locator("a.kangjie-mode-entry")).toBeVisible();
     await expectAllImagesLoaded(page);
     await expectVisibleBrushTitlesUnclipped(page);
     await expectNoHorizontalOverflow(page);
+    const inputLabelSizes = await page.evaluate(() => ({
+      regular: Number.parseFloat(getComputedStyle(document.querySelector(".field-block > span")).fontSize),
+      iching: Number.parseFloat(getComputedStyle(document.querySelector(".triple-input-grid .field-block > span")).fontSize),
+    }));
+    expect(inputLabelSizes.regular).toBeGreaterThanOrEqual(14);
+    expect(inputLabelSizes.iching).toBeGreaterThanOrEqual(14);
+    if (width === 390) {
+      await page.locator('[data-mode-label="iching"]').click();
+      const dialog = page.locator("#iching-access-dialog");
+      await expect(dialog).toBeVisible();
+      const dialogBox = await dialog.boundingBox();
+      expect(dialogBox.width).toBeLessThanOrEqual(width);
+      const descriptionSize = await dialog.locator("#iching-access-description").evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+      expect(descriptionSize).toBeGreaterThanOrEqual(16);
+      await page.screenshot({ path: "output/playwright/iching-access-gate-390.png", fullPage: false });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden();
+      await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
+    }
     if (width === 390) await page.screenshot({ path: "output/playwright/home-four-options-390.png", fullPage: false });
     await page.locator("#birthday-input").fill("1990-08-12");
     await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());

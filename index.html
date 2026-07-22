@@ -27,13 +27,13 @@
     <main class="site-shell">
       <nav class="topbar" aria-label="主要導覽">
         <a class="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong class="brush-title brush-brand"><span class="sr-only">e世代生命密碼</span><img class="brush-title-image" src="public/visuals/brush/brand-life-code-v4.webp" alt="" aria-hidden="true" /></strong></a>
-        <div><a href="#analyzer">開始分析</a><a href="kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a></div>
+        <div><a href="#analyzer">開始分析</a><a href="kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a><p class="visit-counter" data-visit-counter data-state="loading" role="status" aria-live="polite" aria-atomic="true"><span>累積造訪</span><strong data-visit-count>讀取中</strong><small>次</small></p></div>
       </nav>
 
       <header class="hero" id="top">
         <img class="hero-art" src="public/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
         <h1 class="hero-title"><span class="brush-title brush-hero"><span class="sr-only">看見你的數字軌跡</span><img class="brush-title-image" src="public/visuals/brush/title-hero-v5.webp" alt="" aria-hidden="true" /></span></h1>
-        <div class="hero-rail"><p><strong class="brush-title brush-theme"><span class="sr-only">玄星觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-xuanxing-v4.webp" alt="" aria-hidden="true" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
+        <div class="hero-rail"><p><strong class="brush-title brush-theme"><span class="sr-only">玄星觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-xuanxing-v4.webp" alt="" aria-hidden="true" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>
 
       <section class="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
@@ -42,7 +42,7 @@
             <legend class="sr-only">分析模式</legend>
             <label class="is-active" data-mode-label="birthday"><input type="radio" name="analysis-mode" value="birthday" checked /><span><strong><span class="brush-title brush-mode"><span class="sr-only">生日命碼</span><img class="brush-title-image" src="public/visuals/brush/title-birthday-v4.webp" alt="" aria-hidden="true" /></span><em>主要</em></strong><small>生命路徑、生日數、個人流年與傳統對應色</small></span></label>
             <label data-mode-label="code"><input type="radio" name="analysis-mode" value="code" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">數字頻譜</span><img class="brush-title-image" src="public/visuals/brush/title-spectrum-v4.webp" alt="" aria-hidden="true" /></span><em>次要</em></strong><small>任意號碼的加總、核心數與數字分布</small></span></label>
-            <label data-mode-label="iching"><input type="radio" name="analysis-mode" value="iching" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-v4.webp" alt="" aria-hidden="true" /></span><em>補充</em></strong><small>固定卦表推算本卦、互卦、動爻與變卦</small></span></label>
+            <label data-mode-label="iching"><input type="radio" name="analysis-mode" value="iching" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-v4.webp" alt="" aria-hidden="true" /></span><em>密碼</em></strong><small>輸入密碼後推算本卦、互卦、動爻與變卦</small></span></label>
             <a class="kangjie-mode-entry" href="kangjie.html"><span><strong><span class="brush-title brush-mode brush-kangjie-entry"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-v1.webp" alt="" aria-hidden="true" /></span><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
           </fieldset>
 
@@ -57,7 +57,7 @@
               <button type="submit" class="primary-button analyze-submit" id="analyze-button">分析生日命碼<span aria-hidden="true">↘</span></button>
             </div>
           </div>
-          <ul class="method-strip" aria-label="分析承諾"><li>固定規則</li><li>顯示完整算式</li><li>資料不上傳</li></ul>
+          <ul class="method-strip" aria-label="分析承諾"><li>固定規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
         </form>
       </section>
 
@@ -72,8 +72,20 @@
         </details>
       </section>
 
-      <section class="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><span class="brush-title brush-disclaimer"><span class="sr-only">使用提醒</span><img class="brush-title-image" src="public/visuals/brush/title-disclaimer-v5.webp" alt="" aria-hidden="true" /></span></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
+      <section class="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><span class="brush-title brush-disclaimer"><span class="sr-only">使用提醒</span><img class="brush-title-image" src="public/visuals/brush/title-disclaimer-v5.webp" alt="" aria-hidden="true" /></span></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p class="counter-privacy-note">生日、密碼與輸入數字只在本機計算；頁面開啟時只向公開計數服務送出一次造訪請求，不包含上述輸入內容。</p></div></section>
       <footer><p>© <span id="copyright-year"></span> e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>
     </main>
+    <dialog class="mode-password-dialog" id="iching-access-dialog" aria-labelledby="iching-access-title" aria-describedby="iching-access-description">
+      <form class="mode-password-card" id="iching-access-form" novalidate>
+        <button type="button" class="mode-password-close" data-iching-access-cancel aria-label="關閉密碼視窗">×</button>
+        <p class="section-index">受保護模式・需密碼</p>
+        <h2 id="iching-access-title"><span class="brush-title brush-dialog-iching"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-v4.webp" alt="" aria-hidden="true" /></span></h2>
+        <p id="iching-access-description">輸入四位密碼後，才能開啟三數取卦。</p>
+        <label for="iching-access-password">存取密碼</label>
+        <div class="mode-password-fields"><input id="iching-access-password" name="password" type="password" inputmode="numeric" autocomplete="off" maxlength="4" pattern="[0-9]{4}" placeholder="輸入 4 位數字" aria-describedby="iching-access-message" required /><button type="submit">驗證並開啟</button></div>
+        <p class="mode-password-message" id="iching-access-message" data-iching-access-message role="alert" aria-live="polite"></p>
+        <small>這是瀏覽器端簡易入口鎖，適合避免一般誤入，不適合存放機密資料。</small>
+      </form>
+    </dialog>
   </body>
 </html>

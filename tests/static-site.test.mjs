@@ -44,13 +44,15 @@ const kangjieFixedBrushAssets = [
 ];
 
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
-  const [html, appSource, reactSource, styles, coreSource, typeSource] = await Promise.all([
+  const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../app.js", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../styles.css", import.meta.url), "utf8"),
     readFile(new URL("../calculator-core.js", import.meta.url), "utf8"),
     readFile(new URL("../calculator-core.d.ts", import.meta.url), "utf8"),
+    readFile(new URL("../site-services.js", import.meta.url), "utf8"),
+    readFile(new URL("../site-services.d.ts", import.meta.url), "utf8"),
   ]);
   assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
   assert.match(html, /生日命碼/);
@@ -62,7 +64,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.ok(html.indexOf("生日命碼") < html.indexOf("三數取卦"));
   assert.match(html, /看見你的/);
   assert.match(html, /數字軌跡/);
-  assert.match(html, /所有資料只在本機處理/);
+  assert.match(html, /所有分析輸入只在本機處理/);
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-b-v3\.png/);
@@ -83,6 +85,13 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /archive\.org\/details\/in\.ernet\.dli\.2015\.70770\/page\/n137/);
   assert.match(html, /HEX 為本站數位轉譯/);
   assert.match(html, /不是科學個人色彩診斷/);
+  assert.match(html, /id="iching-access-dialog"/);
+  assert.match(html, /id="iching-access-password"/);
+  assert.match(html, /data-iching-access-message/);
+  assert.match(html, /瀏覽器端簡易入口鎖/);
+  assert.match(html, /data-visit-counter/);
+  assert.match(html, /累積造訪/);
+  assert.match(html, /不包含上述輸入內容/);
   assert.match(appSource, /title-insight-v5\.webp/);
   assert.match(reactSource, /title-insight-v5\.webp/);
   for (const asset of mainFixedBrushAssets) {
@@ -97,6 +106,17 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /data-personal-color-guide/);
   assert.match(reactSource, /function BirthdayColorGuide/);
   assert.match(reactSource, /data-personal-color-guide/);
+  assert.match(appSource, /from "\.\/site-services\.js"/);
+  assert.match(reactSource, /from "\.\.\/site-services\.js"/);
+  assert.match(appSource, /isIChingAccessCode/);
+  assert.match(reactSource, /isIChingAccessCode/);
+  assert.match(appSource, /loadCumulativeVisitCount/);
+  assert.match(reactSource, /loadCumulativeVisitCount/);
+  assert.match(serviceSource, /ICHING_ACCESS_CODE = "0000"/);
+  assert.match(serviceSource, /VISIT_COUNTER_ENDPOINT/);
+  assert.match(serviceSource, /credentials: "omit"/);
+  assert.match(serviceSource, /referrerPolicy: "no-referrer"/);
+  assert.match(serviceTypes, /loadCumulativeVisitCount/);
   assert.match(appSource, /result\.kind === "birthday"[^\n]*createBirthdayColorGuide\(result\)/);
   assert.match(reactSource, /result\.kind === "birthday" && <BirthdayColorGuide result=\{result\}/);
   assert.match(coreSource, /export const CHEIRO_BIRTH_COLOR_PALETTES/);
@@ -118,6 +138,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(styles, /\.color-role-list \{[^}]*repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.color-role-list \{ grid-template-columns: 1fr; \}/);
   assert.match(styles, /prefers-reduced-motion/);
+  assert.match(styles, /\u9577\u8F29\u95B1\u8B80\u53CB\u5584\u5B57\u7D1A/);
+  assert.match(styles, /\.classic-columns p[^}]*font-size: 18px/s);
   assert.doesNotMatch(html, /[—–]/);
 
   await Promise.all([
@@ -125,6 +147,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../calculator-core.js", import.meta.url)),
     access(new URL("../styles.css", import.meta.url)),
     access(new URL("../iching-text.js", import.meta.url)),
+    access(new URL("../site-services.js", import.meta.url)),
+    access(new URL("../site-services.d.ts", import.meta.url)),
     access(new URL("../og-b-v3.png", import.meta.url)),
     access(new URL("../public/og-b-v3.png", import.meta.url)),
     access(new URL("../public/favicon.svg", import.meta.url)),

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   LO_SHU_ORDER,
   analyzeBirthday,
@@ -13,6 +13,12 @@ import {
   profiles,
 } from "../calculator-core.js";
 import { getIChingText } from "../iching-text.js";
+import {
+  hasIChingAccess,
+  isIChingAccessCode,
+  loadCumulativeVisitCount,
+  rememberIChingAccess,
+} from "../site-services.js";
 
 type AnalysisMode = "birthday" | "code" | "iching";
 type BirthdayResult = ReturnType<typeof analyzeBirthday>;
@@ -43,8 +49,8 @@ const modeContent = {
   },
   iching: {
     label: "三數取卦",
-    badge: "補充",
-    description: "固定卦表推算本卦、互卦、動爻與變卦",
+    badge: "密碼",
+    description: "輸入密碼後推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "/visuals/iching-instrument-b-v3.webp",
@@ -353,10 +359,42 @@ export default function Home() {
   const [ichingValues, setIChingValues] = useState(["", "", ""]);
   const [result, setResult] = useState<NumerologyResult | IChingResult | null>(null);
   const [message, setMessage] = useState("");
+  const [ichingUnlocked, setIChingUnlocked] = useState(() => hasIChingAccess());
+  const [accessOpen, setAccessOpen] = useState(false);
+  const [accessPassword, setAccessPassword] = useState("");
+  const [accessMessage, setAccessMessage] = useState("");
+  const [visitCount, setVisitCount] = useState("讀取中");
+  const [visitState, setVisitState] = useState<"loading" | "ready" | "unavailable">("loading");
   const resultRef = useRef<HTMLDivElement>(null);
   const birthdayRef = useRef<HTMLInputElement>(null);
   const codeRef = useRef<HTMLInputElement>(null);
   const ichingRef = useRef<HTMLInputElement>(null);
+  const accessDialogRef = useRef<HTMLDialogElement>(null);
+  const accessInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const dialog = accessDialogRef.current;
+    if (!dialog) return;
+    if (accessOpen && !dialog.open) dialog.showModal();
+    if (!accessOpen && dialog.open) dialog.close();
+    if (accessOpen) window.setTimeout(() => accessInputRef.current?.focus(), 0);
+  }, [accessOpen]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 6000);
+    loadCumulativeVisitCount({ signal: controller.signal })
+      .then(({ value }) => {
+        setVisitCount(new Intl.NumberFormat("zh-TW").format(value));
+        setVisitState("ready");
+      })
+      .catch(() => {
+        setVisitCount("--");
+        setVisitState("unavailable");
+      })
+      .finally(() => window.clearTimeout(timeout));
+    return () => { controller.abort(); window.clearTimeout(timeout); };
+  }, []);
 
   function currentRef(targetMode = mode) {
     return targetMode === "birthday" ? birthdayRef : targetMode === "code" ? codeRef : ichingRef;
@@ -367,6 +405,29 @@ export default function Home() {
   function changeMode(nextMode: AnalysisMode) {
     setMode(nextMode); setResult(null); setMessage("");
     window.setTimeout(() => currentRef(nextMode).current?.focus(), 0);
+  }
+
+  function requestMode(nextMode: AnalysisMode) {
+    if (nextMode === "iching" && !(ichingUnlocked || hasIChingAccess())) {
+      setAccessMessage(""); setAccessPassword(""); setAccessOpen(true);
+      return;
+    }
+    if (nextMode === "iching") setIChingUnlocked(true);
+    changeMode(nextMode);
+  }
+
+  function closeAccessDialog() {
+    setAccessOpen(false); setAccessPassword(""); setAccessMessage("");
+  }
+
+  function handleAccessSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!isIChingAccessCode(accessPassword)) {
+      setAccessMessage("密碼不正確，請重新輸入四位數字。");
+      window.setTimeout(() => accessInputRef.current?.select(), 0);
+      return;
+    }
+    rememberIChingAccess(); setIChingUnlocked(true); closeAccessDialog(); changeMode("iching");
   }
 
   function revealResult() {
@@ -402,13 +463,13 @@ export default function Home() {
     <main className="site-shell">
       <nav className="topbar" aria-label="主要導覽">
         <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-code-v4.webp" text="e世代生命密碼" className="brush-brand" /></strong></a>
-        <div><a href="#analyzer">開始分析</a><a href="/kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a></div>
+        <div><a href="#analyzer">開始分析</a><a href="/kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
       </nav>
 
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
         <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-v5.webp" text="看見你的數字軌跡" className="brush-hero" /></h1>
-        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有資料只在本機處理</p></div>
+        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>
 
       <section className="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
@@ -417,7 +478,7 @@ export default function Home() {
             <legend className="sr-only">分析模式</legend>
             {(Object.keys(modeContent) as AnalysisMode[]).map((key) => (
               <label className={mode === key ? "is-active" : ""} key={key}>
-                <input type="radio" name="analysis-mode" value={key} checked={mode === key} onChange={() => changeMode(key)} />
+                <input type="radio" name="analysis-mode" value={key} checked={mode === key} onChange={() => requestMode(key)} />
                 <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
               </label>
             ))}
@@ -438,7 +499,7 @@ export default function Home() {
               <button type="submit" className="primary-button analyze-submit">{modeContent[mode].button}<span aria-hidden="true">↘</span></button>
             </div>
           </div>
-          <ul className="method-strip" aria-label="分析承諾"><li>固定規則</li><li>顯示完整算式</li><li>資料不上傳</li></ul>
+          <ul className="method-strip" aria-label="分析承諾"><li>固定規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
         </form>
       </section>
 
@@ -452,8 +513,20 @@ export default function Home() {
         </details>
       </section>
 
-      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
+      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、密碼與輸入數字只在本機計算；頁面開啟時只向公開計數服務送出一次造訪請求，不包含上述輸入內容。</p></div></section>
       <footer><p>© {new Date().getFullYear()} e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>
+      <dialog ref={accessDialogRef} className="mode-password-dialog" aria-labelledby="iching-access-title-react" aria-describedby="iching-access-description-react" onCancel={(event) => { event.preventDefault(); closeAccessDialog(); }}>
+        <form className="mode-password-card" onSubmit={handleAccessSubmit} noValidate>
+          <button type="button" className="mode-password-close" onClick={closeAccessDialog} aria-label="關閉密碼視窗">×</button>
+          <p className="section-index">受保護模式・需密碼</p>
+          <h2 id="iching-access-title-react"><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-dialog-iching" /></h2>
+          <p id="iching-access-description-react">輸入四位密碼後，才能開啟三數取卦。</p>
+          <label htmlFor="iching-access-password-react">存取密碼</label>
+          <div className="mode-password-fields"><input ref={accessInputRef} id="iching-access-password-react" name="password" type="password" inputMode="numeric" autoComplete="off" maxLength={4} pattern="[0-9]{4}" placeholder="輸入 4 位數字" value={accessPassword} onChange={(event) => { setAccessPassword(event.target.value.replace(/\D/g, "").slice(0, 4)); setAccessMessage(""); }} aria-invalid={Boolean(accessMessage)} aria-describedby="iching-access-message-react" required /><button type="submit">驗證並開啟</button></div>
+          <p className="mode-password-message" id="iching-access-message-react" role="alert" aria-live="polite">{accessMessage}</p>
+          <small>這是瀏覽器端簡易入口鎖，適合避免一般誤入，不適合存放機密資料。</small>
+        </form>
+      </dialog>
     </main>
   );
 }
