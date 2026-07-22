@@ -135,6 +135,60 @@ async function expectVisibleBrushTitlesUnclipped(page) {
   expect(report.clippedArtwork).toEqual([]);
 }
 
+async function expectBirthdayColorGuide(page, expectedNumbers) {
+  const guide = page.locator("[data-personal-color-guide]");
+  await expect(guide).toHaveCount(1);
+  await expect(guide).toBeVisible();
+  await expect(guide.locator("h3 .sr-only")).toHaveText("個人色彩指引");
+  await expect(guide.locator("h3 .brush-title-image")).toHaveCount(1);
+  const swatches = guide.locator("[data-color-swatch]");
+  await expect(swatches).toHaveCount(3);
+  const report = await swatches.evaluateAll((items) => items.map((item) => {
+    const chip = item.querySelector("[data-color-chip]");
+    const rect = chip.getBoundingClientRect();
+    return {
+      role: item.getAttribute("data-color-role"),
+      number: Number(item.getAttribute("data-color-number")),
+      hex: item.querySelector("[data-color-hex]")?.textContent?.trim() ?? "",
+      color: getComputedStyle(chip).backgroundColor,
+      width: rect.width,
+      height: rect.height,
+    };
+  }));
+  expect(report.map(({ role }) => role)).toEqual(["birth-day", "life-path", "attitude"]);
+  expect(report.map(({ number }) => number)).toEqual(expectedNumbers);
+  for (const item of report) {
+    expect(item.hex).toMatch(/^#[0-9A-F]{6}$/);
+    expect(item.color).not.toBe("rgba(0, 0, 0, 0)");
+    expect(item.width).toBeGreaterThanOrEqual(38);
+    expect(item.height).toBeGreaterThanOrEqual(48);
+  }
+  await expect(guide.locator('[data-color-formula="birth-day"]')).toContainText("生日數主色");
+  await expect(guide.locator('[data-color-formula="life-path"]')).toContainText("生命路徑延伸色");
+  await expect(guide.locator('[data-color-formula="attitude"]')).toContainText("態度數搭配色");
+
+  const evidence = guide.locator("details[data-color-source-details]");
+  await expect(evidence).not.toHaveAttribute("open", "");
+  const summary = evidence.locator("summary");
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  expect((await summary.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await summary.press("Enter");
+  await expect(evidence).toHaveAttribute("open", "");
+  await expect(evidence).toContainText("Cheiro 原書");
+  await expect(evidence).toContainText("不是原書明示");
+  const sourceLinks = evidence.locator('a[href^="https://"]');
+  expect(await sourceLinks.count()).toBeGreaterThanOrEqual(3);
+  for (const link of await sourceLinks.all()) {
+    await expect(link).toHaveAttribute("target", "_blank");
+    await expect(link).toHaveAttribute("rel", /noreferrer/);
+  }
+  await summary.press("Space");
+  await expect(evidence).not.toHaveAttribute("open", "");
+  await expectNoHorizontalOverflow(page);
+  return guide;
+}
+
 test("fixed Taipei time fills the exact lunar date and branches", async ({ page }) => {
   await page.addInitScript(({ fixedTime }) => {
     const NativeDate = Date;
@@ -173,11 +227,19 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await page.locator("#birthday-input").fill("1990-08-12");
   await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+  const colorGuide = await expectBirthdayColorGuide(page, [3, 3, 2]);
+  await colorGuide.screenshot({ path: "output/playwright/home-color-guide-1440.png" });
   await openAllDetails(page);
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
   await page.screenshot({ path: "output/playwright/home-birthday-result-1440.png", fullPage: true });
+
+  await page.locator('[data-mode-label="code"]').click();
+  await page.locator("#number-code").fill("1234");
+  await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+  await expect(page.locator("#result-anchor")).toContainText("核心數");
+  await expect(page.locator("[data-personal-color-guide]")).toHaveCount(0);
 
   await page.locator('[data-mode-label="iching"]').click();
   const threeNumbers = page.locator(".iching-input");
@@ -187,6 +249,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
   await expect(page.locator("#result-anchor")).toContainText("天風姤");
   await expect(page.locator("#result-anchor")).toContainText("天山遯");
+  await expect(page.locator("[data-personal-color-guide]")).toHaveCount(0);
   await openAllDetails(page);
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
@@ -267,7 +330,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   expect(errors).toEqual([]);
 });
 
-for (const width of [390, 320]) {
+for (const width of [390, 360, 320]) {
   test(`responsive layout at ${width}px`, async ({ page }) => {
     const errors = collectBrowserErrors(page);
     await page.setViewportSize({ width, height: 844 });
@@ -280,6 +343,8 @@ for (const width of [390, 320]) {
     await page.locator("#birthday-input").fill("1990-08-12");
     await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
     await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+    const colorGuide = await expectBirthdayColorGuide(page, [3, 3, 2]);
+    await colorGuide.screenshot({ path: `output/playwright/home-color-guide-${width}.png` });
     await openAllDetails(page);
     await expectAllImagesLoaded(page);
     await expectVisibleBrushTitlesUnclipped(page);

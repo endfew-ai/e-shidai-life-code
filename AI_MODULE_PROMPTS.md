@@ -174,6 +174,22 @@ Character lock: {CHARACTER_1} / {CHARACTER_2} / {CHARACTER_3} / {CHARACTER_4...}
 
 正式檔案以 `scripts/audit-brush-assets.py` 統一檢查兩頁實際引用的全部字模。發布門檻為：檔案存在、RGBA、四邊透明、四角透明及可見綠邊像素為 0；另輸出 34 張本次新增字模的接觸表作人工校字。
 
+## 模組 11：個人色彩指引字模
+
+| 精確文字 | 網站檔案 |
+| --- | --- |
+| 個人色彩指引 | `public/visuals/brush/title-color-guide-v1.webp` |
+
+本次使用內建影像生成工具，以 `title-insight-v5.webp` 作為金墨筆觸參考，生成平面綠幕後再移除背景。最終提示詞重點如下：
+
+```text
+Create a new independent Traditional Chinese brush-calligraphy title using the reference image only as the visual style reference. The exact text must be: 「個人色彩指引」.
+Expressive hand-painted Chinese calligraphy, genuine irregular bristle edges, metallic ancient-gold ink with subtle mineral texture, elegant and premium, not a computer font.
+One horizontal line, all six Traditional Chinese characters fully visible, generous padding, no crop, no icon, no seal.
+Render exactly 個 / 人 / 色 / 彩 / 指 / 引 in that order. No typo, extra character, punctuation, watermark, border, glow or typeset font.
+Use one perfectly flat #00ff00 chroma-key background with no shadow, gradient, texture or reflection, and do not use green inside the lettering.
+```
+
 ## 使用規則
 
 1. 除了逐字校對的固定毛筆標題，AI 圖不可承載資料、公式、卦序、按鈕或輸入欄。

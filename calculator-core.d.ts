@@ -11,6 +11,58 @@ export type LifeProfile = {
   advice: string;
 };
 
+export type ColorNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type DigitalColorSwatch = {
+  role: "primary" | "support" | "accent";
+  name: string;
+  hex: `#${string}`;
+  sourceRelation: string;
+};
+export type CheiroColorPaletteEntry = {
+  number: ColorNumber;
+  sourceFamilies: string[];
+  avoidNote: string;
+  swatches: DigitalColorSwatch[];
+  uses: { wear: string; space: string; digital: string };
+};
+export type CheiroColorSource = {
+  id: string;
+  author: string;
+  title: string;
+  chapters: string;
+  scope: string;
+  catalogUrl: string;
+  ruleUrl: string;
+  paletteUrl: string;
+  notice: string;
+};
+export type CheiroTraditionalColorGuide = {
+  methodVersion: "cheiro-birth-number-v1";
+  originalDay: number;
+  number: ColorNumber;
+  display: string;
+  trace: ReductionTrace;
+  palette: CheiroColorPaletteEntry;
+};
+export type BirthdayColorAssignment = {
+  role: "birth-day" | "life-path" | "attitude";
+  label: string;
+  badge: "原書對照" | "本站延伸";
+  inputValue: number;
+  mappedNumber: ColorNumber;
+  calculation: string;
+  authority: "cheiro-source" | "site-extension";
+  selectedSwatchIndex: number;
+  swatch: DigitalColorSwatch;
+};
+export type BirthdayColorGuide = {
+  methodVersion: "cheiro-birth-colors-v1";
+  source: CheiroColorSource;
+  traditional: CheiroTraditionalColorGuide;
+  composition: BirthdayColorAssignment[];
+  disclaimer: string;
+};
+
 export type ReductionTrace = {
   initial: number;
   value: number;
@@ -30,6 +82,7 @@ export type BirthdayAnalysis = {
   headlineValue: string;
   lifePath: { value: number; base: number; display: string; isMaster: boolean };
   birthday: { original: number; core: number; base: number; display: string };
+  colorGuide: BirthdayColorGuide;
   attitude: { value: number };
   personalYear: { year: number; value: number; trace: ReductionTrace; initial: number };
   cycles: Array<{ year: number; value: number; trace: ReductionTrace; initial: number }>;
@@ -83,6 +136,8 @@ export type IChingAnalysis = {
 
 export const profiles: Record<number, LifeProfile>;
 export const masterThemes: Record<11 | 22 | 33, string>;
+export const CHEIRO_COLOR_SOURCE: CheiroColorSource;
+export const CHEIRO_BIRTH_COLOR_PALETTES: Record<ColorNumber, CheiroColorPaletteEntry>;
 export const LO_SHU_ORDER: number[];
 export const MASTER_NUMBERS: number[];
 export const trigrams: Record<number, Trigram>;
@@ -92,6 +147,8 @@ export const hexagramTable: Array<[number, number, number, string]>;
 export function reductionTrace(initialValue: number, preserveMaster?: boolean): ReductionTrace;
 export function reduceNumber(initialValue: number, preserveMaster?: boolean): number;
 export function formatCoreNumber(value: number): string;
+export function getCheiroColorGuide(day: number): CheiroTraditionalColorGuide;
+export function buildBirthdayColorGuide(input: { day: number; lifePathValue: number; attitudeValue: number }): BirthdayColorGuide;
 export function localDateString(date?: Date): string;
 export function validateBirthday(dateValue: string, todayValue?: string): { year: number; month: number; day: number; date: string };
 export function countDigits(digits: Array<number | string>): DigitCounts;

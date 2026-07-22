@@ -89,6 +89,156 @@ export const masterThemes = {
   33: "主數 33 以 6 的關懷與責任為基底，傳統數字命理常把它視為服務、教導與支持主題的放大；日常解讀仍應同時回到 6。",
 };
 
+export const CHEIRO_COLOR_SOURCE = Object.freeze({
+  id: "cheiro-book-of-numbers-colours-v1",
+  author: "Cheiro",
+  title: "Cheiro's Book of Numbers",
+  chapters: "第 23 章與第 27 章",
+  scope: "出生日數 1 到 9 的歷史色彩對照",
+  catalogUrl: "https://books.google.com/books?id=I-IOAAAAQAAJ",
+  ruleUrl: "https://archive.org/details/in.ernet.dli.2015.70770/page/n125/mode/2up",
+  paletteUrl: "https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up",
+  notice: "原書提供色名及穿戴、房間使用方向，沒有現代 HEX；本站色碼、具體搭配與數位用途均為現代延伸。",
+});
+
+export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
+  1: {
+    number: 1,
+    sourceFamilies: ["棕色", "黃色", "金色"],
+    avoidNote: "原書未另列較少使用色。",
+    swatches: [
+      { role: "primary", name: "古金", hex: "#C6A15B", sourceRelation: "原書色群" },
+      { role: "support", name: "暖黃", hex: "#E3BC59", sourceRelation: "原書色群" },
+      { role: "accent", name: "金棕", hex: "#8A633B", sourceRelation: "原書色群" },
+    ],
+    uses: {
+      wear: "以棕色為底，古金或暖黃用於配件。",
+      space: "木質金棕作底，古金小面積點亮。",
+      digital: "古金作重點，暖黃作提示。",
+    },
+  },
+  2: {
+    number: 2,
+    sourceFamilies: ["綠色", "乳白", "白色"],
+    avoidNote: "原書建議較少使用厚重暗色，尤其黑、紫與暗紅。",
+    swatches: [
+      { role: "primary", name: "森綠", hex: "#3F7255", sourceRelation: "原書色群" },
+      { role: "support", name: "奶油白", hex: "#EFE1BE", sourceRelation: "原書色群" },
+      { role: "accent", name: "月白", hex: "#F5F3EA", sourceRelation: "原書色群" },
+    ],
+    uses: {
+      wear: "綠色搭配奶油白，可先從上衣或配件試用。",
+      space: "白色為底，以綠色用品或植栽點綴。",
+      digital: "森綠作重點，奶油白作柔和區塊。",
+    },
+  },
+  3: {
+    number: 3,
+    sourceFamilies: ["淡紫紅", "紫羅蘭", "丁香紫"],
+    avoidNote: "原書未另列較少使用色。",
+    swatches: [
+      { role: "primary", name: "木槿紫", hex: "#A46A96", sourceRelation: "原書色群" },
+      { role: "support", name: "紫羅蘭", hex: "#7954A5", sourceRelation: "原書色群" },
+      { role: "accent", name: "淡丁香", hex: "#C7ADD8", sourceRelation: "原書色群" },
+    ],
+    uses: {
+      wear: "木槿紫作主體，淡丁香適合內搭或配件。",
+      space: "以淡紫織品或桌面用品局部呈現。",
+      digital: "紫羅蘭作互動重點，丁香紫作柔和區塊。",
+    },
+  },
+  4: {
+    number: 4,
+    sourceFamilies: ["藍色", "灰色", "電光藍", "半色調"],
+    avoidNote: "原書建議較少使用強烈、高彩度的純色。",
+    swatches: [
+      { role: "primary", name: "電光藍", hex: "#397BD7", sourceRelation: "原書色群" },
+      { role: "support", name: "霧灰", hex: "#8B929C", sourceRelation: "原書色群" },
+      { role: "accent", name: "半調灰藍", hex: "#7389A3", sourceRelation: "原書語意轉譯" },
+    ],
+    uses: {
+      wear: "灰色為底，以電光藍作小面積焦點。",
+      space: "灰藍低彩度搭配，避免整面高飽和色。",
+      digital: "電光藍作操作重點，灰色維持資訊層級。",
+    },
+  },
+  5: {
+    number: 5,
+    sourceFamilies: ["各種淺色", "淺灰", "白色與亮澤材質"],
+    avoidNote: "原書建議較少使用深色。",
+    swatches: [
+      { role: "primary", name: "亮銀灰", hex: "#CBD0D6", sourceRelation: "原書色群" },
+      { role: "support", name: "珠光白", hex: "#F2F1EC", sourceRelation: "原書色群" },
+      { role: "accent", name: "冰霧藍", hex: "#D9EAF0", sourceRelation: "網站淺色轉譯" },
+    ],
+    uses: {
+      wear: "淺灰白搭配微光材質，維持明亮感。",
+      space: "採低彩度淺色，讓材質與光線成為重點。",
+      digital: "珠光白作表面，冰霧藍作提示區。",
+    },
+  },
+  6: {
+    number: 6,
+    sourceFamilies: ["淺藍至海軍藍", "玫瑰色", "粉紅色"],
+    avoidNote: "原書一般建議少用紅、猩紅與緋紅，但另列出生時段例外。",
+    swatches: [
+      { role: "primary", name: "皇家藍", hex: "#2F5FA7", sourceRelation: "原書主色群" },
+      { role: "support", name: "海軍藍", hex: "#1E3559", sourceRelation: "原書主色群" },
+      { role: "accent", name: "玫瑰粉", hex: "#D88C9B", sourceRelation: "原書次色群" },
+    ],
+    uses: {
+      wear: "藍色作主體，玫瑰粉用於配件或局部。",
+      space: "深淺藍為底，以粉紅小物點綴。",
+      digital: "藍色作主色，玫瑰粉只作小面積焦點。",
+    },
+  },
+  7: {
+    number: 7,
+    sourceFamilies: ["淡綠", "白色", "淡黃與金色"],
+    avoidNote: "原書表示最淡的粉彩色最適合。",
+    swatches: [
+      { role: "primary", name: "粉彩綠", hex: "#C6D8B4", sourceRelation: "原書色群" },
+      { role: "support", name: "象牙白", hex: "#F3EFDF", sourceRelation: "原書色群" },
+      { role: "accent", name: "淡金黃", hex: "#E5CE83", sourceRelation: "原書色群" },
+    ],
+    uses: {
+      wear: "以極淡綠白為主，淡金用於配件。",
+      space: "象牙白為底，粉彩綠與淡金局部搭配。",
+      digital: "淡綠作資訊區，淡金作細節焦點。",
+    },
+  },
+  8: {
+    number: 8,
+    sourceFamilies: ["深灰", "深藍", "紫色與黑色"],
+    avoidNote: "原書建議較少使用明亮、花俏的顏色。",
+    swatches: [
+      { role: "primary", name: "炭灰", hex: "#41454D", sourceRelation: "原書色群" },
+      { role: "support", name: "深靛藍", hex: "#243A5A", sourceRelation: "原書色群" },
+      { role: "accent", name: "墨紫", hex: "#4C365A", sourceRelation: "原書色群" },
+    ],
+    uses: {
+      wear: "炭灰與深藍為主，墨紫適合配件。",
+      space: "用深灰藍作局部基底，保留足夠照明。",
+      digital: "深藍作背景，炭灰作表面，墨紫作圖表。",
+    },
+  },
+  9: {
+    number: 9,
+    sourceFamilies: ["紅色", "玫瑰紅", "緋紅", "粉紅", "紅紫"],
+    avoidNote: "原書未另列較少使用色，並偏好較深、濃郁色調。",
+    swatches: [
+      { role: "primary", name: "緋紅", hex: "#B0263E", sourceRelation: "原書色群" },
+      { role: "support", name: "深玫瑰", hex: "#8D3851", sourceRelation: "原書色群" },
+      { role: "accent", name: "紅紫", hex: "#732B57", sourceRelation: "原書色群" },
+    ],
+    uses: {
+      wear: "深紅作主體，玫瑰或紅紫用於配件。",
+      space: "以深紅作小面積焦點，避免壓過其他物件。",
+      digital: "紅紫可作品牌焦點，錯誤狀態仍依介面語意設計。",
+    },
+  },
+});
+
 export const LO_SHU_ORDER = [4, 9, 2, 3, 5, 7, 8, 1, 6];
 export const MASTER_NUMBERS = [11, 22, 33];
 const MASTER_SET = new Set(MASTER_NUMBERS);
@@ -124,6 +274,75 @@ export function reduceNumber(initialValue, preserveMaster = false) {
 
 export function formatCoreNumber(value) {
   return MASTER_SET.has(value) ? `${value}／${reduceNumber(value, false)}` : String(value);
+}
+
+export function getCheiroColorGuide(day) {
+  if (!Number.isSafeInteger(day) || day < 1 || day > 31) {
+    throw new RangeError("出生日必須是 1 到 31 的整數");
+  }
+  const trace = reductionTrace(day, false);
+  return {
+    methodVersion: "cheiro-birth-number-v1",
+    originalDay: day,
+    number: trace.value,
+    display: trace.text,
+    trace,
+    palette: CHEIRO_BIRTH_COLOR_PALETTES[trace.value],
+  };
+}
+
+export function buildBirthdayColorGuide({ day, lifePathValue, attitudeValue }) {
+  for (const [label, value] of [["生命路徑值", lifePathValue], ["態度數", attitudeValue]]) {
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new RangeError(`${label}必須是正安全整數`);
+    }
+  }
+  const traditional = getCheiroColorGuide(day);
+  const inputs = [
+    {
+      role: "birth-day",
+      label: "生日數主色",
+      badge: "原書對照",
+      inputValue: day,
+      mappedNumber: traditional.number,
+      calculation: `生日 ${traditional.trace.text}`,
+      authority: "cheiro-source",
+      selectedSwatchIndex: 0,
+    },
+    {
+      role: "life-path",
+      label: "生命路徑延伸色",
+      badge: "本站延伸",
+      inputValue: lifePathValue,
+      mappedNumber: reduceNumber(lifePathValue, false),
+      calculation: `生命路徑 ${reductionTrace(lifePathValue, false).text}`,
+      authority: "site-extension",
+      selectedSwatchIndex: 1,
+    },
+    {
+      role: "attitude",
+      label: "態度數搭配色",
+      badge: "本站延伸",
+      inputValue: attitudeValue,
+      mappedNumber: reduceNumber(attitudeValue, false),
+      calculation: `態度數 ${reductionTrace(attitudeValue, false).text}`,
+      authority: "site-extension",
+      selectedSwatchIndex: 2,
+    },
+  ];
+
+  const composition = inputs.map((assignment) => ({
+    ...assignment,
+    swatch: CHEIRO_BIRTH_COLOR_PALETTES[assignment.mappedNumber].swatches[assignment.selectedSwatchIndex],
+  }));
+
+  return {
+    methodVersion: "cheiro-birth-colors-v1",
+    source: CHEIRO_COLOR_SOURCE,
+    traditional,
+    composition,
+    disclaimer: "這是歷史數字命理的文化對應與本站配色延伸，不是科學評估，也不代表顏色能帶來特定結果。",
+  };
 }
 
 export function localDateString(date = new Date()) {
@@ -175,6 +394,7 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
   const birthdayBase = reduceNumber(birthdayCore.value, false);
   const attitudeInitial = month + day;
   const attitude = reductionTrace(attitudeInitial, false);
+  const colorGuide = buildBirthdayColorGuide({ day, lifePathValue: lifePath.value, attitudeValue: attitude.value });
 
   const personalYearFor = (targetYear) => {
     const initial = month + day + targetYear;
@@ -206,6 +426,7 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
         ? (day === birthdayCore.value ? formatCoreNumber(birthdayCore.value) : `${day} → ${formatCoreNumber(birthdayCore.value)}`)
         : (day === birthdayCore.value ? String(day) : `${day} → ${birthdayCore.value}`),
     },
+    colorGuide,
     attitude: { value: attitude.value },
     personalYear,
     cycles,

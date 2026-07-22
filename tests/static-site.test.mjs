@@ -11,6 +11,7 @@ const mainFixedBrushAssets = [
   "title-insight-care-v2.webp",
   "title-insight-communication-v2.webp",
   "title-self-question-v2.webp",
+  "title-color-guide-v1.webp",
   "title-judgment-v2.webp",
   "title-tuan-v2.webp",
   "title-image-saying-v2.webp",
@@ -43,11 +44,13 @@ const kangjieFixedBrushAssets = [
 ];
 
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
-  const [html, appSource, reactSource, styles] = await Promise.all([
+  const [html, appSource, reactSource, styles, coreSource, typeSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../app.js", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../styles.css", import.meta.url), "utf8"),
+    readFile(new URL("../calculator-core.js", import.meta.url), "utf8"),
+    readFile(new URL("../calculator-core.d.ts", import.meta.url), "utf8"),
   ]);
   assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
   assert.match(html, /生日命碼/);
@@ -76,6 +79,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /title-rules-v4\.webp/);
   assert.match(html, /title-source-v5\.webp/);
   assert.match(html, /title-disclaimer-v5\.webp/);
+  assert.match(html, /Cheiro 原書色彩章/);
+  assert.match(html, /archive\.org\/details\/in\.ernet\.dli\.2015\.70770\/page\/n137/);
+  assert.match(html, /HEX 為本站數位轉譯/);
+  assert.match(html, /不是科學個人色彩診斷/);
   assert.match(appSource, /title-insight-v5\.webp/);
   assert.match(reactSource, /title-insight-v5\.webp/);
   for (const asset of mainFixedBrushAssets) {
@@ -86,6 +93,18 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-v5\.webp"/);
   assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-v5\.webp"/);
   assert.match(appSource, /brushTitleElement\("public\/visuals\/brush\/title-insight-v5\.webp", "把結果變成可觀察的問題"/);
+  assert.match(appSource, /function createBirthdayColorGuide\(result\)/);
+  assert.match(appSource, /data-personal-color-guide/);
+  assert.match(reactSource, /function BirthdayColorGuide/);
+  assert.match(reactSource, /data-personal-color-guide/);
+  assert.match(appSource, /result\.kind === "birthday"[^\n]*createBirthdayColorGuide\(result\)/);
+  assert.match(reactSource, /result\.kind === "birthday" && <BirthdayColorGuide result=\{result\}/);
+  assert.match(coreSource, /export const CHEIRO_BIRTH_COLOR_PALETTES/);
+  assert.match(coreSource, /export function getCheiroColorGuide/);
+  assert.match(coreSource, /export function buildBirthdayColorGuide/);
+  assert.match(typeSource, /colorGuide: BirthdayColorGuide/);
+  assert.match(typeSource, /CHEIRO_BIRTH_COLOR_PALETTES/);
+  assert.doesNotMatch(`${html}\n${appSource}\n${reactSource}`, /科學證明|科學認證|保證改運|保證帶來/);
   assert.doesNotMatch(html, /<h2>方法與本文來源<\/h2>/);
   assert.doesNotMatch(html, /<h2 id="disclaimer-title">使用提醒<\/h2>/);
   assert.doesNotMatch(html, /birth-orbit-b-v2\.webp/);
@@ -95,6 +114,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /只列原文，不解卦/);
   assert.doesNotMatch(appSource, /const profiles\s*=/);
   assert.match(styles, /@media \(max-width: 560px\)/);
+  assert.match(styles, /\.personal-color-guide/);
+  assert.match(styles, /\.color-role-list \{[^}]*repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(styles, /@media \(max-width: 560px\)[\s\S]*\.color-role-list \{ grid-template-columns: 1fr; \}/);
   assert.match(styles, /prefers-reduced-motion/);
   assert.doesNotMatch(html, /[—–]/);
 

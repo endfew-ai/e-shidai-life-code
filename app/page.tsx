@@ -24,7 +24,7 @@ const modeContent = {
   birthday: {
     label: "生日命碼",
     badge: "主要",
-    description: "生命路徑、生日數、態度數與個人流年",
+    description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
     help: "只需西元生日，不需姓名、時辰或身分證字號。",
     art: "/visuals/birthday-panel-b-v3.webp",
@@ -62,6 +62,7 @@ const fixedBrushTitles: Record<string, string> = {
   "日常照顧": "/visuals/brush/title-insight-care-v2.webp",
   "溝通提醒": "/visuals/brush/title-insight-communication-v2.webp",
   "本次自我提問": "/visuals/brush/title-self-question-v2.webp",
+  "個人色彩指引": "/visuals/brush/title-color-guide-v1.webp",
   "本卦": "/visuals/brush/title-hex-original-v2.webp",
   "互卦": "/visuals/brush/title-hex-mutual-v2.webp",
   "變卦": "/visuals/brush/title-hex-changed-v2.webp",
@@ -71,14 +72,14 @@ const fixedBrushTitles: Record<string, string> = {
   "六爻原文": "/visuals/brush/title-six-lines-v2.webp",
 };
 
-function BrushTitle({ src, text, className = "" }: { src: string; text: string; className?: string }) {
-  return <span className={`brush-title ${className}`.trim()}><span className="sr-only">{text}</span><img className="brush-title-image" src={src} alt="" aria-hidden="true" /></span>;
+function BrushTitle({ src, text, className = "", lazy = false }: { src: string; text: string; className?: string; lazy?: boolean }) {
+  return <span className={`brush-title ${className}`.trim()}><span className="sr-only">{text}</span><img className="brush-title-image" src={src} alt="" aria-hidden="true" loading={lazy ? "lazy" : undefined} decoding={lazy ? "async" : undefined} /></span>;
 }
 
-function FixedBrushTitle({ text, className = "" }: { text: string; className?: string }) {
+function FixedBrushTitle({ text, className = "", lazy = false }: { text: string; className?: string; lazy?: boolean }) {
   const src = fixedBrushTitles[text];
   if (!src) throw new Error(`缺少固定毛筆標題資產：${text}`);
-  return <BrushTitle src={src} text={text} className={className} />;
+  return <BrushTitle src={src} text={text} className={className} lazy={lazy} />;
 }
 
 function MetricCard({ label, value, note }: { label: string; value: string; note: string }) {
@@ -142,6 +143,73 @@ function CalculationDetails({ result }: { result: NumerologyResult }) {
   );
 }
 
+function BirthdayColorGuide({ result }: { result: BirthdayResult }) {
+  const guide = result.colorGuide;
+  const palette = guide.traditional.palette;
+  const roleNotes: Record<string, string> = {
+    "birth-day": "出生日色群的數位代表色",
+    "life-path": "將生命路徑基底延伸套入同一色表",
+    attitude: "將態度數延伸套入同一色表",
+  };
+  const uses = [
+    ["穿搭點綴・本站延伸", palette.uses.wear],
+    ["工作空間・本站延伸", palette.uses.space],
+    ["數位配色・本站延伸", palette.uses.digital],
+  ];
+  const sources = [
+    ["Cheiro 原書・第 23 章主次色規則", guide.source.ruleUrl],
+    ["Cheiro 原書・第 27 章色彩對照", guide.source.paletteUrl],
+    ["色彩心理研究界線", "https://doi.org/10.1146/annurev-psych-010213-115035"],
+  ];
+
+  return (
+    <section className="personal-color-guide" data-personal-color-guide aria-labelledby="color-guide-title" aria-describedby="color-guide-disclaimer">
+      <header className="color-guide-heading">
+        <div><p>色彩參考</p><h3 id="color-guide-title" className="brush-fixed-heading"><FixedBrushTitle text="個人色彩指引" className="brush-color-guide" lazy /></h3></div>
+        <p className="color-guide-basis">生日數 {guide.traditional.number}・原書色群 {palette.sourceFamilies.join("、")}</p>
+      </header>
+
+      <ol className="color-role-list">
+        {guide.composition.map((assignment) => (
+          <li className={`color-role color-role-${assignment.role}`} data-color-swatch data-color-role={assignment.role} data-color-number={assignment.mappedNumber} key={assignment.role}>
+            <span className="color-swatch" data-color-chip style={{ "--swatch": assignment.swatch.hex } as React.CSSProperties} aria-hidden="true" />
+            <div className="color-role-copy">
+              <div className="color-role-label"><span>{assignment.label}</span><em>{assignment.badge}</em></div>
+              <div className="color-role-name"><strong>{assignment.swatch.name}</strong><code data-color-hex>{assignment.swatch.hex}</code></div>
+              <span className="color-role-basis">{assignment.calculation}・色彩基底 {assignment.mappedNumber}</span>
+              <p>{roleNotes[assignment.role]}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="color-guide-uses">
+        {uses.map(([label, copy]) => <p key={label}><strong>{label}</strong>{copy}</p>)}
+      </div>
+      <p className="color-guide-reminder"><strong>原書的配色提醒</strong>{palette.avoidNote}</p>
+
+      <details className="color-guide-evidence" data-color-source-details>
+        <summary><span><small>可核對</small><strong>計算、書據與轉譯</strong></span><em>原書・色票・本站延伸</em></summary>
+        <div className="color-guide-evidence-body">
+          <div className="color-guide-explanation">
+            <p>Cheiro《Cheiro&apos;s Book of Numbers》以出生日化簡至 1 到 9 對照色群。你的出生日為 {guide.traditional.display}，因此採用數字 {guide.traditional.number}。</p>
+            <p>{guide.source.notice}</p>
+            <p>生命路徑延伸色與態度數搭配色，是本站把既有數字套入同一色表的延伸，不是原書明示的生命路徑配色。</p>
+          </div>
+          <ol className="color-guide-formulas">
+            {guide.composition.map((assignment) => <li data-color-formula={assignment.role} key={assignment.role}><span>{assignment.label}</span><code>{assignment.calculation}；色彩基底 {assignment.mappedNumber}</code></li>)}
+          </ol>
+          <p className="color-guide-source-links">
+            {sources.map(([label, url]) => <a href={url} target="_blank" rel="noreferrer" key={label}>{label}</a>)}
+          </p>
+        </div>
+      </details>
+
+      <p id="color-guide-disclaimer" className="color-guide-disclaimer">{guide.disclaimer}</p>
+    </section>
+  );
+}
+
 function NumerologyResults({ result, onReset }: { result: NumerologyResult; onReset: () => void }) {
   const profile = profiles[result.profileNumber];
   const resultArt = result.kind === "birthday" ? "/visuals/numerology-result-panel-b-v3.webp" : "/visuals/digit-spectrum-panel-b-v3.webp";
@@ -175,6 +243,8 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
       {result.kind === "birthday" && result.lifePath.isMaster && (
         <div className="master-note" role="note"><strong>主數 {result.lifePath.value}／基底 {result.lifePath.base}</strong><p>{masterThemes[result.lifePath.value as 11 | 22 | 33]}</p></div>
       )}
+
+      {result.kind === "birthday" && <BirthdayColorGuide result={result} />}
 
       <div className="result-overview"><CalculationDetails result={result} /><DigitDistribution result={result} /></div>
 
@@ -377,12 +447,12 @@ export default function Home() {
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
-          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-v4.webp" text="生日命碼" className="brush-method-card" /><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；態度數及個人流年化簡至 1 到 9。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-v4.webp" text="數字頻譜" className="brush-method-card" /><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-method-card" /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-method-card" /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
-          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>網站只保存固定規則與古籍本文，不產生 AI 解卦或吉凶判斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie.html#sources">邵康節專頁來源</a></p></div></div>
+          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-v4.webp" text="生日命碼" className="brush-method-card" /><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；另依 Cheiro 出生日數色表顯示傳統主色，生命路徑與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-v4.webp" text="數字頻譜" className="brush-method-card" /><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-method-card" /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-method-card" /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
+          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie.html#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>
 
-      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
+      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p></div></section>
       <footer><p>© {new Date().getFullYear()} e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>
     </main>
   );

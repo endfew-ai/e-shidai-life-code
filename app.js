@@ -13,7 +13,7 @@ import { getIChingText } from "./iching-text.js";
 const modeContent = {
   birthday: {
     label: "生日命碼",
-    description: "生命路徑、生日數、態度數與個人流年",
+    description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
     help: "只需西元生日，不需姓名、時辰或身分證字號。",
     art: "public/visuals/birthday-panel-b-v3.webp",
@@ -49,6 +49,7 @@ const fixedBrushTitles = {
   "日常照顧": "public/visuals/brush/title-insight-care-v2.webp",
   "溝通提醒": "public/visuals/brush/title-insight-communication-v2.webp",
   "本次自我提問": "public/visuals/brush/title-self-question-v2.webp",
+  "個人色彩指引": "public/visuals/brush/title-color-guide-v1.webp",
   "本卦": "public/visuals/brush/title-hex-original-v2.webp",
   "互卦": "public/visuals/brush/title-hex-mutual-v2.webp",
   "變卦": "public/visuals/brush/title-hex-changed-v2.webp",
@@ -72,20 +73,24 @@ function imageElement(src, alt = "") {
   return image;
 }
 
-function brushTitleElement(src, text, className = "") {
+function brushTitleElement(src, text, className = "", { lazy = false } = {}) {
   const title = element("span", `brush-title ${className}`.trim());
   const accessibleText = element("span", "sr-only", text);
   const image = imageElement(src, "");
   image.className = "brush-title-image";
   image.setAttribute("aria-hidden", "true");
+  if (lazy) {
+    image.loading = "lazy";
+    image.decoding = "async";
+  }
   title.append(accessibleText, image);
   return title;
 }
 
-function fixedBrushTitleElement(text, className = "") {
+function fixedBrushTitleElement(text, className = "", options = {}) {
   const src = fixedBrushTitles[text];
   if (!src) throw new Error(`缺少固定毛筆標題資產：${text}`);
-  return brushTitleElement(src, text, className);
+  return brushTitleElement(src, text, className, options);
 }
 
 function panelHeading(kicker, title, badge) {
@@ -159,6 +164,111 @@ function createDigitDistribution(result) {
   body.append(grid, element("p", "missing-summary", result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"));
   card.append(summary, body);
   return card;
+}
+
+function createBirthdayColorGuide(result) {
+  const guide = result.colorGuide;
+  const palette = guide.traditional.palette;
+  const section = element("section", "personal-color-guide");
+  section.setAttribute("data-personal-color-guide", "");
+  section.setAttribute("aria-labelledby", "color-guide-title");
+  section.setAttribute("aria-describedby", "color-guide-disclaimer");
+
+  const header = element("header", "color-guide-heading");
+  const headingCopy = element("div");
+  const title = element("h3", "brush-fixed-heading");
+  title.id = "color-guide-title";
+  title.append(fixedBrushTitleElement("個人色彩指引", "brush-color-guide", { lazy: true }));
+  headingCopy.append(element("p", "", "色彩參考"), title);
+  header.append(
+    headingCopy,
+    element("p", "color-guide-basis", `生日數 ${guide.traditional.number}・原書色群 ${palette.sourceFamilies.join("、")}`),
+  );
+
+  const roleList = element("ol", "color-role-list");
+  const roleNotes = {
+    "birth-day": "出生日色群的數位代表色",
+    "life-path": "將生命路徑基底延伸套入同一色表",
+    attitude: "將態度數延伸套入同一色表",
+  };
+  for (const assignment of guide.composition) {
+    const item = element("li", `color-role color-role-${assignment.role}`);
+    item.setAttribute("data-color-swatch", "");
+    item.setAttribute("data-color-role", assignment.role);
+    item.setAttribute("data-color-number", String(assignment.mappedNumber));
+    const swatch = element("span", "color-swatch");
+    swatch.setAttribute("data-color-chip", "");
+    swatch.style.setProperty("--swatch", assignment.swatch.hex);
+    swatch.setAttribute("aria-hidden", "true");
+    const copy = element("div", "color-role-copy");
+    const label = element("div", "color-role-label");
+    label.append(element("span", "", assignment.label), element("em", "", assignment.badge));
+    const name = element("div", "color-role-name");
+    const colorHex = element("code", "", assignment.swatch.hex);
+    colorHex.setAttribute("data-color-hex", "");
+    name.append(element("strong", "", assignment.swatch.name), colorHex);
+    copy.append(
+      label,
+      name,
+      element("span", "color-role-basis", `${assignment.calculation}・色彩基底 ${assignment.mappedNumber}`),
+      element("p", "", roleNotes[assignment.role]),
+    );
+    item.append(swatch, copy);
+    roleList.append(item);
+  }
+
+  const uses = element("div", "color-guide-uses");
+  for (const [label, copy] of [
+    ["穿搭點綴・本站延伸", palette.uses.wear],
+    ["工作空間・本站延伸", palette.uses.space],
+    ["數位配色・本站延伸", palette.uses.digital],
+  ]) {
+    const item = element("p");
+    item.append(element("strong", "", label), document.createTextNode(copy));
+    uses.append(item);
+  }
+  const reminder = element("p", "color-guide-reminder");
+  reminder.append(element("strong", "", "原書的配色提醒"), document.createTextNode(palette.avoidNote));
+
+  const evidence = element("details", "color-guide-evidence");
+  evidence.setAttribute("data-color-source-details", "");
+  const summary = element("summary");
+  const summaryCopy = element("span");
+  summaryCopy.append(element("small", "", "可核對"), element("strong", "", "計算、書據與轉譯"));
+  summary.append(summaryCopy, element("em", "", "原書・色票・本站延伸"));
+  const evidenceBody = element("div", "color-guide-evidence-body");
+  const explanation = element("div", "color-guide-explanation");
+  explanation.append(
+    element("p", "", `Cheiro《Cheiro's Book of Numbers》以出生日化簡至 1 到 9 對照色群。你的出生日為 ${guide.traditional.display}，因此採用數字 ${guide.traditional.number}。`),
+    element("p", "", guide.source.notice),
+    element("p", "", "生命路徑延伸色與態度數搭配色，是本站把既有數字套入同一色表的延伸，不是原書明示的生命路徑配色。"),
+  );
+  const formulaList = element("ol", "color-guide-formulas");
+  for (const assignment of guide.composition) {
+    const row = element("li");
+    row.setAttribute("data-color-formula", assignment.role);
+    row.append(element("span", "", assignment.label), element("code", "", `${assignment.calculation}；色彩基底 ${assignment.mappedNumber}`));
+    formulaList.append(row);
+  }
+  const sourceLinks = element("p", "color-guide-source-links");
+  for (const [label, url] of [
+    ["Cheiro 原書・第 23 章主次色規則", guide.source.ruleUrl],
+    ["Cheiro 原書・第 27 章色彩對照", guide.source.paletteUrl],
+    ["色彩心理研究界線", "https://doi.org/10.1146/annurev-psych-010213-115035"],
+  ]) {
+    const link = element("a", "", label);
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    sourceLinks.append(link);
+  }
+  evidenceBody.append(explanation, formulaList, sourceLinks);
+  evidence.append(summary, evidenceBody);
+
+  const disclaimer = element("p", "color-guide-disclaimer", guide.disclaimer);
+  disclaimer.id = "color-guide-disclaimer";
+  section.append(header, roleList, uses, reminder, evidence, disclaimer);
+  return section;
 }
 
 function createInsightLedger(profile) {
@@ -245,6 +355,8 @@ function createNumerologyResult(result, onReset) {
     note.append(element("strong", "", `主數 ${result.lifePath.value}／基底 ${result.lifePath.base}`), element("p", "", masterThemes[result.lifePath.value]));
     section.append(note);
   }
+
+  if (result.kind === "birthday") section.append(createBirthdayColorGuide(result));
 
   const overview = element("div", "result-overview");
   overview.append(createCalculationCard(result), createDigitDistribution(result));
