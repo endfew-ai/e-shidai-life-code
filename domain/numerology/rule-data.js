@@ -39,12 +39,17 @@ export const RULE_SOURCE_PROFILES = Object.freeze({
     certainty: "folklore",
     note: "區間版本彼此不一致，必須由規則設定明確選擇。",
   }),
-  unresolvedDestinyNumber: Object.freeze({
-    id: "destiny-number-unresolved",
-    sourceType: SOURCE_TYPES.unresolved,
-    title: "命格數公式尚未確認",
-    certainty: "unresolved",
-    note: "現有專案與教材不足以證明命格數公式，因此不自動計算。",
+  identityDestinyCommonPractice: Object.freeze({
+    id: "identity-destiny-common-practice-v1",
+    sourceType: SOURCE_TYPES.commonPractice,
+    title: "身分證命格數列近代流傳規則",
+    certainty: "folklore",
+    note: "英文字母依 A=01 至 Z=26 轉換；命格分析只在字母碼為 01 至 09 時移除最前方 0，再建立相鄰磁場。人生階段仍使用完整數列。",
+    urls: Object.freeze([
+      "https://www.fox-saying.com/blog/posts/41944909",
+      "https://chan-lead.blogspot.com/p/blog-page_24.html",
+      "https://star-artnlp.com/how-to-read-the-digital-i-ching-id-number-learn-fortune-telling-transit-time-and-numerology-online-in-one-step/",
+    ]),
   }),
 });
 
@@ -410,7 +415,7 @@ export const DEFAULT_RULE_SET = Object.freeze({
   schemaVersion: 1,
   id: "uploaded-material-v2",
   name: "教材可追溯規則",
-  version: "2.0.0",
+  version: "2.1.0",
   lifePathMode: "full_birth_digits",
   birthGridMode: "raw_birth_digits",
   masterNumberMode: "disabled",
@@ -418,10 +423,11 @@ export const DEFAULT_RULE_SET = Object.freeze({
   zeroFiveMode: "bridge_modifier",
   timelineProfile: "first_10_then_5",
   magneticFieldMapVersion: "uploaded-material-v1",
-  interpretationVersion: "neutral-zh-tw-v1",
+  interpretationVersion: "neutral-zh-tw-v2",
   createdAt: "2026-07-23",
   sourceNotes: Object.freeze([
     "生命靈數、九宮連線與八大磁場來自使用者提供的近代民俗教材規格。",
+    "身分證命格採命格數列規則：字母碼為 01 至 09 時只移除最前方 0；人生階段保留完整數列。",
     "台灣身分證格式與檢查碼另依官方資料，不與 A=01 民俗轉換混用。",
   ]),
 });

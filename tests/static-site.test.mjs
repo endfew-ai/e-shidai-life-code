@@ -44,7 +44,7 @@ const kangjieFixedBrushAssets = [
 ];
 
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
-  const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes] = await Promise.all([
+  const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../app.js", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -53,6 +53,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     readFile(new URL("../calculator-core.d.ts", import.meta.url), "utf8"),
     readFile(new URL("../site-services.js", import.meta.url), "utf8"),
     readFile(new URL("../site-services.d.ts", import.meta.url), "utf8"),
+    readFile(new URL("../application/advanced-workspace.js", import.meta.url), "utf8"),
   ]);
   assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
   assert.match(html, /生日命碼/);
@@ -120,6 +121,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(serviceSource, /credentials: "omit"/);
   assert.match(serviceSource, /referrerPolicy: "no-referrer"/);
   assert.match(serviceTypes, /loadCumulativeVisitCount/);
+  assert.match(advancedSource, /命格數列與人生階段分流/);
+  assert.match(advancedSource, /命格分析只移除這個補位 0/);
+  assert.doesNotMatch(advancedSource, /官方資料|尚未設定演算規則|schema\.gov\.tw|gazette\.nat\.gov\.tw/);
   assert.match(appSource, /result\.kind === "birthday"[^\n]*createBirthdayColorGuide\(result\)/);
   assert.match(reactSource, /result\.kind === "birthday" && <BirthdayColorGuide result=\{result\}/);
   assert.match(coreSource, /export const CHEIRO_BIRTH_COLOR_PALETTES/);

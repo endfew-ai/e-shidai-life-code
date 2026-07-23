@@ -1308,6 +1308,40 @@ footer p { margin: 0; }
 .identity-validation.is-warning strong { color: var(--danger); }
 .identity-validation p { color: var(--paper); font-family: var(--sans); font-size: 15px; margin: 0; }
 .identity-validation small { color: var(--muted); font-family: var(--sans); font-size: 13px; grid-column: 2; }
+.identity-destiny-block {
+  background: linear-gradient(120deg, rgba(199, 154, 69, .1), rgba(7, 22, 35, .58));
+  border: 1px solid var(--line);
+  margin-top: 12px;
+  padding: 16px;
+}
+.identity-destiny-block > header { align-items: end; display: flex; justify-content: space-between; }
+.identity-destiny-block > header p { color: var(--gold); font-family: var(--sans); font-size: 12px; letter-spacing: .12em; margin: 0; }
+.identity-destiny-title { color: var(--paper); font-size: 21px; font-weight: 500; margin-top: 3px; }
+.identity-destiny-block > header code {
+  color: var(--gold-bright);
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 18px;
+  letter-spacing: .12em;
+}
+.identity-destiny-rule,
+.identity-destiny-block > small {
+  color: var(--paper-soft);
+  display: block;
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 12px 0 0;
+}
+.identity-destiny-block > small { color: var(--muted); font-size: 14px; }
+.identity-destiny-stats {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 13px 0 0;
+}
+.identity-destiny-stats div { background: rgba(3, 12, 21, .58); border: 1px solid var(--line-soft); padding: 10px 12px; }
+.identity-destiny-stats dt { color: var(--muted); font-family: var(--sans); font-size: 13px; }
+.identity-destiny-stats dd { color: var(--paper); font-family: var(--sans); font-size: 16px; margin: 4px 0 0; }
 .magnetic-results { margin-top: 15px; }
 .magnetic-summary {
   align-items: end;
@@ -1459,8 +1493,8 @@ footer p { margin: 0; }
 .source-ledger { display: grid; gap: 1px; grid-template-columns: repeat(2, 1fr); }
 .source-ledger article { background: rgba(5, 15, 25, .74); border: 1px solid var(--line-soft); padding: 18px; }
 .source-ledger article > span { color: var(--gold); font-family: var(--sans); font-size: 12px; letter-spacing: .12em; }
-.source-ledger-title { color: var(--paper); font-size: 19px; font-weight: 500; margin: 5px 0; }
-.source-ledger p { color: var(--paper-soft); font-family: var(--sans); font-size: 15px; line-height: 1.65; margin: 7px 0 0; }
+.source-ledger-title { color: var(--paper); font-size: 20px; font-weight: 500; margin: 5px 0; }
+.source-ledger p { color: var(--paper-soft); font-family: var(--sans); font-size: 16px; line-height: 1.7; margin: 7px 0 0; }
 .source-ledger a { border-bottom: 1px solid var(--line); color: var(--gold-bright); display: inline-block; margin: 4px 12px 0 0; text-decoration: none; }
 .grid-line-summary { border-top: 1px solid var(--line-soft); margin-top: 16px; padding-top: 12px; }
 .grid-line-title { color: var(--gold-bright); font-size: 17px; font-weight: 500; margin: 0; }
@@ -1500,6 +1534,8 @@ footer p { margin: 0; }
   .dominant-result { border-left: 0; border-top: 1px solid var(--line); min-width: 0; padding: 10px 0 0; }
   .identity-validation { gap: 4px; grid-template-columns: 1fr; }
   .identity-validation small { grid-column: 1; }
+  .identity-destiny-block > header { align-items: start; flex-direction: column; gap: 8px; }
+  .identity-destiny-stats { grid-template-columns: 1fr; }
   .pair-grid { grid-template-columns: 1fr; }
   .bridge-block article { grid-template-columns: 1fr; }
   .field-summary-grid { grid-template-columns: 1fr; }

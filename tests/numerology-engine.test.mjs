@@ -15,6 +15,7 @@ import {
   buildIdentityTimeline,
   calculateLifePath,
   evaluateBirthGridLines,
+  generatePlainTextReport,
   maskTaiwanNationalId,
   validateTaiwanNationalId,
 } from "../domain/numerology/index.js";
@@ -79,9 +80,10 @@ test("生日應用層結果固定時鐘、規則版本、九宮格與三年流�
   assert.equal(result.createdAt, CREATED_AT);
   assert.equal(result.lifePathResult.lifePathNumber, 6);
   assert.equal(result.ruleSetId, DEFAULT_RULE_SET.id);
+  assert.equal(result.ruleSet.version, "2.1.0");
   assert.equal(result.birthGridResult.layoutProfile, "standard_1_to_9");
   assert.deepEqual(result.personalYearCycles.map(({ year }) => year), [2025, 2026, 2027]);
-  assert.equal(result.destinyNumber.status, "unresolved");
+  assert.equal(Object.hasOwn(result, "destinyNumber"), false);
   assert.ok(result.reportSections.some(({ id }) => id === "birth-grid"));
 
   assert.throws(
@@ -242,6 +244,64 @@ test("台灣身分證格式、檢查碼、遮罩與民俗序列結果可分別�
   assert.equal(analyzed.maskedInput, "A12*****89");
   assert.equal(analyzed.validation.officialDigits.slice(0, 2).join(""), "10");
   assert.notEqual(analyzed.conversion.sequentialValue, analyzed.validation.officialDigits.slice(0, 2).join(""));
+  assert.equal(analyzed.destiny.status, "resolved");
+  assert.equal(analyzed.destiny.conversion.digits, "1123456789");
+  assert.equal(analyzed.destiny.magnetic.pairs.length, 9);
+  assert.equal(analyzed.encounterMagnetic.normalizedSequence, "01123456789");
+  assert.equal(analyzed.encounterMagnetic.pairs.length, 10);
+  assert.equal(analyzed.timeline.stages[0].pair.rawPair, "01");
+  assert.equal(analyzed.destiny.magnetic.pairs[0].rawPair, "11");
+});
+
+test("命格數列只移除 A 至 I 字母碼的補位零，人生階段完整保留 11 位", () => {
+  const cases = [
+    {
+      input: "A123456784",
+      code: "01",
+      destinySequence: "1123456784",
+      destinyPairs: ["11", "12", "23", "34", "45", "56", "67", "78", "84"],
+      droppedLeadingZero: true,
+    },
+    {
+      input: "E123456784",
+      code: "05",
+      destinySequence: "5123456784",
+      destinyPairs: ["51", "12", "23", "34", "45", "56", "67", "78", "84"],
+      droppedLeadingZero: true,
+    },
+    {
+      input: "J123456784",
+      code: "10",
+      destinySequence: "10123456784",
+      destinyPairs: ["10", "01", "12", "23", "34", "45", "56", "67", "78", "84"],
+      droppedLeadingZero: false,
+    },
+    {
+      input: "Z123456784",
+      code: "26",
+      destinySequence: "26123456784",
+      destinyPairs: ["26", "61", "12", "23", "34", "45", "56", "67", "78", "84"],
+      droppedLeadingZero: false,
+    },
+  ];
+
+  for (const sample of cases) {
+    const result = analyzeIdentityNumber(sample.input, { allowInvalidChecksum: true });
+    assert.equal(result.destiny.letterSequentialValue, sample.code, sample.input);
+    assert.equal(result.destiny.droppedLeadingZero, sample.droppedLeadingZero, sample.input);
+    assert.equal(result.destiny.conversion.digits, sample.destinySequence, sample.input);
+    assert.deepEqual(result.destiny.magnetic.pairs.map(({ rawPair }) => rawPair), sample.destinyPairs, sample.input);
+    assert.equal(result.destiny.magnetic.pairs.length, sample.droppedLeadingZero ? 9 : 10, sample.input);
+    assert.equal(result.encounterMagnetic.normalizedSequence, `${sample.code}123456784`, sample.input);
+    assert.equal(result.encounterMagnetic.pairs.length, 10, sample.input);
+    assert.equal(result.timeline.stages.length, 10, sample.input);
+    assert.equal(result.destiny.conversion.sourceMap[0].outputIndex, 0, sample.input);
+    assert.equal(result.destiny.conversion.sourceMap[0].sourceIndex, 0, sample.input);
+  }
+
+  const zeroTail = analyzeIdentityNumber("A100000004", { allowInvalidChecksum: true });
+  assert.equal(zeroTail.destiny.conversion.digits, "1100000004");
+  assert.equal(zeroTail.encounterMagnetic.normalizedSequence, "01100000004");
 });
 
 test("教材原表區間不靜默截斷，五年循環會標示輪次", () => {
@@ -285,9 +345,20 @@ test("應用層身分證與一般序列分析均輸出結構化結果", () => {
   });
   assert.equal(identity.maskedInput, "A12*****89");
   assert.equal(identity.identityValidation.valid, true);
+  assert.equal(identity.identityDestiny.status, "resolved");
+  assert.equal(identity.destinyMagneticFieldResult.pairs.length, 9);
+  assert.equal(identity.lifeEncounterMagnetic.pairs.length, 10);
   assert.equal(identity.timelineResult.stages.length, 10);
   assert.ok(identity.calculationSteps.some(({ id }) => id === "official-validation"));
   assert.ok(identity.calculationSteps.some(({ id }) => id === "folklore-letter-conversion"));
+  assert.ok(identity.calculationSteps.some(({ id }) => id === "identity-destiny-sequence"));
+  assert.ok(identity.reportSections.some(({ id }) => id === "identity-destiny-sequence"));
+  const maskedReport = generatePlainTextReport(identity);
+  assert.doesNotMatch(maskedReport, /A123456789/);
+  assert.doesNotMatch(maskedReport, /01123456789/);
+  assert.doesNotMatch(maskedReport, /1123456789/);
+  assert.match(maskedReport, /命格第 1 個相鄰視窗/);
+  assert.match(maskedReport, /命格位置 5～7 的橋接結果/);
 
   const sequence = analyzeSequenceV2({
     id: "sequence-fixed-case",

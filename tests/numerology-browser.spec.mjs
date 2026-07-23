@@ -88,9 +88,34 @@ test("identity result is masked and local history never stores the full identifi
   await expect(input).toHaveValue("");
   await expect(result.locator(".advanced-result-value")).toHaveText("A12*****89");
   await expect(result).toContainText("格式與檢查碼通過");
-  await expect(result.locator(".pair-card")).toHaveCount(10);
+  await expect(result).toContainText("身分證命格數列");
+  await expect(result).toContainText("規則已設定");
+  await expect(result.locator(".pair-card")).toHaveCount(9);
   await expect(result.locator(".timeline-list li")).toHaveCount(10);
-  await expect(result.locator(".sensitive-reveal")).toBeVisible();
+  await expect(result.locator(".pair-card code").first()).toHaveText("••");
+  await expect(result.locator(".timeline-list code").first()).toHaveText("••");
+  await result.screenshot({ path: "output/playwright/identity-destiny-desktop-1440.png" });
+  const reveal = result.locator(".sensitive-reveal");
+  await expect(reveal).toBeVisible();
+  await reveal.click();
+  await expect(result.locator(".advanced-result-value")).toHaveText("A123456789");
+  await expect(result.locator(".pair-card code").first()).toHaveText("11");
+  await expect(result.locator(".timeline-list code").first()).toHaveText("01");
+  await page.evaluate(() => {
+    window.print = () => {
+      window.__identityPrintSnapshot = document.querySelector("[data-identity-result]")?.textContent ?? "";
+    };
+  });
+  await result.getByRole("button", { name: "列印／存成 PDF" }).click();
+  const printSnapshot = await page.evaluate(() => window.__identityPrintSnapshot);
+  expect(printSnapshot).not.toContain("A123456789");
+  expect(printSnapshot).not.toContain("01123456789");
+  expect(printSnapshot).not.toContain("1123456789");
+  await expect(result.locator(".advanced-result-value")).toHaveText("A12*****89");
+  await expect(result.locator(".pair-card code").first()).toHaveText("••");
+  await expect(result.locator(".timeline-list code").first()).toHaveText("••");
+  await expect(reveal).toBeEnabled();
+  await expect(reveal).toHaveText("顯示完整字號 10 秒");
 
   const persisted = await page.evaluate(() => JSON.stringify({ ...localStorage }));
   expect(persisted).not.toContain("A123456789");
@@ -101,10 +126,42 @@ test("identity result is masked and local history never stores the full identifi
   await expect(page.locator("[data-history-list]")).not.toContainText("A123456789");
 
   await openWorkspaceView(page, "sources");
-  await expect(page.locator("[data-workspace-view='sources']")).toContainText("官方 ≠ 民俗");
-  await expect(page.locator("a[href='https://schema.gov.tw/lists/167']")).toBeVisible();
+  const sources = page.locator("[data-workspace-view='sources']");
+  await expect(sources).toContainText("規則版本與使用界線");
+  await expect(sources).toContainText("命格數列與人生階段分流");
+  await expect(sources.locator(".source-ledger article")).toHaveCount(3);
+  await expect(sources).not.toContainText("官方資料");
+  await expect(sources).not.toContainText("尚未設定演算規則");
+  await expect(page.locator("a[href='https://schema.gov.tw/lists/167']")).toHaveCount(0);
+  await expect(page.locator("a[href*='gazette.nat.gov.tw']")).toHaveCount(0);
   await expectNoHorizontalOverflow(page);
   expect(errors.join("\n")).not.toContain("A123456789");
+  expect(errors).toEqual([]);
+});
+
+test("mobile identity destiny result stays readable without horizontal overflow", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+
+  await openWorkspaceView(page, "identity");
+  await page.locator("[data-identity-input]").fill("A123456789");
+  await page.locator("[data-identity-form]").evaluate((node) => node.requestSubmit());
+
+  const result = page.locator("[data-identity-result]");
+  await expect(result).toContainText("身分證命格數列");
+  await expect(result.locator(".pair-card")).toHaveCount(9);
+  await expect(result.locator(".timeline-list li")).toHaveCount(10);
+  const sizes = await result.evaluate((node) => ({
+    rule: Number.parseFloat(getComputedStyle(node.querySelector(".identity-destiny-rule")).fontSize),
+    pair: Number.parseFloat(getComputedStyle(node.querySelector(".pair-card p")).fontSize),
+    timeline: Number.parseFloat(getComputedStyle(node.querySelector(".timeline-list p")).fontSize),
+  }));
+  expect(sizes.rule).toBeGreaterThanOrEqual(15);
+  expect(sizes.pair).toBeGreaterThanOrEqual(15);
+  expect(sizes.timeline).toBeGreaterThanOrEqual(15);
+  await expectNoHorizontalOverflow(page);
+  await result.screenshot({ path: "output/playwright/identity-destiny-mobile-390.png" });
   expect(errors).toEqual([]);
 });
 

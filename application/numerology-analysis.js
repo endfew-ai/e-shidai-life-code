@@ -1,6 +1,5 @@
 import {
   DEFAULT_RULE_SET,
-  RULE_SOURCE_PROFILES,
   resolveRuleSet,
 } from "../domain/numerology/rule-data.js";
 import {
@@ -96,11 +95,6 @@ export function analyzeBirthdayV2(input) {
     personalYearResult,
     personalYearCycles,
     personalityProfile: getPersonalityProfile(lifePathResult.baseNumber),
-    destinyNumber: Object.freeze({
-      status: "unresolved",
-      label: "命格數：尚未設定演算規則",
-      sourceProfile: RULE_SOURCE_PROFILES.unresolvedDestinyNumber.id,
-    }),
     warnings: Object.freeze(warnings),
     disclaimer: NUMEROLOGY_DISCLAIMER,
     createdAt: clock.createdAt,
@@ -185,7 +179,7 @@ export function analyzeIdentityV2(input) {
     calculationSteps: Object.freeze([
       Object.freeze({
         id: "official-validation",
-        label: "官方格式／檢查碼",
+        label: "格式／檢查碼",
         text: identity.validation.message,
       }),
       Object.freeze({
@@ -193,9 +187,14 @@ export function analyzeIdentityV2(input) {
         label: "民俗字母轉換",
         text: identity.conversion.explanation,
       }),
-      ...identity.magnetic.pairs.map((pair, index) => Object.freeze({
+      Object.freeze({
+        id: "identity-destiny-sequence",
+        label: "命格數列",
+        text: identity.destiny.calculationText,
+      }),
+      ...identity.destiny.magnetic.pairs.map((pair, index) => Object.freeze({
         id: `pair-${index + 1}`,
-        label: `第 ${index + 1} 組`,
+        label: `命格第 ${index + 1} 組`,
         text: `${pair.rawPair} → ${pair.fieldType ?? "未分類"}`,
       })),
     ]),
@@ -203,11 +202,16 @@ export function analyzeIdentityV2(input) {
     birthdayNumberResult: null,
     birthGridResult: null,
     magneticFieldResult: identity.magnetic,
+    destinyMagneticFieldResult: identity.destiny.magnetic,
+    lifeEncounterMagnetic: identity.encounterMagnetic,
     timelineResult: identity.timeline,
     timeline: identity.timeline,
     dominantField: identity.dominantField,
+    destinyDominantField: identity.destiny.magnetic.dominantField,
+    lifeEncounterDominantField: identity.encounterMagnetic.dominantField,
     identityValidation: identity.validation,
     identityConversion: identity.conversion,
+    identityDestiny: identity.destiny,
     warnings: identity.warnings,
     disclaimer: identity.disclaimer,
     createdAt: clock.createdAt,

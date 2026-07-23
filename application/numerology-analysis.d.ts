@@ -4,6 +4,7 @@ import type {
   CalculationStep,
   DominantFieldResult,
   IdentityConversion,
+  IdentityDestinyProfile,
   IdentityTimeline,
   LifePathResult,
   MagneticSequenceAnalysis,
@@ -56,12 +57,6 @@ export interface IdentityAnalysisInput extends AnalysisClockInput, AnalysisRuleI
   readonly timelineOptions?: TimelineOptions;
 }
 
-export interface DestinyNumberUnresolved {
-  readonly status: "unresolved";
-  readonly label: string;
-  readonly sourceProfile: "destiny-number-unresolved";
-}
-
 export interface AnalysisResultBase {
   readonly schemaVersion: 1;
   readonly id: string;
@@ -87,7 +82,6 @@ export interface BirthdayAnalysisResult extends AnalysisResultBase {
   readonly personalYearResult: PersonalYearResult;
   readonly personalYearCycles: readonly PersonalYearResult[];
   readonly personalityProfile: PersonalityProfile;
-  readonly destinyNumber: DestinyNumberUnresolved;
 }
 
 export interface SequenceAnalysisResult extends AnalysisResultBase {
@@ -106,11 +100,16 @@ export interface IdentityAnalysisResult extends AnalysisResultBase {
   readonly birthdayNumberResult: null;
   readonly birthGridResult: null;
   readonly magneticFieldResult: SlidingPairAnalysis;
+  readonly destinyMagneticFieldResult: SlidingPairAnalysis;
+  readonly lifeEncounterMagnetic: SlidingPairAnalysis;
   readonly timelineResult: IdentityTimeline;
   readonly timeline: IdentityTimeline;
   readonly dominantField: DominantFieldResult;
+  readonly destinyDominantField: DominantFieldResult;
+  readonly lifeEncounterDominantField: DominantFieldResult;
   readonly identityValidation: TaiwanIdValidation;
   readonly identityConversion: IdentityConversion;
+  readonly identityDestiny: IdentityDestinyProfile;
 }
 
 export type AnalysisResult =

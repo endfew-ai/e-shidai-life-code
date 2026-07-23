@@ -72,9 +72,23 @@
 
 這些是近代流傳版本，與教材原表及首段 10 年版本互有差異。必須由使用者在設定中選擇，結果頁需顯示目前 profile。
 
-### `destiny-number-unresolved`
+### `identity-destiny-common-practice-v1`
 
-現有教材未提供可核對的命格數完整公式、輸入、步驟及測試範例。系統只顯示未解決狀態，不自動推測。
+涵蓋身分證命格數列與人生階段數列的分流：
+
+- 英文字母依 A=01～Z=26 轉換；
+- 命格分析時，01～09 只移除第一個補位 0；
+- J=10～Z=26 不移除任何字母碼數字；
+- 人生階段保留完整兩位字母碼；
+- 兩種數列都使用相鄰滑動配對。
+
+交叉參考：
+
+- [生命靈數 DNA 數字解析法](https://www.fox-saying.com/blog/posts/41944909)
+- [易經生命零數整理](https://chan-lead.blogspot.com/p/blog-page_24.html)
+- [數字易經看身分證字號教學](https://star-artnlp.com/how-to-read-the-digital-i-ching-id-number-learn-fortune-telling-transit-time-and-numerology-online-in-one-step/)
+
+三者屬近代網路流傳整理，不是政府標準、古籍定論或科學證據，因此可信度仍標記為 `folklore`。
 
 ## 三、規則與來源對照
 
@@ -92,7 +106,7 @@
 | 首段 10 年後每 5 年 | `uploaded-numerology-v2` | 民俗教材 | 新版預設，畫面需明示 |
 | 首段 13 年後每 5 年 | `timeline-common-practice-v1` | 近代流傳 | 可選 |
 | 五年循環 | `timeline-common-practice-v1` | 近代流傳 | 延伸區間標示輪次 |
-| 命格數 | `destiny-number-unresolved` | 未解決 | 不計算 |
+| 身分證命格數列 | `identity-destiny-common-practice-v1` | 近代流傳 | 01～09 只移除字母碼第一個補位 0 |
 | 健康部位對應 | `uploaded-numerology-v2` | 民俗教材 | 無醫療效力 |
 
 ## 四、爭議與未解決規則
@@ -100,7 +114,7 @@
 1. 人生階段區間存在首段 10 年、13 年與循環等版本，沒有足夠證據判定唯一正確。
 2. 教材原表有 11 個區間，但標準身分證 A=01 轉換後有 11 位數、只形成 10 組相鄰配對；系統保留不一致警告。
 3. 「前天、絕、後生」等簡寫未具完整前後文與匹配定義，規則停用。
-4. 命格數沒有可驗證公式。
+4. 「命格數」在不同系統可能指姓名表達數、生日生命靈數或身分證格局；本站只採明確標示的「身分證命格數列」定義，不混用其他系統。
 5. 磁場、人格、財富、感情、健康等描述均不得提升為科學、醫療、投資或風險預測。
 
 ## 五、文案限制

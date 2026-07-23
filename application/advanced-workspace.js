@@ -18,11 +18,11 @@ import {
 
 const VIEW_META = Object.freeze({
   home: Object.freeze({ label: "功能總覽", title: "生命靈數工作台" }),
-  identity: Object.freeze({ label: "身分證流年", title: "身分證磁場與人生階段" }),
+  identity: Object.freeze({ label: "身分證命格", title: "身分證命格與人生階段" }),
   sequence: Object.freeze({ label: "號碼磁場", title: "手機、車牌、門牌與自訂序列" }),
   settings: Object.freeze({ label: "規則設定", title: "版本化演算設定" }),
   history: Object.freeze({ label: "本機紀錄", title: "最近分析紀錄" }),
-  sources: Object.freeze({ label: "資料來源", title: "規則來源與使用界線" }),
+  sources: Object.freeze({ label: "規則說明", title: "規則版本與使用界線" }),
 });
 
 const SEQUENCE_META = Object.freeze({
@@ -98,6 +98,14 @@ function statusMessage(container, message, state = "info") {
   container.dataset.state = state;
 }
 
+function setSensitiveText(node, actualText, maskedText, sensitiveValues) {
+  node.textContent = maskedText;
+  if (Array.isArray(sensitiveValues)) {
+    sensitiveValues.push(Object.freeze({ node, actualText: String(actualText), maskedText: String(maskedText) }));
+  }
+  return node;
+}
+
 function fieldBadge(fieldType) {
   const badge = el("span", "magnetic-field-badge", fieldType ?? "未分類");
   badge.dataset.fieldTone = fieldType ? FIELD_TONES[fieldType] : "unresolved";
@@ -126,16 +134,16 @@ function createWorkspaceMarkup(root, assetRoot) {
     <div class="workspace-panels">
       <section data-workspace-view="home">
         <div class="workspace-intro">
-          <span class="workspace-rule-mark">RULESET 2.0</span>
+          <span class="workspace-rule-mark">RULESET 2.1</span>
           <p class="workspace-intro-title" role="heading" aria-level="3">先選資料，再核對規則與演算過程</p>
           <p>生命靈數是主要入口；易經功能維持獨立，不會混入生日或身分證分析。</p>
         </div>
         <div class="workspace-entry-grid">
           <button type="button" data-entry="birthday"><span>01</span><strong>生日生命靈數</strong><small>全部生日數字加總、生日數、九宮連線與個人流年</small></button>
-          <button type="button" data-entry="identity"><span>02</span><strong>身分證流年</strong><small>官方檢查碼與民俗 A=01 分流處理，預設遮罩</small></button>
+          <button type="button" data-entry="identity"><span>02</span><strong>身分證命格</strong><small>命格數列與人生階段分流計算，輸入預設遮罩</small></button>
           <button type="button" data-entry="phone_number"><span>03</span><strong>手機號碼磁場</strong><small>相鄰滑動配對、0／5 修飾與八大磁場</small></button>
           <button type="button" data-entry="vehicle_address"><span>04</span><strong>車牌／門牌</strong><small>英數轉換與來源字元追溯</small></button>
-          <button type="button" data-entry="custom_sequence"><span>05</span><strong>自訂英數序列</strong><small>適合其他非敏感編號；不代替官方驗證</small></button>
+          <button type="button" data-entry="custom_sequence"><span>05</span><strong>自訂英數序列</strong><small>適合其他非敏感編號；不當作身分證檢查</small></button>
           <button type="button" data-entry="settings"><span>06</span><strong>規則與版本</strong><small>主數、九宮格、0／5 與時間軸皆可明確選擇</small></button>
         </div>
         <div class="workspace-boundary">
@@ -145,7 +153,7 @@ function createWorkspaceMarkup(root, assetRoot) {
       </section>
       <section data-workspace-view="identity" hidden>
         <header class="workspace-panel-heading">
-          <div><p>官方驗證 × 民俗規則</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">身分證磁場與人生階段</p></div>
+          <div><p>輸入檢查 × 民俗規則</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">身分證命格與人生階段</p></div>
           <span data-active-timeline></span>
         </header>
         <form data-identity-form novalidate>
@@ -217,12 +225,11 @@ function createWorkspaceMarkup(root, assetRoot) {
         <p class="workspace-status" data-history-status role="status" aria-live="polite"></p>
       </section>
       <section data-workspace-view="sources" hidden>
-        <header class="workspace-panel-heading"><div><p>權威層級分開標示</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">規則來源與使用界線</p></div><span>官方 ≠ 民俗</span></header>
+        <header class="workspace-panel-heading"><div><p>規則版本分開標示</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">規則版本與使用界線</p></div><span>民俗文化參考</span></header>
         <div class="source-ledger">
-          <article><span>官方資料</span><p class="source-ledger-title" role="heading" aria-level="4">台灣身分證格式與檢查碼</p><p>只用來判斷格式與邏輯檢查碼，不能證明號碼已配發或持有人身分。</p><p><a href="https://schema.gov.tw/lists/167" target="_blank" rel="noreferrer">政府資料標準平臺</a><a href="https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg011228/ch04/type2/gov30/num2/OEg.pdf" target="_blank" rel="noreferrer">行政院公報檢查方法</a></p></article>
-          <article><span>使用者教材</span><p class="source-ledger-title" role="heading" aria-level="4">生命靈數、九宮連線與八大磁場</p><p>依本專案提供的近代民俗教材建立版本化規則，未確認作者或古籍出處，不標示為官方、科學或古法定論。</p></article>
-          <article><span>常見流傳版本</span><p class="source-ledger-title" role="heading" aria-level="4">身分證人生階段區間</p><p>不同版本彼此不一致，設定頁會顯示目前採用版本；教材原表有數量差異時不會靜默截斷。</p></article>
-          <article><span>未解決</span><p class="source-ledger-title" role="heading" aria-level="4">命格數</p><p>現有資料不足以證明公式，因此顯示「尚未設定演算規則」，不以主要磁場冒充命格數。</p></article>
+          <article><span>本專案教材</span><p class="source-ledger-title" role="heading" aria-level="4">生命靈數、九宮連線與八大磁場</p><p>依本專案提供的近代民俗教材建立版本化規則；不同流派可能有差異，結果只供文化研究、娛樂與自我觀察。</p></article>
+          <article><span>身分證命格規則</span><p class="source-ledger-title" role="heading" aria-level="4">命格數列與人生階段分流</p><p>字母先依 A=01～Z=26 轉換。命格數列只在字母碼為 01～09 時移除最前方 0；人生階段保留完整數列。</p></article>
+          <article><span>可選時間軸</span><p class="source-ledger-title" role="heading" aria-level="4">身分證人生階段區間</p><p>區間有不同流傳版本；目前採用版本可在設定頁查看與切換，遇到教材區間數量差異時會明確提示。</p></article>
         </div>
       </section>
     </div>
@@ -239,11 +246,16 @@ function describeSettings(settings, ruleSet) {
   return `${ruleSet.name} ${ruleSet.version}｜${masterLabel}｜九宮 ${settings.birthGridMode}｜0／5 ${settings.zeroFiveMode}｜時間軸 ${timeline.label}`;
 }
 
-function renderPairCards(container, magnetic) {
+function renderPairCards(container, magnetic, options = {}) {
+  const maskSensitive = options.maskSensitive === true;
+  const sensitiveValues = options.sensitiveValues;
   const wrapper = el("div", "magnetic-results");
   const summary = el("header", "magnetic-summary");
   const titleBlock = el("div");
-  titleBlock.append(el("p", "", "主要出現磁場"), headingText(magnetic.dominantField.label, "magnetic-summary-title", 4));
+  titleBlock.append(
+    el("p", "", options.eyebrow ?? "主要出現磁場"),
+    headingText(magnetic.dominantField.label, "magnetic-summary-title", 4),
+  );
   const count = el("span", "", `${magnetic.pairs.length} 個相鄰視窗`);
   summary.append(titleBlock, count);
   wrapper.append(summary);
@@ -252,14 +264,31 @@ function renderPairCards(container, magnetic) {
   for (const [index, pair] of magnetic.pairs.entries()) {
     const card = el("article", "pair-card");
     const heading = el("header");
-    heading.append(el("span", "", String(index + 1).padStart(2, "0")), el("code", "", pair.rawPair));
+    const pairCode = el("code");
+    if (maskSensitive) setSensitiveText(pairCode, pair.rawPair, "••", sensitiveValues);
+    else pairCode.textContent = pair.rawPair;
+    heading.append(el("span", "", String(index + 1).padStart(2, "0")), pairCode);
     if (pair.fieldType) heading.append(fieldBadge(pair.fieldType));
     else heading.append(fieldBadge(null));
     const source = pair.sourceCharacters.map(({ character }) => character).join("") || "數字輸入";
+    const explanation = el("p");
+    const sourceNote = el("small");
+    if (maskSensitive) {
+      setSensitiveText(explanation, pair.explanation, `${pair.fieldType ?? "未分類"}；完整相鄰數字預設遮罩。`, sensitiveValues);
+      setSensitiveText(
+        sourceNote,
+        `位置 ${pair.startIndex + 1}–${pair.endIndex + 1}・來源 ${source}`,
+        `第 ${index + 1} 個命格視窗・來源預設遮罩`,
+        sensitiveValues,
+      );
+    } else {
+      explanation.textContent = pair.explanation;
+      sourceNote.textContent = `位置 ${pair.startIndex + 1}–${pair.endIndex + 1}・來源 ${source}`;
+    }
     card.append(
       heading,
-      el("p", "", pair.explanation),
-      el("small", "", `位置 ${pair.startIndex + 1}–${pair.endIndex + 1}・來源 ${source}`),
+      explanation,
+      sourceNote,
     );
     pairGrid.append(card);
   }
@@ -271,8 +300,20 @@ function renderPairCards(container, magnetic) {
     for (const bridge of magnetic.bridges) {
       const row = el("article");
       const head = el("div");
-      head.append(el("code", "", bridge.rawPair), el("span", "", "→"), el("code", "", bridge.basePair), fieldBadge(bridge.fieldType));
-      row.append(head, el("p", "", bridge.explanation));
+      const rawCode = el("code");
+      const baseCode = el("code");
+      const explanation = el("p");
+      if (maskSensitive) {
+        setSensitiveText(rawCode, bridge.rawPair, "•••", sensitiveValues);
+        setSensitiveText(baseCode, bridge.basePair, "••", sensitiveValues);
+        setSensitiveText(explanation, bridge.explanation, `橋接結果：${bridge.fieldType ?? "未分類"}；完整數字預設遮罩。`, sensitiveValues);
+      } else {
+        rawCode.textContent = bridge.rawPair;
+        baseCode.textContent = bridge.basePair;
+        explanation.textContent = bridge.explanation;
+      }
+      head.append(rawCode, el("span", "", "→"), baseCode, fieldBadge(bridge.fieldType));
+      row.append(head, explanation);
       bridgeBlock.append(row);
     }
     wrapper.append(bridgeBlock);
@@ -281,8 +322,15 @@ function renderPairCards(container, magnetic) {
   if (magnetic.standaloneModifiers.length) {
     const notes = el("p", "standalone-modifiers");
     notes.append(el("strong", "", "未橋接修飾："));
-    notes.append(document.createTextNode(magnetic.standaloneModifiers.map(({ digit, index, label }) =>
-      `${digit}（第 ${index + 1} 位，${label}）`).join("；")));
+    const actualText = magnetic.standaloneModifiers.map(({ digit, index, label }) =>
+      `${digit}（第 ${index + 1} 位，${label}）`).join("；");
+    const detail = el("span");
+    if (maskSensitive) {
+      setSensitiveText(detail, actualText, `${magnetic.standaloneModifiers.length} 個位置，完整數字預設遮罩`, sensitiveValues);
+    } else {
+      detail.textContent = actualText;
+    }
+    notes.append(detail);
     wrapper.append(notes);
   }
 
@@ -303,7 +351,40 @@ function renderPairCards(container, magnetic) {
   container.append(wrapper);
 }
 
-function renderTimeline(container, timeline) {
+function renderIdentityDestiny(container, destiny) {
+  const block = el("section", "identity-destiny-block");
+  const header = el("header");
+  const copy = el("div");
+  copy.append(
+    el("p", "", "規則已設定"),
+    headingText("身分證命格數列", "identity-destiny-title", 4),
+  );
+  header.append(copy, el("code", "", destiny.maskedSequence));
+  const rule = el("p", "identity-destiny-rule", destiny.droppedLeadingZero
+    ? `字母碼 ${destiny.letterSequentialValue} 以 0 開頭；命格分析只移除這個補位 0。`
+    : `字母碼 ${destiny.letterSequentialValue} 不以 0 開頭；命格分析完整保留。`);
+  const stats = el("dl", "identity-destiny-stats");
+  for (const [label, value] of [
+    ["命格數列", `${destiny.sequenceLength} 位`],
+    ["命格相鄰視窗", `${destiny.magnetic.pairs.length} 組`],
+    ["人生階段數列", `${destiny.fullSequenceLength} 位完整保留`],
+  ]) {
+    const item = el("div");
+    item.append(el("dt", "", label), el("dd", "", value));
+    stats.append(item);
+  }
+  block.append(
+    header,
+    rule,
+    stats,
+    el("small", "", "命格數列是一組長期格局序列，不是加總化簡後的單一數字。"),
+  );
+  container.append(block);
+}
+
+function renderTimeline(container, timeline, options = {}) {
+  const maskSensitive = options.maskSensitive === true;
+  const sensitiveValues = options.sensitiveValues;
   const block = el("section", "timeline-block");
   const header = el("header");
   const copy = el("div");
@@ -317,8 +398,11 @@ function renderTimeline(container, timeline) {
     const age = el("span", "timeline-age", stage.label);
     const content = el("div");
     const heading = el("p");
+    const pairCode = el("code");
+    if (stage.pair && maskSensitive) setSensitiveText(pairCode, stage.pair.rawPair, "••", sensitiveValues);
+    else pairCode.textContent = stage.pair?.rawPair ?? "—";
     heading.append(
-      el("code", "", stage.pair?.rawPair ?? "—"),
+      pairCode,
       stage.pair?.fieldType ? fieldBadge(stage.pair.fieldType) : fieldBadge(null),
     );
     content.append(
@@ -341,6 +425,7 @@ function renderTimeline(container, timeline) {
 
 function renderAnalysisResult(container, analysis, options = {}) {
   container.replaceChildren();
+  const sensitiveValues = [];
   const section = el("section", "advanced-analysis-result");
   section.setAttribute("aria-live", "polite");
   const heading = el("header", "advanced-result-heading");
@@ -350,9 +435,16 @@ function renderAnalysisResult(container, analysis, options = {}) {
     headingText(analysis.maskedInput, "advanced-result-value", 3),
     el("small", "", `${analysis.ruleSet.name} ${analysis.ruleSet.version}`),
   );
-  headingCopy.querySelector(".advanced-result-value").dataset.sensitiveResult = "";
+  const sensitiveHeading = headingCopy.querySelector(".advanced-result-value");
+  sensitiveHeading.dataset.sensitiveResult = "";
+  if (analysis.inputType === "taiwan_national_id") {
+    setSensitiveText(sensitiveHeading, analysis.normalizedInput, analysis.maskedInput, sensitiveValues);
+  }
+  const activeDominant = analysis.inputType === "taiwan_national_id"
+    ? analysis.destinyDominantField
+    : analysis.dominantField;
   const dominant = el("div", "dominant-result");
-  dominant.append(el("span", "", "主要出現"), el("strong", "", analysis.dominantField?.fields.join("、") || "尚無分類"));
+  dominant.append(el("span", "", "主要出現"), el("strong", "", activeDominant?.fields.join("、") || "尚無分類"));
   heading.append(headingCopy, dominant);
   section.append(heading);
 
@@ -364,10 +456,24 @@ function renderAnalysisResult(container, analysis, options = {}) {
       el("small", "", "邏輯檢查通過不等於證明號碼已配發或持有人身分。"),
     );
     section.append(validation);
+    renderIdentityDestiny(section, analysis.identityDestiny);
   }
 
-  renderPairCards(section, analysis.magneticFieldResult);
-  if (analysis.timelineResult) renderTimeline(section, analysis.timelineResult);
+  renderPairCards(
+    section,
+    analysis.inputType === "taiwan_national_id"
+      ? analysis.destinyMagneticFieldResult
+      : analysis.magneticFieldResult,
+    analysis.inputType === "taiwan_national_id"
+      ? { eyebrow: "命格主要出現磁場", maskSensitive: true, sensitiveValues }
+      : {},
+  );
+  if (analysis.timelineResult) {
+    renderTimeline(section, analysis.timelineResult, {
+      maskSensitive: analysis.inputType === "taiwan_national_id",
+      sensitiveValues,
+    });
+  }
 
   const details = el("details", "analysis-trace");
   const traceSummary = el("summary");
@@ -375,7 +481,13 @@ function renderAnalysisResult(container, analysis, options = {}) {
   const traceList = el("ol");
   for (const step of analysis.calculationSteps) {
     const item = el("li");
-    item.append(el("span", "", step.label), el("code", "", step.text));
+    const stepCode = el("code");
+    if (analysis.inputType === "taiwan_national_id" && step.id.startsWith("pair-")) {
+      setSensitiveText(stepCode, step.text, "完整命格相鄰數字預設遮罩", sensitiveValues);
+    } else {
+      stepCode.textContent = step.text;
+    }
+    item.append(el("span", "", step.label), stepCode);
     traceList.append(item);
   }
   details.append(traceSummary, traceList);
@@ -389,6 +501,17 @@ function renderAnalysisResult(container, analysis, options = {}) {
 
   const privacy = el("p", "analysis-privacy", "民俗結果只供文化娛樂與自我觀察，不作醫療、心理、財務、法律或命運判定。");
   const actions = el("div", "workspace-form-actions");
+  let sensitiveHideTimer = null;
+  let revealButton = null;
+  const concealSensitiveValues = () => {
+    if (sensitiveHideTimer !== null) window.clearTimeout(sensitiveHideTimer);
+    for (const entry of sensitiveValues) entry.node.textContent = entry.maskedText;
+    sensitiveHideTimer = null;
+    if (revealButton) {
+      revealButton.disabled = false;
+      revealButton.textContent = "顯示完整字號 10 秒";
+    }
+  };
   const copyReport = button("複製遮罩報告", "secondary-button");
   copyReport.addEventListener("click", async () => {
     const report = generatePlainTextReport(analysis);
@@ -400,23 +523,21 @@ function renderAnalysisResult(container, analysis, options = {}) {
     }
   });
   const printReport = button("列印／存成 PDF", "secondary-button");
-  printReport.addEventListener("click", () => window.print());
+  printReport.addEventListener("click", () => {
+    concealSensitiveValues();
+    window.print();
+  });
   actions.append(copyReport, printReport);
 
   if (analysis.inputType === "taiwan_national_id" && options.allowReveal) {
     const reveal = button("顯示完整字號 10 秒", "text-button sensitive-reveal");
-    let hideTimer = null;
+    revealButton = reveal;
     reveal.addEventListener("click", () => {
-      if (hideTimer !== null) window.clearTimeout(hideTimer);
-      headingCopy.querySelector("[data-sensitive-result]").textContent = analysis.normalizedInput;
+      if (sensitiveHideTimer !== null) window.clearTimeout(sensitiveHideTimer);
+      for (const entry of sensitiveValues) entry.node.textContent = entry.actualText;
       reveal.disabled = true;
       reveal.textContent = "完整字號顯示中";
-      hideTimer = window.setTimeout(() => {
-        headingCopy.querySelector("[data-sensitive-result]").textContent = analysis.maskedInput;
-        reveal.disabled = false;
-        reveal.textContent = "顯示完整字號 10 秒";
-        hideTimer = null;
-      }, 10000);
+      sensitiveHideTimer = window.setTimeout(concealSensitiveValues, 10000);
     });
     actions.prepend(reveal);
   }
@@ -437,7 +558,7 @@ function renderHistory(container, status) {
     const item = el("li");
     const heading = el("header");
     const typeLabel = record.inputType === "taiwan_national_id"
-      ? "身分證流年"
+      ? "身分證命格"
       : record.inputType === "phone_number"
         ? "手機號碼"
         : record.inputType === "vehicle_address"

@@ -76,6 +76,56 @@ function timelineWarning(code, message, details = {}) {
   });
 }
 
+function buildShiftedConversion(conversion, startIndex) {
+  const digits = conversion.digits.slice(startIndex);
+  const sourceMap = Object.freeze(conversion.sourceMap.slice(startIndex).map((entry) => Object.freeze({
+    ...entry,
+    outputIndex: entry.outputIndex - startIndex,
+  })));
+  return Object.freeze({
+    ...conversion,
+    digits,
+    sourceMap,
+    rule: "身分證命格數列：字母依 A=01 至 Z=26 轉換；只有 01 至 09 的字母碼移除最前方 0。",
+  });
+}
+
+function maskDigitSequence(sequence) {
+  if (sequence.length <= 4) return "•".repeat(sequence.length);
+  return `${sequence.slice(0, 2)}${"•".repeat(sequence.length - 4)}${sequence.slice(-2)}`;
+}
+
+export function buildIdentityDestinyProfile(conversion, options = {}) {
+  if (!conversion || typeof conversion.digits !== "string" || !Array.isArray(conversion.sourceMap)) {
+    throw new Error("命格數列需要有效的 A=01 民俗轉換結果。");
+  }
+  if (conversion.digits.length < 3 || !/^[A-Z]$/.test(conversion.normalized?.[0] ?? "")) {
+    throw new Error("命格數列只適用於以英文字母開頭的身分證格式。");
+  }
+  const ruleSet = resolveRuleSet(options.ruleSet ?? options.ruleSetId ?? DEFAULT_RULE_SET.id, options.ruleOverrides);
+  const letterSequentialValue = conversion.digits.slice(0, 2);
+  const droppedLeadingZero = letterSequentialValue.startsWith("0");
+  const destinyConversion = buildShiftedConversion(conversion, droppedLeadingZero ? 1 : 0);
+  const magnetic = analyzeSlidingPairs(destinyConversion, { ruleSet });
+  const action = droppedLeadingZero
+    ? `字母碼 ${letterSequentialValue} 以 0 開頭，命格分析只移除最前方 0`
+    : `字母碼 ${letterSequentialValue} 不以 0 開頭，命格分析完整保留`;
+  return Object.freeze({
+    status: "resolved",
+    mode: "drop_leading_letter_zero",
+    label: "身分證命格數列",
+    sourceProfile: "identity-destiny-common-practice-v1",
+    letterSequentialValue,
+    droppedLeadingZero,
+    fullSequenceLength: conversion.digits.length,
+    sequenceLength: destinyConversion.digits.length,
+    maskedSequence: maskDigitSequence(destinyConversion.digits),
+    calculationText: `${action}；${destinyConversion.digits.length} 位數列建立 ${magnetic.pairs.length} 個相鄰視窗。`,
+    conversion: destinyConversion,
+    magnetic,
+  });
+}
+
 export function buildIdentityTimeline(pairRecords, timelineProfileId, options = {}) {
   if (!Array.isArray(pairRecords)) throw new Error("時間軸需要相鄰配對陣列。");
   const profile = TIMELINE_PROFILES[timelineProfileId];
@@ -202,13 +252,17 @@ export function analyzeIdentityNumber(rawValue, options = {}) {
   }
 
   const conversion = alphabetToSequentialDigits(validation.normalized);
-  const magnetic = analyzeSlidingPairs(conversion, { ruleSet });
+  const encounterMagnetic = analyzeSlidingPairs(conversion, { ruleSet });
+  const destiny = buildIdentityDestinyProfile(conversion, { ruleSet });
   const timelineProfileId = options.timelineProfile ?? ruleSet.timelineProfile;
-  const timeline = buildIdentityTimeline(magnetic.pairs, timelineProfileId, options.timelineOptions);
+  const timeline = buildIdentityTimeline(encounterMagnetic.pairs, timelineProfileId, options.timelineOptions);
   const warnings = [];
   if (!validation.checksumValid) warnings.push("檢查碼未通過；以下只把輸入視為自訂序列，不代表有效身分證。");
-  warnings.push(...magnetic.warnings, ...timeline.warnings.map((warning) =>
-    typeof warning === "string" ? warning : warning.message));
+  warnings.push(...new Set([
+    ...destiny.magnetic.warnings,
+    ...encounterMagnetic.warnings,
+    ...timeline.warnings.map((warning) => typeof warning === "string" ? warning : warning.message),
+  ]));
 
   return Object.freeze({
     kind: "identity",
@@ -223,9 +277,15 @@ export function analyzeIdentityNumber(rawValue, options = {}) {
       sourceMap: conversion.sourceMap,
       explanation: `${validation.normalized[0]} = ${conversion.digits.slice(0, 2)}（民俗 A=01 順序轉換）`,
     }),
-    magnetic,
+    destiny,
+    destinyMagneticAnalysis: destiny.magnetic,
+    lifeEventMagneticAnalysis: encounterMagnetic,
+    destinyDominantField: destiny.magnetic.dominantField,
+    lifeEventDominantField: encounterMagnetic.dominantField,
+    magnetic: encounterMagnetic,
+    encounterMagnetic,
     timeline,
-    dominantField: magnetic.dominantField,
+    dominantField: encounterMagnetic.dominantField,
     warnings: Object.freeze(warnings),
     ruleSet,
     disclaimer: "身分證格式／檢查碼屬官方邏輯檢查；A=01、八大磁場與人生階段屬民俗文化娛樂，兩者不可混為一談。",

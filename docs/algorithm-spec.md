@@ -1,6 +1,6 @@
 # 生命靈數規則引擎規格
 
-版本：2.0.0
+版本：2.1.0
 日期：2026-07-23
 
 ## 一、用途與邊界
@@ -375,19 +375,58 @@ checksumValid = weightedSum mod 10 == 0
 
 結果採中性描述，不推論必然獲利、事故或危險。「前天、絕、後生」等原始簡寫因定義不足，保留為停用的 unresolved 規則。
 
-## 十五、命格數
+## 十五、身分證命格數列
 
-現有專案與使用者教材不足以證明命格數公式。正式輸出固定為：
+本系統將原表的「命格數」明確定義為**身分證命格數列及其相鄰磁場**，不是加總化簡後的單一數字。
+
+### 15.1 字母轉換
+
+先使用民俗順序碼：
+
+```text
+A=01, B=02, ... I=09, J=10, ... Z=26
+完整人生階段數列 = 兩位字母碼 + 身分證後九碼
+```
+
+此轉換與身分證檢查碼使用的官方字母區碼完全分離。
+
+### 15.2 命格數列公式
+
+```text
+if 兩位字母碼介於 01～09:
+  命格數列 = 移除字母碼最前方的補位 0 + 身分證後九碼
+else:
+  命格數列 = 完整兩位字母碼 + 身分證後九碼
+
+命格相鄰組 = slidingWindow(命格數列, width=2, step=1)
+```
+
+限制：
+
+- 只移除 A～I 字母順序碼的第一個補位 0。
+- J=10 的 0 不得移除。
+- 身分證後九碼及其他位置的 0 全部保留。
+- 禁止使用 `parseInt()`、全域去零或跳號配對。
+- 原始相鄰組全部保留，再依既有 `zeroFiveMode` 追加橋接判讀。
+- A～I 的命格數列為 10 位、9 個相鄰視窗；J～Z 為 11 位、10 個相鄰視窗。
+
+### 15.3 與人生階段的分流
+
+人生階段永遠使用完整 11 位數列，因此固定形成 10 個相鄰視窗。命格移除補位 0 的規則不得套用到人生階段。
 
 ```json
 {
-  "status": "unresolved",
-  "label": "命格數：尚未設定演算規則",
-  "sourceProfile": "destiny-number-unresolved"
+  "status": "resolved",
+  "mode": "drop_leading_letter_zero",
+  "label": "身分證命格數列",
+  "sourceProfile": "identity-destiny-common-practice-v1",
+  "droppedLeadingZero": true,
+  "fullSequenceLength": 11,
+  "sequenceLength": 10
 }
 ```
 
-在來源、公式與範例未經使用者確認前，不得以生命靈數、生日數或任何推測值代填。
+`dominantField` 只表示命格數列中出現次數最高的磁場摘要，不是命格數或生命靈數。
 
 ## 十六、結構化輸出
 
@@ -406,6 +445,9 @@ lifePathResult
 birthdayNumberResult
 birthGridResult
 magneticFieldResult
+destinyMagneticFieldResult
+identityDestiny
+lifeEncounterMagnetic
 timelineResult
 personalYearResult
 reportSections

@@ -82,19 +82,49 @@ export function buildBirthdayReportSections(analysis) {
 }
 
 export function buildMagneticReportSections(analysis) {
-  const magnetic = analysis.magneticFieldResult ?? analysis.magnetic ?? analysis;
+  const isIdentity = analysis.inputType === "taiwan_national_id";
+  const magnetic = isIdentity
+    ? (analysis.destinyMagneticFieldResult ?? analysis.identityDestiny?.magnetic ?? analysis.magneticFieldResult)
+    : (analysis.magneticFieldResult ?? analysis.magnetic ?? analysis);
   const records = magnetic.resolvedRecords ?? analysis.resolvedRecords ?? [];
-  const dominant = analysis.dominantField ?? magnetic.dominantField;
+  const dominant = isIdentity
+    ? (analysis.destinyDominantField ?? magnetic.dominantField)
+    : (analysis.dominantField ?? magnetic.dominantField);
   const fieldDetails = Object.entries(dominant?.counts ?? {}).map(([fieldType, count]) => {
     const interpretation = MAGNETIC_FIELD_INTERPRETATIONS[fieldType];
     return `${fieldType} ${count} 次：${interpretation.core.join("、")}；提醒 ${interpretation.cautions.join("、")}`;
   });
-  const pairSteps = records.map((record, index) =>
-    `第 ${index + 1} 組：${record.rawPair}${record.basePair && record.basePair !== record.rawPair ? `（橋接 ${record.basePair}）` : ""} → ${record.fieldType ?? "未分類"}`);
-  const sections = [
+  const pairSteps = records.map((record, index) => {
+    if (!isIdentity) {
+      return `第 ${index + 1} 組：${record.rawPair}${record.basePair && record.basePair !== record.rawPair ? `（橋接 ${record.basePair}）` : ""} → ${record.fieldType ?? "未分類"}`;
+    }
+    const position = record.kind === "bridge"
+      ? `命格位置 ${record.startIndex + 1}～${record.endIndex + 1} 的橋接結果`
+      : `命格第 ${record.startIndex + 1} 個相鄰視窗`;
+    return `${position} → ${record.fieldType ?? "未分類"}`;
+  });
+  const sections = [];
+  const destiny = analysis.identityDestiny ?? analysis.destiny;
+  if (isIdentity && destiny) {
+    sections.push(section(
+      "identity-destiny-sequence",
+      "身分證命格數列",
+      destiny.droppedLeadingZero
+        ? "字母碼的補位 0 已依命格規則移除"
+        : "字母碼不以補位 0 開頭，完整保留",
+      [
+        `命格數列長度 ${destiny.sequenceLength} 位，共 ${destiny.magnetic.pairs.length} 個相鄰視窗。`,
+        "命格數列用於長期格局的民俗觀察；它是一組序列，不是加總後的單一數字。",
+        `人生階段另以完整 ${destiny.fullSequenceLength} 位數列計算，不套用此移除規則。`,
+      ],
+      [destiny.calculationText],
+      destiny.sourceProfile,
+    ));
+  }
+  sections.push(
     section(
       "magnetic-pairs",
-      "相鄰磁場",
+      isIdentity ? "命格相鄰磁場" : "相鄰磁場",
       `共 ${records.length} 組可分類結果`,
       fieldDetails.length ? fieldDetails : ["目前沒有可分類的八大磁場配對。"],
       pairSteps,
@@ -102,21 +132,24 @@ export function buildMagneticReportSections(analysis) {
     ),
     section(
       "dominant-field",
-      "主要出現磁場",
+      isIdentity ? "命格主要出現磁場" : "主要出現磁場",
       dominant?.label ?? "尚無可分類配對",
-      ["平手時會完整列出，不把主要出現磁場稱為命格數。"],
+      [isIdentity
+        ? "這是命格數列中的磁場次數摘要；平手時會完整列出所有並列結果。"
+        : "平手時會完整列出所有並列結果。"],
       [],
       "uploaded-numerology-v2",
     ),
-  ];
+  );
   const timeline = analysis.timelineResult ?? analysis.timeline;
   if (timeline) {
     sections.push(section(
       "identity-timeline",
       "人生階段流年",
       `${timeline.profileLabel}・${timeline.stages.length} 段`,
-      timeline.stages.map((stage) =>
-        `${stage.label}：${stage.pair?.rawPair ?? "無配對"} → ${stage.pair?.fieldType ?? "未分類／待確認"}`),
+      timeline.stages.map((stage) => isIdentity
+        ? `${stage.label} → ${stage.pair?.fieldType ?? "未分類／待確認"}`
+        : `${stage.label}：${stage.pair?.rawPair ?? "無配對"} → ${stage.pair?.fieldType ?? "未分類／待確認"}`),
       timeline.warnings.map((warning) => typeof warning === "string" ? warning : warning.message),
       timeline.sourceProfile,
     ));
@@ -163,7 +196,9 @@ export function createHistoryRecord(analysis) {
   return Object.freeze({
     ...common,
     sensitiveDataStored: false,
-    dominantFields: [...(analysis.dominantField?.fields ?? [])],
+    dominantFields: [...(analysis.inputType === "taiwan_national_id"
+      ? (analysis.destinyDominantField?.fields ?? analysis.dominantField?.fields ?? [])
+      : (analysis.dominantField?.fields ?? []))],
     note: analysis.inputType === "taiwan_national_id"
       ? "完整身分證、轉換序列、配對與時間軸未寫入歷史，避免由本機紀錄反推出原號。"
       : "歷史只保存遮罩輸入、規則版本與摘要；完整原始序列不寫入本機紀錄。",

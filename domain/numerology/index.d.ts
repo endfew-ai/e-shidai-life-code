@@ -11,7 +11,7 @@ export type SourceProfileId =
   | "legacy-project-v1"
   | "taiwan-national-id-official"
   | "timeline-common-practice-v1"
-  | "destiny-number-unresolved";
+  | "identity-destiny-common-practice-v1";
 
 export interface RuleSourceProfile {
   readonly id: SourceProfileId;
@@ -494,13 +494,29 @@ export interface TimelineStage {
   readonly status: "mapped" | "unmatched_interval";
 }
 
+export interface TimelineWarning {
+  readonly code: string;
+  readonly severity: "warning";
+  readonly message: string;
+  readonly sourceType: SourceType;
+  readonly canSummarize: boolean;
+  readonly profileId?: TimelineProfileId;
+  readonly intervalCount?: number;
+  readonly pairCount?: number;
+}
+
 export interface IdentityTimeline {
   readonly profileId: TimelineProfileId;
   readonly profileLabel: string;
   readonly sourceProfile: SourceProfileId;
+  readonly status: "complete" | "mismatch" | "unresolved";
   readonly stages: readonly TimelineStage[];
-  readonly warnings: readonly string[];
+  readonly provisionalAssignments: readonly TimelineStage[];
+  readonly unassignedPairs: readonly AdjacentPairRecord[];
+  readonly unassignedIntervals: readonly (readonly [number, number])[];
+  readonly warnings: readonly TimelineWarning[];
   readonly cyclic: boolean;
+  readonly canSummarize: boolean;
 }
 
 export interface TimelineOptions {
@@ -516,6 +532,21 @@ export interface IdentityConversion {
   readonly explanation: string;
 }
 
+export interface IdentityDestinyProfile {
+  readonly status: "resolved";
+  readonly mode: "drop_leading_letter_zero";
+  readonly label: "身分證命格數列";
+  readonly sourceProfile: "identity-destiny-common-practice-v1";
+  readonly letterSequentialValue: string;
+  readonly droppedLeadingZero: boolean;
+  readonly fullSequenceLength: number;
+  readonly sequenceLength: number;
+  readonly maskedSequence: string;
+  readonly calculationText: string;
+  readonly conversion: AlphabetConversion;
+  readonly magnetic: SlidingPairAnalysis;
+}
+
 export interface IdentityAnalysis {
   readonly kind: "identity";
   readonly inputType: "taiwan_national_id";
@@ -523,7 +554,13 @@ export interface IdentityAnalysis {
   readonly normalizedInput: string;
   readonly validation: TaiwanIdValidation;
   readonly conversion: IdentityConversion;
+  readonly destiny: IdentityDestinyProfile;
+  readonly destinyMagneticAnalysis: SlidingPairAnalysis;
+  readonly lifeEventMagneticAnalysis: SlidingPairAnalysis;
+  readonly destinyDominantField: DominantFieldResult;
+  readonly lifeEventDominantField: DominantFieldResult;
   readonly magnetic: SlidingPairAnalysis;
+  readonly encounterMagnetic: SlidingPairAnalysis;
   readonly timeline: IdentityTimeline;
   readonly dominantField: DominantFieldResult;
   readonly warnings: readonly string[];
@@ -545,6 +582,10 @@ export const TAIWAN_ID_LETTER_VALUES: Readonly<Record<
 export function normalizeTaiwanNationalId(rawValue: unknown): string;
 export function maskTaiwanNationalId(rawValue: unknown): string;
 export function validateTaiwanNationalId(rawValue: unknown): TaiwanIdValidation;
+export function buildIdentityDestinyProfile(
+  conversion: AlphabetConversion,
+  options?: SlidingPairOptions,
+): IdentityDestinyProfile;
 export function buildIdentityTimeline(
   pairRecords: readonly AdjacentPairRecord[],
   timelineProfileId: TimelineProfileId,
