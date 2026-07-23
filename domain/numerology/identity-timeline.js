@@ -58,7 +58,7 @@ function stageFromInterval(interval, pair, index, cycle = 1) {
     stageIndex: index,
     startAge: interval[0],
     endAge: interval[1],
-    label: `${interval[0]}–${interval[1]} 歲`,
+    label: `${interval[0]}-${interval[1]} 歲`,
     cycle,
     pair: pair ?? null,
     status: pair ? "mapped" : "unmatched_interval",

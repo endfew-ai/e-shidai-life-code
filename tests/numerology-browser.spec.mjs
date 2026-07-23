@@ -91,9 +91,50 @@ test("identity result is masked and local history never stores the full identifi
   await expect(result).toContainText("身分證命格數列");
   await expect(result).toContainText("規則已設定");
   await expect(result.locator(".pair-card")).toHaveCount(9);
-  await expect(result.locator(".timeline-list li")).toHaveCount(10);
+  await expect(result.locator(".timeline-list > li")).toHaveCount(10);
+  await expect(result.locator(".timeline-stage-details")).toHaveCount(10);
+  await expect(result.locator(".timeline-stage-counts")).toContainText("10 個階段");
+  await expect(result.locator(".timeline-stage-counts")).toContainText("已分類");
+  await expect(result.locator(".timeline-stage-counts")).toContainText("未分類");
   await expect(result.locator(".pair-card code").first()).toHaveText("••");
   await expect(result.locator(".timeline-list code").first()).toHaveText("••");
+  expect(await result.locator(".timeline-stage-details").evaluateAll((nodes) =>
+    nodes.every((node) => !node.open))).toBe(true);
+  const attributeLeak = await result.evaluate((node) =>
+    [...node.querySelectorAll("*")].some((element) =>
+      [...element.attributes].some(({ value }) =>
+        value.includes("A123456789") || value.includes("01123456789"))));
+  expect(attributeLeak).toBe(false);
+
+  const firstStage = result.locator(".timeline-stage-details").first();
+  await firstStage.locator("summary").focus();
+  await page.keyboard.press("Enter");
+  await expect(firstStage).toHaveAttribute("open", "");
+  await expect(firstStage).toContainText("未分類不等於無效或負面");
+  await expect(firstStage).toContainText("目前沒有符合規則的完整橋接");
+  await page.keyboard.press("Enter");
+  await expect(firstStage).not.toHaveAttribute("open", "");
+
+  const secondStage = result.locator(".timeline-stage-details").nth(1);
+  await secondStage.locator("summary").click();
+  await expect(secondStage).toHaveAttribute("open", "");
+  await expect(secondStage).toContainText("階段主題");
+  await expect(secondStage).toContainText("可觀察");
+  await expect(secondStage).toContainText("可運用");
+  await expect(secondStage).toContainText("需要留意");
+  await expect(secondStage).toContainText("前段轉接");
+  await expect(secondStage).toContainText("分類依據");
+  await expect(secondStage).toContainText("穩定");
+  await expect(secondStage).toContainText("耐力");
+  await expect(secondStage).toContainText("停滯");
+  await result.screenshot({ path: "output/playwright/identity-timeline-expanded-desktop-1440.png" });
+
+  await result.getByRole("button", { name: "全部展開" }).click();
+  expect(await result.locator(".timeline-stage-details").evaluateAll((nodes) =>
+    nodes.every((node) => node.open))).toBe(true);
+  await result.getByRole("button", { name: "全部收合" }).click();
+  expect(await result.locator(".timeline-stage-details").evaluateAll((nodes) =>
+    nodes.every((node) => !node.open))).toBe(true);
   await result.screenshot({ path: "output/playwright/identity-destiny-desktop-1440.png" });
   const reveal = result.locator(".sensitive-reveal");
   await expect(reveal).toBeVisible();
@@ -104,16 +145,31 @@ test("identity result is masked and local history never stores the full identifi
   await page.evaluate(() => {
     window.print = () => {
       window.__identityPrintSnapshot = document.querySelector("[data-identity-result]")?.textContent ?? "";
+      window.__identityPrintDetailsOpen = [...document.querySelectorAll("[data-identity-result] .timeline-stage-details")]
+        .every((node) => node.open);
+      window.__identityPrintPanelDisplay = getComputedStyle(
+        document.querySelector("[data-identity-result] .timeline-stage-panel"),
+      ).display;
+      window.__identityPrintControlsDisplay = getComputedStyle(
+        document.querySelector("[data-identity-result] .timeline-controls"),
+      ).display;
     };
   });
-  await result.getByRole("button", { name: "列印／存成 PDF" }).click();
+  await page.emulateMedia({ media: "print" });
+  await result.locator("[data-print-report]").evaluate((node) => node.click());
   const printSnapshot = await page.evaluate(() => window.__identityPrintSnapshot);
+  expect(await page.evaluate(() => window.__identityPrintDetailsOpen)).toBe(true);
+  expect(await page.evaluate(() => window.__identityPrintPanelDisplay)).toBe("grid");
+  expect(await page.evaluate(() => window.__identityPrintControlsDisplay)).toBe("none");
+  await page.emulateMedia({ media: "screen" });
   expect(printSnapshot).not.toContain("A123456789");
   expect(printSnapshot).not.toContain("01123456789");
   expect(printSnapshot).not.toContain("1123456789");
   await expect(result.locator(".advanced-result-value")).toHaveText("A12*****89");
   await expect(result.locator(".pair-card code").first()).toHaveText("••");
   await expect(result.locator(".timeline-list code").first()).toHaveText("••");
+  expect(await result.locator(".timeline-stage-details").evaluateAll((nodes) =>
+    nodes.every((node) => !node.open))).toBe(true);
   await expect(reveal).toBeEnabled();
   await expect(reveal).toHaveText("顯示完整字號 10 秒");
 
@@ -151,17 +207,38 @@ test("mobile identity destiny result stays readable without horizontal overflow"
   const result = page.locator("[data-identity-result]");
   await expect(result).toContainText("身分證命格數列");
   await expect(result.locator(".pair-card")).toHaveCount(9);
-  await expect(result.locator(".timeline-list li")).toHaveCount(10);
+  await expect(result.locator(".timeline-list > li")).toHaveCount(10);
+  const firstStage = result.locator(".timeline-stage-details").first();
+  await firstStage.locator("summary").click();
+  await expect(firstStage).toHaveAttribute("open", "");
   const sizes = await result.evaluate((node) => ({
     rule: Number.parseFloat(getComputedStyle(node.querySelector(".identity-destiny-rule")).fontSize),
     pair: Number.parseFloat(getComputedStyle(node.querySelector(".pair-card p")).fontSize),
     timeline: Number.parseFloat(getComputedStyle(node.querySelector(".timeline-list p")).fontSize),
+    timelineAge: Number.parseFloat(getComputedStyle(node.querySelector(".timeline-age")).fontSize),
+    timelineDetail: Number.parseFloat(getComputedStyle(node.querySelector(".timeline-insight-section li")).fontSize),
+    toggleHeight: node.querySelector(".timeline-stage-toggle").getBoundingClientRect().height,
+    columns: getComputedStyle(node.querySelector(".timeline-list")).gridTemplateColumns.split(" ").length,
+    listWidth: node.querySelector(".timeline-list").getBoundingClientRect().width,
+    expandedWidth: node.querySelector(".timeline-list li.is-expanded").getBoundingClientRect().width,
   }));
   expect(sizes.rule).toBeGreaterThanOrEqual(15);
   expect(sizes.pair).toBeGreaterThanOrEqual(15);
   expect(sizes.timeline).toBeGreaterThanOrEqual(15);
+  expect(sizes.timelineAge).toBeGreaterThanOrEqual(17);
+  expect(sizes.timelineDetail).toBeGreaterThanOrEqual(17);
+  expect(sizes.toggleHeight).toBeGreaterThanOrEqual(48);
+  expect(sizes.columns).toBe(2);
+  expect(sizes.expandedWidth).toBeGreaterThanOrEqual(sizes.listWidth - 2);
   await expectNoHorizontalOverflow(page);
   await result.screenshot({ path: "output/playwright/identity-destiny-mobile-390.png" });
+
+  await page.setViewportSize({ width: 320, height: 760 });
+  const narrowColumns = await result.evaluate((node) =>
+    getComputedStyle(node.querySelector(".timeline-list")).gridTemplateColumns.split(" ").length);
+  expect(narrowColumns).toBe(1);
+  await expectNoHorizontalOverflow(page);
+  await result.screenshot({ path: "output/playwright/identity-destiny-mobile-320.png" });
   expect(errors).toEqual([]);
 });
 

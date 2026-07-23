@@ -101,6 +101,7 @@ export interface MagneticFieldInterpretation {
   readonly core: readonly string[];
   readonly strengths: readonly string[];
   readonly cautions: readonly string[];
+  readonly observationQuestions: readonly string[];
   readonly sourceProfile: SourceProfileId;
 }
 
@@ -494,6 +495,48 @@ export interface TimelineStage {
   readonly status: "mapped" | "unmatched_interval";
 }
 
+export type TimelineStageClassificationStatus =
+  | "classified"
+  | "modifier_unclassified"
+  | "unmatched";
+
+export type TimelineTransitionStatus =
+  | "first_stage"
+  | "unmatched_interval"
+  | "blocked_unclassified"
+  | "same_field"
+  | "matched_rule"
+  | "no_defined_rule";
+
+export interface TimelineTransitionInsight {
+  readonly status: TimelineTransitionStatus;
+  readonly title: string;
+  readonly interpretation: string;
+  readonly caution: string;
+  readonly sourceProfile: SourceProfileId;
+}
+
+export interface TimelineStageInsightOptions {
+  readonly bridges?: readonly BridgePairRecord[];
+  readonly zeroFiveMode?: ZeroFiveMode;
+  readonly sourceProfile?: SourceProfileId;
+}
+
+export interface TimelineStageInsight {
+  readonly classificationStatus: TimelineStageClassificationStatus;
+  readonly fieldType: MagneticFieldType | null;
+  readonly summary: string;
+  readonly themes: readonly string[];
+  readonly observationQuestions: readonly string[];
+  readonly strengths: readonly string[];
+  readonly cautions: readonly string[];
+  readonly classificationNote: string;
+  readonly transitionFromPrevious: TimelineTransitionInsight;
+  readonly bridgeFields: readonly MagneticFieldType[];
+  readonly sourceProfile: SourceProfileId;
+  readonly disclaimer: string;
+}
+
 export interface TimelineWarning {
   readonly code: string;
   readonly severity: "warning";
@@ -662,6 +705,11 @@ export interface MagneticReportInput {
 
 export const NUMEROLOGY_DISCLAIMER: string;
 export function getPersonalityProfile(baseNumber: number): PersonalityProfile;
+export function buildTimelineStageInsight(
+  stage: TimelineStage,
+  previousStage?: TimelineStage | null,
+  options?: TimelineStageInsightOptions,
+): TimelineStageInsight;
 export function buildBirthdayReportSections(
   analysis: BirthdayReportInput,
 ): readonly ReportSection[];

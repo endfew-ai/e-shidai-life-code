@@ -123,6 +123,11 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(serviceTypes, /loadCumulativeVisitCount/);
   assert.match(advancedSource, /命格數列與人生階段分流/);
   assert.match(advancedSource, /命格分析只移除這個補位 0/);
+  assert.match(advancedSource, /buildTimelineStageInsight/);
+  assert.match(advancedSource, /全部展開/);
+  assert.match(advancedSource, /前段轉接/);
+  assert.match(styles, /\.timeline-stage-panel/);
+  assert.match(styles, /@media \(max-width: 360px\)/);
   assert.doesNotMatch(advancedSource, /官方資料|尚未設定演算規則|schema\.gov\.tw|gazette\.nat\.gov\.tw/);
   assert.match(appSource, /result\.kind === "birthday"[^\n]*createBirthdayColorGuide\(result\)/);
   assert.match(reactSource, /result\.kind === "birthday" && <BirthdayColorGuide result=\{result\}/);

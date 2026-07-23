@@ -5,6 +5,7 @@ import {
 import {
   MAGNETIC_FIELD_INTERPRETATIONS,
   TIMELINE_PROFILES,
+  buildTimelineStageInsight,
   generatePlainTextReport,
 } from "../domain/numerology/index.js";
 import {
@@ -385,33 +386,132 @@ function renderIdentityDestiny(container, destiny) {
 function renderTimeline(container, timeline, options = {}) {
   const maskSensitive = options.maskSensitive === true;
   const sensitiveValues = options.sensitiveValues;
+  const magnetic = options.magnetic;
+  const insights = timeline.stages.map((stage, index) =>
+    buildTimelineStageInsight(stage, timeline.stages[index - 1] ?? null, {
+      bridges: magnetic?.bridges ?? [],
+      zeroFiveMode: magnetic?.zeroFiveMode,
+      sourceProfile: timeline.sourceProfile,
+    }));
+  const classifiedCount = insights.filter(({ classificationStatus }) =>
+    classificationStatus === "classified").length;
+  const unclassifiedCount = insights.filter(({ classificationStatus }) =>
+    classificationStatus === "modifier_unclassified").length;
+  const unmatchedCount = insights.filter(({ classificationStatus }) =>
+    classificationStatus === "unmatched").length;
   const block = el("section", "timeline-block");
   const header = el("header");
   const copy = el("div");
   copy.append(el("p", "", "人生階段流年"), headingText(timeline.profileLabel, "timeline-title", 4));
-  header.append(copy, el("span", "", timeline.status === "complete" ? "可完整列示" : "含待確認項目"));
-  block.append(header);
+  const counts = el("div", "timeline-stage-counts");
+  for (const label of [
+    `${timeline.stages.length} 個階段`,
+    `已分類 ${classifiedCount}`,
+    `未分類 ${unclassifiedCount}`,
+    ...(unmatchedCount ? [`待配對 ${unmatchedCount}`] : []),
+  ]) {
+    counts.append(el("span", "", label));
+  }
+  header.append(copy, counts);
+
+  const controls = el("div", "timeline-controls");
+  const expandAll = button("全部展開", "timeline-control");
+  const collapseAll = button("全部收合", "timeline-control");
+  controls.setAttribute("aria-label", "人生階段細解顯示控制");
+  controls.append(expandAll, collapseAll);
+  block.append(header, controls);
 
   const list = el("ol", "timeline-list");
-  for (const stage of timeline.stages) {
-    const item = el("li", stage.pair ? "" : "is-unmatched");
+  const stageDetails = [];
+  for (const [index, stage] of timeline.stages.entries()) {
+    const insight = insights[index];
+    const stateClass = insight.classificationStatus === "unmatched"
+      ? "is-unmatched"
+      : insight.classificationStatus === "modifier_unclassified"
+        ? "is-unclassified"
+        : "";
+    const item = el("li", stateClass);
+    const details = el("details", "timeline-stage-details");
+    details.dataset.timelineStageDetails = "";
+    const disclosure = el("summary", "timeline-stage-disclosure");
+    const overview = el("div", "timeline-stage-overview");
     const age = el("span", "timeline-age", stage.label);
-    const content = el("div");
-    const heading = el("p");
+    const heading = el("p", "timeline-stage-heading");
     const pairCode = el("code");
     if (stage.pair && maskSensitive) setSensitiveText(pairCode, stage.pair.rawPair, "••", sensitiveValues);
-    else pairCode.textContent = stage.pair?.rawPair ?? "—";
+    else pairCode.textContent = stage.pair?.rawPair ?? "無";
     heading.append(
       pairCode,
       stage.pair?.fieldType ? fieldBadge(stage.pair.fieldType) : fieldBadge(null),
     );
-    content.append(
+    overview.append(
+      age,
       heading,
-      el("small", "", stage.cycle > 1 ? `第 ${stage.cycle} 輪延伸` : stage.status === "mapped" ? "教材規則配對" : "原區間尚無配對"),
+      el("p", "timeline-stage-summary", insight.summary),
     );
-    item.append(age, content);
+    if (stage.cycle > 1) overview.append(el("small", "timeline-stage-cycle", `第 ${stage.cycle} 輪延伸`));
+    const action = el("span", "timeline-stage-toggle");
+    action.append(el("span", "", "查看細解"), el("span", "timeline-stage-toggle-icon", "+"));
+    disclosure.append(overview, action);
+
+    const panel = el("div", "timeline-stage-panel");
+    const appendListSection = (title, values, className = "") => {
+      const article = el("article", `timeline-insight-section ${className}`.trim());
+      article.append(el("p", "timeline-insight-label", title));
+      const listNode = el("ul");
+      for (const value of values) listNode.append(el("li", "", value));
+      article.append(listNode);
+      panel.append(article);
+    };
+    appendListSection("階段主題", insight.themes);
+    appendListSection("可觀察", insight.observationQuestions);
+    appendListSection("可運用", insight.strengths);
+    appendListSection("需要留意", insight.cautions);
+
+    const transition = el("article", "timeline-insight-section is-wide");
+    transition.append(
+      el("p", "timeline-insight-label", "前段轉接"),
+      el("strong", "", insight.transitionFromPrevious.title),
+      el("p", "", insight.transitionFromPrevious.interpretation),
+    );
+    if (insight.transitionFromPrevious.caution) {
+      transition.append(el("small", "", `提醒：${insight.transitionFromPrevious.caution}`));
+    }
+    panel.append(transition);
+
+    const basis = el("article", "timeline-insight-section is-wide timeline-insight-basis");
+    basis.append(
+      el("p", "timeline-insight-label", "分類依據"),
+      el("p", "", insight.classificationNote),
+      el("small", "", insight.disclaimer),
+    );
+    panel.append(basis);
+
+    details.append(disclosure, panel);
+    const syncExpandedState = () => {
+      item.classList.toggle("is-expanded", details.open);
+      const toggleLabel = action.firstElementChild;
+      const toggleIcon = action.lastElementChild;
+      if (toggleLabel) toggleLabel.textContent = details.open ? "收合細解" : "查看細解";
+      if (toggleIcon) toggleIcon.textContent = details.open ? "−" : "+";
+    };
+    details.addEventListener("toggle", syncExpandedState);
+    item.append(details);
     list.append(item);
+    stageDetails.push(Object.freeze({ details, item, syncExpandedState }));
   }
+  expandAll.addEventListener("click", () => {
+    for (const entry of stageDetails) {
+      entry.details.open = true;
+      entry.syncExpandedState();
+    }
+  });
+  collapseAll.addEventListener("click", () => {
+    for (const entry of stageDetails) {
+      entry.details.open = false;
+      entry.syncExpandedState();
+    }
+  });
   block.append(list);
   if (timeline.warnings.length) {
     const warnings = el("ul", "result-warnings");
@@ -472,6 +572,7 @@ function renderAnalysisResult(container, analysis, options = {}) {
     renderTimeline(section, analysis.timelineResult, {
       maskSensitive: analysis.inputType === "taiwan_national_id",
       sensitiveValues,
+      magnetic: analysis.lifeEncounterMagnetic,
     });
   }
 
@@ -523,9 +624,27 @@ function renderAnalysisResult(container, analysis, options = {}) {
     }
   });
   const printReport = button("列印／存成 PDF", "secondary-button");
+  printReport.dataset.printReport = "";
   printReport.addEventListener("click", () => {
     concealSensitiveValues();
-    window.print();
+    const printableDetails = [...section.querySelectorAll(".timeline-stage-details, .analysis-trace")];
+    const openStates = printableDetails.map((printable) => Object.freeze({
+      printable,
+      open: printable.open,
+      timelineItem: printable.closest(".timeline-list > li"),
+    }));
+    for (const state of openStates) {
+      state.printable.open = true;
+      state.timelineItem?.classList.add("is-expanded");
+    }
+    try {
+      window.print();
+    } finally {
+      for (const state of openStates) {
+        state.printable.open = state.open;
+        state.timelineItem?.classList.toggle("is-expanded", state.open);
+      }
+    }
   });
   actions.append(copyReport, printReport);
 

@@ -246,48 +246,80 @@ export const MAGNETIC_FIELD_INTERPRETATIONS = Object.freeze({
     core: ["穩定", "等待", "延續", "累積", "潛伏"],
     strengths: ["耐力", "守成", "規劃"],
     cautions: ["停滯", "猶豫", "反覆"],
+    observationQuestions: Object.freeze([
+      "面對事情時，是否較常採取等待、維持或逐步累積？",
+      "規劃是否持續推進，或出現停滯、猶豫、反覆？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   延年: Object.freeze({
     core: ["責任", "能力", "領導", "事業", "持續力"],
     strengths: ["執行", "管理", "承擔"],
     cautions: ["壓力", "控制", "過度工作"],
+    observationQuestions: Object.freeze([
+      "承擔責任時，是否運用執行、管理與持續投入？",
+      "是否同時出現壓力、控制或過度工作的情況？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   生氣: Object.freeze({
     core: ["機會", "人緣", "貴人", "樂觀", "名聲"],
     strengths: ["開展", "合作", "資源"],
     cautions: ["依賴外援", "過度樂觀"],
+    observationQuestions: Object.freeze([
+      "合作、人際、資源或機會是否有所開展？",
+      "是否出現依賴外援或過度樂觀？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   天醫: Object.freeze({
     core: ["資源", "財富", "關係", "照顧", "穩定支持"],
     strengths: ["整合資源", "親和", "信任"],
     cautions: ["理財依賴", "感情理想化", "名稱不代表醫療或治療效果"],
+    observationQuestions: Object.freeze([
+      "是否較重視資源整合、信任、照顧或關係支持？",
+      "理財是否偏向依賴；感情期待是否過度理想化？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   禍害: Object.freeze({
     core: ["語言", "表達", "辯論", "口舌", "突發摩擦"],
     strengths: ["口才", "說服", "反應"],
     cautions: ["誤解", "爭執", "說話過急"],
+    observationQuestions: Object.freeze([
+      "面對表達、辯論、說服或突發摩擦時，自己的反應如何？",
+      "是否同時出現說話過急、誤解或爭執？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   六煞: Object.freeze({
     core: ["人際", "魅力", "情感", "審美", "敏感度"],
     strengths: ["協調", "藝術", "關係經營"],
     cautions: ["情緒糾葛", "曖昧", "關係壓力"],
+    observationQuestions: Object.freeze([
+      "在人際、情感、審美與關係經營上，是否較敏感或投入？",
+      "是否出現曖昧、情緒糾葛或關係壓力？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   絕命: Object.freeze({
     core: ["冒險", "決斷", "突破", "高波動"],
     strengths: ["行動", "膽識", "商業嗅覺"],
     cautions: ["衝動", "風險", "財務起伏"],
+    observationQuestions: Object.freeze([
+      "面對決斷、突破或高波動情境時，如何運用行動與膽識？",
+      "是否同時出現衝動、風險或財務起伏？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
   五鬼: Object.freeze({
     core: ["變動", "靈感", "跳躍思考", "非典型創意"],
     strengths: ["創新", "研究", "策略", "藝術"],
     cautions: ["不穩定", "反覆", "睡眠或壓力感受", "名稱不代表超自然事件"],
+    observationQuestions: Object.freeze([
+      "變動中是否出現靈感、跳躍思考或非典型創意？",
+      "是否同時出現不穩定、反覆，或睡眠與壓力感受？",
+    ]),
     sourceProfile: "uploaded-numerology-v2",
   }),
 });
@@ -415,7 +447,7 @@ export const DEFAULT_RULE_SET = Object.freeze({
   schemaVersion: 1,
   id: "uploaded-material-v2",
   name: "教材可追溯規則",
-  version: "2.1.0",
+  version: "2.1.1",
   lifePathMode: "full_birth_digits",
   birthGridMode: "raw_birth_digits",
   masterNumberMode: "disabled",
@@ -423,7 +455,7 @@ export const DEFAULT_RULE_SET = Object.freeze({
   zeroFiveMode: "bridge_modifier",
   timelineProfile: "first_10_then_5",
   magneticFieldMapVersion: "uploaded-material-v1",
-  interpretationVersion: "neutral-zh-tw-v2",
+  interpretationVersion: "neutral-zh-tw-v3",
   createdAt: "2026-07-23",
   sourceNotes: Object.freeze([
     "生命靈數、九宮連線與八大磁場來自使用者提供的近代民俗教材規格。",
