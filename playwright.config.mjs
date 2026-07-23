@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "kangjie-browser.spec.mjs",
+  testMatch: ["kangjie-browser.spec.mjs", "numerology-browser.spec.mjs"],
   outputDir: "./output/playwright/results",
   fullyParallel: false,
   workers: 1,

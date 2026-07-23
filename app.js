@@ -15,13 +15,20 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
 } from "./site-services.js";
+import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
+import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
+import {
+  loadNumerologySettings,
+  resolveSettingsRuleSet,
+  saveAnalysisHistory,
+} from "./infrastructure/numerology-storage.js";
 
 const modeContent = {
   birthday: {
     label: "生日命碼",
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
-    help: "只需西元生日，不需姓名、時辰或身分證字號。",
+    help: "只需西元生日；身分證請使用下方獨立入口。",
     art: "public/visuals/birthday-panel-b-v3.webp",
     titleArt: "public/visuals/brush/title-birthday-v4.webp",
     alt: "古金曆法年輪與生日節點模組背景",
@@ -155,11 +162,17 @@ function createDigitDistribution(result) {
   summary.append(summaryCopy, element("em", "", `出現 ${9 - result.missing.length} 種・缺少 ${result.missing.length} 種`));
   const body = element("div", "disclosure-body");
   body.append(panelHeading("數字分布", title, `數字 0 出現 ${result.zeroCount} 次`));
-  body.append(element("p", "panel-copy", "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。"));
+  const gridResult = result.kind === "birthday" ? result.birthGrid : null;
+  const displayOrder = gridResult?.displayOrder ?? LO_SHU_ORDER;
+  const displayCounts = gridResult?.counts ?? result.counts;
+  const layoutCopy = gridResult?.layoutProfile === "standard_1_to_9"
+    ? "依 1・2・3／4・5・6／7・8・9 排列；連線判定依規則資料，不由畫面位置猜測。"
+    : "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。";
+  body.append(element("p", "panel-copy", layoutCopy));
   const grid = element("div", "lo-shu-grid");
   grid.setAttribute("aria-label", "一到九數字出現次數");
-  for (const digit of LO_SHU_ORDER) {
-    const count = result.counts[digit];
+  for (const digit of displayOrder) {
+    const count = displayCounts[digit];
     const cell = element("div", `digit-cell ${count ? "is-present" : "is-missing"}`);
     const bar = element("i");
     bar.style.setProperty("--count", String(Math.min(count, 4)));
@@ -168,6 +181,20 @@ function createDigitDistribution(result) {
     grid.append(cell);
   }
   body.append(grid, element("p", "missing-summary", result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"));
+  if (gridResult?.lines) {
+    const established = element("div", "grid-line-summary");
+    const lineTitle = element("p", "grid-line-title", `成立連線 ${gridResult.establishedLines.length} 條`);
+    lineTitle.setAttribute("role", "heading");
+    lineTitle.setAttribute("aria-level", "4");
+    established.append(lineTitle);
+    const list = element("ul");
+    for (const line of gridResult.establishedLines) {
+      list.append(element("li", "", `${line.lineId}・${line.title}（強度 ${line.strength}）`));
+    }
+    if (!gridResult.establishedLines.length) list.append(element("li", "", "目前沒有完整成立的連線。"));
+    established.append(list);
+    body.append(established);
+  }
   card.append(summary, body);
   return card;
 }
@@ -340,8 +367,8 @@ function createNumerologyResult(result, onReset) {
 
   const metrics = result.kind === "birthday"
     ? [
-        ["生命路徑數", result.lifePath.display, "月、日、年分段化簡"],
-        ["生日數", result.birthday.display, "保留原日期與基底"],
+        ["生命路徑數", result.lifePath.display, result.ruleSet.lifePathMode === "full_birth_digits" ? "YYYYMMDD 全部數字加總" : "舊版月、日、年分段化簡"],
+        ["生日數", result.birthday.display, result.ruleSet.masterNumberMode === "disabled" ? "主數化簡至 1～9" : "依設定保留主數"],
         ["態度數", String(result.attitude.value), "出生月加出生日"],
         [`${result.personalYear.year} 個人流年`, String(result.personalYear.value), "採 1 至 12 月曆年制"],
       ]
@@ -358,7 +385,10 @@ function createNumerologyResult(result, onReset) {
   if (result.kind === "birthday" && result.lifePath.isMaster) {
     const note = element("div", "master-note");
     note.setAttribute("role", "note");
-    note.append(element("strong", "", `主數 ${result.lifePath.value}／基底 ${result.lifePath.base}`), element("p", "", masterThemes[result.lifePath.value]));
+    note.append(
+      element("strong", "", `主數 ${result.lifePath.value}／基底 ${result.lifePath.base}`),
+      element("p", "", masterThemes[result.lifePath.value] ?? "此為自訂保留主數；人格摘要仍依化簡後的 1～9 基底呈現。"),
+    );
     section.append(note);
   }
 
@@ -651,9 +681,22 @@ function initializeAnalyzer() {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     try {
+      const settings = loadNumerologySettings();
+      const ruleSet = resolveSettingsRuleSet(settings);
+      const todayValue = localDateString();
+      const currentYear = new Date().getFullYear();
       const result = mode === "birthday"
-        ? analyzeBirthday(birthdayInput.value, new Date().getFullYear(), localDateString())
+        ? analyzeBirthday(birthdayInput.value, currentYear, todayValue, { ruleSet })
         : mode === "code" ? analyzeDigitCode(codeInput.value) : calculateIChing(ichingInputs.map((input) => input.value));
+      if (mode === "birthday") {
+        saveAnalysisHistory(analyzeBirthdayV2({
+          date: birthdayInput.value,
+          currentYear,
+          todayValue,
+          createdAt: new Date().toISOString(),
+          ruleSet,
+        }));
+      }
       message.textContent = "";
       setInvalid(false);
       resultAnchor.replaceChildren(result.kind === "iching" ? createIChingResult(result, resetCurrent) : createNumerologyResult(result, resetCurrent));
@@ -721,4 +764,5 @@ function initializeVisitCounter() {
 if (typeof document !== "undefined") {
   initializeAnalyzer();
   initializeVisitCounter();
+  mountNumerologyWorkspace(document.querySelector("#numerology-workspace"), { assetRoot: "public/visuals" });
 }

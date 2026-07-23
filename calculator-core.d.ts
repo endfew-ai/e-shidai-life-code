@@ -80,16 +80,72 @@ export type BirthdayAnalysis = {
   parts: { year: number; month: number; day: number };
   profileNumber: number;
   headlineValue: string;
-  lifePath: { value: number; base: number; display: string; isMaster: boolean };
-  birthday: { original: number; core: number; base: number; display: string };
+  ruleSet: RuleSet;
+  ruleProfile: LifePathRuleProfile;
+  originalDigits: readonly number[];
+  firstSum: number;
+  reductionSteps: readonly number[];
+  lifePath: {
+    value: number;
+    base: number;
+    display: string;
+    isMaster: boolean;
+    originalDigits: readonly number[];
+    firstSum: number;
+    reductionSteps: readonly number[];
+    calculationText: string;
+    ruleProfile: LifePathRuleProfile;
+  };
+  birthday: {
+    original: number;
+    core: number;
+    base: number;
+    display: string;
+    calculationText: string;
+    reductionSteps: readonly number[];
+    ruleProfile: {
+      readonly ruleSetId: string;
+      readonly masterNumberMode: RuleSet["masterNumberMode"];
+      readonly sourceProfile: string;
+    };
+  };
   colorGuide: BirthdayColorGuide;
   attitude: { value: number };
-  personalYear: { year: number; value: number; trace: ReductionTrace; initial: number };
-  cycles: Array<{ year: number; value: number; trace: ReductionTrace; initial: number }>;
+  personalYear: {
+    year: number;
+    value: number;
+    trace: ReductionTrace;
+    initial: number;
+    calculationText: string;
+    ruleProfile: {
+      readonly id: "personal-year-calendar-legacy-v1";
+      readonly sourceProfile: "legacy-project-v1";
+      readonly masterNumberMode: "disabled";
+    };
+  };
+  cycles: Array<{
+    year: number;
+    value: number;
+    trace: ReductionTrace;
+    initial: number;
+    calculationText: string;
+    ruleProfile: {
+      readonly id: "personal-year-calendar-legacy-v1";
+      readonly sourceProfile: "legacy-project-v1";
+      readonly masterNumberMode: "disabled";
+    };
+  }>;
   counts: DigitCounts;
   zeroCount: number;
   missing: number[];
+  birthGrid: BirthGridAnalysis;
   calculations: CalculationItem[];
+};
+
+export type AnalyzeBirthdayOptions = {
+  ruleSet?: string | RuleSet;
+  ruleSetId?: string;
+  ruleOverrides?: RuleSetOverrides;
 };
 
 export type CodeAnalysis = {
@@ -152,7 +208,23 @@ export function buildBirthdayColorGuide(input: { day: number; lifePathValue: num
 export function localDateString(date?: Date): string;
 export function validateBirthday(dateValue: string, todayValue?: string): { year: number; month: number; day: number; date: string };
 export function countDigits(digits: Array<number | string>): DigitCounts;
-export function analyzeBirthday(dateValue: string, currentYear?: number, todayValue?: string): BirthdayAnalysis;
+export function analyzeBirthday(
+  dateValue: string,
+  currentYear?: number,
+  todayValue?: string,
+  options?: AnalyzeBirthdayOptions,
+): BirthdayAnalysis;
+export function analyzeBirthdayLegacy(
+  dateValue: string,
+  currentYear?: number,
+  todayValue?: string,
+): BirthdayAnalysis;
 export function analyzeDigitCode(rawValue: string): CodeAnalysis;
 export function normalizedRemainder(value: bigint, divisor: number): number;
 export function calculateIChing(rawValues: unknown[]): IChingAnalysis;
+import type {
+  BirthGridAnalysis,
+  LifePathRuleProfile,
+  RuleSet,
+  RuleSetOverrides,
+} from "./domain/numerology/index.js";

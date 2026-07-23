@@ -6,6 +6,7 @@ import {
   CHEIRO_COLOR_SOURCE,
   LO_SHU_ORDER,
   analyzeBirthday,
+  analyzeBirthdayLegacy,
   analyzeDigitCode,
   buildBirthdayColorGuide,
   calculateIChing,
@@ -16,7 +17,7 @@ import {
 
 const TODAY = "2026-07-18";
 
-test("birthday analysis uses one documented segmented master-number convention", () => {
+test("legacy birthday analysis preserves the documented segmented master-number convention", () => {
   const cases = [
     ["1990-08-12", "3", 3, 2, 3],
     ["1980-10-22", "5", 4, 5, 6],
@@ -27,17 +28,17 @@ test("birthday analysis uses one documented segmented master-number convention",
   ];
 
   for (const [date, lifePath, birthdayBase, attitude, personalYear] of cases) {
-    const result = analyzeBirthday(date, 2026, TODAY);
+    const result = analyzeBirthdayLegacy(date, 2026, TODAY);
     assert.equal(result.lifePath.display, lifePath, date);
     assert.equal(result.birthday.base, birthdayBase, date);
     assert.equal(result.attitude.value, attitude, date);
     assert.equal(result.personalYear.value, personalYear, date);
   }
 
-  const masterExample = analyzeBirthday("1950-05-22", 2026, TODAY);
+  const masterExample = analyzeBirthdayLegacy("1950-05-22", 2026, TODAY);
   assert.equal(masterExample.lifePath.value, 33);
   assert.equal(masterExample.lifePath.base, 6);
-  assert.match(masterExample.calculations.find(({ label }) => label === "生命路徑").text, /5 \+ 22 \+ 6 = 33/);
+  assert.match(masterExample.calculations.find(({ label }) => label === "生命靈數").text, /5 \+ 22 \+ 6 = 33/);
 });
 
 test("birthday validation rejects nonexistent and future dates but accepts leap day", () => {
@@ -45,6 +46,7 @@ test("birthday validation rejects nonexistent and future dates but accepts leap 
   assert.throws(() => analyzeBirthday("2023-02-29", 2026, TODAY), /有效的西元日期/);
   assert.throws(() => analyzeBirthday("2025-04-31", 2026, TODAY), /有效的西元日期/);
   assert.throws(() => analyzeBirthday("2026-07-19", 2026, TODAY), /不能晚於今天/);
+  assert.throws(() => analyzeBirthday(" 2026-07-19 ", 2026, TODAY), /不能晚於今天/);
   assert.throws(() => analyzeBirthday("", 2026, TODAY), /完整的西元出生日期/);
 });
 
@@ -104,7 +106,7 @@ test("days 1 to 31 map to the documented Cheiro birth-number palettes", () => {
   for (let day = 1; day <= 31; day += 1) {
     const direct = getCheiroColorGuide(day);
     const date = `2000-01-${String(day).padStart(2, "0")}`;
-    const result = analyzeBirthday(date, 2026, TODAY);
+    const result = analyzeBirthdayLegacy(date, 2026, TODAY);
     assert.equal(direct.number, expectedByDay[day], `day ${day}`);
     assert.equal(direct.palette.number, expectedByDay[day], `day ${day}`);
     assert.deepEqual(result.colorGuide.traditional, direct, `day ${day}`);
@@ -154,7 +156,7 @@ test("life-path master numbers use bases 2, 4 and 6 only for the labeled extensi
     ["1950-05-22", 33, 6, 4],
   ];
   for (const [date, master, base, birthBase] of cases) {
-    const result = analyzeBirthday(date, 2026, TODAY);
+    const result = analyzeBirthdayLegacy(date, 2026, TODAY);
     const [birthColor, lifeColor] = result.colorGuide.composition;
     assert.equal(result.lifePath.value, master);
     assert.equal(result.lifePath.base, base);

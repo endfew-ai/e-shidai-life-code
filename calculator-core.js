@@ -1,3 +1,14 @@
+import {
+  DEFAULT_RULE_SET,
+  LEGACY_RULE_SET,
+  analyzeBirthGrid,
+  calculateBirthdayNumber,
+  calculateLifePath,
+  calculatePersonalYear,
+  parseBirthday,
+  resolveRuleSet,
+} from "./domain/numerology/index.js";
+
 export const profiles = {
   1: {
     title: "領導與獨立",
@@ -353,22 +364,19 @@ export function localDateString(date = new Date()) {
 }
 
 export function validateBirthday(dateValue, todayValue = localDateString()) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateValue).trim());
-  if (!match) throw new Error("請選擇完整的西元出生日期。");
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  const valid = date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
-  if (!valid) throw new Error("這不是有效的西元日期，請重新確認。");
-  if (dateValue > todayValue) throw new Error("出生日期不能晚於今天。");
-  return { year, month, day, date: dateValue };
+  const parsed = parseBirthday(dateValue, todayValue);
+  return { year: parsed.year, month: parsed.month, day: parsed.day, date: parsed.normalized };
 }
 
 export function countDigits(digits) {
   const counts = Object.fromEntries(Array.from({ length: 10 }, (_, digit) => [digit, 0]));
-  for (const digit of digits) counts[Number(digit)] += 1;
+  for (const rawDigit of digits) {
+    const digit = Number(rawDigit);
+    if (!Number.isInteger(digit) || digit < 0 || digit > 9) {
+      throw new RangeError("數字統計只接受 0 到 9 的單一數字。");
+    }
+    counts[digit] += 1;
+  }
   return counts;
 }
 
@@ -377,54 +385,75 @@ function joinedReduction(prefix, initial, preserveMaster) {
   return trace.equations.length ? `${prefix} = ${initial} → ${trace.equations.join(" → ")}` : `${prefix} = ${initial}`;
 }
 
-export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(), todayValue = localDateString()) {
+export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(), todayValue = localDateString(), options = {}) {
   const { year, month, day, date } = validateBirthday(dateValue, todayValue);
   if (!Number.isInteger(currentYear) || currentYear < 1 || currentYear > 9999) {
     throw new Error("流年年份必須是有效西元年。");
   }
-
-  const monthPart = reductionTrace(month, true);
-  const dayPart = reductionTrace(day, true);
-  const yearPart = reductionTrace(year, true);
-  const lifeInitial = monthPart.value + dayPart.value + yearPart.value;
-  const lifePath = reductionTrace(lifeInitial, true);
-  const lifeBase = reduceNumber(lifePath.value, false);
-
-  const birthdayCore = reductionTrace(day, true);
-  const birthdayBase = reduceNumber(birthdayCore.value, false);
+  const ruleSet = resolveRuleSet(options.ruleSet ?? options.ruleSetId ?? DEFAULT_RULE_SET.id, options.ruleOverrides);
+  const lifeResult = calculateLifePath(date, { ruleSet, todayValue });
+  const birthdayResult = calculateBirthdayNumber(date, { ruleSet, todayValue });
+  const lifeBase = lifeResult.baseNumber;
+  const birthdayBase = birthdayResult.baseNumber;
   const attitudeInitial = month + day;
   const attitude = reductionTrace(attitudeInitial, false);
-  const colorGuide = buildBirthdayColorGuide({ day, lifePathValue: lifePath.value, attitudeValue: attitude.value });
+  const colorGuide = buildBirthdayColorGuide({ day, lifePathValue: lifeResult.lifePathNumber, attitudeValue: attitude.value });
 
   const personalYearFor = (targetYear) => {
-    const initial = month + day + targetYear;
-    const trace = reductionTrace(initial, false);
-    return { year: targetYear, value: trace.value, trace, initial };
+    const result = calculatePersonalYear(date, targetYear, { todayValue });
+    return {
+      year: result.year,
+      value: result.personalYearNumber,
+      trace: reductionTrace(result.initial, false),
+      initial: result.initial,
+      calculationText: result.calculationText,
+      ruleProfile: result.ruleProfile,
+    };
   };
   const personalYear = personalYearFor(currentYear);
   const cycles = [currentYear - 1, currentYear, currentYear + 1].map(personalYearFor);
   const digits = date.replace(/\D/g, "").split("").map(Number);
   const counts = countDigits(digits);
+  const birthGrid = analyzeBirthGrid(date, { ruleSet, todayValue, lifePathResult: lifeResult });
+  const headlineValue = lifeResult.isMaster
+    ? `${lifeResult.lifePathNumber}／${lifeResult.baseNumber}`
+    : String(lifeResult.lifePathNumber);
+  const birthdayDisplay = birthdayResult.isMaster
+    ? (day === birthdayResult.birthdayNumber
+      ? `${birthdayResult.birthdayNumber}／${birthdayResult.baseNumber}`
+      : `${day} → ${birthdayResult.birthdayNumber}／${birthdayResult.baseNumber}`)
+    : (day === birthdayResult.birthdayNumber ? String(day) : `${day} → ${birthdayResult.birthdayNumber}`);
 
   return {
     kind: "birthday",
     date,
     parts: { year, month, day },
     profileNumber: lifeBase,
-    headlineValue: formatCoreNumber(lifePath.value),
+    headlineValue,
+    ruleSet,
+    ruleProfile: lifeResult.ruleProfile,
+    originalDigits: lifeResult.originalDigits,
+    firstSum: lifeResult.firstSum,
+    reductionSteps: lifeResult.reductionSteps,
     lifePath: {
-      value: lifePath.value,
+      value: lifeResult.lifePathNumber,
       base: lifeBase,
-      display: formatCoreNumber(lifePath.value),
-      isMaster: MASTER_SET.has(lifePath.value),
+      display: headlineValue,
+      isMaster: lifeResult.isMaster,
+      originalDigits: lifeResult.originalDigits,
+      firstSum: lifeResult.firstSum,
+      reductionSteps: lifeResult.reductionSteps,
+      calculationText: lifeResult.calculationText,
+      ruleProfile: lifeResult.ruleProfile,
     },
     birthday: {
       original: day,
-      core: birthdayCore.value,
+      core: birthdayResult.birthdayNumber,
       base: birthdayBase,
-      display: MASTER_SET.has(birthdayCore.value)
-        ? (day === birthdayCore.value ? formatCoreNumber(birthdayCore.value) : `${day} → ${formatCoreNumber(birthdayCore.value)}`)
-        : (day === birthdayCore.value ? String(day) : `${day} → ${birthdayCore.value}`),
+      display: birthdayDisplay,
+      calculationText: birthdayResult.calculationText,
+      reductionSteps: birthdayResult.reductionSteps,
+      ruleProfile: birthdayResult.ruleProfile,
     },
     colorGuide,
     attitude: { value: attitude.value },
@@ -432,23 +461,24 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
     cycles,
     counts,
     zeroCount: counts[0],
-    missing: Array.from({ length: 9 }, (_, index) => index + 1).filter((digit) => counts[digit] === 0),
+    missing: birthGrid.missingNumbers,
+    birthGrid,
     calculations: [
-      { label: "月數", text: monthPart.text },
-      { label: "日數", text: dayPart.text },
-      { label: "年數", text: yearPart.text },
-      {
-        label: "生命路徑",
-        text: joinedReduction(`${monthPart.value} + ${dayPart.value} + ${yearPart.value}`, lifeInitial, true),
-      },
-      { label: "生日數", text: birthdayCore.text },
+      { label: "生日原始數字", text: lifeResult.originalDigits.join("、") },
+      { label: "第一次加總", text: String(lifeResult.firstSum) },
+      { label: "生命靈數", text: lifeResult.calculationText },
+      { label: "生日數", text: birthdayResult.calculationText },
       { label: "態度數", text: joinedReduction(`${month} + ${day}`, attitudeInitial, false) },
       {
         label: `${currentYear} 個人流年`,
-        text: joinedReduction(`${month} + ${day} + ${currentYear}`, personalYear.initial, false),
+        text: personalYear.calculationText,
       },
     ],
   };
+}
+
+export function analyzeBirthdayLegacy(dateValue, currentYear = new Date().getFullYear(), todayValue = localDateString()) {
+  return analyzeBirthday(dateValue, currentYear, todayValue, { ruleSet: LEGACY_RULE_SET });
 }
 
 function normalizeFullWidthDigits(value) {

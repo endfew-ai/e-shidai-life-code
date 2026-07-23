@@ -61,12 +61,12 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /邵康節易學/);
   assert.match(html, /href="kangjie\.html"/);
   assert.match(html, /本卦、互卦、動爻與變卦/);
-  assert.ok(html.indexOf("生日命碼") < html.indexOf("三數取卦"));
+  assert.ok(html.indexOf('value="birthday"') < html.indexOf('value="iching"'));
   assert.match(html, /看見你的/);
   assert.match(html, /數字軌跡/);
   assert.match(html, /所有分析輸入只在本機處理/);
   assert.match(html, /不是科學人格測驗/);
-  assert.match(html, /不會由生日自動起卦/);
+  assert.match(html, /不會由生日或身分證自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-b-v3\.png/);
   assert.match(html, /hero-celestial-background-v4\.webp/);
   assert.match(html, /title-hero-v5\.webp/);
@@ -91,7 +91,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /瀏覽器端簡易入口鎖/);
   assert.match(html, /data-visit-counter/);
   assert.match(html, /累積造訪/);
-  assert.match(html, /不包含上述輸入內容/);
+  assert.match(html, /不包含任何分析輸入/);
+  assert.match(html, /id="numerology-workspace"/);
+  assert.match(appSource, /mountNumerologyWorkspace/);
+  assert.match(reactSource, /mountNumerologyWorkspace/);
   assert.match(appSource, /title-insight-v5\.webp/);
   assert.match(reactSource, /title-insight-v5\.webp/);
   for (const asset of mainFixedBrushAssets) {

@@ -19,6 +19,13 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
 } from "../site-services.js";
+import { analyzeBirthdayV2 } from "../application/numerology-analysis.js";
+import { mountNumerologyWorkspace } from "../application/advanced-workspace.js";
+import {
+  loadNumerologySettings,
+  resolveSettingsRuleSet,
+  saveAnalysisHistory,
+} from "../infrastructure/numerology-storage.js";
 
 type AnalysisMode = "birthday" | "code" | "iching";
 type BirthdayResult = ReturnType<typeof analyzeBirthday>;
@@ -32,7 +39,7 @@ const modeContent = {
     badge: "主要",
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
-    help: "只需西元生日，不需姓名、時辰或身分證字號。",
+    help: "只需西元生日；身分證請使用下方獨立入口。",
     art: "/visuals/birthday-panel-b-v3.webp",
     titleArt: "/visuals/brush/title-birthday-v4.webp",
     artAlt: "古金曆法年輪與生日節點模組背景",
@@ -100,6 +107,9 @@ function MetricCard({ label, value, note }: { label: string; value: string; note
 
 function DigitDistribution({ result }: { result: NumerologyResult }) {
   const title = result.kind === "birthday" ? "生日數字九宮分布" : "自訂數字九宮分布";
+  const gridResult = result.kind === "birthday" ? result.birthGrid : null;
+  const displayOrder = gridResult?.displayOrder ?? LO_SHU_ORDER;
+  const displayCounts = gridResult?.counts ?? result.counts;
   return (
     <details className="result-disclosure calculation-card digit-distribution">
       <summary><span><small>數字分布</small><strong>查看完整九宮</strong></span><em>出現 {9 - result.missing.length} 種・缺少 {result.missing.length} 種</em></summary>
@@ -108,10 +118,12 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
           <div><p>數字分布</p><h3 className="brush-fixed-heading"><FixedBrushTitle text={title} className="brush-panel-title" /></h3></div>
           <span>數字 0 出現 {result.zeroCount} 次</span>
         </header>
-        <p className="panel-copy">採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。</p>
+        <p className="panel-copy">{gridResult?.layoutProfile === "standard_1_to_9"
+          ? "依 1・2・3／4・5・6／7・8・9 排列；連線判定依規則資料，不由畫面位置猜測。"
+          : "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。"}</p>
         <div className="lo-shu-grid" aria-label="一到九數字出現次數">
-          {LO_SHU_ORDER.map((digit) => {
-            const count = result.counts[digit];
+          {displayOrder.map((digit) => {
+            const count = displayCounts[digit];
             return (
               <div className={`digit-cell ${count ? "is-present" : "is-missing"}`} key={digit}>
                 <strong>{digit}</strong><span>{count ? `${count} 次` : "未出現"}</span>
@@ -121,6 +133,14 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
           })}
         </div>
         <p className="missing-summary">{result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"}</p>
+        {gridResult?.lines && (
+          <div className="grid-line-summary">
+            <p className="grid-line-title" role="heading" aria-level={4}>成立連線 {gridResult.establishedLines.length} 條</p>
+            <ul>{gridResult.establishedLines.length
+              ? gridResult.establishedLines.map((line) => <li key={line.lineId}>{line.lineId}・{line.title}（強度 {line.strength}）</li>)
+              : <li>目前沒有完整成立的連線。</li>}</ul>
+          </div>
+        )}
       </div>
     </details>
   );
@@ -221,8 +241,8 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
   const resultArt = result.kind === "birthday" ? "/visuals/numerology-result-panel-b-v3.webp" : "/visuals/digit-spectrum-panel-b-v3.webp";
   const metrics = result.kind === "birthday"
     ? [
-        { label: "生命路徑數", value: result.lifePath.display, note: "月、日、年分段化簡" },
-        { label: "生日數", value: result.birthday.display, note: "保留原日期與基底" },
+        { label: "生命路徑數", value: result.lifePath.display, note: result.ruleSet.lifePathMode === "full_birth_digits" ? "YYYYMMDD 全部數字加總" : "舊版月、日、年分段化簡" },
+        { label: "生日數", value: result.birthday.display, note: result.ruleSet.masterNumberMode === "disabled" ? "主數化簡至 1～9" : "依設定保留主數" },
         { label: "態度數", value: String(result.attitude.value), note: "出生月加出生日" },
         { label: `${result.personalYear.year} 個人流年`, value: String(result.personalYear.value), note: "採 1 至 12 月曆年制" },
       ]
@@ -247,7 +267,7 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
       <div className="metric-grid">{metrics.map((metric) => <MetricCard {...metric} key={metric.label} />)}</div>
 
       {result.kind === "birthday" && result.lifePath.isMaster && (
-        <div className="master-note" role="note"><strong>主數 {result.lifePath.value}／基底 {result.lifePath.base}</strong><p>{masterThemes[result.lifePath.value as 11 | 22 | 33]}</p></div>
+        <div className="master-note" role="note"><strong>主數 {result.lifePath.value}／基底 {result.lifePath.base}</strong><p>{masterThemes[result.lifePath.value as 11 | 22 | 33] ?? "此為自訂保留主數；人格摘要仍依化簡後的 1～9 基底呈現。"}</p></div>
       )}
 
       {result.kind === "birthday" && <BirthdayColorGuide result={result} />}
@@ -366,6 +386,7 @@ export default function Home() {
   const [visitCount, setVisitCount] = useState("讀取中");
   const [visitState, setVisitState] = useState<"loading" | "ready" | "unavailable">("loading");
   const resultRef = useRef<HTMLDivElement>(null);
+  const workspaceRef = useRef<HTMLElement>(null);
   const birthdayRef = useRef<HTMLInputElement>(null);
   const codeRef = useRef<HTMLInputElement>(null);
   const ichingRef = useRef<HTMLInputElement>(null);
@@ -394,6 +415,11 @@ export default function Home() {
       })
       .finally(() => window.clearTimeout(timeout));
     return () => { controller.abort(); window.clearTimeout(timeout); };
+  }, []);
+
+  useEffect(() => {
+    if (!workspaceRef.current) return;
+    return mountNumerologyWorkspace(workspaceRef.current, { assetRoot: "/visuals" });
   }, []);
 
   function currentRef(targetMode = mode) {
@@ -441,9 +467,22 @@ export default function Home() {
   function handleAnalyze(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
+      const settings = loadNumerologySettings();
+      const ruleSet = resolveSettingsRuleSet(settings);
+      const todayValue = localDateString();
+      const currentYear = new Date().getFullYear();
       const nextResult = mode === "birthday"
-        ? analyzeBirthday(birthday, new Date().getFullYear(), localDateString())
+        ? analyzeBirthday(birthday, currentYear, todayValue, { ruleSet })
         : mode === "code" ? analyzeDigitCode(numberCode) : calculateIChing(ichingValues);
+      if (mode === "birthday") {
+        saveAnalysisHistory(analyzeBirthdayV2({
+          date: birthday,
+          currentYear,
+          todayValue,
+          createdAt: new Date().toISOString(),
+          ruleSet,
+        }));
+      }
       setMessage(""); setResult(nextResult); revealResult();
     } catch (error) {
       setResult(null); setMessage(error instanceof Error ? error.message : "輸入資料無法計算，請重新確認。"); focusCurrentInput();
@@ -463,13 +502,13 @@ export default function Home() {
     <main className="site-shell">
       <nav className="topbar" aria-label="主要導覽">
         <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-code-v4.webp" text="e世代生命密碼" className="brush-brand" /></strong></a>
-        <div><a href="#analyzer">開始分析</a><a href="/kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
+        <div><a href="#analyzer">生日分析</a><a href="#numerology-workspace">進階工作台</a><a href="/kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
       </nav>
 
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
         <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-v5.webp" text="看見你的數字軌跡" className="brush-hero" /></h1>
-        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日命碼為主要分析</span></p><p>固定規則・完整算式・所有分析輸入只在本機處理</p></div>
+        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>
 
       <section className="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
@@ -499,21 +538,23 @@ export default function Home() {
               <button type="submit" className="primary-button analyze-submit">{modeContent[mode].button}<span aria-hidden="true">↘</span></button>
             </div>
           </div>
-          <ul className="method-strip" aria-label="分析承諾"><li>固定規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
+          <ul className="method-strip" aria-label="分析承諾"><li>版本化規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
         </form>
       </section>
 
       <div ref={resultRef} className="result-anchor">{result?.kind === "iching" ? <IChingResults result={result} onReset={handleReset} /> : result && <NumerologyResults result={result} onReset={handleReset} />}</div>
 
+      <section id="numerology-workspace" ref={workspaceRef}></section>
+
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
-          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-v4.webp" text="生日命碼" className="brush-method-card" /><p>月、日、年分段化簡。生命路徑與生日核心保留 11、22、33；另依 Cheiro 出生日數色表顯示傳統主色，生命路徑與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-v4.webp" text="數字頻譜" className="brush-method-card" /><p>只做逐位加總、核心數與出現次數。九宮採洛書版位作視覺排列，不宣稱為古法命盤。</p></article><article><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-method-card" /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-method-card" /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
+          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-v4.webp" text="生日命碼" className="brush-method-card" /><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-v4.webp" text="數字頻譜" className="brush-method-card" /><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-method-card" /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-method-card" /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
           <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie.html#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>
 
-      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、密碼與輸入數字只在本機計算；頁面開啟時只向公開計數服務送出一次造訪請求，不包含上述輸入內容。</p></div></section>
+      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
       <footer><p>© {new Date().getFullYear()} e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>
       <dialog ref={accessDialogRef} className="mode-password-dialog" aria-labelledby="iching-access-title-react" aria-describedby="iching-access-description-react" onCancel={(event) => { event.preventDefault(); closeAccessDialog(); }}>
         <form className="mode-password-card" onSubmit={handleAccessSubmit} noValidate>

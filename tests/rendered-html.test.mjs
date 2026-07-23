@@ -41,7 +41,9 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /累積造訪/);
   assert.match(html, /受保護模式・需密碼/);
   assert.match(html, /iching-access-password-react/);
-  assert.match(html, /不包含上述輸入內容/);
+  assert.match(html, /不包含任何分析輸入/);
+  assert.match(html, /id="numerology-workspace"/);
+  assert.match(html, /版本化規則/);
   assert.doesNotMatch(html, /科學證明|科學認證|保證改運|保證帶來/);
   assert.doesNotMatch(html, developmentPreviewMeta);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/);
