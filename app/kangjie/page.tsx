@@ -3,7 +3,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { getIChingText } from "../../iching-text.js";
+import { getIChingText, type IChingLineText } from "../../iching-text.js";
 import { lineNames } from "../../calculator-core.js";
 import {
   calculateCalendarHexagram,
@@ -99,13 +99,13 @@ function AccessGate({ onUnlock }: { onUnlock: () => void }) {
   return <section className="access-gate" aria-labelledby="access-gate-title"><img className="access-gate-art" src="/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" /><div className="access-gate-card"><span className="access-gate-index">PRIVATE ACCESS・專頁存取</span><h1 id="access-gate-title"><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-access-gate" /></h1><p>輸入四位密碼，驗證後進入年月日時與梅花易數衍算。</p><form onSubmit={handleSubmit} noValidate><label htmlFor="kangjie-password-react">存取密碼</label><div><input ref={inputRef} id="kangjie-password-react" name="password" type="password" inputMode="numeric" autoComplete="current-password" maxLength={4} pattern="[0-9]{4}" placeholder="輸入 4 位數字" value={password} onChange={(event) => { setPassword(event.target.value.replace(/\D/g, "").slice(0, 4)); setMessage(""); }} required /><button type="submit">驗證後進入</button></div><p data-access-message role="alert" aria-live="polite">{message}</p></form><Link href="/">返回首頁</Link></div></section>;
 }
 
-function HexagramLines({ lines, movingIndex = -1, mark = "" }: { lines: number[]; movingIndex?: number; mark?: string }) {
-  return <div className="hexagram-lines" aria-label="六爻卦象，畫面由上爻排列至初爻">{[5, 4, 3, 2, 1, 0].map((index) => <div className={`line-row${index === movingIndex ? " is-moving" : ""}`} key={index}><span>{lineNames[index]}</span><span className={`yao ${lines[index] === 1 ? "yang" : "yin"}`} aria-label={lines[index] === 1 ? "陽爻" : "陰爻"}><i />{lines[index] === 0 && <i />}</span><strong>{index === movingIndex ? mark : ""}</strong></div>)}</div>;
+function HexagramLines({ lines, texts, movingIndex = -1, mark = "" }: { lines: number[]; texts: IChingLineText[]; movingIndex?: number; mark?: string }) {
+  return <div className="hexagram-lines" aria-label="六爻卦象與爻辭，畫面由上爻排列至初爻">{[5, 4, 3, 2, 1, 0].map((index) => <div className={`line-row${index === movingIndex ? " is-moving" : ""}`} key={index}><span className="line-position">{lineNames[index]}</span><span className={`yao ${lines[index] === 1 ? "yang" : "yin"}`} aria-label={lines[index] === 1 ? "陽爻" : "陰爻"}><i />{lines[index] === 0 && <i />}</span><strong className="line-change-mark">{index === movingIndex ? mark : ""}</strong><span className="line-text">{texts[index].text}</span></div>)}</div>;
 }
 
 function HexagramCard({ label, value, movingIndex, mark, note = "" }: { label: string; value: KangjieAnalysis["original"]; movingIndex?: number; mark?: string; note?: string }) {
   const text = getIChingText(value.hexId);
-  return <article className="hexagram-card"><header><div><h3 className="hexagram-role-title brush-fixed-heading"><FixedBrushTitle text={label} className="brush-hexagram-role" /></h3><p className="hexagram-computed-name"><span>{text.symbol}</span>{value.name}</p>{note && <small className="hexagram-role-note">{note}</small>}</div><small>第 {value.hexId} 卦</small></header><p>上{value.upper.name}（{value.upper.nature}）・下{value.lower.name}（{value.lower.nature}）</p><HexagramLines lines={value.lines} movingIndex={movingIndex} mark={mark} /></article>;
+  return <article className="hexagram-card"><header><div><h3 className="hexagram-role-title brush-fixed-heading"><FixedBrushTitle text={label} className="brush-hexagram-role" /></h3><p className="hexagram-computed-name"><span>{text.symbol}</span>{value.name}</p>{note && <small className="hexagram-role-note">{note}</small>}</div><small>第 {value.hexId} 卦</small></header><p className="hexagram-structure">上{value.upper.name}（{value.upper.nature}）・下{value.lower.name}（{value.lower.nature}）</p><p className="hexagram-judgment"><strong>卦辭</strong><span>{text.name}，{text.judgment}</span></p><HexagramLines lines={value.lines} texts={text.lines} movingIndex={movingIndex} mark={mark} /></article>;
 }
 
 function YaoLegend() {

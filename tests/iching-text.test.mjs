@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { hexagramTable } from "../calculator-core.js";
+import { hexagramTable, trigrams } from "../calculator-core.js";
 import { ICHING_TEXT_SOURCE, getIChingText, ichingTexts } from "../iching-text.js";
 
 test("embedded Zhouyi text covers all 64 hexagrams with six line texts and source revisions", () => {
@@ -39,6 +39,21 @@ test("moving-line source text aligns with deterministic sample", () => {
   const gou = getIChingText(44);
   assert.equal(gou.fullName, "天風姤");
   assert.match(gou.lines[1].text, /^九二：包有魚/);
+});
+
+test("all 384 line texts use the same yin-yang marker as their hexagram lines", () => {
+  for (const [upperId, lowerId, hexId] of hexagramTable) {
+    const expectedLines = [...trigrams[lowerId].lines, ...trigrams[upperId].lines];
+    const record = getIChingText(hexId);
+    record.lines.forEach((line, index) => {
+      const designation = line.text.split(/[：，]/u, 1)[0];
+      const expectedMarker = expectedLines[index] === 1 ? "九" : "六";
+      assert.ok(
+        designation.includes(expectedMarker),
+        `第 ${hexId} 卦第 ${index + 1} 爻應為${expectedMarker}，實際為「${line.text}」`,
+      );
+    });
+  }
 });
 
 test("invalid hexagram IDs are rejected", () => {

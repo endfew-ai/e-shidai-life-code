@@ -1696,6 +1696,7 @@
 }
 
 .hexagram-grid {
+  align-items: start;
   gap: 6px;
 }
 
@@ -1722,34 +1723,99 @@
   font-size: 26px;
 }
 
-.hexagram-card > p {
+.hexagram-card > .hexagram-structure {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 14px;
   line-height: 1.35;
   margin: 2px 0;
 }
 
+.hexagram-card > .hexagram-judgment {
+  align-items: start;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--paper-soft);
+  display: grid;
+  font-family: var(--serif);
+  font-size: 16px;
+  gap: 7px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  line-height: 1.45;
+  margin: 5px 0 3px;
+  padding: 5px 0 7px;
+}
+
+.hexagram-judgment strong {
+  color: var(--gold-bright);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
 .hexagram-lines {
   gap: 2px;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .line-row {
-  gap: 6px;
-  grid-template-columns: 32px minmax(0, 1fr) 22px;
-  min-height: 20px;
+  gap: 7px;
+  grid-template-columns: 32px minmax(74px, 0.62fr) 22px minmax(0, 1.38fr);
+  min-height: 29px;
+  padding: 2px 0;
 }
 
-.line-row > span:first-child,
-.line-row > strong {
-  line-height: 1.15;
+.line-row > .line-position,
+.line-row > .line-change-mark {
+  display: block;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.line-row > .line-position {
+  color: var(--muted);
+  font-family: var(--sans);
+}
+
+.line-row > .line-change-mark {
+  color: var(--gold-bright);
+  font-family: var(--sans);
+  font-weight: 700;
+}
+
+.line-row > .line-text {
+  color: var(--paper-soft);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.42;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.line-row.is-moving {
+  background: rgba(225, 184, 98, 0.06);
+  box-shadow: inset 2px 0 rgba(225, 184, 98, 0.68);
+  padding-left: 5px;
+}
+
+.line-row.is-moving > .line-text {
+  color: var(--paper);
 }
 
 .yao {
+  align-items: center;
   gap: 7px;
+  min-width: 0;
 }
 
 .yao i {
+  flex: 1 1 0;
   border-radius: 1px;
   height: 6px;
+  min-width: 0;
+  opacity: 1;
+  width: auto;
 }
 
 .yao.yang i,
@@ -1768,6 +1834,12 @@
 
 .line-row.is-moving .yao.yin i {
   box-shadow: 0 0 13px var(--yao-yin-glow);
+}
+
+@media (max-width: 980px) {
+  .hexagram-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .kangjie-trace {
@@ -1889,10 +1961,31 @@
 
   .hexagram-grid {
     gap: 4px;
+    grid-template-columns: 1fr;
   }
 
   .hexagram-card {
-    padding: 6px;
+    padding: 9px 10px;
+  }
+
+  .hexagram-card > header {
+    display: flex;
+  }
+
+  .hexagram-card header small,
+  .hexagram-card > .hexagram-structure {
+    display: block;
+  }
+
+  .hexagram-card > .hexagram-structure {
+    font-size: 14px;
+  }
+
+  .hexagram-card > .hexagram-judgment {
+    display: grid;
+    font-size: 16px;
+    margin-top: 4px;
+    padding: 5px 0 6px;
   }
 
   .brush-hexagram-role .brush-title-image {
@@ -1905,17 +1998,32 @@
   }
 
   .line-row {
-    gap: 3px;
-    grid-template-columns: minmax(0, 1fr) 14px;
-    min-height: 16px;
+    gap: 5px;
+    grid-template-columns: 30px minmax(68px, 0.54fr) 18px minmax(0, 1.46fr);
+    min-height: 30px;
+    padding: 3px 0;
+  }
+
+  .kangjie-shell .line-row > .line-position {
+    display: block;
+  }
+
+  .line-row > .line-position,
+  .line-row > .line-change-mark {
+    font-size: 13px;
+  }
+
+  .line-row > .line-text {
+    font-size: 16px;
+    line-height: 1.4;
   }
 
   .yao {
-    gap: 3px;
+    gap: 4px;
   }
 
   .yao i {
-    height: 5px;
+    height: 6px;
   }
 
   .kangjie-trace div,
@@ -1926,5 +2034,12 @@
 
   .calculation-audit > summary span {
     display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .line-row {
+    grid-template-columns: 28px minmax(60px, 0.5fr) 17px minmax(0, 1.5fr);
+    gap: 4px;
   }
 }

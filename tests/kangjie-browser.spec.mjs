@@ -28,6 +28,9 @@ async function expectCompactSemanticKangjieResult(page, { desktop = false } = {}
   const result = page.locator("#kangjie-result");
   await expect(result.locator(".yao-legend")).toContainText("陽爻");
   await expect(result.locator(".yao-legend")).toContainText("陰爻");
+  await expect(result.locator(".hexagram-card")).toHaveCount(3);
+  await expect(result.locator(".hexagram-judgment")).toHaveCount(3);
+  await expect(result.locator(".line-text")).toHaveCount(18);
   const report = await result.evaluate((root) => {
     const heading = root.querySelector(".kangjie-result-heading");
     const grid = root.querySelector(".hexagram-grid");
@@ -36,6 +39,10 @@ async function expectCompactSemanticKangjieResult(page, { desktop = false } = {}
     const yin = root.querySelector(".yao.yin i");
     const moving = root.querySelector(".line-row.is-moving .yao i");
     const cards = [...root.querySelectorAll(".hexagram-card")];
+    const rows = [...root.querySelectorAll(".line-row")];
+    const lineTexts = [...root.querySelectorAll(".line-text")];
+    const yaoBars = [...root.querySelectorAll(".yao")];
+    const judgments = [...root.querySelectorAll(".hexagram-judgment")];
     return {
       yang: yang ? getComputedStyle(yang).backgroundColor : null,
       yin: yin ? getComputedStyle(yin).backgroundColor : null,
@@ -44,16 +51,32 @@ async function expectCompactSemanticKangjieResult(page, { desktop = false } = {}
       headingToGridGap: heading && grid ? grid.getBoundingClientRect().top - heading.getBoundingClientRect().bottom : null,
       maxCardHeight: cards.length ? Math.max(...cards.map((card) => card.getBoundingClientRect().height)) : null,
       overviewHeight: heading && ledger ? ledger.getBoundingClientRect().bottom - heading.getBoundingClientRect().top : null,
+      cardTops: cards.map((card) => Math.round(card.getBoundingClientRect().top)),
+      cardBottoms: cards.map((card) => Math.round(card.getBoundingClientRect().bottom)),
+      lineTextsComplete: lineTexts.every((item) => item.textContent.trim().length > 0),
+      lineTextSize: lineTexts.length ? Math.min(...lineTexts.map((item) => Number.parseFloat(getComputedStyle(item).fontSize))) : null,
+      judgmentSize: judgments.length ? Math.min(...judgments.map((item) => Number.parseFloat(getComputedStyle(item).fontSize))) : null,
+      minYaoWidth: yaoBars.length ? Math.min(...yaoBars.map((item) => item.getBoundingClientRect().width)) : null,
+      maxRowHeight: rows.length ? Math.max(...rows.map((item) => item.getBoundingClientRect().height)) : null,
     };
   });
   expect(report.yang).toBe("rgb(232, 103, 98)");
   expect(report.yin).toBe("rgb(90, 169, 223)");
   expect([report.yang, report.yin]).toContain(report.moving);
+  expect(report.lineTextsComplete).toBe(true);
+  expect(report.lineTextSize).toBeGreaterThanOrEqual(16);
+  expect(report.judgmentSize).toBeGreaterThanOrEqual(16);
+  expect(report.minYaoWidth).toBeGreaterThanOrEqual(60);
+  expect(report.maxRowHeight).toBeLessThanOrEqual(140);
   if (desktop) {
     expect(report.headingHeight).toBeLessThanOrEqual(96);
     expect(report.headingToGridGap).toBeLessThanOrEqual(8);
-    expect(report.maxCardHeight).toBeLessThanOrEqual(260);
-    expect(report.overviewHeight).toBeLessThanOrEqual(540);
+    expect(report.maxCardHeight).toBeLessThanOrEqual(680);
+    expect(report.overviewHeight).toBeLessThanOrEqual(980);
+    expect(new Set(report.cardTops).size).toBe(1);
+  } else {
+    expect(report.cardTops[1]).toBeGreaterThanOrEqual(report.cardBottoms[0]);
+    expect(report.cardTops[2]).toBeGreaterThanOrEqual(report.cardBottoms[1]);
   }
 }
 
@@ -538,6 +561,34 @@ test("寬螢幕以附圖同組年月日時顯示緊湊紅陽藍陰結果", async
   await expectCompactSemanticKangjieResult(page, { desktop: true });
   await expectNoHorizontalOverflow(page);
   await result.screenshot({ path: "output/playwright/kangjie-compact-wide-result.png" });
+  expect(errors).toEqual([]);
+});
+
+test("乾卦卡完整顯示卦辭、六爻爻辭與紅色陽爻", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+  const calendar = page.locator("#form-calendar");
+  await calendar.locator('[name="yearBranch"]').selectOption("1");
+  await calendar.locator('[name="lunarMonth"]').fill("1");
+  await calendar.locator('[name="lunarDay"]').fill("7");
+  await calendar.locator('[name="hourBranch"]').selectOption("8");
+  await calendar.locator('button[type="submit"]').click();
+
+  const result = page.locator("#kangjie-result");
+  const original = result.locator(".hexagram-card").first();
+  await expect(original).toContainText("乾為天");
+  await expect(original.locator(".hexagram-judgment")).toContainText("乾，元亨。利貞。");
+  await expect(original.locator(".line-text")).toHaveCount(6);
+  await expect(original.locator(".line-text").first()).toHaveText("上九：亢龍，有悔。");
+  await expect(original.locator(".line-text").last()).toHaveText("初九：潛龍勿用。");
+  await expect(original.locator(".yao.yang")).toHaveCount(6);
+  const yangColors = await original.locator(".yao.yang i").evaluateAll((segments) => segments.map((segment) => getComputedStyle(segment).backgroundColor));
+  expect(new Set(yangColors)).toEqual(new Set(["rgb(232, 103, 98)"]));
+  await expectCompactSemanticKangjieResult(page, { desktop: true });
+  await expectNoHorizontalOverflow(page);
+  await result.screenshot({ path: "output/playwright/kangjie-qian-six-lines.png" });
   expect(errors).toEqual([]);
 });
 

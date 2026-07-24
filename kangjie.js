@@ -192,16 +192,21 @@ function initializeMethodTabs() {
   }
 }
 
-function createHexagramLines(lines, movingIndex = -1, mark = "") {
+function createHexagramLines(lines, texts, movingIndex = -1, mark = "") {
   const wrapper = element("div", "hexagram-lines");
-  wrapper.setAttribute("aria-label", "六爻卦象，畫面由上爻排列至初爻");
+  wrapper.setAttribute("aria-label", "六爻卦象與爻辭，畫面由上爻排列至初爻");
   for (const index of [5, 4, 3, 2, 1, 0]) {
     const row = element("div", `line-row${index === movingIndex ? " is-moving" : ""}`);
     const line = element("span", `yao ${lines[index] === 1 ? "yang" : "yin"}`);
     line.setAttribute("aria-label", lines[index] === 1 ? "陽爻" : "陰爻");
     line.append(element("i"));
     if (lines[index] === 0) line.append(element("i"));
-    row.append(element("span", "", lineNames[index]), line, element("strong", "", index === movingIndex ? mark : ""));
+    row.append(
+      element("span", "line-position", lineNames[index]),
+      line,
+      element("strong", "line-change-mark", index === movingIndex ? mark : ""),
+      element("span", "line-text", texts[index].text),
+    );
     wrapper.append(row);
   }
   return wrapper;
@@ -219,7 +224,14 @@ function createHexagramCard(label, value, movingIndex = -1, mark = "", note = ""
   copy.append(roleTitle, computedName);
   if (note) copy.append(element("small", "hexagram-role-note", note));
   header.append(copy, element("small", "", `第 ${value.hexId} 卦`));
-  card.append(header, element("p", "", `上${value.upper.name}（${value.upper.nature}）・下${value.lower.name}（${value.lower.nature}）`), createHexagramLines(value.lines, movingIndex, mark));
+  const judgment = element("p", "hexagram-judgment");
+  judgment.append(element("strong", "", "卦辭"), element("span", "", `${text.name}，${text.judgment}`));
+  card.append(
+    header,
+    element("p", "hexagram-structure", `上${value.upper.name}（${value.upper.nature}）・下${value.lower.name}（${value.lower.nature}）`),
+    judgment,
+    createHexagramLines(value.lines, text.lines, movingIndex, mark),
+  );
   return card;
 }
 
