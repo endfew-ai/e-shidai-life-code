@@ -2,6 +2,7 @@ export const ICHING_ACCESS_CODE: "0000";
 export const ICHING_ACCESS_SESSION_KEY: string;
 export const VISIT_COUNTER_SESSION_KEY: string;
 export const VISIT_COUNTER_ENDPOINT: string;
+export const VISIT_COUNTER_TIMEOUT_MS: number;
 
 export type SessionStore = Pick<Storage, "getItem" | "setItem">;
 export type VisitCounterOptions = {

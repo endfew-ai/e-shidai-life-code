@@ -10,9 +10,9 @@
     "build": "vinext build",
     "start": "vinext start",
     "test": "npm run build && npm run test:unit",
-    "test:unit": "node --test tests/calculator-core.test.mjs tests/numerology-engine.test.mjs tests/numerology-storage.test.mjs tests/kangjie-core.test.mjs tests/iching-text.test.mjs tests/site-services.test.mjs tests/rendered-html.test.mjs tests/static-site.test.mjs",
+    "test:unit": "node --test tests/calculator-core.test.mjs tests/numerology-engine.test.mjs tests/numerology-storage.test.mjs tests/kangjie-core.test.mjs tests/kangjie-domain.test.mjs tests/stroke-provider.test.mjs tests/iching-text.test.mjs tests/site-services.test.mjs tests/rendered-html.test.mjs tests/static-site.test.mjs",
     "test:browser": "playwright test",
-    "typecheck:contracts": "tsc --noEmit --strict --skipLibCheck --module preserve --moduleResolution bundler --target ES2022 calculator-core.d.ts domain/numerology/index.d.ts application/numerology-analysis.d.ts infrastructure/numerology-storage.d.ts",
+    "typecheck:contracts": "tsc --noEmit --strict --skipLibCheck --module preserve --moduleResolution bundler --target ES2022 calculator-core.d.ts kangjie-core.d.ts domain/numerology/index.d.ts application/numerology-analysis.d.ts infrastructure/numerology-storage.d.ts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },

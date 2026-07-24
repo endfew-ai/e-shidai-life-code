@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const testPort = Number(process.env.PLAYWRIGHT_PORT || 4197);
+const testBaseUrl = `http://127.0.0.1:${testPort}`;
+
 export default defineConfig({
   testDir: "./tests",
   testMatch: ["kangjie-browser.spec.mjs", "numerology-browser.spec.mjs"],
@@ -8,13 +11,13 @@ export default defineConfig({
   workers: 1,
   timeout: 90_000,
   webServer: {
-    command: "npx --yes serve . -l 4187 --no-clipboard",
-    url: "http://127.0.0.1:4187/index.html",
+    command: `npx --yes serve . -l ${testPort} --no-clipboard`,
+    url: `${testBaseUrl}/index.html`,
     reuseExistingServer: false,
     timeout: 30_000,
   },
   use: {
-    baseURL: "http://127.0.0.1:4187",
+    baseURL: testBaseUrl,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },

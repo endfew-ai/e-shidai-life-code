@@ -16,7 +16,7 @@ SOURCE_FILES = (
     ROOT / "app" / "kangjie" / "page.tsx",
 )
 ASSET_PATTERN = re.compile(r"(?:public)?/visuals/brush/([A-Za-z0-9._-]+\.webp)")
-REQUIRED_V2 = {
+REQUIRED_FIXED = {
     "title-calculation-explain-v2.webp",
     "title-grid-birthday-v2.webp",
     "title-grid-code-v2.webp",
@@ -29,7 +29,7 @@ REQUIRED_V2 = {
     "title-tuan-v2.webp",
     "title-image-saying-v2.webp",
     "title-six-lines-v2.webp",
-    "title-kangjie-overview-entry-v2.webp",
+    "title-kangjie-overview-entry-v3.webp",
     "title-kangjie-overview-layers-v2.webp",
     "title-kangjie-overview-scale-v2.webp",
     "title-kangjie-origin-sequence-v2.webp",
@@ -97,8 +97,8 @@ def main() -> None:
     args = parser.parse_args()
 
     referenced = referenced_assets()
-    missing_references = REQUIRED_V2 - referenced
-    missing_files = {name for name in referenced | REQUIRED_V2 if not (ASSET_DIR / name).is_file()}
+    missing_references = REQUIRED_FIXED - referenced
+    missing_files = {name for name in referenced | REQUIRED_FIXED if not (ASSET_DIR / name).is_file()}
     if missing_references:
         raise SystemExit(f"Required title assets are not referenced: {', '.join(sorted(missing_references))}")
     if missing_files:
@@ -126,10 +126,10 @@ def main() -> None:
             failed |= not okay
 
     if args.contact_sheet:
-        create_contact_sheet([ASSET_DIR / name for name in sorted(REQUIRED_V2)], args.contact_sheet)
+        create_contact_sheet([ASSET_DIR / name for name in sorted(REQUIRED_FIXED)], args.contact_sheet)
         print(f"Contact sheet: {args.contact_sheet.resolve()}")
 
-    print(f"Audited {len(paths)} referenced brush assets; required v2 modules: {len(REQUIRED_V2)}")
+    print(f"Audited {len(paths)} referenced brush assets; required fixed modules: {len(REQUIRED_FIXED)}")
     if failed:
         raise SystemExit(1)
 

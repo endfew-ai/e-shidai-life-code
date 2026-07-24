@@ -149,7 +149,7 @@ Character lock: {CHARACTER_1} / {CHARACTER_2} / {CHARACTER_3} / {CHARACTER_4...}
 
 | 精確文字 | 網站檔案 |
 | --- | --- |
-| 四種起卦入口 | `public/visuals/brush/title-kangjie-overview-entry-v2.webp` |
+| 五種起卦入口 | `public/visuals/brush/title-kangjie-overview-entry-v3.webp` |
 | 三層卦象 | `public/visuals/brush/title-kangjie-overview-layers-v2.webp` |
 | 五級時間尺度 | `public/visuals/brush/title-kangjie-overview-scale-v2.webp` |
 | 乾一至坤八 | `public/visuals/brush/title-kangjie-origin-sequence-v2.webp` |
@@ -171,6 +171,14 @@ Character lock: {CHARACTER_1} / {CHARACTER_2} / {CHARACTER_3} / {CHARACTER_4...}
 | 動爻原文 | `public/visuals/brush/title-moving-line-v2.webp` |
 | 變卦本文 | `public/visuals/brush/title-changed-text-v2.webp` |
 | 原文與來源 | `public/visuals/brush/title-kangjie-tab-source-v2.webp` |
+
+「五種起卦入口」使用內建影像生成工具，以舊版「四種起卦入口」作編修參考。最終提示詞如下：
+
+```text
+Edit only the first Chinese character in the reference artwork, changing 「四」 to 「五」 so the full exact text reads 「五種起卦入口」.
+Preserve the same single-line layout, spacing, baseline, scale, warm metallic-gold ink, dry-brush fibers and handmade ink variation.
+Change only 「四」 to 「五」; keep 「種起卦入口」 visually unchanged. No extra marks, seals, symbols, English, subtitle, watermark, border or computer-font appearance.
+```
 
 正式檔案以 `scripts/audit-brush-assets.py` 統一檢查兩頁實際引用的全部字模。發布門檻為：檔案存在、RGBA、四邊透明、四角透明及可見綠邊像素為 0；另輸出 34 張本次新增字模的接觸表作人工校字。
 

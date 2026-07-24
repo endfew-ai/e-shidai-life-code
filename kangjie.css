@@ -16,6 +16,10 @@
   display: none;
 }
 
+.kangjie-shell [hidden] {
+  display: none !important;
+}
+
 .access-gate {
   align-items: center;
   background: #030a12;
@@ -510,7 +514,7 @@
 .method-selector {
   border: 1px solid var(--line-soft);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   margin: 14px 0 0;
 }
 
@@ -1252,4 +1256,675 @@
   .huangji-output-grid { grid-template-columns: repeat(3, 1fr); }
   .huangji-output-grid article:nth-child(3) { border-right: 0; }
   .huangji-output-grid article:nth-child(-n + 3) { border-bottom: 1px solid var(--line-soft); }
+}
+
+/* 2026-07 康節演算擴充：維持黑金骨架，提高高齡閱讀性。 */
+.profile-selector {
+  border-bottom: 1px solid var(--line-soft);
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(160px, 220px) minmax(240px, 1fr);
+  padding: 12px 16px;
+}
+
+.calendar-profile-grid {
+  margin-top: 10px;
+}
+
+.secondary-button {
+  background: rgba(199, 154, 69, 0.08);
+  border: 1px solid var(--line);
+  color: var(--gold-bright);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 16px;
+  min-height: 46px;
+  padding: 9px 14px;
+}
+
+.secondary-button:hover,
+.secondary-button:focus-visible {
+  background: rgba(199, 154, 69, 0.17);
+  border-color: var(--gold-bright);
+  outline: none;
+}
+
+.stroke-workspace {
+  border: 1px solid var(--line-soft);
+  margin-top: 10px;
+  padding: 12px;
+}
+
+.stroke-evidence-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.stroke-evidence-row {
+  align-items: center;
+  background: rgba(2, 8, 14, 0.62);
+  border: 1px solid var(--line-soft);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 92px 62px;
+  padding: 9px 11px;
+}
+
+.stroke-evidence-row.is-unresolved {
+  border-color: rgba(211, 128, 99, 0.7);
+}
+
+.stroke-evidence-row > span {
+  display: grid;
+  gap: 2px;
+}
+
+.stroke-evidence-row strong {
+  color: var(--gold-bright);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.stroke-evidence-row small {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.stroke-evidence-row input {
+  background: rgba(2, 8, 14, 0.9);
+  border: 1px solid var(--line);
+  color: var(--paper);
+  font-size: 18px;
+  min-height: 44px;
+  text-align: center;
+  width: 100%;
+}
+
+.stroke-evidence-row em {
+  color: var(--paper-soft);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-style: normal;
+  text-align: right;
+}
+
+.body-use-ledger {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.body-use-ledger > p {
+  border-top: 1px solid var(--line-soft);
+  grid-column: 1 / -1;
+}
+
+.calculation-audit {
+  background: rgba(4, 12, 21, 0.72);
+  border: 1px solid var(--line-soft);
+  border-top: 0;
+}
+
+.calculation-audit > summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  min-height: 50px;
+  padding: 10px 12px;
+}
+
+.calculation-audit > summary strong {
+  color: var(--gold-bright);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.calculation-audit > summary span {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 16px;
+}
+
+.calculation-audit-body {
+  border-top: 1px solid var(--line-soft);
+  padding: 12px;
+}
+
+.calculation-input-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.calculation-input-grid article > span {
+  color: var(--gold-bright);
+  display: block;
+  font-family: var(--sans);
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.calculation-input-grid pre {
+  background: rgba(1, 7, 12, 0.82);
+  border: 1px solid var(--line-soft);
+  color: var(--paper-soft);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  max-height: 280px;
+  overflow: auto;
+  padding: 9px;
+  white-space: pre-wrap;
+}
+
+.calculation-warning-list {
+  color: var(--paper-soft);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 10px 0;
+  padding-left: 22px;
+}
+
+.calculation-source-list {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.calculation-source-list a {
+  border: 1px solid var(--line-soft);
+  color: var(--paper);
+  display: grid;
+  font-family: var(--sans);
+  gap: 2px;
+  padding: 9px 11px;
+  text-decoration: none;
+}
+
+.calculation-source-list a span {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.huangji-form {
+  display: block;
+}
+
+.huangji-form > .field-block,
+.huangji-form > [data-huangji-position] {
+  margin-bottom: 10px;
+}
+
+.huangji-form > .primary-button {
+  margin-top: 4px;
+}
+
+.kangjie-panel-heading > p,
+.origin-ledger p,
+.method-map span,
+.form-intro p,
+.form-note,
+.kangjie-form .form-note,
+.result-input-summary,
+.moving-summary,
+.kangjie-trace code,
+.body-use-ledger article span,
+.body-use-ledger article small,
+.body-use-ledger > p,
+.kangjie-classic-excerpt p,
+.huangji-equation,
+.source-ledger strong,
+.kangjie-boundary p,
+.iching-boundary {
+  font-size: clamp(16px, 1.08vw, 18px);
+  line-height: 1.65;
+}
+
+.field-block > span,
+.quad-input-grid .field-block > span,
+.dual-input-grid .field-block > span,
+.kangjie-form .triple-input-grid .field-block > span {
+  font-size: 16px;
+}
+
+.field-block > span small,
+.quad-input-grid .field-block > span small,
+.dual-input-grid .field-block > span small,
+.kangjie-form .triple-input-grid .field-block > span small {
+  font-size: 14px;
+}
+
+.kangjie-trace span,
+.text-field output,
+.current-time-copy small,
+.current-time-actions > span {
+  font-size: 15px;
+}
+
+@media (max-width: 650px) {
+  .method-selector button:nth-child(5) {
+    border-bottom: 0;
+    grid-column: 1 / -1;
+  }
+
+  .profile-selector,
+  .calculation-input-grid,
+  .calculation-source-list {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-selector {
+    padding: 10px 11px;
+  }
+
+  .body-use-ledger {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .body-use-ledger article:nth-child(3) {
+    border-top: 1px solid var(--line-soft);
+    grid-column: 1 / -1;
+  }
+
+  .stroke-evidence-row {
+    grid-template-columns: minmax(0, 1fr) 78px;
+  }
+
+  .stroke-evidence-row em {
+    display: none;
+  }
+
+  .kangjie-panel-heading > p,
+  .form-intro p,
+  .quad-input-grid .field-block > span,
+  .dual-input-grid .field-block > span,
+  .kangjie-form .triple-input-grid .field-block > span {
+    font-size: 16px;
+  }
+
+  .quad-input-grid .field-block > span small,
+  .dual-input-grid .field-block > span small,
+  .kangjie-form .triple-input-grid .field-block > span small {
+    font-size: 14px;
+  }
+}
+
+/* 2026-07 緊湊介面：保留長輩可讀字級，收斂留白並用紅藍明確區分陰陽。 */
+.kangjie-shell {
+  --yao-yang: #e86762;
+  --yao-yang-glow: rgba(232, 103, 98, 0.34);
+  --yao-yin: #5aa9df;
+  --yao-yin-glow: rgba(90, 169, 223, 0.34);
+}
+
+.kangjie-workspace {
+  margin: 8px 0 16px;
+}
+
+.kangjie-tabs button {
+  min-height: 50px;
+  padding: 4px 12px;
+}
+
+.kangjie-tabs .brush-kangjie-tab .brush-title-image {
+  height: 28px;
+}
+
+.kangjie-panel {
+  padding: 12px;
+}
+
+.kangjie-panel-heading {
+  gap: 16px;
+  padding-bottom: 9px;
+}
+
+.brush-kangjie-section .brush-title-image {
+  height: 44px;
+}
+
+.origin-ledger article {
+  min-height: 116px;
+  padding: 12px;
+}
+
+.panel-next {
+  margin-top: 9px;
+}
+
+.method-selector {
+  margin-top: 8px;
+}
+
+.kangjie-form {
+  padding: 12px;
+}
+
+.form-intro {
+  gap: 16px;
+  margin-bottom: 9px;
+  padding-bottom: 8px;
+}
+
+.current-time-detect {
+  gap: 10px;
+  margin-bottom: 7px;
+  min-height: 54px;
+  padding: 6px 9px 6px 13px;
+}
+
+.quad-input-grid,
+.dual-input-grid {
+  gap: 7px;
+}
+
+.quad-input-grid .field-block > span,
+.dual-input-grid .field-block > span,
+.kangjie-form .triple-input-grid .field-block > span {
+  min-height: 32px;
+}
+
+.field-block select {
+  min-height: 46px;
+}
+
+.kangjie-form .form-note {
+  margin-top: 6px;
+}
+
+.kangjie-calculation-result,
+.huangji-calculation-result {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.kangjie-result-heading {
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.brush-kangjie-result .brush-title-image {
+  height: 40px;
+}
+
+.result-input-summary,
+.moving-summary {
+  line-height: 1.4;
+}
+
+.result-heading-meta {
+  align-items: end;
+  display: grid;
+  gap: 4px;
+  justify-items: end;
+}
+
+.yao-legend {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+}
+
+.yao-legend > span {
+  align-items: center;
+  color: var(--paper-soft);
+  display: inline-flex;
+  font-family: var(--sans);
+  font-size: 14px;
+  gap: 6px;
+  line-height: 1;
+}
+
+.yao-legend i {
+  display: block;
+  height: 5px;
+  width: 28px;
+}
+
+.yao-legend .is-yang i {
+  background: var(--yao-yang);
+  box-shadow: 0 0 9px var(--yao-yang-glow);
+}
+
+.yao-legend .is-yin i {
+  background: linear-gradient(90deg, var(--yao-yin) 0 42%, transparent 42% 58%, var(--yao-yin) 58% 100%);
+  filter: drop-shadow(0 0 4px var(--yao-yin-glow));
+}
+
+.hexagram-grid {
+  gap: 6px;
+}
+
+.hexagram-card {
+  min-width: 0;
+  padding: 10px 12px;
+}
+
+.hexagram-role-title {
+  margin-bottom: 1px;
+}
+
+.brush-hexagram-role .brush-title-image {
+  height: 23px;
+}
+
+.hexagram-card .hexagram-computed-name {
+  font-size: 18px;
+  gap: 5px;
+  line-height: 1.2;
+}
+
+.hexagram-card .hexagram-computed-name span {
+  font-size: 26px;
+}
+
+.hexagram-card > p {
+  line-height: 1.35;
+  margin: 2px 0;
+}
+
+.hexagram-lines {
+  gap: 2px;
+  margin-top: 4px;
+}
+
+.line-row {
+  gap: 6px;
+  grid-template-columns: 32px minmax(0, 1fr) 22px;
+  min-height: 20px;
+}
+
+.line-row > span:first-child,
+.line-row > strong {
+  line-height: 1.15;
+}
+
+.yao {
+  gap: 7px;
+}
+
+.yao i {
+  border-radius: 1px;
+  height: 6px;
+}
+
+.yao.yang i,
+.line-row.is-moving .yao.yang i {
+  background: var(--yao-yang);
+}
+
+.yao.yin i,
+.line-row.is-moving .yao.yin i {
+  background: var(--yao-yin);
+}
+
+.line-row.is-moving .yao.yang i {
+  box-shadow: 0 0 13px var(--yao-yang-glow);
+}
+
+.line-row.is-moving .yao.yin i {
+  box-shadow: 0 0 13px var(--yao-yin-glow);
+}
+
+.kangjie-trace {
+  margin-top: 6px;
+}
+
+.kangjie-trace div {
+  gap: 1px;
+  padding: 6px 9px;
+}
+
+.kangjie-trace code,
+.body-use-ledger article span,
+.body-use-ledger article small,
+.body-use-ledger > p {
+  line-height: 1.4;
+}
+
+.body-use-ledger article {
+  gap: 6px;
+  padding: 6px 9px;
+}
+
+.body-use-ledger > p {
+  padding: 6px 9px;
+}
+
+.calculation-audit > summary {
+  min-height: 44px;
+  padding: 6px 10px;
+}
+
+.calculation-audit > summary strong {
+  font-size: 17px;
+}
+
+.iching-boundary {
+  margin-top: 6px;
+  padding: 6px 10px;
+}
+
+.kangjie-classic-excerpt {
+  margin-top: 6px;
+}
+
+.kangjie-classic-excerpt > summary {
+  min-height: 44px;
+  padding: 6px 10px;
+}
+
+@media (max-width: 650px) {
+  .kangjie-hero {
+    height: 210px;
+  }
+
+  .kangjie-tabs button {
+    min-height: 50px;
+  }
+
+  .kangjie-panel {
+    padding: 9px;
+  }
+
+  .kangjie-panel-heading {
+    gap: 3px;
+    padding-bottom: 7px;
+  }
+
+  .brush-kangjie-section .brush-title-image {
+    height: 38px;
+  }
+
+  .method-selector {
+    margin-top: 6px;
+  }
+
+  .kangjie-form {
+    padding: 9px;
+  }
+
+  .form-intro {
+    gap: 1px;
+    margin-bottom: 7px;
+    padding-bottom: 6px;
+  }
+
+  .current-time-actions button {
+    min-height: 44px;
+  }
+
+  .kangjie-calculation-result,
+  .huangji-calculation-result {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .kangjie-result-heading {
+    align-items: start;
+    gap: 3px;
+    margin-bottom: 5px;
+  }
+
+  .result-heading-meta {
+    align-items: start;
+    justify-items: start;
+  }
+
+  .brush-kangjie-result .brush-title-image {
+    height: 35px;
+  }
+
+  .yao-legend {
+    gap: 11px;
+  }
+
+  .yao-legend > span {
+    font-size: 13px;
+  }
+
+  .hexagram-grid {
+    gap: 4px;
+  }
+
+  .hexagram-card {
+    padding: 6px;
+  }
+
+  .brush-hexagram-role .brush-title-image {
+    height: 20px;
+  }
+
+  .hexagram-lines {
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .line-row {
+    gap: 3px;
+    grid-template-columns: minmax(0, 1fr) 14px;
+    min-height: 16px;
+  }
+
+  .yao {
+    gap: 3px;
+  }
+
+  .yao i {
+    height: 5px;
+  }
+
+  .kangjie-trace div,
+  .body-use-ledger article,
+  .body-use-ledger > p {
+    padding: 6px 8px;
+  }
+
+  .calculation-audit > summary span {
+    display: none;
+  }
 }

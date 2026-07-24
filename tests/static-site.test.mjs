@@ -19,7 +19,7 @@ const mainFixedBrushAssets = [
 ];
 
 const kangjieFixedBrushAssets = [
-  "title-kangjie-overview-entry-v2.webp",
+  "title-kangjie-overview-entry-v3.webp",
   "title-kangjie-overview-layers-v2.webp",
   "title-kangjie-overview-scale-v2.webp",
   "title-kangjie-origin-sequence-v2.webp",
@@ -242,10 +242,15 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /data-method-panel="object"/);
   assert.match(html, /data-method-panel="sound"/);
   assert.match(html, /data-method-panel="text"/);
+  assert.match(html, /value="user-custom-v1">使用者自訂/);
+  assert.match(html, /data-custom-profile/);
+  assert.match(scriptSource, /textFourToTen/);
   assert.match(html, /data-access-gate/);
   assert.match(html, /data-current-time-detect/);
   assert.match(html, /重新套用現在/);
   assert.match(html, /自動偵測，可手動選/);
+  assert.match(html, /kangjie\.css\?v=20260724-compact-v2/);
+  assert.match(html, /kangjie\.js\?v=20260724-compact-v2/);
   assert.match(scriptSource, /input\.value === "0000"/);
   assert.match(scriptSource, /initializeCurrentTimeDetection/);
   assert.match(appSource, /password === "0000"/);
@@ -259,6 +264,13 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(coreSource, /calculateLongTextHexagram/);
   assert.match(coreSource, /decomposeHuangjiYears/);
   assert.match(coreSource, /detectCurrentCalendarParts/);
+  assert.match(scriptSource, /function createYaoLegend\(\)/);
+  assert.match(appSource, /function YaoLegend\(\)/);
+  assert.match(styles, /--yao-yang: #e86762/);
+  assert.match(styles, /--yao-yin: #5aa9df/);
+  assert.match(styles, /\.yao\.yang i/);
+  assert.match(styles, /\.yao\.yin i/);
+  assert.match(styles, /\.yao-legend/);
   assert.match(styles, /@media \(max-width: 650px\)/);
   assert.match(styles, /grid-template-columns: repeat\(2, 1fr\)/);
   assert.doesNotMatch(html, /[—–]/);

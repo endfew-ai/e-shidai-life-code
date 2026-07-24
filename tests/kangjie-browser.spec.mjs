@@ -24,6 +24,39 @@ async function expectNoHorizontalOverflow(page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width + 1);
 }
 
+async function expectCompactSemanticKangjieResult(page, { desktop = false } = {}) {
+  const result = page.locator("#kangjie-result");
+  await expect(result.locator(".yao-legend")).toContainText("陽爻");
+  await expect(result.locator(".yao-legend")).toContainText("陰爻");
+  const report = await result.evaluate((root) => {
+    const heading = root.querySelector(".kangjie-result-heading");
+    const grid = root.querySelector(".hexagram-grid");
+    const ledger = root.querySelector(".body-use-ledger");
+    const yang = root.querySelector(".yao.yang i");
+    const yin = root.querySelector(".yao.yin i");
+    const moving = root.querySelector(".line-row.is-moving .yao i");
+    const cards = [...root.querySelectorAll(".hexagram-card")];
+    return {
+      yang: yang ? getComputedStyle(yang).backgroundColor : null,
+      yin: yin ? getComputedStyle(yin).backgroundColor : null,
+      moving: moving ? getComputedStyle(moving).backgroundColor : null,
+      headingHeight: heading?.getBoundingClientRect().height ?? null,
+      headingToGridGap: heading && grid ? grid.getBoundingClientRect().top - heading.getBoundingClientRect().bottom : null,
+      maxCardHeight: cards.length ? Math.max(...cards.map((card) => card.getBoundingClientRect().height)) : null,
+      overviewHeight: heading && ledger ? ledger.getBoundingClientRect().bottom - heading.getBoundingClientRect().top : null,
+    };
+  });
+  expect(report.yang).toBe("rgb(232, 103, 98)");
+  expect(report.yin).toBe("rgb(90, 169, 223)");
+  expect([report.yang, report.yin]).toContain(report.moving);
+  if (desktop) {
+    expect(report.headingHeight).toBeLessThanOrEqual(96);
+    expect(report.headingToGridGap).toBeLessThanOrEqual(8);
+    expect(report.maxCardHeight).toBeLessThanOrEqual(260);
+    expect(report.overviewHeight).toBeLessThanOrEqual(540);
+  }
+}
+
 async function expectAllImagesLoaded(page) {
   await page.locator('img[loading="lazy"]').evaluateAll((images) => {
     for (const image of images) image.loading = "eager";
@@ -268,6 +301,83 @@ test("fixed Taipei time fills the exact lunar date and branches", async ({ page 
   await expect(calendar.locator("[data-current-time-note]")).toContainText("已依裝置時間自動填入");
 });
 
+test("姓名會逐字自動計算筆畫、標示來源並完成姓名加數起卦", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+
+  await page.locator('[data-method-tab="text"]').click();
+  const form = page.locator("#form-text");
+  await form.locator('[name="textMode"]').selectOption("surname");
+  await form.locator("textarea").fill("王小明");
+  await expect(form.locator("[data-single-character-fields]")).toBeHidden();
+  await expect(form.locator("[data-tone-fields]")).toBeHidden();
+  await form.locator("[data-lookup-strokes]").click();
+
+  const rows = form.locator("[data-stroke-evidence] .stroke-evidence-row");
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(0)).toContainText("王");
+  await expect(rows.nth(0).locator("input")).toHaveValue("4");
+  await expect(rows.nth(1)).toContainText("小");
+  await expect(rows.nth(1).locator("input")).toHaveValue("3");
+  await expect(rows.nth(2)).toContainText("明");
+  await expect(rows.nth(2).locator("input")).toHaveValue("8");
+  await expect(rows.first()).toContainText("Unicode Unihan");
+  await expect(rows.first()).toContainText("17.0.0");
+
+  await form.locator('[name="yearBranch"]').selectOption("5");
+  await form.locator('[name="lunarMonth"]').fill("12");
+  await form.locator('[name="lunarDay"]').fill("17");
+  await form.locator('[name="hourBranch"]').selectOption("9");
+  await form.locator('button[type="submit"]').click();
+
+  const result = page.locator("#kangjie-result");
+  await expect(result).toContainText("姓名或姓氏加數法");
+  await expect(result).toContainText("王 4 畫");
+  await expect(result).toContainText("小 3 畫");
+  await expect(result).toContainText("明 8 畫");
+  await expect(result).toContainText("完整演算明細");
+  await expect(result).toContainText("五行關係");
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({ path: "output/playwright/kangjie-name-strokes-1180.png", fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test("使用者自訂版本會顯示三項設定並以四字筆畫法完成演算", async ({ page }) => {
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+  await page.locator("[data-calculation-profile]").selectOption("user-custom-v1");
+  const custom = page.locator("[data-custom-profile]");
+  await expect(custom).toBeVisible();
+  await custom.locator("[data-custom-mutual]").selectOption("transformed");
+  await custom.locator("[data-custom-size-hour]").selectOption("no");
+  await custom.locator("[data-custom-text-mode]").selectOption("strokes");
+
+  await page.locator('[data-method-tab="text"]').click();
+  const form = page.locator("#form-text");
+  await form.locator('[name="textMode"]').selectOption("classic");
+  await form.locator("textarea").fill("天地玄黃");
+  await expect(form.locator("[data-stroke-workspace]")).toBeVisible();
+  await form.locator("[data-lookup-strokes]").click();
+  await expect(form.locator("[data-stroke-evidence] .stroke-evidence-row")).toHaveCount(4);
+  await form.locator('button[type="submit"]').click();
+  await expect(page.locator("#kangjie-result")).toContainText("使用者自訂");
+  await expect(page.locator("#kangjie-result")).toContainText("筆畫分組起卦");
+
+  await page.locator('[data-method-tab="supplement"]').click();
+  const supplement = page.locator("#form-supplement");
+  await supplement.locator('[name="supplementType"]').selectOption("chi-cun");
+  await expect(supplement.locator('[name="version"]')).toBeDisabled();
+  await expect(supplement.locator('[name="version"]')).toHaveValue("old-without-hour");
+  await supplement.locator('[name="chi"]').fill("5");
+  await supplement.locator('[name="cun"]').fill("4");
+  await supplement.locator('button[type="submit"]').click();
+  await expect(page.locator("#kangjie-result")).toContainText("未證異法不加時辰");
+  await expect(page.locator("#kangjie-result")).toContainText("未找到可核古本影證");
+  await expectNoHorizontalOverflow(page);
+});
+
 test("desktop entry, four derivations, tabs, sources and screenshots", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   const counterRequests = [];
@@ -368,6 +478,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expect(page.locator("#kangjie-result")).toContainText("天風姤");
   await expect(page.locator("#kangjie-result")).toContainText("澤山咸");
   await expect(page.locator("#kangjie-result")).toContainText("體卦");
+  await expectCompactSemanticKangjieResult(page, { desktop: true });
   await expectVisibleBrushTitlesUnclipped(page);
   await page.screenshot({ path: "output/playwright/kangjie-desktop-result.png", fullPage: true });
 
@@ -406,6 +517,27 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expect(page.locator("#panel-sources")).toContainText("推演界線");
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
+  expect(errors).toEqual([]);
+});
+
+test("寬螢幕以附圖同組年月日時顯示緊湊紅陽藍陰結果", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1720, height: 720 });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+  const calendar = page.locator("#form-calendar");
+  await calendar.locator('[name="yearBranch"]').selectOption("7");
+  await calendar.locator('[name="lunarMonth"]').fill("6");
+  await calendar.locator('[name="lunarDay"]').fill("11");
+  await calendar.locator('[name="hourBranch"]').selectOption("6");
+  await calendar.locator('button[type="submit"]').click();
+  const result = page.locator("#kangjie-result");
+  await expect(result).toContainText("地水師");
+  await expect(result).toContainText("地雷復");
+  await expect(result).toContainText("山水蒙");
+  await expectCompactSemanticKangjieResult(page, { desktop: true });
+  await expectNoHorizontalOverflow(page);
+  await result.screenshot({ path: "output/playwright/kangjie-compact-wide-result.png" });
   expect(errors).toEqual([]);
 });
 
@@ -462,6 +594,7 @@ for (const width of [390, 360, 320]) {
     await calendar.locator('[name="hourBranch"]').selectOption("9");
     await calendar.locator('button[type="submit"]').click();
     await expect(page.locator("#kangjie-result")).toContainText("澤火革");
+    await expectCompactSemanticKangjieResult(page);
     await expectVisibleBrushTitlesUnclipped(page);
     await expectNoHorizontalOverflow(page);
     await page.screenshot({ path: `output/playwright/kangjie-${width}.png`, fullPage: true });

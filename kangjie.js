@@ -2,13 +2,46 @@ import { getIChingText } from "./iching-text.js";
 import { lineNames } from "./calculator-core.js";
 import {
   calculateCalendarHexagram,
+  calculateChiCunHexagram,
   calculateDoubleSoundHexagram,
   calculateLongTextHexagram,
   calculateObjectHexagram,
+  calculatePosteriorHexagram,
+  calculateSingleSoundHexagram,
+  calculateStrokeHexagram,
+  calculateSurnameAdditionHexagram,
+  calculateTextHexagram,
+  calculateZhangChiHexagram,
+  calculateHuangjiPosition,
   countHanCharacters,
   decomposeHuangjiYears,
   detectCurrentCalendarParts,
+  loadStrokeDataset,
+  resolveStrokeText,
 } from "./kangjie-core.js";
+
+let strokeDatasetPromise;
+const strokeState = new WeakMap();
+
+function calculationProfile() {
+  const id = document.querySelector("[data-calculation-profile]")?.value || "classic-primary-v1";
+  if (id !== "user-custom-v1") return id;
+  return {
+    id,
+    label: "使用者自訂",
+    description: "由本次畫面選項建立，只影響本次演算。",
+    pureHexagramMutual: document.querySelector("[data-custom-mutual]")?.value || "original",
+    sizeMovingIncludesHour: document.querySelector("[data-custom-size-hour]")?.value !== "no",
+    textFourToTen: document.querySelector("[data-custom-text-mode]")?.value || "tone",
+  };
+}
+
+function getStrokeDataset() {
+  if (!strokeDatasetPromise) {
+    strokeDatasetPromise = loadStrokeDataset("public/data/unihan-kTotalStrokes-17.0.0.json");
+  }
+  return strokeDatasetPromise;
+}
 
 const fixedBrushTitles = {
   "本卦": "public/visuals/brush/title-hex-original-v2.webp",
@@ -190,6 +223,19 @@ function createHexagramCard(label, value, movingIndex = -1, mark = "", note = ""
   return card;
 }
 
+function createYaoLegend() {
+  const legend = element("div", "yao-legend");
+  legend.setAttribute("aria-label", "卦爻顏色圖例");
+  for (const [className, label] of [["is-yang", "陽爻"], ["is-yin", "陰爻"]]) {
+    const item = element("span", className);
+    const swatch = element("i");
+    swatch.setAttribute("aria-hidden", "true");
+    item.append(swatch, document.createTextNode(label));
+    legend.append(item);
+  }
+  return legend;
+}
+
 function createClassicExcerpt(result) {
   const original = getIChingText(result.original.hexId);
   const transformed = getIChingText(result.transformed.hexId);
@@ -221,7 +267,9 @@ function createClassicExcerpt(result) {
   link.href = "https://ctext.org/book-of-changes/zh";
   link.target = "_blank";
   link.rel = "noreferrer";
-  source.append("本文核對：", link, "。只列原文，不作吉凶解讀。");
+  link.textContent = "維基文庫《周易》";
+  link.href = "https://zh.wikisource.org/zh/周易";
+  source.append("內嵌本文來源：", link, "。中國哲學書電子化計劃另作交叉核對；只列原文，不作吉凶解讀。");
   body.append(judgment, image, line, changed, source);
   details.append(summary, body);
   return details;
@@ -239,7 +287,9 @@ function createKangjieResult(result) {
   headingCopy.append(element("p", "section-index", result.methodLabel), title, element("p", "result-input-summary", result.inputSummary));
   const moving = element("p", "moving-summary");
   moving.append("動爻為", element("strong", "", result.moving.name), `，${result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。`);
-  heading.append(headingCopy, moving);
+  const headingMeta = element("div", "result-heading-meta");
+  headingMeta.append(moving, createYaoLegend());
+  heading.append(headingCopy, headingMeta);
 
   const grid = element("div", "hexagram-grid");
   grid.append(
@@ -257,13 +307,42 @@ function createKangjieResult(result) {
 
   const roles = element("div", "body-use-ledger");
   const body = element("article");
-  body.append(element("span", "", "體卦"), element("strong", "", `${result.roles.body.symbol} ${result.roles.body.name}`), element("small", "", result.roles.body.nature));
+  body.append(element("span", "", "體卦"), element("strong", "", `${result.roles.body.symbol} ${result.roles.body.name}`), element("small", "", `${result.roles.body.nature}・${result.roles.body.element}`));
   const use = element("article");
-  use.append(element("span", "", "用卦"), element("strong", "", `${result.roles.use.symbol} ${result.roles.use.name}`), element("small", "", result.roles.use.nature));
-  roles.append(body, use, element("p", "", result.roles.note));
+  use.append(element("span", "", "用卦"), element("strong", "", `${result.roles.use.symbol} ${result.roles.use.name}`), element("small", "", `${result.roles.use.nature}・${result.roles.use.element}`));
+  const relation = element("article");
+  relation.append(element("span", "", "五行關係"), element("strong", "", result.fiveElements.label), element("small", "", result.fiveElements.explanation));
+  roles.append(body, use, relation, element("p", "", result.roles.note));
+
+  const audit = element("details", "calculation-audit");
+  const auditSummary = element("summary");
+  auditSummary.append(element("strong", "", "完整演算明細"), element("span", "", `${result.profileLabel}・${result.algorithmVersion}`));
+  const auditBody = element("div", "calculation-audit-body");
+  const originalInput = element("pre", "", JSON.stringify(result.calculationTrace.originalInput, null, 2));
+  const normalizedInput = element("pre", "", JSON.stringify(result.calculationTrace.normalizedInput, null, 2));
+  const inputGrid = element("div", "calculation-input-grid");
+  const originalCard = element("article");
+  originalCard.append(element("span", "", "原始輸入"), originalInput);
+  const normalizedCard = element("article");
+  normalizedCard.append(element("span", "", "正規化輸入"), normalizedInput);
+  inputGrid.append(originalCard, normalizedCard);
+  const warnings = element("ul", "calculation-warning-list");
+  for (const warning of result.calculationTrace.warnings) warnings.append(element("li", "", warning));
+  for (const assumption of result.calculationTrace.assumptions) warnings.append(element("li", "", `採用設定：${assumption}`));
+  const sources = element("div", "calculation-source-list");
+  for (const sourceItem of result.sourceRefs) {
+    const sourceLink = element("a");
+    sourceLink.href = sourceItem.url;
+    sourceLink.target = "_blank";
+    sourceLink.rel = "noreferrer";
+    sourceLink.append(element("strong", "", sourceItem.title), element("span", "", `${sourceItem.organization}・${sourceItem.id}`));
+    sources.append(sourceLink);
+  }
+  auditBody.append(inputGrid, warnings, sources);
+  audit.append(auditSummary, auditBody);
 
   const boundary = element("p", "iching-boundary", "此處只依固定規則呈現卦象結構、體用位置與原文節錄，不產生事件預測或決策建議。除以 6 整除時歸上爻，是為完整表示六爻範圍採用的實作判定。");
-  section.append(heading, grid, trace, roles, boundary, createClassicExcerpt(result));
+  section.append(heading, grid, trace, roles, audit, boundary, createClassicExcerpt(result));
   return section;
 }
 
@@ -291,15 +370,15 @@ function initializeCurrentTimeDetection() {
   let manualOverride = false;
 
   function applyFields(detected) {
-    const calendar = document.querySelector("#form-calendar");
     const values = {
       yearBranch: detected.yearBranch,
       lunarMonth: detected.lunarMonth,
       lunarDay: detected.lunarDay,
     };
     for (const [name, value] of Object.entries(values)) {
-      const field = calendar?.querySelector(`[name="${name}"]`);
-      if (field) field.value = String(value);
+      for (const field of document.querySelectorAll(`#form-calendar [name="${name}"], [data-auto-calendar="${name}"]`)) {
+        field.value = String(value);
+      }
     }
     for (const field of document.querySelectorAll('.kangjie-form [name="hourBranch"]')) {
       field.value = String(detected.hourBranch);
@@ -308,7 +387,11 @@ function initializeCurrentTimeDetection() {
 
   function refresh({ applyValues = false } = {}) {
     try {
-      const detected = detectCurrentCalendarParts(new Date());
+      const calendarForm = document.querySelector("#form-calendar");
+      const detected = detectCurrentCalendarParts(new Date(), {
+        profile: calendarForm?.querySelector('[name="calendarProfile"]')?.value || "taipei-lunar-new-year-v1",
+        timeZone: calendarForm?.querySelector('[name="timeZone"]')?.value || "Asia/Taipei",
+      });
       clock.textContent = detected.gregorianLabel;
       lunar.textContent = detected.lunarLabel;
       timeZone.textContent = detected.timeZoneLabel;
@@ -340,6 +423,10 @@ function initializeCurrentTimeDetection() {
     manualOverride = false;
     refresh({ applyValues: true });
   });
+  document.querySelector('#form-calendar [name="calendarProfile"]')?.addEventListener("change", () => {
+    manualOverride = false;
+    refresh({ applyValues: true });
+  });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") refresh({ applyValues: !manualOverride });
   });
@@ -348,21 +435,212 @@ function initializeCurrentTimeDetection() {
   window.setInterval(() => refresh({ applyValues: !manualOverride }), 1000);
 }
 
+function setHidden(node, hidden) {
+  if (node) node.hidden = hidden;
+}
+
+function updateSoundFields() {
+  const form = document.querySelector("#form-sound");
+  const single = form?.querySelector("[data-sound-mode]")?.value === "single";
+  for (const field of form?.querySelectorAll("[data-segmented-sound]") || []) setHidden(field, single);
+  setHidden(form?.querySelector("[data-single-sound]"), !single);
+}
+
+function updateTextFields() {
+  const form = document.querySelector("#form-text");
+  if (!form) return;
+  const mode = form.querySelector("[data-text-mode]")?.value || "long";
+  const count = countHanCharacters(form.querySelector("textarea")?.value);
+  const customTextUsesStrokes = document.querySelector("[data-calculation-profile]")?.value === "user-custom-v1"
+    && document.querySelector("[data-custom-text-mode]")?.value === "strokes";
+  const needsStroke = mode === "strokes"
+    || mode === "surname"
+    || (mode === "classic" && count >= 2 && count <= 3)
+    || (mode === "classic" && customTextUsesStrokes && count >= 4 && count <= 10);
+  setHidden(form.querySelector("[data-stroke-workspace]"), !needsStroke);
+  setHidden(form.querySelector("[data-name-calendar]"), mode !== "surname");
+  setHidden(form.querySelector("[data-single-character-fields]"), !(mode === "classic" && count === 1));
+  setHidden(form.querySelector("[data-tone-fields]"), !(mode === "classic" && count >= 4 && count <= 10));
+  const submit = form.querySelector('button[type="submit"]');
+  if (submit) {
+    submit.firstChild.textContent = mode === "surname" ? "依姓名加數衍算" : mode === "long" ? "依字數衍算" : "依字占衍算";
+  }
+}
+
+function updateProfileFields() {
+  const isCustom = document.querySelector("[data-calculation-profile]")?.value === "user-custom-v1";
+  setHidden(document.querySelector("[data-custom-profile]"), !isCustom);
+  const sizeVersion = document.querySelector('[data-size-version] select[name="version"]');
+  if (sizeVersion) {
+    sizeVersion.disabled = isCustom;
+    if (isCustom) {
+      sizeVersion.value = document.querySelector("[data-custom-size-hour]")?.value === "no"
+        ? "old-without-hour"
+        : "modern-with-hour";
+    }
+  }
+  updateTextFields();
+}
+
+function updateSupplementFields() {
+  const form = document.querySelector("#form-supplement");
+  if (!form) return;
+  const type = form.querySelector("[data-supplement-type]")?.value || "zhang-chi";
+  const posterior = ["posterior", "person", "animal", "static", "direction"].includes(type);
+  setHidden(form.querySelector("[data-length-fields]"), posterior);
+  setHidden(form.querySelector("[data-posterior-fields]"), !posterior);
+  setHidden(form.querySelector("[data-trigger-field]"), !(type === "animal" || type === "static"));
+  setHidden(form.querySelector("[data-size-version]"), type !== "chi-cun");
+  setHidden(form.querySelector("[data-zhang-field]"), type !== "zhang-chi");
+}
+
+function renderStrokeEvidence(form, resolution) {
+  const container = form.querySelector("[data-stroke-evidence]");
+  if (!container) return;
+  container.replaceChildren();
+  if (!resolution.characters.length) {
+    container.textContent = "請先輸入至少一個漢字。";
+    return;
+  }
+  resolution.lookups.forEach((lookup, index) => {
+    const row = element("label", `stroke-evidence-row${lookup.requiresManualInput ? " is-unresolved" : ""}`);
+    const selected = lookup.selected;
+    const copy = element("span");
+    copy.append(
+      element("strong", "", lookup.character),
+      element("small", "", selected
+        ? `${selected.codePoints?.join(" ") || ""}・${selected.sourceLabel}・${selected.dataVersion || "本次手動"}`
+        : "資料庫查不到，請手動輸入"),
+    );
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "1";
+    input.max = "999";
+    input.inputMode = "numeric";
+    input.value = selected ? String(selected.strokes) : "";
+    input.dataset.strokeManualIndex = String(index);
+    input.dataset.autoValue = selected && !selected.manualOverride ? String(selected.strokes) : "";
+    input.setAttribute("aria-label", `${lookup.character}的筆畫數`);
+    row.append(copy, input, element("em", "", selected ? `${selected.strokes} 畫` : "待補"));
+    container.append(row);
+  });
+}
+
+async function resolveFormStrokes(form) {
+  const text = form.querySelector("textarea")?.value || "";
+  const dataset = await getStrokeDataset();
+  const existingInputs = [...form.querySelectorAll("[data-stroke-manual-index]")];
+  const manualOverrides = existingInputs.map((input) => (
+    input.value && input.value !== input.dataset.autoValue ? input.value : undefined
+  ));
+  const resolution = resolveStrokeText(text, { unihanDataset: dataset, manualOverrides, prefer: "unicode" });
+  strokeState.set(form, { text, resolution });
+  renderStrokeEvidence(form, resolution);
+  return resolution;
+}
+
+async function readyStrokeEntries(form) {
+  const state = strokeState.get(form);
+  const text = form.querySelector("textarea")?.value || "";
+  const resolution = !state || state.text !== text ? await resolveFormStrokes(form) : await resolveFormStrokes(form);
+  if (!resolution.ready) {
+    throw new Error(`「${resolution.unresolved.map((item) => item.character).join("、")}」查不到筆畫，請逐字手動輸入後再計算。`);
+  }
+  return resolution.entries;
+}
+
+function initializeAdvancedFormControls() {
+  document.querySelector("[data-calculation-profile]")?.addEventListener("change", updateProfileFields);
+  document.querySelector("[data-custom-size-hour]")?.addEventListener("change", updateProfileFields);
+  document.querySelector("[data-custom-text-mode]")?.addEventListener("change", updateTextFields);
+  updateProfileFields();
+
+  const soundMode = document.querySelector("[data-sound-mode]");
+  soundMode?.addEventListener("change", updateSoundFields);
+  updateSoundFields();
+
+  const textForm = document.querySelector("#form-text");
+  const textarea = textForm?.querySelector("textarea");
+  const counter = textForm?.querySelector("[data-character-count]");
+  const updateText = () => {
+    if (counter) counter.textContent = `已計 ${countHanCharacters(textarea?.value)} 個漢字`;
+    strokeState.delete(textForm);
+    const evidence = textForm?.querySelector("[data-stroke-evidence]");
+    if (evidence) evidence.textContent = "輸入姓名後按下自動計算。";
+    updateTextFields();
+  };
+  textarea?.addEventListener("input", updateText);
+  textForm?.querySelector("[data-text-mode]")?.addEventListener("change", updateText);
+  textForm?.querySelector("[data-lookup-strokes]")?.addEventListener("click", async () => {
+    const message = textForm.querySelector(".form-message");
+    try {
+      await resolveFormStrokes(textForm);
+      message.textContent = "";
+    } catch (error) {
+      message.textContent = error instanceof Error ? error.message : "筆畫資料無法載入。";
+    }
+  });
+  updateText();
+
+  document.querySelector("[data-supplement-type]")?.addEventListener("change", updateSupplementFields);
+  updateSupplementFields();
+}
+
+async function calculateMeihuaForm(form) {
+  const values = formValues(form);
+  const profile = calculationProfile();
+  values.profile = profile;
+  if (form.id === "form-calendar") {
+    return calculateCalendarHexagram({ ...values, calendarTrace: `${values.calendarProfile || "手動"}・${values.timeZone || "本機時區"}` }, { profile });
+  }
+  if (form.id === "form-object") return calculateObjectHexagram(values, { profile });
+  if (form.id === "form-sound") {
+    if (values.soundMode === "single") {
+      if (profile === "legacy-existing-v1") throw new Error("原程式舊版沒有單一聲數法，請改選古籍主法或今本。");
+      return calculateSingleSoundHexagram(values, { profile });
+    }
+    return calculateDoubleSoundHexagram(values, { profile });
+  }
+  if (form.id === "form-text") {
+    const mode = values.textMode || "long";
+    if (mode === "long") return calculateLongTextHexagram(values.text, { profile });
+    if (profile === "legacy-existing-v1") throw new Error("原程式舊版只有 11 字以上字數法，沒有自動筆畫與姓名加數法。");
+    if (mode === "surname") {
+      const strokeEntries = await readyStrokeEntries(form);
+      return calculateSurnameAdditionHexagram({ ...values, name: values.text, strokeEntries }, { profile });
+    }
+    if (mode === "strokes") {
+      const strokeEntries = await readyStrokeEntries(form);
+      return calculateStrokeHexagram({ ...values, strokeEntries }, { profile });
+    }
+    const count = countHanCharacters(values.text);
+    const customTextUsesStrokes = typeof profile === "object" && profile.textFourToTen === "strokes";
+    const textInput = {
+      ...values,
+      strokeEntries: (count >= 2 && count <= 3) || (customTextUsesStrokes && count >= 4 && count <= 10)
+        ? await readyStrokeEntries(form)
+        : undefined,
+      toneValues: String(values.toneValues || "").split(/[,，\s]+/).filter(Boolean),
+    };
+    return calculateTextHexagram(textInput, { profile });
+  }
+  if (profile === "legacy-existing-v1") throw new Error("原程式舊版沒有古例補充入口，請改選古籍主法、古本異文或今本。");
+  if (values.supplementType === "zhang-chi") return calculateZhangChiHexagram(values, { profile });
+  if (values.supplementType === "chi-cun") return calculateChiCunHexagram(values, { profile });
+  return calculatePosteriorHexagram({
+    ...values,
+    scenario: values.supplementType,
+  }, { profile });
+}
+
 function initializeMeihuaForms() {
   const anchor = document.querySelector("#kangjie-result");
   for (const form of document.querySelectorAll(".kangjie-form")) {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const message = form.querySelector(".form-message");
       try {
-        const values = formValues(form);
-        const result = form.id === "form-calendar"
-          ? calculateCalendarHexagram(values)
-          : form.id === "form-object"
-            ? calculateObjectHexagram(values)
-            : form.id === "form-sound"
-              ? calculateDoubleSoundHexagram(values)
-              : calculateLongTextHexagram(values.text);
+        const result = await calculateMeihuaForm(form);
         message.textContent = "";
         anchor.replaceChildren(createKangjieResult(result));
         revealResult(anchor);
@@ -373,12 +651,6 @@ function initializeMeihuaForms() {
       }
     });
   }
-
-  const textarea = document.querySelector("#form-text textarea");
-  const counter = document.querySelector("[data-character-count]");
-  textarea?.addEventListener("input", () => {
-    counter.textContent = `已計 ${countHanCharacters(textarea.value)} 個漢字`;
-  });
 }
 
 function createHuangjiResult(result) {
@@ -388,31 +660,47 @@ function createHuangjiResult(result) {
   title.id = "huangji-result-title";
   title.tabIndex = -1;
   title.append(brushTitleElement("public/visuals/brush/title-kangjie-result-v1.webp", "衍算結果", "brush-kangjie-result"));
-  const values = [
-    ["元", result.units.yuan],
-    ["會", result.units.hui],
-    ["運", result.units.yun],
-    ["世", result.units.shi],
-    ["餘年", result.units.years],
-  ];
+  const isPosition = result.mode === "position";
+  const values = isPosition
+    ? [["會序", result.position.hui], ["運序", result.position.yun], ["世序", result.position.shi], ["年序", result.position.year], ["週期位移", result.cycleOffset]]
+    : [["元", result.units.yuan], ["會", result.units.hui], ["運", result.units.yun], ["世", result.units.shi], ["餘年", result.units.years]];
   const grid = element("div", "huangji-output-grid");
   for (const [label, value] of values) {
     const card = element("article");
     card.append(element("span", "", label), element("strong", "", value));
     grid.append(card);
   }
-  section.append(element("p", "section-index", `時間長度 ${result.totalYears} 年`), title, grid, element("code", "huangji-equation", result.equation), element("p", "iching-boundary", "這是時間長度的單位換算，不是西元紀年定位、天文週期證明或事件預言。"));
+  const boundaryText = isPosition
+    ? `${result.epoch.notice} 本結果依可設定錨點作數學定位，不主張唯一傳統紀元。`
+    : "這是時間長度的單位換算，不是西元紀年定位、天文週期證明或事件預言。";
+  section.append(
+    element("p", "section-index", isPosition ? `${result.targetLabel}・${result.profileLabel}` : `時間長度 ${result.totalYears} 年`),
+    title,
+    grid,
+    element("code", "huangji-equation", result.equation),
+    element("p", "iching-boundary", boundaryText),
+  );
   return section;
 }
 
 function initializeHuangjiForm() {
   const form = document.querySelector("#huangji-form");
   const anchor = document.querySelector("#huangji-result");
+  const updateMode = () => {
+    const position = form?.querySelector("[data-huangji-mode]")?.value === "position";
+    setHidden(form?.querySelector("[data-huangji-duration]"), position);
+    setHidden(form?.querySelector("[data-huangji-position]"), !position);
+  };
+  form?.querySelector("[data-huangji-mode]")?.addEventListener("change", updateMode);
+  updateMode();
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
     const message = form.querySelector(".form-message");
     try {
-      const result = decomposeHuangjiYears(formValues(form).years);
+      const values = formValues(form);
+      const result = values.mode === "position"
+        ? calculateHuangjiPosition(values)
+        : decomposeHuangjiYears(values.years);
       message.textContent = "";
       anchor.replaceChildren(createHuangjiResult(result));
       revealResult(anchor);
@@ -428,5 +716,6 @@ initializeAccessGate();
 initializePageTabs();
 initializeMethodTabs();
 initializeCurrentTimeDetection();
+initializeAdvancedFormControls();
 initializeMeihuaForms();
 initializeHuangjiForm();
