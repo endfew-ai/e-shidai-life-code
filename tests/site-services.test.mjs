@@ -5,12 +5,17 @@ import {
   ICHING_ACCESS_SESSION_KEY,
   VISIT_COUNTER_ENDPOINT,
   VISIT_COUNTER_SESSION_KEY,
+  VISIT_COUNTER_TIMEOUT_MS,
   hasIChingAccess,
   isIChingAccessCode,
   loadCumulativeVisitCount,
   parseVisitCount,
   rememberIChingAccess,
 } from "../site-services.js";
+
+test("visit counter timeout allows the observed public service response window", () => {
+  assert.ok(VISIT_COUNTER_TIMEOUT_MS >= 8_000);
+});
 
 function memoryStore() {
   const values = new Map();

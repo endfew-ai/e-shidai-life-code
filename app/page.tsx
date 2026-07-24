@@ -18,6 +18,7 @@ import {
   isIChingAccessCode,
   loadCumulativeVisitCount,
   rememberIChingAccess,
+  VISIT_COUNTER_TIMEOUT_MS,
 } from "../site-services.js";
 import { analyzeBirthdayV2 } from "../application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "../application/advanced-workspace.js";
@@ -412,7 +413,7 @@ export default function Home() {
 
   useEffect(() => {
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 2500);
+    const timeout = window.setTimeout(() => controller.abort(), VISIT_COUNTER_TIMEOUT_MS);
     loadCumulativeVisitCount({ signal: controller.signal })
       .then(({ value }) => {
         setVisitCount(new Intl.NumberFormat("zh-TW").format(value));

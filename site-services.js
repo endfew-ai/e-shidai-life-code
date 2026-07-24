@@ -2,6 +2,7 @@ export const ICHING_ACCESS_CODE = "0000";
 export const ICHING_ACCESS_SESSION_KEY = "e-shidai-iching-access-v1";
 export const VISIT_COUNTER_SESSION_KEY = "e-shidai-visit-counted-v1";
 export const VISIT_COUNTER_ENDPOINT = "https://api.counterapi.dev/v1/endfew-ai-e-shidai-life-code/homepage-visits/";
+export const VISIT_COUNTER_TIMEOUT_MS = 8_000;
 
 function resolveSessionStore(provided) {
   if (provided !== undefined) return provided;

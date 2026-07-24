@@ -14,6 +14,7 @@ import {
   isIChingAccessCode,
   loadCumulativeVisitCount,
   rememberIChingAccess,
+  VISIT_COUNTER_TIMEOUT_MS,
 } from "./site-services.js";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
@@ -743,7 +744,7 @@ function initializeVisitCounter() {
   const output = document.querySelector("[data-visit-count]");
   if (!container || !output) return;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 2500);
+  const timeout = window.setTimeout(() => controller.abort(), VISIT_COUNTER_TIMEOUT_MS);
   loadCumulativeVisitCount({ signal: controller.signal })
     .then(({ value }) => {
       const formatted = new Intl.NumberFormat("zh-TW").format(value);
