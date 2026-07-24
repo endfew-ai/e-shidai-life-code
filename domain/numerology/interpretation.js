@@ -350,7 +350,7 @@ export function generatePlainTextReport(analysis, options = {}) {
     ? analysis.maskedInput
     : (analysis.normalizedInput ?? analysis.maskedInput);
   const lines = [
-    "e世代生命密碼分析報告",
+    "生命靈數分析報告",
     `分析類型：${analysis.inputType}`,
     `輸入資料：${displayInput}`,
     `規則版本：${analysis.ruleSet?.name ?? analysis.ruleSetId} ${analysis.ruleSet?.version ?? ""}`.trim(),

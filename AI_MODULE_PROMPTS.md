@@ -22,7 +22,7 @@ No readable text, letters, digits, Chinese characters, pseudo-text, equations, l
 Edit the supplied hero artwork into a background-only asset. Remove all Chinese characters and calligraphy completely. Reconstruct the left side as deep indigo-black celestial handmade-paper texture with subtle gold dust. Preserve the antique brass astrolabe, orbital lines, star points, lighting and premium composition on the right. No text, letters, logo, watermark or writing-like symbols. Leave a calm left safe area for a separate transparent title module.
 ```
 
-主標語不再烘焙於背景中；前端另外疊放 `public/visuals/brush/title-hero-v5.webp`。
+主標語不再烘焙於背景中；前端另外疊放 `public/visuals/brush/title-hero-web-v1.webp`。`*-web-v1.webp` 為網站載入用最佳化副本，原始高解析字模仍保留。
 
 ## 模組 02：生日命碼
 
@@ -70,18 +70,18 @@ Apply the mother prompt at the lowest visual weight. Create a dark-indigo archiv
 
 | 精確文字 | 網站檔案 |
 | --- | --- |
-| 玄星觀象 | `public/visuals/brush/theme-xuanxing-v4.webp` |
-| e世代生命密碼 | `public/visuals/brush/brand-life-code-v4.webp` |
-| 生日命碼 | `public/visuals/brush/title-birthday-v4.webp` |
-| 數字頻譜 | `public/visuals/brush/title-spectrum-v4.webp` |
-| 三數取卦 | `public/visuals/brush/title-iching-v4.webp` |
+| 玄星觀象 | `public/visuals/brush/theme-xuanxing-web-v1.webp` |
+| 生命靈數 | `public/visuals/brush/brand-life-numerology-aaa-web-v1.webp` |
+| 生日命碼 | `public/visuals/brush/title-birthday-web-v1.webp` |
+| 數字頻譜 | `public/visuals/brush/title-spectrum-web-v1.webp` |
+| 三數取卦 | `public/visuals/brush/title-iching-web-v1.webp` |
 | 數理結果 | `public/visuals/brush/title-result-v4.webp` |
 | 易經本文 | `public/visuals/brush/title-classic-v4.webp` |
-| 規則與來源 | `public/visuals/brush/title-rules-v4.webp` |
-| 看見你的／數字軌跡 | `public/visuals/brush/title-hero-v5.webp` |
+| 規則與來源 | `public/visuals/brush/title-rules-web-v1.webp` |
+| 看見你的／數字軌跡 | `public/visuals/brush/title-hero-web-v1.webp` |
 | 把結果變成可觀察的問題 | `public/visuals/brush/title-insight-v5.webp` |
-| 方法與本文來源 | `public/visuals/brush/title-source-v5.webp` |
-| 使用提醒 | `public/visuals/brush/title-disclaimer-v5.webp` |
+| 方法與本文來源 | `public/visuals/brush/title-source-web-v1.webp` |
+| 使用提醒 | `public/visuals/brush/title-disclaimer-web-v1.webp` |
 
 ```text
 Use case: logo-brand.
@@ -96,10 +96,10 @@ Text accuracy lock: render exactly “{TEXT}” in the specified order. Use Trad
 Constraints: no other text, seal, stamp, logo, icon, frame, diagram, ornament, symbol, watermark, cast shadow, contact shadow or reflection.
 ```
 
-品牌字模另加下列鎖定句：
+「生命靈數」品牌字模另加下列鎖定句：
 
 ```text
-Begin with one clearly recognizable lowercase Latin letter e, immediately followed by 世代生命密碼. Character order: e / 世 / 代 / 生 / 命 / 密 / 碼. Do not use uppercase E or simplified 码.
+Render only the exact Traditional Chinese text 生命靈數. Character order: 生 / 命 / 靈 / 數. Do not add a Latin letter, do not substitute simplified 灵 or 数, and do not add any other character.
 ```
 
 ## 模組 08：邵康節專頁獨立字模

@@ -17,7 +17,7 @@ export const RULE_SOURCE_PROFILES = Object.freeze({
   legacyProjectV1: Object.freeze({
     id: "legacy-project-v1",
     sourceType: SOURCE_TYPES.legacyProject,
-    title: "e世代生命密碼既有演算法",
+    title: "生命靈數既有演算法",
     certainty: "legacy",
     note: "用於回歸與相容；不代表唯一或較權威的生命靈數流派。",
   }),

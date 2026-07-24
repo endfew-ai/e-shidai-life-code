@@ -264,6 +264,6 @@ export default function KangjiePage() {
 
       {pageTab === "sources" && <section className="kangjie-panel" role="tabpanel"><PageHeading index="可回到原文逐條核對" src="/visuals/brush/title-kangjie-source-v1.webp" title="原文與來源" source>來源連結直達電子古籍或館藏影像。本頁只節錄方法，不大量複製電子轉錄全文。</PageHeading><div className="source-ledger">{[["梅花易數・卷一", "卦數、年月日時、物數、聲數、字數公式", "https://ctext.org/wiki.pl?chapter=867487&if=en&remap=gb"], ["梅花易數・卷二", "體用、生剋、占法界線與不動不占", "https://ctext.org/wiki.pl?chapter=475043&if=en&remap=gb"], ["周易", "六十四卦名與卦爻辭核對", "https://ctext.org/book-of-changes/zh"], ["皇極經世書・卷一", "元會運世表與固定數制", "https://www.kanripo.org/text/KR3g0005/001"], ["觀物篇六十", "元、會、運、世的層級關係", "https://ctext.org/wiki.pl?chapter=404769&if=gb"]].map(([title, note, href]) => <a href={href} target="_blank" rel="noreferrer" key={title}><span>{title}</span><strong>{note}</strong><small>開啟原文 ↗</small></a>)}</div><aside className="kangjie-boundary"><span aria-hidden="true">※</span><div><h2><BrushTitle src="/visuals/brush/title-kangjie-boundary-v1.webp" text="推演界線" className="brush-kangjie-boundary" /></h2><p>本工具依現行傳本製作，供傳統文化研究、演算核對與娛樂。它不是科學預測，不主張唯一正統，也不作醫療、法律、投資、工作、人事或重大人生決策依據。</p></div></aside></section>}
     </section>
-    <footer><p>© 2026 e世代生命密碼・邵康節易學專頁</p><p>同一網址體系，自動適配手機與電腦</p></footer>
+    <footer><p>© 2026 生命靈數・邵康節易學專頁</p><p>同一網址體系，自動適配手機與電腦</p></footer>
   </main></>;
 }

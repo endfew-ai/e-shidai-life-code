@@ -25,6 +25,10 @@ async function expectNoHorizontalOverflow(page) {
 }
 
 async function expectAllImagesLoaded(page) {
+  await page.locator('img[loading="lazy"]').evaluateAll((images) => {
+    for (const image of images) image.loading = "eager";
+  });
+  await page.waitForFunction(() => [...document.images].every((image) => image.complete));
   const failed = await page.locator("img").evaluateAll((images) => images.filter((image) => !image.complete || image.naturalWidth === 0).map((image) => image.getAttribute("src")));
   expect(failed).toEqual([]);
 }

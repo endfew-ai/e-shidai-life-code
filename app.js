@@ -29,9 +29,9 @@ const modeContent = {
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
     help: "只需西元生日；身分證請使用下方獨立入口。",
-    art: "public/visuals/birthday-panel-b-v3.webp",
-    titleArt: "public/visuals/brush/title-birthday-v4.webp",
-    alt: "古金曆法年輪與生日節點模組背景",
+    art: "public/visuals/life-path-instrument-aaa-v1.webp",
+    titleArt: "public/visuals/brush/title-birthday-web-v1.webp",
+    alt: "九節點古金生命靈數分析儀",
   },
   code: {
     label: "數字頻譜",
@@ -39,7 +39,7 @@ const modeContent = {
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
     art: "public/visuals/digit-spectrum-panel-b-v3.webp",
-    titleArt: "public/visuals/brush/title-spectrum-v4.webp",
+    titleArt: "public/visuals/brush/title-spectrum-web-v1.webp",
     alt: "古金數字頻率波形與九點節律模組背景",
   },
   iching: {
@@ -48,7 +48,7 @@ const modeContent = {
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "public/visuals/iching-instrument-b-v3.webp",
-    titleArt: "public/visuals/brush/title-iching-v4.webp",
+    titleArt: "public/visuals/brush/title-iching-web-v1.webp",
     alt: "低亮古金六爻測量儀視覺",
   },
 };
@@ -528,7 +528,7 @@ function createIChingResult(result, onReset) {
   const title = element("h2", "brush-iching-title");
   title.id = "iching-result-title";
   title.tabIndex = -1;
-  title.append(brushTitleElement("public/visuals/brush/title-iching-v4.webp", "三數取卦"));
+  title.append(brushTitleElement("public/visuals/brush/title-iching-web-v1.webp", "三數取卦"));
   titleCopy.append(title, element("p", "iching-structure", "本卦・互卦・變卦"));
   const summary = element("p");
   summary.append(document.createTextNode("動爻為"), element("strong", "", result.moving.name), document.createTextNode(`，${result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。`));
@@ -743,7 +743,7 @@ function initializeVisitCounter() {
   const output = document.querySelector("[data-visit-count]");
   if (!container || !output) return;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), 6000);
+  const timeout = window.setTimeout(() => controller.abort(), 2500);
   loadCumulativeVisitCount({ signal: controller.signal })
     .then(({ value }) => {
       const formatted = new Intl.NumberFormat("zh-TW").format(value);

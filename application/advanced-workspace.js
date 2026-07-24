@@ -119,8 +119,8 @@ function createWorkspaceMarkup(root, assetRoot) {
   root.innerHTML = `
     <header class="workspace-heading">
       <div>
-        <p class="section-index">生命靈數・五模組引擎</p>
-        <p id="numerology-workspace-title" class="workspace-title brush-title" role="heading" aria-level="2"><span class="sr-only">進階靈數工作台</span><img class="brush-title-image" src="${assetRoot}/brush/title-workspace-v1.webp" alt="" aria-hidden="true" /></p>
+        <p class="section-index">生命靈數・六模組引擎</p>
+        <p id="numerology-workspace-title" class="workspace-title brush-title" role="heading" aria-level="2"><span class="sr-only">進階靈數工作台</span><img class="brush-title-image" src="${assetRoot}/brush/title-workspace-web-v1.webp" width="640" height="122" loading="lazy" decoding="async" alt="" aria-hidden="true" /></p>
         <p>生日、九宮格、數字磁場、身分證時間軸與解讀報告，各自獨立計算並標示規則版本。</p>
       </div>
       <div class="workspace-clock" aria-live="off">
@@ -128,31 +128,31 @@ function createWorkspaceMarkup(root, assetRoot) {
         <time data-workspace-clock></time>
       </div>
     </header>
-    <nav class="workspace-tabs" aria-label="進階靈數功能">
+    <nav class="workspace-tabs" role="tablist" aria-label="進階靈數功能">
       ${Object.entries(VIEW_META).map(([id, meta]) =>
-        `<button type="button" data-workspace-tab="${id}" aria-selected="${id === "home"}">${meta.label}</button>`).join("")}
+        `<button type="button" id="workspace-tab-${id}" role="tab" data-workspace-tab="${id}" aria-controls="workspace-panel-${id}" aria-selected="${id === "home"}" tabindex="${id === "home" ? "0" : "-1"}">${meta.label}</button>`).join("")}
     </nav>
     <div class="workspace-panels">
-      <section data-workspace-view="home">
+      <section id="workspace-panel-home" role="tabpanel" aria-labelledby="workspace-tab-home" data-workspace-view="home">
         <div class="workspace-intro">
           <span class="workspace-rule-mark">RULESET 2.1</span>
           <p class="workspace-intro-title" role="heading" aria-level="3">先選資料，再核對規則與演算過程</p>
           <p>生命靈數是主要入口；易經功能維持獨立，不會混入生日或身分證分析。</p>
         </div>
         <div class="workspace-entry-grid">
-          <button type="button" data-entry="birthday"><span>01</span><strong>生日生命靈數</strong><small>全部生日數字加總、生日數、九宮連線與個人流年</small></button>
-          <button type="button" data-entry="identity"><span>02</span><strong>身分證命格</strong><small>命格數列與人生階段分流計算，輸入預設遮罩</small></button>
-          <button type="button" data-entry="phone_number"><span>03</span><strong>手機號碼磁場</strong><small>相鄰滑動配對、0／5 修飾與八大磁場</small></button>
-          <button type="button" data-entry="vehicle_address"><span>04</span><strong>車牌／門牌</strong><small>英數轉換與來源字元追溯</small></button>
-          <button type="button" data-entry="custom_sequence"><span>05</span><strong>自訂英數序列</strong><small>適合其他非敏感編號；不當作身分證檢查</small></button>
-          <button type="button" data-entry="settings"><span>06</span><strong>規則與版本</strong><small>主數、九宮格、0／5 與時間軸皆可明確選擇</small></button>
+          <button type="button" data-entry="birthday"><img class="workspace-entry-art" src="${assetRoot}/life-path-instrument-aaa-v1.webp" width="1774" height="887" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>01</span><strong>生日生命靈數</strong><small>全部生日數字加總、生日數、九宮連線與個人流年</small></button>
+          <button type="button" data-entry="identity"><img class="workspace-entry-art" src="${assetRoot}/numerology-result-panel-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>02</span><strong>身分證命格</strong><small>命格數列與人生階段分流計算，輸入預設遮罩</small></button>
+          <button type="button" data-entry="phone_number"><img class="workspace-entry-art" src="${assetRoot}/digit-spectrum-panel-b-v3.webp" width="1823" height="863" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>03</span><strong>手機號碼磁場</strong><small>相鄰滑動配對、0／5 修飾與八大磁場</small></button>
+          <button type="button" data-entry="vehicle_address"><img class="workspace-entry-art" src="${assetRoot}/birth-orbit-b-v2.webp" width="1536" height="1024" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>04</span><strong>車牌／門牌</strong><small>英數轉換與來源字元追溯</small></button>
+          <button type="button" data-entry="custom_sequence"><img class="workspace-entry-art" src="${assetRoot}/digit-wave-b-v2.webp" width="1600" height="954" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>05</span><strong>自訂英數序列</strong><small>適合其他非敏感編號；不當作身分證檢查</small></button>
+          <button type="button" data-entry="settings"><img class="workspace-entry-art" src="${assetRoot}/iching-instrument-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>06</span><strong>規則與版本</strong><small>主數、九宮格、0／5 與時間軸皆可明確選擇</small></button>
         </div>
         <div class="workspace-boundary">
           <strong>資料界線</strong>
           <p>所有分析只在本機瀏覽器執行。身分證完整字號、轉換序列與配對不寫入歷史；民俗內容不作醫療、財務、法律或命運保證。</p>
         </div>
       </section>
-      <section data-workspace-view="identity" hidden>
+      <section id="workspace-panel-identity" role="tabpanel" aria-labelledby="workspace-tab-identity" data-workspace-view="identity" hidden>
         <header class="workspace-panel-heading">
           <div><p>輸入檢查 × 民俗規則</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">身分證命格與人生階段</p></div>
           <span data-active-timeline></span>
@@ -175,7 +175,7 @@ function createWorkspaceMarkup(root, assetRoot) {
         </form>
         <div data-identity-result></div>
       </section>
-      <section data-workspace-view="sequence" hidden>
+      <section id="workspace-panel-sequence" role="tabpanel" aria-labelledby="workspace-tab-sequence" data-workspace-view="sequence" hidden>
         <header class="workspace-panel-heading">
           <div><p>相鄰滑動配對</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">手機、車牌、門牌與自訂序列</p></div>
           <span data-active-zero-five></span>
@@ -198,7 +198,7 @@ function createWorkspaceMarkup(root, assetRoot) {
         </form>
         <div data-sequence-result></div>
       </section>
-      <section data-workspace-view="settings" hidden>
+      <section id="workspace-panel-settings" role="tabpanel" aria-labelledby="workspace-tab-settings" data-workspace-view="settings" hidden>
         <header class="workspace-panel-heading">
           <div><p>會影響結果，請明確選擇</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">版本化演算設定</p></div>
           <span data-settings-badge></span>
@@ -216,7 +216,7 @@ function createWorkspaceMarkup(root, assetRoot) {
           <div class="workspace-form-actions"><button type="submit" class="primary-button">儲存並套用設定</button></div>
         </form>
       </section>
-      <section data-workspace-view="history" hidden>
+      <section id="workspace-panel-history" role="tabpanel" aria-labelledby="workspace-tab-history" data-workspace-view="history" hidden>
         <header class="workspace-panel-heading">
           <div><p>只存在這台裝置</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">最近分析紀錄</p></div>
           <button type="button" class="secondary-button compact-button" data-clear-history>清除全部紀錄</button>
@@ -225,7 +225,7 @@ function createWorkspaceMarkup(root, assetRoot) {
         <div data-history-list></div>
         <p class="workspace-status" data-history-status role="status" aria-live="polite"></p>
       </section>
-      <section data-workspace-view="sources" hidden>
+      <section id="workspace-panel-sources" role="tabpanel" aria-labelledby="workspace-tab-sources" data-workspace-view="sources" hidden>
         <header class="workspace-panel-heading"><div><p>規則版本分開標示</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">規則版本與使用界線</p></div><span>民俗文化參考</span></header>
         <div class="source-ledger">
           <article><span>本專案教材</span><p class="source-ledger-title" role="heading" aria-level="4">生命靈數、九宮連線與八大磁場</p><p>依本專案提供的近代民俗教材建立版本化規則；不同流派可能有差異，結果只供文化研究、娛樂與自我觀察。</p></article>
@@ -778,6 +778,7 @@ export function mountNumerologyWorkspace(root, options = {}) {
     for (const tab of tabs) {
       const selected = tab.dataset.workspaceTab === viewId;
       tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
     }
     for (const view of views) view.hidden = view.dataset.workspaceView !== viewId;
     if (viewId === "history") renderHistory(historyList, historyStatus);
@@ -801,7 +802,20 @@ export function mountNumerologyWorkspace(root, options = {}) {
     statusMessage(sequenceStatus, "");
   }
 
-  for (const tab of tabs) tab.addEventListener("click", () => showView(tab.dataset.workspaceTab));
+  for (const [index, tab] of tabs.entries()) {
+    tab.addEventListener("click", () => showView(tab.dataset.workspaceTab));
+    tab.addEventListener("keydown", (event) => {
+      const keyOffsets = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
+      let nextIndex = index;
+      if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = tabs.length - 1;
+      else if (keyOffsets[event.key]) nextIndex = (index + keyOffsets[event.key] + tabs.length) % tabs.length;
+      else return;
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      showView(tabs[nextIndex].dataset.workspaceTab, false);
+    });
+  }
   for (const entry of root.querySelectorAll("[data-entry]")) {
     entry.addEventListener("click", () => {
       const target = entry.dataset.entry;

@@ -68,20 +68,26 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /所有分析輸入只在本機處理/);
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日或身分證自動起卦/);
-  assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-b-v3\.png/);
-  assert.match(html, /hero-celestial-background-v4\.webp/);
-  assert.match(html, /title-hero-v5\.webp/);
+  assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-aaa-v1\.png/);
+  assert.match(html, /hero-celestial-aaa-v1\.webp/);
+  assert.match(html, /title-hero-web-v1\.webp/);
   assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
-  assert.match(html, /birthday-panel-b-v3\.webp/);
-  assert.match(html, /brand-life-code-v4\.webp/);
-  assert.match(html, /theme-xuanxing-v4\.webp/);
-  assert.match(html, /title-birthday-v4\.webp/);
-  assert.match(html, /title-spectrum-v4\.webp/);
-  assert.match(html, /title-iching-v4\.webp/);
-  assert.match(html, /title-kangjie-entry-v1\.webp/);
-  assert.match(html, /title-rules-v4\.webp/);
-  assert.match(html, /title-source-v5\.webp/);
-  assert.match(html, /title-disclaimer-v5\.webp/);
+  assert.match(html, /life-path-instrument-aaa-v1\.webp/);
+  assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
+  assert.match(html, /data-ui="xuanxing-aaa"/);
+  assert.match(html, /class="trust-rail"/);
+  assert.match(html, /public\/ai-modules\/core-orbit\.webp/);
+  assert.match(html, /public\/ai-modules\/language-signal\.webp/);
+  assert.match(html, /public\/ai-modules\/shadow-prism\.webp/);
+  assert.match(html, /public\/ai-modules\/wellbeing-flow\.webp/);
+  assert.match(html, /theme-xuanxing-web-v1\.webp/);
+  assert.match(html, /title-birthday-web-v1\.webp/);
+  assert.match(html, /title-spectrum-web-v1\.webp/);
+  assert.match(html, /title-iching-web-v1\.webp/);
+  assert.match(html, /title-kangjie-entry-web-v1\.webp/);
+  assert.match(html, /title-rules-web-v1\.webp/);
+  assert.match(html, /title-source-web-v1\.webp/);
+  assert.match(html, /title-disclaimer-web-v1\.webp/);
   assert.match(html, /Cheiro 原書色彩章/);
   assert.match(html, /archive\.org\/details\/in\.ernet\.dli\.2015\.70770\/page\/n137/);
   assert.match(html, /HEX 為本站數位轉譯/);
@@ -96,15 +102,18 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /id="numerology-workspace"/);
   assert.match(appSource, /mountNumerologyWorkspace/);
   assert.match(reactSource, /mountNumerologyWorkspace/);
+  assert.match(reactSource, /href="\/kangjie"/);
+  assert.match(reactSource, /href="\/kangjie#sources"/);
+  assert.doesNotMatch(reactSource, /href="\/kangjie\.html/);
   assert.match(appSource, /title-insight-v5\.webp/);
   assert.match(reactSource, /title-insight-v5\.webp/);
   for (const asset of mainFixedBrushAssets) {
     assert.ok(appSource.includes(asset), `${asset} must be referenced by the static application`);
     assert.ok(reactSource.includes(asset), `${asset} must be referenced by the React application`);
   }
-  assert.match(html, /<span class="sr-only">看見你的數字軌跡<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-hero-v5\.webp"/);
-  assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-v5\.webp"/);
-  assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-v5\.webp"/);
+  assert.match(html, /<span class="sr-only">看見你的數字軌跡<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-hero-web-v1\.webp"/);
+  assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-web-v1\.webp"/);
+  assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-web-v1\.webp"/);
   assert.match(appSource, /brushTitleElement\("public\/visuals\/brush\/title-insight-v5\.webp", "把結果變成可觀察的問題"/);
   assert.match(appSource, /function createBirthdayColorGuide\(result\)/);
   assert.match(appSource, /data-personal-color-guide/);
@@ -161,8 +170,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../iching-text.js", import.meta.url)),
     access(new URL("../site-services.js", import.meta.url)),
     access(new URL("../site-services.d.ts", import.meta.url)),
-    access(new URL("../og-b-v3.png", import.meta.url)),
-    access(new URL("../public/og-b-v3.png", import.meta.url)),
+    access(new URL("../og-life-numerology-aaa-v1.png", import.meta.url)),
+    access(new URL("../public/og-life-numerology-aaa-v1.png", import.meta.url)),
     access(new URL("../public/favicon.svg", import.meta.url)),
     access(new URL("../.nojekyll", import.meta.url)),
     access(new URL("../public/ai-modules/core-orbit.webp", import.meta.url)),
@@ -176,6 +185,20 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/visuals/iching-instrument-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/iching-manuscript-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/theme-xuanxing-v4.webp", import.meta.url)),
+    access(new URL("../public/visuals/hero-celestial-aaa-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/life-path-instrument-aaa-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/brand-life-numerology-aaa-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/brand-life-numerology-aaa-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/theme-xuanxing-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-hero-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-birthday-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-spectrum-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-iching-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-kangjie-entry-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-rules-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-source-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-disclaimer-web-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/brush/title-workspace-web-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/brand-life-code-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-birthday-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/brush/title-spectrum-v4.webp", import.meta.url)),

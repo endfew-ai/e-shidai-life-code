@@ -40,9 +40,12 @@ const modeContent = {
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
     help: "只需西元生日；身分證請使用下方獨立入口。",
-    art: "/visuals/birthday-panel-b-v3.webp",
-    titleArt: "/visuals/brush/title-birthday-v4.webp",
-    artAlt: "古金曆法年輪與生日節點模組背景",
+    art: "/visuals/life-path-instrument-aaa-v1.webp",
+    cardArt: "/ai-modules/core-orbit.webp",
+    titleArt: "/visuals/brush/title-birthday-web-v1.webp",
+    titleWidth: 600,
+    titleHeight: 213,
+    artAlt: "九節點古金生命靈數分析儀",
   },
   code: {
     label: "數字頻譜",
@@ -51,7 +54,10 @@ const modeContent = {
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
     art: "/visuals/digit-spectrum-panel-b-v3.webp",
-    titleArt: "/visuals/brush/title-spectrum-v4.webp",
+    cardArt: "/ai-modules/language-signal.webp",
+    titleArt: "/visuals/brush/title-spectrum-web-v1.webp",
+    titleWidth: 600,
+    titleHeight: 174,
     artAlt: "古金數字頻率波形與九點節律模組背景",
   },
   iching: {
@@ -61,7 +67,10 @@ const modeContent = {
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "/visuals/iching-instrument-b-v3.webp",
-    titleArt: "/visuals/brush/title-iching-v4.webp",
+    cardArt: "/ai-modules/shadow-prism.webp",
+    titleArt: "/visuals/brush/title-iching-web-v1.webp",
+    titleWidth: 600,
+    titleHeight: 176,
     artAlt: "低亮古金六爻測量儀視覺",
   },
 } as const;
@@ -85,8 +94,8 @@ const fixedBrushTitles: Record<string, string> = {
   "六爻原文": "/visuals/brush/title-six-lines-v2.webp",
 };
 
-function BrushTitle({ src, text, className = "", lazy = false }: { src: string; text: string; className?: string; lazy?: boolean }) {
-  return <span className={`brush-title ${className}`.trim()}><span className="sr-only">{text}</span><img className="brush-title-image" src={src} alt="" aria-hidden="true" loading={lazy ? "lazy" : undefined} decoding={lazy ? "async" : undefined} /></span>;
+function BrushTitle({ src, text, className = "", lazy = false, priority = false, width, height }: { src: string; text: string; className?: string; lazy?: boolean; priority?: boolean; width?: number; height?: number }) {
+  return <span className={`brush-title ${className}`.trim()}><span className="sr-only">{text}</span><img className="brush-title-image" src={src} width={width} height={height} fetchPriority={priority ? "high" : undefined} alt="" aria-hidden="true" loading={lazy ? "lazy" : undefined} decoding={(lazy || priority) ? "async" : undefined} /></span>;
 }
 
 function FixedBrushTitle({ text, className = "", lazy = false }: { text: string; className?: string; lazy?: boolean }) {
@@ -354,7 +363,7 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
 function IChingResults({ result, onReset }: { result: IChingResult; onReset: () => void }) {
   return (
     <section className="iching-results" aria-labelledby="iching-result-title">
-      <header className="iching-result-heading"><div><h2 id="iching-result-title" className="brush-iching-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" /></h2><p className="iching-structure">本卦・互卦・變卦</p></div><p>動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p></header>
+      <header className="iching-result-heading"><div><h2 id="iching-result-title" className="brush-iching-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" width={600} height={176} /></h2><p className="iching-structure">本卦・互卦・變卦</p></div><p>動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p></header>
       <div className="hexagram-grid">
         <HexagramCard label="本卦" value={result.original} movingIndex={result.moving.index} mark="動" />
         <HexagramCard label="互卦" value={result.mutual} />
@@ -403,7 +412,7 @@ export default function Home() {
 
   useEffect(() => {
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 6000);
+    const timeout = window.setTimeout(() => controller.abort(), 2500);
     loadCumulativeVisitCount({ signal: controller.signal })
       .then(({ value }) => {
         setVisitCount(new Intl.NumberFormat("zh-TW").format(value));
@@ -499,43 +508,55 @@ export default function Home() {
   const hasValue = mode === "birthday" ? Boolean(birthday) : mode === "code" ? Boolean(numberCode) : ichingValues.some(Boolean);
 
   return (
-    <main className="site-shell">
+    <main className="site-shell" data-ui="xuanxing-aaa">
       <nav className="topbar" aria-label="主要導覽">
-        <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-code-v4.webp" text="e世代生命密碼" className="brush-brand" /></strong></a>
-        <div><a href="#analyzer">生日分析</a><a href="#numerology-workspace">進階工作台</a><a href="/kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
+        <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-numerology-aaa-web-v1.webp" text="生命靈數" className="brush-brand" priority width={720} height={194} /></strong></a>
+        <div><a href="#analyzer">生日分析</a><a href="#numerology-workspace">進階工作台</a><a href="/kangjie">邵康節專頁</a><a href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
       </nav>
 
       <header className="hero" id="top">
-        <img className="hero-art" src="/visuals/hero-celestial-background-v4.webp" alt="" aria-hidden="true" />
-        <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-v5.webp" text="看見你的數字軌跡" className="brush-hero" /></h1>
-        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-v4.webp" text="玄星觀象" className="brush-theme" /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
+        <img className="hero-art" src="/visuals/hero-celestial-aaa-v1.webp" width={1915} height={821} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
+        <div className="hero-copy">
+          <p className="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
+          <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-web-v1.webp" text="看見你的數字軌跡" className="brush-hero" width={900} height={576} /></h1>
+          <p className="hero-summary">從生日開始，核對你的生命路徑、數字分布與人生階段。</p>
+          <a className="hero-cta" href="#analyzer"><span>開始生命靈數分析</span><strong aria-hidden="true">↓</strong></a>
+        </div>
+        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-web-v1.webp" text="玄星觀象" className="brush-theme" width={640} height={187} /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>
 
+      <section className="trust-rail" aria-label="生命靈數分析特色">
+        <article><span>01</span><div><strong>規則可核對</strong><small>版本、算式與資料來源完整列示</small></div></article>
+        <article><span>02</span><div><strong>隱私只在本機</strong><small>生日與輸入數字不送往分析服務</small></div></article>
+        <article><span>03</span><div><strong>完整專業工作台</strong><small>九宮、磁場、流年與歷史分區處理</small></div></article>
+        <article><span>04</span><div><strong>手機電腦共用</strong><small>同一網址自動重排與維持大字閱讀</small></div></article>
+      </section>
+
       <section className="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
-        <form className="analyzer-card" onSubmit={handleAnalyze} noValidate>
+        <form className="analyzer-card" id="analyzer-form" onSubmit={handleAnalyze} noValidate>
           <fieldset className="mode-switch">
             <legend className="sr-only">分析模式</legend>
             {(Object.keys(modeContent) as AnalysisMode[]).map((key) => (
-              <label className={mode === key ? "is-active" : ""} key={key}>
+              <label className={mode === key ? "is-active" : ""} data-mode-label={key} style={{ "--mode-card-art": `url("${modeContent[key].cardArt}")` } as React.CSSProperties} key={key}>
                 <input type="radio" name="analysis-mode" value={key} checked={mode === key} onChange={() => requestMode(key)} />
-                <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
+                <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" width={modeContent[key].titleWidth} height={modeContent[key].titleHeight} /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
               </label>
             ))}
-            <a className="kangjie-mode-entry" href="/kangjie.html"><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
+            <a className="kangjie-mode-entry" href="/kangjie" style={{ "--mode-card-art": "url(\"/ai-modules/wellbeing-flow.webp\")" } as React.CSSProperties}><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" width={600} height={154} /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
           </fieldset>
 
           <div className="mode-workbench">
-            <figure className="mode-art"><img src={modeContent[mode].art} alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title" className="brush-heading current-mode-heading"><BrushTitle src={modeContent[mode].titleArt} text={modeContent[mode].label} /></h2><span>{modeContent[mode].description}</span></figcaption></figure>
+            <figure className="mode-art"><img src={modeContent[mode].art} loading="lazy" decoding="async" alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title" className="brush-heading current-mode-heading"><BrushTitle src={modeContent[mode].titleArt} text={modeContent[mode].label} lazy width={modeContent[mode].titleWidth} height={modeContent[mode].titleHeight} /></h2><span>{modeContent[mode].description}</span></figcaption></figure>
             <div className="mode-controls">
-              <div className="input-panel">
+              <div className="input-panel" data-mode-panel={mode}>
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { setBirthday(event.target.value); setMessage(""); }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
                 {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={60} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "iching" && <div className="triple-input-grid">{[["第一個整數", "取上卦・除以 8"], ["第二個整數", "取下卦・除以 8"], ["第三個整數", "取動爻・除以 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
+                {mode === "iching" && <div className="triple-input-grid">{[["第一個整數", "取上卦・除以 8"], ["第二個整數", "取下卦・除以 8"], ["第三個整數", "取動爻・除以 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
               </div>
 
               <div className="form-meta"><p id="input-help">{modeContent[mode].help}</p>{hasValue && <button type="button" className="text-button" onClick={handleReset}>清除輸入</button>}</div>
               <p id="input-message" className="form-message" role="alert" aria-live="polite">{message}</p>
-              <button type="submit" className="primary-button analyze-submit">{modeContent[mode].button}<span aria-hidden="true">↘</span></button>
+              <button type="submit" className="primary-button analyze-submit" id="analyze-button">{modeContent[mode].button}<span aria-hidden="true">↘</span></button>
             </div>
           </div>
           <ul className="method-strip" aria-label="分析承諾"><li>版本化規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
@@ -548,19 +569,19 @@ export default function Home() {
 
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>
-          <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-v4.webp" text="規則與來源" className="brush-rules" /></strong><small>可展開核對</small></summary>
-          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-v4.webp" text="生日命碼" className="brush-method-card" /><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-v4.webp" text="數字頻譜" className="brush-method-card" /><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-method-card" /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-v1.webp" text="邵康節易學" className="brush-method-card" /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
-          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-v5.webp" text="方法與本文來源" className="brush-source" /></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie.html#sources">邵康節專頁來源</a></p></div></div>
+          <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-web-v1.webp" text="規則與來源" className="brush-rules" lazy width={640} height={171} /></strong><small>可展開核對</small></summary>
+          <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-web-v1.webp" text="生日命碼" className="brush-method-card" lazy width={600} height={213} /><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-web-v1.webp" text="數字頻譜" className="brush-method-card" lazy width={600} height={174} /><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" className="brush-method-card" lazy width={600} height={176} /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-method-card" lazy width={600} height={154} /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
+          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-web-v1.webp" text="方法與本文來源" className="brush-source" lazy width={640} height={133} /></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>
 
-      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-v5.webp" text="使用提醒" className="brush-disclaimer" /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
-      <footer><p>© {new Date().getFullYear()} e世代生命密碼</p><p>同一網址，自動適配手機與電腦</p></footer>
+      <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-web-v1.webp" text="使用提醒" className="brush-disclaimer" lazy width={640} height={180} /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
+      <footer><p>© {new Date().getFullYear()} 生命靈數</p><p>同一網址，自動適配手機與電腦</p></footer>
       <dialog ref={accessDialogRef} className="mode-password-dialog" aria-labelledby="iching-access-title-react" aria-describedby="iching-access-description-react" onCancel={(event) => { event.preventDefault(); closeAccessDialog(); }}>
         <form className="mode-password-card" onSubmit={handleAccessSubmit} noValidate>
           <button type="button" className="mode-password-close" onClick={closeAccessDialog} aria-label="關閉密碼視窗">×</button>
           <p className="section-index">受保護模式・需密碼</p>
-          <h2 id="iching-access-title-react"><BrushTitle src="/visuals/brush/title-iching-v4.webp" text="三數取卦" className="brush-dialog-iching" /></h2>
+          <h2 id="iching-access-title-react"><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" className="brush-dialog-iching" width={600} height={176} /></h2>
           <p id="iching-access-description-react">輸入四位密碼後，才能開啟三數取卦。</p>
           <label htmlFor="iching-access-password-react">存取密碼</label>
           <div className="mode-password-fields"><input ref={accessInputRef} id="iching-access-password-react" name="password" type="password" inputMode="numeric" autoComplete="off" maxLength={4} pattern="[0-9]{4}" placeholder="輸入 4 位數字" value={accessPassword} onChange={(event) => { setAccessPassword(event.target.value.replace(/\D/g, "").slice(0, 4)); setAccessMessage(""); }} aria-invalid={Boolean(accessMessage)} aria-describedby="iching-access-message-react" required /><button type="submit">驗證並開啟</button></div>

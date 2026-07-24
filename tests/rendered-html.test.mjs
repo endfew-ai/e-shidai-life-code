@@ -24,7 +24,7 @@ test("server-renders the finished Traditional Chinese product", async () => {
 
   const html = await response.text();
   assert.match(html, /<html[^>]*lang="zh-Hant-TW"/i);
-  assert.match(html, /<title>e世代生命密碼分析儀<\/title>/i);
+  assert.match(html, /<title>生命靈數分析儀<\/title>/i);
   assert.match(html, /生日命碼/);
   assert.match(html, /數字頻譜/);
   assert.match(html, /三數取卦/);
