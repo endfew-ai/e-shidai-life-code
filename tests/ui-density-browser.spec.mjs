@@ -127,6 +127,24 @@ async function verifyHomepage(page) {
     }));
     expect(tabOverflow.scrollWidth).toBeLessThanOrEqual(tabOverflow.clientWidth + 1);
   }
+
+  const moduleGrid = await page.locator(".visual-module-grid").evaluate((element) => {
+    const children = [...element.children];
+    return {
+      viewportWidth: window.innerWidth,
+      columnCount: getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      minimumCardWidth: Math.min(...children.map((child) => child.getBoundingClientRect().width)),
+    };
+  });
+  const expectedColumns = moduleGrid.viewportWidth <= 360
+    ? 1
+    : moduleGrid.viewportWidth <= 640
+      ? 2
+      : moduleGrid.viewportWidth <= 1180
+        ? 3
+        : 5;
+  expect(moduleGrid.columnCount).toBe(expectedColumns);
+  expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(150);
   await expectNoHorizontalOverflow(page);
 }
 
