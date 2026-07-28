@@ -513,10 +513,14 @@ export default function Home() {
     event.preventDefault();
     const mountedBirthdayInput = birthdayRef.current;
     changeMode("birthday");
-    document.querySelector("#analyzer")?.scrollIntoView({
+    const analyzer = document.querySelector("#analyzer");
+    analyzer?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start",
     });
+    analyzer?.classList.remove("is-entry-highlight");
+    window.requestAnimationFrame(() => analyzer?.classList.add("is-entry-highlight"));
+    window.setTimeout(() => analyzer?.classList.remove("is-entry-highlight"), 1400);
     window.history.replaceState(null, "", "#analyzer");
     mountedBirthdayInput?.focus({ preventScroll: true });
   }
@@ -591,7 +595,7 @@ export default function Home() {
     <main className="site-shell" data-ui="xuanxing-aaa">
       <aside className="dashboard-sidebar" aria-label="快速功能">
         <a className="sidebar-brand" href="#top">
-          <span aria-hidden="true">命</span>
+          <span className="sidebar-crest" aria-hidden="true"><img src="/visuals/ai-dashboard/reference-v2/brand-crest-v2.webp" width={512} height={512} fetchPriority="high" decoding="async" alt="" /></span>
           <BrushTitle src="/visuals/brush/brand-life-numerology-aaa-web-v1.webp" text="生命靈數" className="brush-sidebar-brand" priority width={720} height={194} />
         </a>
         <p className="sidebar-tagline">數字有軌跡，規則可核對</p>
@@ -626,7 +630,7 @@ export default function Home() {
       </nav>
 
       <div className="dashboard-home-screen">
-      <div className="dashboard-lead">
+      <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/hero-life-v1.webp" width={1915} height={821} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
         <div className="hero-copy">
@@ -638,25 +642,26 @@ export default function Home() {
         <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-web-v1.webp" text="玄星觀象" className="brush-theme" width={640} height={187} /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>
 
-      <section className="trust-rail cockpit-status" aria-label="即時分析摘要">
+      <section className="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
         <article className="cockpit-time"><span className="cockpit-dial" aria-hidden="true"><i /></span><div><small>台北目前時間</small><strong data-cockpit-time>{cockpitClock.time}</strong><em data-cockpit-date>{cockpitClock.date}</em></div></article>
         <article><span className="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>{modeContent[mode].label}</strong><em data-cockpit-mode-note>{modeContent[mode].description}</em></div></article>
         <article><span className="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>{cockpitSummary.value}</strong><em data-cockpit-core-note>{cockpitSummary.note}</em></div></article>
         <article><span className="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
+        <span className="cockpit-center-seal" aria-hidden="true"><img src="/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" /><i>☯</i></span>
       </section>
 
-      <section className="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
+      <section className="analyzer-section" id="analyzer" data-ui-region="analyzer" aria-labelledby="analyzer-title">
         <form className="analyzer-card" id="analyzer-form" data-active-mode={mode} onSubmit={handleAnalyze} noValidate>
-          <fieldset className="mode-switch">
+          <fieldset className="mode-switch" data-ui-region="mode-deck">
             <legend className="sr-only">分析模式</legend>
             {(Object.keys(modeContent) as AnalysisMode[]).map((key) => (
               <label className={mode === key ? "is-active" : ""} data-mode-label={key} key={key}>
-                <img className="mode-card-art" src={modeContent[key].cardArt} width={key === "birthday" ? 1717 : key === "code" ? 960 : 1586} height={key === "birthday" ? 916 : key === "code" ? 640 : 992} loading="lazy" decoding="async" alt="" aria-hidden="true" />
+                <img className="mode-card-art" src={`/visuals/ai-dashboard/reference-v2/portal-${key === "birthday" ? "birthday" : key === "code" ? "spectrum" : "iching"}-v2.webp`} width={512} height={512} loading="eager" decoding="async" alt="" aria-hidden="true" />
                 <input type="radio" name="analysis-mode" value={key} checked={mode === key} onChange={() => requestMode(key)} />
                 <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" width={modeContent[key].titleWidth} height={modeContent[key].titleHeight} /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
               </label>
             ))}
-            <a className="kangjie-mode-entry" href="/kangjie"><img className="mode-card-art" src="/visuals/ai-dashboard/kangjie-study-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" width={600} height={154} /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
+            <a className="kangjie-mode-entry" href="/kangjie"><img className="mode-card-art" src="/visuals/ai-dashboard/reference-v2/portal-kangjie-v2.webp" width={512} height={512} loading="eager" decoding="async" alt="" aria-hidden="true" /><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" width={600} height={154} /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
           </fieldset>
 
           <div className="mode-workbench">
@@ -670,7 +675,7 @@ export default function Home() {
 
               <div className="form-meta"><p id="input-help">{modeContent[mode].help}</p>{hasValue && <button type="button" className="text-button" onClick={handleReset}>清除輸入</button>}</div>
               <p id="input-message" className="form-message" role="alert" aria-live="polite">{message}</p>
-              <button type="submit" className="primary-button analyze-submit" id="analyze-button">{modeContent[mode].button}<span aria-hidden="true">↘</span></button>
+              <button type="submit" className="primary-button analyze-submit" id="analyze-button">{modeContent[mode].button}<img className="analyze-seal" src="/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><span aria-hidden="true">↘</span></button>
             </div>
           </div>
           <ul className="method-strip" aria-label="分析承諾"><li>版本化規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
@@ -678,7 +683,7 @@ export default function Home() {
       </section>
       </div>
 
-      <section className="visual-module-rail" aria-labelledby="visual-module-title">
+      <section className="visual-module-rail" data-ui-region="modules" aria-labelledby="visual-module-title">
         <header><p>主要分析與進階工具</p><h2 id="visual-module-title"><BrushTitle src="/visuals/brush/title-workspace-web-v1.webp" text="進階靈數工作台" className="brush-visual-module" lazy width={640} height={122} /></h2><span>點一下直接進入，結果由程式即時計算</span></header>
         <div className="visual-module-grid">
           <a data-module="birthday" href="#analyzer" onClick={() => requestMode("birthday")}><img src="/visuals/birthday-panel-b-v3.webp" width={1717} height={916} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><small>生日分析</small><strong>生命全圖</strong><em>從出生日期建立主要數字</em><ul><li>生命路徑與生日數</li><li>態度數與個人流年</li><li>傳統對應色</li></ul><b>立即分析 <i aria-hidden="true">→</i></b></div></a>
@@ -687,7 +692,7 @@ export default function Home() {
           <a data-module="lo-shu" href="#numerology-workspace" onClick={openWorkspace("home")}><img src="/visuals/ai-dashboard/lo-shu-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><small>九宮配置</small><strong>數字格局</strong><em>出生九宮與連線缺數</em><ul><li>九宮分布</li><li>連線檢查</li><li>缺數整理</li></ul><b>開啟工作台 <i aria-hidden="true">→</i></b></div></a>
           <a data-module="annual-cycle" href="#analyzer" onClick={() => requestMode("birthday")}><img src="/visuals/ai-dashboard/annual-cycle-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><small>流年分析</small><strong>年度週期</strong><em>個人年與人生階段</em><ul><li>個人流年</li><li>年度位置</li><li>階段提醒</li></ul><b>立即分析 <i aria-hidden="true">→</i></b></div></a>
         </div>
-        <div className="support-module-grid" aria-label="工作台支援模塊">
+        <div className="support-module-grid" data-ui-region="support" aria-label="工作台支援模塊">
           <a data-module="workbench" href="#numerology-workspace" onClick={openWorkspace("home")} aria-label="專業工作台：開啟九宮、磁場與本機紀錄"><img src="/visuals/ai-dashboard/workbench-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>專業工作台</strong><em>九宮、磁場與本機紀錄</em><small>身分證命格・號碼磁場・分析歷史</small></div></a>
           <a data-module="sources" href="#method-source" aria-label="規則來源：查看版本、公式與使用界線"><img src="/visuals/ai-dashboard/sources-library-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>規則來源</strong><em>版本、公式與使用界線</em><small>演算規則・資料來源・版本紀錄</small></div></a>
           <a data-module="privacy" href="#privacy-section" aria-label="本機隱私：查看分析資料處理說明"><img src="/visuals/ai-dashboard/privacy-lock-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>本機隱私</strong><em>分析輸入不送往服務</em><small>本機運算・本機儲存・可自行清除</small></div></a>

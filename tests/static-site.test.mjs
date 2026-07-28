@@ -90,8 +90,13 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /public\/visuals\/birthday-panel-b-v3\.webp/);
   assert.match(html, /birthday-panel-b-v3\.webp" width="1717" height="916"/);
   assert.match(html, /public\/visuals\/ai-dashboard\/number-wave-v1\.webp/);
-  assert.match(html, /public\/visuals\/iching-instrument-b-v3\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/kangjie-study-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/portal-birthday-v2\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/portal-spectrum-v2\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/portal-iching-v2\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/portal-kangjie-v2\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/brand-crest-v2\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/cockpit-seal-frame-v2\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/analyze-dragon-seal-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/annual-cycle-v1\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/workbench-v1\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/sources-library-v1\.webp/);

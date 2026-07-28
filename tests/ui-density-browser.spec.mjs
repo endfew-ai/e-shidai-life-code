@@ -1,12 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 const VIEWPORTS = [
+  { label: "大型桌機", width: 1920, height: 1080 },
   { label: "附圖桌機", width: 1672, height: 941 },
   { label: "桌機", width: 1440, height: 900 },
   { label: "Windows 125% 縮放", width: 1536, height: 790 },
   { label: "平板橫向", width: 1024, height: 768 },
   { label: "平板直向", width: 768, height: 1024 },
   { label: "手機", width: 390, height: 844 },
+  { label: "中窄手機", width: 360, height: 800 },
   { label: "窄版手機", width: 320, height: 720 },
 ];
 
@@ -168,7 +170,7 @@ async function expectCompactMobileDashboard(page) {
   expect(report.cockpitColumns, "手機即時摘要應維持 2×2").toBe(2);
   expect(report.cockpitHeight, "手機即時摘要不得退化成過長四列").toBeLessThanOrEqual(230);
   expect(report.mainColumns, "手機五大入口應採 2+2+1").toBe(2);
-  expect(report.supportColumns, "手機支援入口欄數").toBe(report.viewportWidth <= 360 ? 1 : 2);
+  expect(report.supportColumns, "手機支援入口應採單欄寬卡").toBe(1);
   expect(report.workspaceTabColumns, "手機工作台分頁應採三欄兩列").toBe(3);
   expect(report.workspaceEntryColumns, "手機工作台六入口應採兩欄三列").toBe(2);
   expect(Math.max(...report.workspaceEntryHeights), "手機工作台入口不得過度拉長").toBeLessThanOrEqual(180);
@@ -182,6 +184,64 @@ async function expectCompactMobileDashboard(page) {
   );
 }
 
+async function expectReferenceMobileDashboard(page) {
+  await expect(page.locator(".dashboard-home-screen .hero")).toBeHidden();
+  await expect(page.locator("[data-ui-region='mode-deck']")).toBeVisible();
+  await expect(page.locator(".cockpit-center-seal")).toBeVisible();
+
+  const report = await page.evaluate(() => {
+    const rect = (selector) => {
+      const element = document.querySelector(selector);
+      const box = element?.getBoundingClientRect();
+      return box ? {
+        top: box.top,
+        right: box.right,
+        bottom: box.bottom,
+        left: box.left,
+        width: box.width,
+        height: box.height,
+      } : null;
+    };
+    const modeDeck = document.querySelector("[data-ui-region='mode-deck']");
+    const modeEntries = [...modeDeck.querySelectorAll(":scope > label, :scope > .kangjie-mode-entry")];
+    const modeEntryTops = modeEntries.map((entry) => entry.getBoundingClientRect().top);
+    const centerSeal = document.querySelector(".cockpit-center-seal");
+    const portalImages = [...document.querySelectorAll(".mode-switch .mode-card-art")];
+    return {
+      viewportHeight: window.innerHeight,
+      modeEntryCount: modeEntries.length,
+      modeEntryTopSpread: Math.max(...modeEntryTops) - Math.min(...modeEntryTops),
+      analyzer: rect("[data-ui-region='analyzer']"),
+      cockpit: rect("[data-ui-region='cockpit']"),
+      modules: rect("[data-ui-region='modules']"),
+      portalImageState: portalImages.map((image) => ({
+        complete: image.complete,
+        naturalWidth: image.naturalWidth,
+        width: image.getBoundingClientRect().width,
+        height: image.getBoundingClientRect().height,
+      })),
+      centerSealPointerEvents: getComputedStyle(centerSeal).pointerEvents,
+    };
+  });
+
+  expect(report.modeEntryCount, "手機必須有四個功能入口").toBe(4);
+  expect(report.modeEntryTopSpread, "手機四個功能入口必須同列").toBeLessThanOrEqual(1);
+  expect(report.analyzer).not.toBeNull();
+  expect(report.cockpit).not.toBeNull();
+  expect(report.modules).not.toBeNull();
+  expect(report.cockpit.top, "摘要區必須接在分析器後方").toBeGreaterThanOrEqual(report.analyzer.bottom);
+  expect(report.modules.top, "功能模塊必須接在摘要後方").toBeGreaterThanOrEqual(report.cockpit.bottom);
+  expect(report.modules.top, "參考比例首屏應開始看見第一排功能卡")
+    .toBeLessThanOrEqual(report.viewportHeight - 36);
+  expect(report.centerSealPointerEvents, "中央儀器章不可攔截觸控").toBe("none");
+  for (const image of report.portalImageState) {
+    expect(image.complete).toBe(true);
+    expect(image.naturalWidth, "四個 AI 圓盤圖必須載入").toBeGreaterThan(0);
+    expect(image.width, "四個圓盤寬度").toBeGreaterThanOrEqual(50);
+    expect(image.height, "四個圓盤高度").toBeGreaterThanOrEqual(50);
+  }
+}
+
 async function verifyHomepage(page) {
   await page.goto("/index.html", { waitUntil: "networkidle" });
 
@@ -193,11 +253,15 @@ async function verifyHomepage(page) {
   await expect(birthdayInput).toBeVisible();
   await expect(submit).toBeVisible();
   await expect(submit).toBeEnabled();
-  await expectHeroContentClearOfRail(page);
+  if (page.viewportSize().width <= 767) {
+    await expectReferenceMobileDashboard(page);
+  } else {
+    await expectHeroContentClearOfRail(page);
+  }
 
   await expectMinimumHeight(page.locator("[data-mode-label], .kangjie-mode-entry"), 44, "首頁模式入口");
   await expectMinimumHeight(submit, 44, "首頁主要分析按鈕");
-  const readableSelectors = page.viewportSize().width <= 640
+  const readableSelectors = page.viewportSize().width <= 767
     ? [".field-block > span", ".form-meta p"]
     : [".mode-art figcaption > span", ".field-block > span", ".form-meta p"];
   await expectReadableSamples(
@@ -209,14 +273,23 @@ async function verifyHomepage(page) {
 
   await page.locator('[data-mode-label="code"]').click();
   await expect(page.locator('input[name="analysis-mode"][value="code"]')).toBeChecked();
-  await page.locator(".dashboard-home-screen .hero-cta").click();
+  if (page.viewportSize().width <= 767) {
+    await page.locator('[data-mode-label="birthday"]').click();
+    await birthdayInput.click();
+  } else if (page.viewportSize().width > 1180) {
+    await page.locator(".sidebar-primary").click();
+    await expect(page.locator("#analyzer")).toHaveClass(/is-entry-highlight/);
+  } else {
+    await page.locator(".dashboard-home-screen .hero-cta").click();
+    await expect(page.locator("#analyzer")).toHaveClass(/is-entry-highlight/);
+  }
   await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
   await expect(birthdayInput).toBeFocused();
-  await expect(page).toHaveURL(/#analyzer$/);
+  if (page.viewportSize().width > 767) await expect(page).toHaveURL(/#analyzer$/);
 
   await birthdayInput.fill("1990-08-12");
   await expect(page.locator("#clear-button")).toBeVisible();
-  if (page.viewportSize().width <= 640) {
+  if (page.viewportSize().width <= 767) {
     await expectMinimumHeight(page.locator("#clear-button"), 44, "手機清除輸入按鈕");
     await expectReadableSamples(page, ["#clear-button"], 14, "手機清除輸入按鈕");
   }
@@ -243,14 +316,14 @@ async function verifyHomepage(page) {
       minimumCardWidth: Math.min(...children.map((child) => child.getBoundingClientRect().width)),
     };
   });
-  const expectedColumns = moduleGrid.viewportWidth <= 640
+  const expectedColumns = moduleGrid.viewportWidth <= 767
     ? 2
     : moduleGrid.viewportWidth <= 1180
       ? 3
       : 5;
   expect(moduleGrid.columnCount).toBe(expectedColumns);
   expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(moduleGrid.viewportWidth <= 360 ? 140 : 150);
-  if (moduleGrid.viewportWidth <= 640) await expectCompactMobileDashboard(page);
+  if (moduleGrid.viewportWidth <= 767) await expectCompactMobileDashboard(page);
   await expectNoHorizontalOverflow(page);
 }
 
@@ -383,8 +456,20 @@ for (const viewport of VIEWPORTS) {
 for (const viewport of [
   { width: 1440, height: 900 },
   { width: 1672, height: 941 },
+  { width: 1920, height: 1080 },
 ]) {
   test(`首頁第一屏 ${viewport.width}×${viewport.height} 完整顯示所有主要模塊`, async ({ page }) => {
     await expectDenseDesktopFirstFold(page, viewport.width, viewport.height);
   });
 }
+
+test("首頁參考手機比例 390×693 依任務順序顯示四入口、表單、摘要與首排模塊", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 693 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await expectReferenceMobileDashboard(page);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({
+    path: "output/playwright/home-reference-mobile-390x693.png",
+    fullPage: false,
+  });
+});

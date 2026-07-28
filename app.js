@@ -725,10 +725,14 @@ function initializeAnalyzer() {
   function startBirthdayAnalysis(event) {
     event.preventDefault();
     changeMode("birthday");
-    document.querySelector("#analyzer")?.scrollIntoView({
+    const analyzer = document.querySelector("#analyzer");
+    analyzer?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       block: "start",
     });
+    analyzer?.classList.remove("is-entry-highlight");
+    window.requestAnimationFrame(() => analyzer?.classList.add("is-entry-highlight"));
+    window.setTimeout(() => analyzer?.classList.remove("is-entry-highlight"), 1400);
     window.history.replaceState(null, "", "#analyzer");
     birthdayInput.focus({ preventScroll: true });
   }
