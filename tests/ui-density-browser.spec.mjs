@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const VIEWPORTS = [
+  { label: "附圖桌機", width: 1672, height: 941 },
   { label: "桌機", width: 1440, height: 900 },
   { label: "平板橫向", width: 1024, height: 768 },
   { label: "平板直向", width: 768, height: 1024 },
@@ -115,7 +116,72 @@ async function verifyHomepage(page) {
   await submit.click();
   await expect(page.locator("#result-anchor")).toBeVisible();
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+  await expect(page.locator("[data-cockpit-core]")).toContainText("生命路徑");
+  await expect(page.locator("[data-cockpit-core]")).not.toHaveText("待分析");
+
+  const workspaceTabs = page.locator(".workspace-tabs");
+  if (await workspaceTabs.count()) {
+    const tabOverflow = await workspaceTabs.evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    }));
+    expect(tabOverflow.scrollWidth).toBeLessThanOrEqual(tabOverflow.clientWidth + 1);
+  }
   await expectNoHorizontalOverflow(page);
+}
+
+async function expectDenseDesktopFirstFold(page, width, height) {
+  await page.setViewportSize({ width, height });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.waitForFunction(() => [...document.querySelectorAll(".dashboard-home-screen img")]
+    .every((image) => image.complete && image.naturalWidth > 0));
+
+  await expect(page.locator(".cockpit-status article")).toHaveCount(4);
+  await expect(page.locator(".visual-module-grid > a")).toHaveCount(5);
+  await expect(page.locator(".support-module-grid > a")).toHaveCount(3);
+  await expect(page.locator("[data-cockpit-time]")).not.toHaveText("--:--");
+
+  const layout = await page.evaluate(() => {
+    const rect = (selector) => {
+      const element = document.querySelector(selector);
+      const box = element?.getBoundingClientRect();
+      return box ? {
+        top: box.top,
+        right: box.right,
+        bottom: box.bottom,
+        left: box.left,
+        width: box.width,
+        height: box.height,
+      } : null;
+    };
+    return {
+      hero: rect(".dashboard-home-screen .hero"),
+      analyzer: rect(".dashboard-home-screen .analyzer-section"),
+      cockpit: rect(".dashboard-home-screen .cockpit-status"),
+      mainModules: rect(".dashboard-home-screen .visual-module-grid"),
+      supportModules: rect(".dashboard-home-screen .support-module-grid"),
+      firstScreen: rect(".dashboard-home-screen"),
+      viewportHeight: window.innerHeight,
+    };
+  });
+
+  for (const key of ["hero", "analyzer", "cockpit", "mainModules", "supportModules", "firstScreen"]) {
+    expect(layout[key], `${key} 必須存在`).not.toBeNull();
+  }
+  expect(Math.abs(layout.hero.top - layout.analyzer.top)).toBeLessThanOrEqual(1);
+  expect(Math.abs(layout.hero.height - layout.analyzer.height)).toBeLessThanOrEqual(1);
+  expect(layout.cockpit.top).toBeGreaterThanOrEqual(layout.hero.bottom);
+  expect(layout.mainModules.top).toBeGreaterThanOrEqual(layout.cockpit.bottom);
+  expect(layout.supportModules.top).toBeGreaterThanOrEqual(layout.mainModules.bottom);
+  expect(layout.supportModules.bottom).toBeLessThanOrEqual(layout.viewportHeight + 1);
+  expect(layout.firstScreen.bottom).toBeLessThanOrEqual(layout.viewportHeight + 1);
+  expect(layout.mainModules.height).toBeGreaterThanOrEqual(180);
+  expect(layout.supportModules.height).toBeGreaterThanOrEqual(100);
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({
+    path: `output/playwright/home-density-${width}x${height}.png`,
+    fullPage: false,
+  });
 }
 
 async function unlockKangjie(page) {
@@ -184,5 +250,14 @@ for (const viewport of VIEWPORTS) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await verifyHomepage(page);
     await verifyKangjie(page);
+  });
+}
+
+for (const viewport of [
+  { width: 1440, height: 900 },
+  { width: 1672, height: 941 },
+]) {
+  test(`首頁第一屏 ${viewport.width}×${viewport.height} 完整顯示所有主要模塊`, async ({ page }) => {
+    await expectDenseDesktopFirstFold(page, viewport.width, viewport.height);
   });
 }

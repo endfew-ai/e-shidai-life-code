@@ -75,7 +75,14 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /ai-dashboard\/life-path-v1\.webp/);
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
-  assert.match(html, /class="trust-rail"/);
+  assert.match(html, /class="trust-rail cockpit-status"/);
+  assert.match(html, /class="dashboard-home-screen"/);
+  assert.match(html, /data-cockpit-time/);
+  assert.match(html, /data-cockpit-mode/);
+  assert.match(html, /data-cockpit-core/);
+  assert.match(appSource, /initializeCockpitClock/);
+  assert.match(appSource, /timeZone: "Asia\/Taipei"/);
+  assert.match(reactSource, /formatTaipeiClock/);
   assert.match(html, /public\/visuals\/birthday-panel-b-v3\.webp/);
   assert.match(html, /birthday-panel-b-v3\.webp" width="1717" height="916"/);
   assert.match(html, /public\/visuals\/ai-dashboard\/number-wave-v1\.webp/);
@@ -269,8 +276,8 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /data-current-time-detect/);
   assert.match(html, /重新套用現在/);
   assert.match(html, /自動偵測，可手動選/);
-  assert.match(html, /kangjie\.css\?v=20260728-jade-dashboard-v1/);
-  assert.match(html, /kangjie\.js\?v=20260728-jade-dashboard-v1/);
+  assert.match(html, /kangjie\.css\?v=20260728-yao-text-v2/);
+  assert.match(html, /kangjie\.js\?v=20260728-yao-text-v2/);
   assert.match(scriptSource, /input\.value === "0000"/);
   assert.match(scriptSource, /initializeCurrentTimeDetection/);
   assert.match(appSource, /password === "0000"/);

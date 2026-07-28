@@ -591,6 +591,10 @@ function initializeAnalyzer() {
   const accessInput = document.querySelector("#iching-access-password");
   const accessMessage = document.querySelector("[data-iching-access-message]");
   const accessCancel = document.querySelector("[data-iching-access-cancel]");
+  const cockpitMode = document.querySelector("[data-cockpit-mode]");
+  const cockpitModeNote = document.querySelector("[data-cockpit-mode-note]");
+  const cockpitCore = document.querySelector("[data-cockpit-core]");
+  const cockpitCoreNote = document.querySelector("[data-cockpit-core-note]");
   let mode = "birthday";
   let ichingUnlocked = hasIChingAccess();
 
@@ -607,6 +611,30 @@ function initializeAnalyzer() {
   function clearResult() { resultAnchor.replaceChildren(); }
   function setInvalid(invalid) { for (const input of currentInputs()) input.setAttribute("aria-invalid", String(invalid)); }
   function updateClearButton() { clearButton.hidden = !hasCurrentValue(); }
+  function updateCockpitMode() {
+    if (cockpitMode) cockpitMode.textContent = modeContent[mode].label;
+    if (cockpitModeNote) cockpitModeNote.textContent = modeContent[mode].description;
+  }
+  function updateCockpitResult(result) {
+    if (!cockpitCore || !cockpitCoreNote) return;
+    if (!result) {
+      cockpitCore.textContent = "待分析";
+      cockpitCoreNote.textContent = "輸入資料後即時顯示";
+      return;
+    }
+    if (result.kind === "birthday") {
+      cockpitCore.textContent = `生命路徑 ${result.lifePath.display}`;
+      cockpitCoreNote.textContent = `生日數 ${result.birthday.display}・${result.personalYear.year} 流年 ${result.personalYear.value}`;
+      return;
+    }
+    if (result.kind === "code") {
+      cockpitCore.textContent = `核心數 ${result.core}`;
+      cockpitCoreNote.textContent = `${result.length} 位數・總和 ${result.sum}`;
+      return;
+    }
+    cockpitCore.textContent = result.original.name;
+    cockpitCoreNote.textContent = `動爻 ${result.moving.name}・變卦 ${result.transformed.name}`;
+  }
   function focusResult() {
     window.setTimeout(() => {
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -658,6 +686,8 @@ function initializeAnalyzer() {
     message.textContent = "";
     setInvalid(false);
     clearResult();
+    updateCockpitMode();
+    updateCockpitResult(null);
     updateClearButton();
     window.setTimeout(() => currentInputs()[0].focus(), 0);
   }
@@ -667,6 +697,7 @@ function initializeAnalyzer() {
     message.textContent = "";
     setInvalid(false);
     clearResult();
+    updateCockpitResult(null);
     updateClearButton();
     currentInputs()[0].focus();
   }
@@ -722,9 +753,11 @@ function initializeAnalyzer() {
       message.textContent = "";
       setInvalid(false);
       resultAnchor.replaceChildren(result.kind === "iching" ? createIChingResult(result, resetCurrent) : createNumerologyResult(result, resetCurrent));
+      updateCockpitResult(result);
       focusResult();
     } catch (error) {
       clearResult();
+      updateCockpitResult(null);
       message.textContent = error instanceof Error ? error.message : "輸入資料無法計算，請重新確認。";
       setInvalid(true);
       currentInputs()[0].focus();
@@ -757,7 +790,36 @@ function initializeAnalyzer() {
     event.preventDefault();
     closeAccessDialog();
   });
+  updateCockpitMode();
+  updateCockpitResult(null);
   updateClearButton();
+}
+
+function initializeCockpitClock() {
+  const timeOutput = document.querySelector("[data-cockpit-time]");
+  const dateOutput = document.querySelector("[data-cockpit-date]");
+  if (!timeOutput || !dateOutput) return;
+  const timeFormat = new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const dateFormat = new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    weekday: "short",
+  });
+  const update = () => {
+    const now = new Date();
+    timeOutput.textContent = timeFormat.format(now);
+    dateOutput.textContent = dateFormat.format(now);
+  };
+  update();
+  const interval = window.setInterval(update, 30_000);
+  window.addEventListener("pagehide", () => window.clearInterval(interval), { once: true });
 }
 
 function initializeVisitCounter() {
@@ -798,6 +860,7 @@ function initializeWorkspaceLinks(workspaceRoot) {
 
 if (typeof document !== "undefined") {
   initializeAnalyzer();
+  initializeCockpitClock();
   initializeVisitCounter();
   const workspaceRoot = document.querySelector("#numerology-workspace");
   mountNumerologyWorkspace(workspaceRoot, { assetRoot: "public/visuals" });
