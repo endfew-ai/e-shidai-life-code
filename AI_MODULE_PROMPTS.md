@@ -228,3 +228,40 @@ Keep the center and lower third clear enough for real HTML overlays. Avoid purpl
 ```
 
 生命靈數模塊另加限制：不得出現八卦、六爻或易經符號，避免把生日靈數誤畫成易經功能；只有康節書齋儀器可使用無文字的易學器物意象。
+
+## 模組 13：範本缺口補齊
+
+依 2026-07-28 使用者提供的翡翠黑金高密度儀表板範本，補齊四個原首頁未具備的視覺入口。原始 ImageGen PNG 保留在 Codex 生成目錄，網站採 960×640、WebP 品質 72 的版本，不覆蓋既有素材。
+
+| 用途 | 網站檔案 | 容量 |
+| --- | --- | ---: |
+| 流年時輪 | `public/visuals/ai-dashboard/annual-cycle-v1.webp` | 約 63 KiB |
+| 專業工作台 | `public/visuals/ai-dashboard/workbench-v1.webp` | 約 46 KiB |
+| 規則來源書卷 | `public/visuals/ai-dashboard/sources-library-v1.webp` | 約 40 KiB |
+| 本機隱私鎖儀 | `public/visuals/ai-dashboard/privacy-lock-v1.webp` | 約 47 KiB |
+
+流年時輪：
+
+```text
+Deep jade-black and antique gold annual-cycle instrument. Concentric celestial calendar rings, subtle season markers and a blank central medallion for a dynamic HTML number. Main dial weighted right, dark negative space left. No words, letters, Chinese characters, digits, logos, buttons, fake data, watermark, purple neon or bright outer glow.
+```
+
+專業工作台：
+
+```text
+Deep jade-black scholar calculation desk with inkstone, brush, rolled parchment, brass dividers, compact abacus-like instrument and restrained jade orbital lines. Objects weighted right and low, dark negative space left and top. No readable writing, words, digits, logos, buttons, fake data or watermark.
+```
+
+規則來源書卷：
+
+```text
+Deep jade-black archival still life with bound classical books, rolled scrolls, brass bookmarks, circular measuring seal and abstract illegible diagram textures. Objects weighted right and low, dark negative space left and top. No readable writing, Chinese characters, digits, logos, buttons or watermark.
+```
+
+本機隱私鎖儀：
+
+```text
+Deep jade-and-antique-brass astrolabe lock on a low pedestal, closed mechanical iris, keyhole recess, protective ring and quiet trustworthy material detail. Object weighted right, dark negative space left and top. No words, digits, logos, fake UI, cyberpunk neon or watermark.
+```
+
+四張圖只作卡片底景。流年數字、工作台狀態、來源連結、隱私說明及所有按鈕皆由可存取 HTML 呈現。

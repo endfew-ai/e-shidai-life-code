@@ -22,8 +22,8 @@
     <link rel="preload" as="image" href="public/visuals/brush/brand-life-numerology-aaa-web-v1.webp" type="image/webp" fetchpriority="high" />
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/hero-life-v1.webp" type="image/webp" fetchpriority="high" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260728-jade-dashboard-v1" />
-    <script type="module" src="app.js?v=20260728-jade-dashboard-v1"></script>
+    <link rel="stylesheet" href="styles.css?v=20260728-jade-dashboard-v2" />
+    <script type="module" src="app.js?v=20260728-jade-dashboard-v2"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -31,20 +31,32 @@
         <a class="sidebar-brand" href="#top"><span aria-hidden="true">命</span><strong class="brush-title brush-sidebar-brand"><span class="sr-only">生命靈數</span><img class="brush-title-image" src="public/visuals/brush/brand-life-numerology-aaa-web-v1.webp" width="720" height="194" fetchpriority="high" decoding="async" alt="" aria-hidden="true" /></strong></a>
         <p class="sidebar-tagline">數字有軌跡，規則可核對</p>
         <a class="sidebar-primary" href="#analyzer"><span>開始生日分析</span><b aria-hidden="true">→</b></a>
+        <a class="sidebar-secondary" href="#numerology-workspace" data-workspace-target="history"><span>開啟本機紀錄</span><b aria-hidden="true">↗</b></a>
         <nav class="sidebar-links" aria-label="功能捷徑">
           <a href="#analyzer" data-quick-mode="birthday"><span>01</span><strong>生日分析</strong><small>生命路徑與流年</small></a>
           <a href="#analyzer" data-quick-mode="code"><span>02</span><strong>數字頻譜</strong><small>號碼核心與分布</small></a>
-          <a href="#numerology-workspace"><span>03</span><strong>進階工作台</strong><small>九宮、磁場與歷史</small></a>
+          <a href="#numerology-workspace" data-workspace-target="home"><span>03</span><strong>進階工作台</strong><small>九宮、磁場與歷史</small></a>
           <a href="kangjie.html"><span>04</span><strong>邵康節易學</strong><small>獨立專頁・需密碼</small></a>
           <a href="#method-source"><span>05</span><strong>規則來源</strong><small>公式、版本與界線</small></a>
         </nav>
+        <div class="sidebar-quick" aria-label="快速工具">
+          <p>快速工具</p>
+          <div>
+            <a href="#analyzer" data-quick-mode="birthday"><strong>生日</strong><small>主命數</small></a>
+            <a href="#analyzer" data-quick-mode="code"><strong>頻譜</strong><small>號碼</small></a>
+            <a href="#analyzer" data-quick-mode="iching"><strong>取卦</strong><small>密碼</small></a>
+            <a href="#numerology-workspace" data-workspace-target="identity"><strong>身分證</strong><small>命格</small></a>
+            <a href="#numerology-workspace" data-workspace-target="history"><strong>紀錄</strong><small>本機</small></a>
+            <a href="#numerology-workspace" data-workspace-target="sources"><strong>規則</strong><small>來源</small></a>
+          </div>
+        </div>
         <div class="sidebar-status"><span aria-hidden="true"></span><p><strong>本機安全運算</strong><small>輸入資料不上傳</small></p></div>
       </aside>
 
       <div class="dashboard-canvas">
       <nav class="topbar" aria-label="主要導覽">
         <a class="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong class="brush-title brush-brand"><span class="sr-only">生命靈數</span><img class="brush-title-image" src="public/visuals/brush/brand-life-numerology-aaa-web-v1.webp" width="720" height="194" fetchpriority="high" decoding="async" alt="" aria-hidden="true" /></strong></a>
-        <div><a href="#analyzer">生日分析</a><a href="#numerology-workspace">進階工作台</a><a href="kangjie.html">邵康節專頁</a><a href="#method-source">規則來源</a><p class="visit-counter" data-visit-counter data-state="loading" role="status" aria-live="polite" aria-atomic="true"><span>累積造訪</span><strong data-visit-count>讀取中</strong><small>次</small></p></div>
+        <div><a href="#analyzer" data-quick-mode="birthday">生日分析</a><a href="#analyzer" data-quick-mode="code">數字頻譜</a><a class="nav-optional" href="#analyzer" data-quick-mode="birthday">九宮配置</a><a class="nav-optional" href="#analyzer" data-quick-mode="birthday">流年分析</a><a href="#numerology-workspace" data-workspace-target="home">進階工作台</a><a href="kangjie.html">邵康節專頁</a><a class="nav-optional" href="#method-source">規則來源</a><p class="visit-counter" data-visit-counter data-state="loading" role="status" aria-live="polite" aria-atomic="true"><span>累積造訪</span><strong data-visit-count>讀取中</strong><small>次</small></p></div>
       </nav>
 
       <div class="dashboard-lead">
@@ -70,7 +82,7 @@
         <form class="analyzer-card" id="analyzer-form" novalidate>
           <fieldset class="mode-switch">
             <legend class="sr-only">分析模式</legend>
-            <label class="is-active" data-mode-label="birthday"><img class="mode-card-art" src="public/visuals/birthday-panel-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><input type="radio" name="analysis-mode" value="birthday" checked /><span><strong><span class="brush-title brush-mode"><span class="sr-only">生日命碼</span><img class="brush-title-image" src="public/visuals/brush/title-birthday-web-v1.webp" width="600" height="213" alt="" aria-hidden="true" /></span><em>主要</em></strong><small>生命路徑、生日數、個人流年與傳統對應色</small></span></label>
+            <label class="is-active" data-mode-label="birthday"><img class="mode-card-art" src="public/visuals/birthday-panel-b-v3.webp" width="1717" height="916" loading="lazy" decoding="async" alt="" aria-hidden="true" /><input type="radio" name="analysis-mode" value="birthday" checked /><span><strong><span class="brush-title brush-mode"><span class="sr-only">生日命碼</span><img class="brush-title-image" src="public/visuals/brush/title-birthday-web-v1.webp" width="600" height="213" alt="" aria-hidden="true" /></span><em>主要</em></strong><small>生命路徑、生日數、個人流年與傳統對應色</small></span></label>
             <label data-mode-label="code"><img class="mode-card-art" src="public/visuals/ai-dashboard/number-wave-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><input type="radio" name="analysis-mode" value="code" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">數字頻譜</span><img class="brush-title-image" src="public/visuals/brush/title-spectrum-web-v1.webp" width="600" height="174" alt="" aria-hidden="true" /></span><em>次要</em></strong><small>任意號碼的加總、核心數與數字分布</small></span></label>
             <label data-mode-label="iching"><img class="mode-card-art" src="public/visuals/iching-instrument-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><input type="radio" name="analysis-mode" value="iching" /><span><strong><span class="brush-title brush-mode"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-web-v1.webp" width="600" height="176" alt="" aria-hidden="true" /></span><em>密碼</em></strong><small>輸入密碼後推算本卦、互卦、動爻與變卦</small></span></label>
             <a class="kangjie-mode-entry" href="kangjie.html"><img class="mode-card-art" src="public/visuals/ai-dashboard/kangjie-study-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong><span class="brush-title brush-mode brush-kangjie-entry"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-web-v1.webp" width="600" height="154" alt="" aria-hidden="true" /></span><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
@@ -93,13 +105,18 @@
       </div>
 
       <section class="visual-module-rail" aria-labelledby="visual-module-title">
-        <header><p>AI 儀器模塊・一眼找到要用的功能</p><h2 id="visual-module-title"><span class="brush-title brush-visual-module"><span class="sr-only">進階靈數工作台</span><img class="brush-title-image" src="public/visuals/brush/title-workspace-web-v1.webp" width="640" height="139" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><span>所有數字與結果仍由程式即時計算</span></header>
+        <header><p>AI 儀器模塊・一眼找到要用的功能</p><h2 id="visual-module-title"><span class="brush-title brush-visual-module"><span class="sr-only">進階靈數工作台</span><img class="brush-title-image" src="public/visuals/brush/title-workspace-web-v1.webp" width="640" height="122" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><span>圖片只做入口，結果由程式即時計算</span></header>
         <div class="visual-module-grid">
-          <a href="#analyzer" data-quick-mode="birthday"><img src="public/visuals/birthday-panel-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>01</small><strong>生日分析</strong><em>生命路徑・生日數</em></span></a>
-          <a href="#numerology-workspace"><img src="public/visuals/ai-dashboard/life-path-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>02</small><strong>生命路徑</strong><em>人生階段・流年</em></span></a>
-          <a href="#analyzer" data-quick-mode="code"><img src="public/visuals/ai-dashboard/number-wave-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>03</small><strong>數字頻譜</strong><em>號碼核心・分布</em></span></a>
-          <a href="#numerology-workspace"><img src="public/visuals/ai-dashboard/lo-shu-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>04</small><strong>九宮配置</strong><em>數字連線・缺數</em></span></a>
-          <a href="kangjie.html"><img src="public/visuals/ai-dashboard/kangjie-study-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>05</small><strong>邵康節易學</strong><em>梅花易數・皇極經世</em></span></a>
+          <a data-module="birthday" href="#analyzer" data-quick-mode="birthday"><img src="public/visuals/birthday-panel-b-v3.webp" width="1717" height="916" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>01</small><strong>生日分析</strong><em>生命路徑・生日數</em></span></a>
+          <a data-module="life-path" href="#analyzer" data-quick-mode="birthday"><img src="public/visuals/ai-dashboard/life-path-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>02</small><strong>生命路徑</strong><em>人生階段・流年</em></span></a>
+          <a data-module="spectrum" href="#analyzer" data-quick-mode="code"><img src="public/visuals/ai-dashboard/number-wave-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>03</small><strong>數字頻譜</strong><em>號碼核心・分布</em></span></a>
+          <a data-module="lo-shu" href="#analyzer" data-quick-mode="birthday"><img src="public/visuals/ai-dashboard/lo-shu-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>04</small><strong>九宮配置</strong><em>數字連線・缺數</em></span></a>
+          <a data-module="annual-cycle" href="#analyzer" data-quick-mode="birthday"><img src="public/visuals/ai-dashboard/annual-cycle-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>05</small><strong>流年分析</strong><em>個人年・人生階段</em></span></a>
+        </div>
+        <div class="support-module-grid" aria-label="工作台支援模塊">
+          <a data-module="workbench" href="#numerology-workspace" data-workspace-target="home" aria-label="專業工作台：開啟九宮、磁場與本機紀錄"><img src="public/visuals/ai-dashboard/workbench-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>專業工作台</strong><em>九宮、磁場與本機紀錄</em></span></a>
+          <a data-module="sources" href="#method-source" aria-label="規則來源：查看版本、公式與使用界線"><img src="public/visuals/ai-dashboard/sources-library-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>規則來源</strong><em>版本、公式與使用界線</em></span></a>
+          <a data-module="privacy" href="#privacy-section" aria-label="本機隱私：查看分析資料處理說明"><img src="public/visuals/ai-dashboard/privacy-lock-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>本機隱私</strong><em>分析輸入不送往服務</em></span></a>
         </div>
       </section>
 
@@ -116,7 +133,7 @@
         </details>
       </section>
 
-      <section class="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><span class="brush-title brush-disclaimer"><span class="sr-only">使用提醒</span><img class="brush-title-image" src="public/visuals/brush/title-disclaimer-web-v1.webp" width="640" height="180" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p class="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
+      <section class="disclaimer" id="privacy-section" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><span class="brush-title brush-disclaimer"><span class="sr-only">使用提醒</span><img class="brush-title-image" src="public/visuals/brush/title-disclaimer-web-v1.webp" width="640" height="180" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p class="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
       <footer><p>© <span id="copyright-year"></span> 生命靈數</p><p>同一網址，自動適配手機與電腦</p></footer>
       </div>
     </main>

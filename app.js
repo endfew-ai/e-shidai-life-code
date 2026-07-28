@@ -783,8 +783,23 @@ function initializeVisitCounter() {
     .finally(() => window.clearTimeout(timeout));
 }
 
+function initializeWorkspaceLinks(workspaceRoot) {
+  if (!workspaceRoot) return;
+  for (const link of document.querySelectorAll("[data-workspace-target]")) {
+    link.addEventListener("click", (event) => {
+      const target = link.dataset.workspaceTarget;
+      const tab = workspaceRoot.querySelector(`[data-workspace-tab="${target}"]`);
+      if (!tab) return;
+      event.preventDefault();
+      tab.click();
+    });
+  }
+}
+
 if (typeof document !== "undefined") {
   initializeAnalyzer();
   initializeVisitCounter();
-  mountNumerologyWorkspace(document.querySelector("#numerology-workspace"), { assetRoot: "public/visuals" });
+  const workspaceRoot = document.querySelector("#numerology-workspace");
+  mountNumerologyWorkspace(workspaceRoot, { assetRoot: "public/visuals" });
+  initializeWorkspaceLinks(workspaceRoot);
 }

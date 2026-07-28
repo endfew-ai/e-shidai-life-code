@@ -77,9 +77,24 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail"/);
   assert.match(html, /public\/visuals\/birthday-panel-b-v3\.webp/);
+  assert.match(html, /birthday-panel-b-v3\.webp" width="1717" height="916"/);
   assert.match(html, /public\/visuals\/ai-dashboard\/number-wave-v1\.webp/);
   assert.match(html, /public\/visuals\/iching-instrument-b-v3\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/kangjie-study-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/annual-cycle-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/workbench-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/sources-library-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/privacy-lock-v1\.webp/);
+  assert.match(html, /title-workspace-web-v1\.webp" width="640" height="122"/);
+  for (const moduleId of ["birthday", "life-path", "spectrum", "lo-shu", "annual-cycle", "workbench", "sources", "privacy"]) {
+    assert.match(html, new RegExp(`data-module="${moduleId}"`));
+    assert.match(reactSource, new RegExp(`data-module="${moduleId}"`));
+  }
+  assert.match(html, /class="support-module-grid"/);
+  assert.match(reactSource, /className="support-module-grid"/);
+  assert.match(html, /data-workspace-target="history"/);
+  assert.match(appSource, /initializeWorkspaceLinks/);
+  assert.match(reactSource, /function openWorkspace/);
   assert.match(html, /theme-xuanxing-web-v1\.webp/);
   assert.match(html, /title-birthday-web-v1\.webp/);
   assert.match(html, /title-spectrum-web-v1\.webp/);
@@ -179,6 +194,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/kangjie-study-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/annual-cycle-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/workbench-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/sources-library-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/privacy-lock-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/hero-celestial-background-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/birthday-panel-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/digit-spectrum-panel-b-v3.webp", import.meta.url)),
