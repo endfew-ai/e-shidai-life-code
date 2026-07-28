@@ -121,6 +121,88 @@ async function unlockIChingMode(page) {
   await expect(page.locator(".iching-input").first()).toBeFocused();
 }
 
+async function expectNoAnalyzerOverlap(page) {
+  const layout = await page.locator("#analyzer-form").evaluate((form) => {
+    const box = (selector) => {
+      const element = form.querySelector(selector);
+      const rect = element.getBoundingClientRect();
+      return {
+        selector,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+      };
+    };
+    const overlapArea = (first, second) =>
+      Math.max(0, Math.min(first.right, second.right) - Math.max(first.left, second.left))
+      * Math.max(0, Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top));
+    const namedPairs = (items) => {
+      const pairs = [];
+      for (let first = 0; first < items.length; first += 1) {
+        for (let second = first + 1; second < items.length; second += 1) {
+          if (items[first].width <= 0 || items[first].height <= 0 || items[second].width <= 0 || items[second].height <= 0) continue;
+          pairs.push({
+            pair: `${items[first].selector} / ${items[second].selector}`,
+            area: overlapArea(items[first], items[second]),
+          });
+        }
+      }
+      return pairs;
+    };
+
+    const outer = [
+      box(".mode-switch"),
+      box(".mode-art"),
+      box(".mode-controls"),
+      box(".method-strip"),
+    ];
+    const cardRect = form.getBoundingClientRect();
+    const trustRect = document.querySelector(".cockpit-status").getBoundingClientRect();
+    const controls = outer[2];
+    const children = [
+      box('[data-mode-panel="iching"]'),
+      box(".analyze-submit"),
+      box(".form-meta"),
+      box(".form-message"),
+    ];
+    return {
+      activeMode: form.dataset.activeMode,
+      outerPairs: namedPairs(outer),
+      controlPairs: namedPairs(children),
+      overflow: {
+        modeArt: outer[1].scrollHeight - outer[1].clientHeight,
+        controls: controls.scrollHeight - controls.clientHeight,
+      },
+      cardTrustOverlap: overlapArea(cardRect, trustRect),
+      childEscapes: children
+        .filter((item) => item.width > 0 && item.height > 0)
+        .map((item) => ({
+          selector: item.selector,
+          escaped: item.left < controls.left - 1
+            || item.right > controls.right + 1
+            || item.top < controls.top - 1
+            || item.bottom > controls.bottom + 1,
+        })),
+    };
+  });
+
+  expect(layout.activeMode).toBe("iching");
+  for (const item of [...layout.outerPairs, ...layout.controlPairs]) {
+    expect(item.area, `${item.pair} 不可重疊`).toBeLessThanOrEqual(1);
+  }
+  expect(layout.overflow.modeArt, "模式說明不可溢出").toBeLessThanOrEqual(1);
+  expect(layout.overflow.controls, "輸入與訊息區不可溢出").toBeLessThanOrEqual(1);
+  expect(layout.cardTrustOverlap, "右上分析卡不可蓋住摘要列").toBeLessThanOrEqual(1);
+  for (const item of layout.childEscapes) {
+    expect(item.escaped, `${item.selector} 必須留在輸入區內`).toBe(false);
+  }
+}
+
 async function expectReadableExplanations(page) {
   const report = await page.evaluate(() => {
     const requirements = [
@@ -561,6 +643,82 @@ test("寬螢幕以附圖同組年月日時顯示緊湊紅陽藍陰結果", async
   await expectCompactSemanticKangjieResult(page, { desktop: true });
   await expectNoHorizontalOverflow(page);
   await result.screenshot({ path: "output/playwright/kangjie-compact-wide-result.png" });
+  expect(errors).toEqual([]);
+});
+
+for (const viewport of [
+  { label: "桌機", width: 1440, height: 900, columns: 3 },
+  { label: "手機", width: 390, height: 844, columns: 1 },
+]) {
+  test(`首頁三數取卦 ${viewport.label}顯示紅藍爻、完整爻辭且右上資訊不重疊`, async ({ page }) => {
+    const errors = collectBrowserErrors(page);
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/index.html", { waitUntil: "networkidle" });
+    await unlockIChingMode(page);
+    await expectNoAnalyzerOverlap(page);
+    await page.locator("#analyzer-form").screenshot({
+      path: `output/playwright/home-iching-analyzer-${viewport.width}.png`,
+    });
+
+    const inputs = page.locator(".iching-input");
+    await inputs.nth(0).fill("9");
+    await inputs.nth(1).fill("13");
+    await inputs.nth(2).fill("20");
+    await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+
+    const result = page.locator("#result-anchor .iching-results");
+    await expect(result).toBeVisible();
+    await expect(result.locator(".yao-legend")).toContainText("陽爻");
+    await expect(result.locator(".yao-legend")).toContainText("陰爻");
+    await expect(result.locator(".hexagram-card")).toHaveCount(3);
+    await expect(result.locator(".hexagram-judgment")).toHaveCount(3);
+    await expect(result.locator(".line-text")).toHaveCount(18);
+    expect(await result.locator(".line-text").evaluateAll((nodes) =>
+      nodes.every((node) => node.textContent?.trim()))).toBe(true);
+
+    const visual = await result.evaluate((root) => {
+      const colors = (selector) => [...root.querySelectorAll(selector)]
+        .map((element) => getComputedStyle(element).backgroundColor);
+      return {
+        columns: getComputedStyle(root.querySelector(".hexagram-grid"))
+          .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+        lineTextSize: Number.parseFloat(getComputedStyle(root.querySelector(".line-text")).fontSize),
+        yang: colors(".yao.yang i"),
+        yin: colors(".yao.yin i"),
+      };
+    });
+    expect(visual.columns).toBe(viewport.columns);
+    expect(visual.lineTextSize).toBeGreaterThanOrEqual(16);
+    expect(visual.yang.length).toBeGreaterThan(0);
+    expect(visual.yin.length).toBeGreaterThan(0);
+    expect(new Set(visual.yang)).toEqual(new Set(["rgb(232, 103, 98)"]));
+    expect(new Set(visual.yin)).toEqual(new Set(["rgb(90, 169, 223)"]));
+    await expectNoHorizontalOverflow(page);
+    await result.screenshot({ path: `output/playwright/home-iching-semantic-${viewport.width}.png` });
+    expect(errors).toEqual([]);
+  });
+}
+
+test("三數取卦右上分析卡在短螢幕與平板寬度都不重疊", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1672, height: 941 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await unlockIChingMode(page);
+
+  for (const viewport of [
+    { width: 1672, height: 941 },
+    { width: 1440, height: 768 },
+    { width: 1181, height: 768 },
+    { width: 1024, height: 768 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expectNoAnalyzerOverlap(page);
+  }
+
+  await page.locator("#analyzer-form").screenshot({
+    path: "output/playwright/home-iching-analyzer-short-1024.png",
+  });
+  await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
 

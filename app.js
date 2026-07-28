@@ -49,9 +49,9 @@ const modeContent = {
   },
   iching: {
     label: "三數取卦",
-    description: "輸入密碼後推算本卦、互卦、動爻與變卦",
+    description: "三數推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
-    help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
+    help: "三個整數各自取卦，不會自動切分生日或號碼。",
     art: "public/visuals/iching-instrument-b-v3.webp",
     artWidth: 1586,
     artHeight: 992,
@@ -417,19 +417,37 @@ function createNumerologyResult(result, onReset) {
   return section;
 }
 
-function createHexagramLines(lines, movingIndex = -1, mark = "") {
+function createHexagramLines(lines, texts, movingIndex = -1, mark = "") {
   const container = element("div", "hexagram-lines");
-  container.setAttribute("aria-label", "六爻卦象，畫面由上爻排列至初爻");
+  container.setAttribute("aria-label", "六爻卦象與爻辭，畫面由上爻排列至初爻");
   for (const index of [5, 4, 3, 2, 1, 0]) {
     const row = element("div", `line-row ${index === movingIndex ? "is-moving" : ""}`);
     const yao = element("span", `yao ${lines[index] === 1 ? "yang" : "yin"}`);
     yao.setAttribute("aria-label", lines[index] === 1 ? "陽爻" : "陰爻");
     yao.append(element("i"));
     if (lines[index] === 0) yao.append(element("i"));
-    row.append(element("span", "", lineNames[index]), yao, element("strong", "", index === movingIndex ? mark : ""));
+    row.append(
+      element("span", "line-position", lineNames[index]),
+      yao,
+      element("strong", "line-change-mark", index === movingIndex ? mark : ""),
+      element("span", "line-text", texts[index].text),
+    );
     container.append(row);
   }
   return container;
+}
+
+function createYaoLegend() {
+  const legend = element("div", "yao-legend");
+  legend.setAttribute("aria-label", "卦爻顏色圖例");
+  for (const [className, label] of [["is-yang", "陽爻"], ["is-yin", "陰爻"]]) {
+    const item = element("span", className);
+    const swatch = element("i");
+    swatch.setAttribute("aria-hidden", "true");
+    item.append(swatch, document.createTextNode(label));
+    legend.append(item);
+  }
+  return legend;
 }
 
 function createHexagramCard(label, value, movingIndex = -1, mark = "") {
@@ -443,7 +461,14 @@ function createHexagramCard(label, value, movingIndex = -1, mark = "") {
   computedName.append(element("span", "", text.symbol), document.createTextNode(value.name));
   heading.append(roleTitle, computedName);
   header.append(heading, element("small", "", `第 ${value.hexId} 卦`));
-  card.append(header, element("p", "", `上${value.upper.name}（${value.upper.nature}）・下${value.lower.name}（${value.lower.nature}）`), createHexagramLines(value.lines, movingIndex, mark));
+  const judgment = element("p", "hexagram-judgment");
+  judgment.append(element("strong", "", "卦辭"), element("span", "", `${text.name}，${text.judgment}`));
+  card.append(
+    header,
+    element("p", "hexagram-structure", `上${value.upper.name}（${value.upper.nature}）・下${value.lower.name}（${value.lower.nature}）`),
+    judgment,
+    createHexagramLines(value.lines, text.lines, movingIndex, mark),
+  );
   return card;
 }
 
@@ -539,7 +564,9 @@ function createIChingResult(result, onReset) {
   titleCopy.append(title, element("p", "iching-structure", "本卦・互卦・變卦"));
   const summary = element("p");
   summary.append(document.createTextNode("動爻為"), element("strong", "", result.moving.name), document.createTextNode(`，${result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。`));
-  heading.append(titleCopy, summary);
+  const meta = element("div", "iching-result-meta");
+  meta.append(summary, createYaoLegend());
+  heading.append(titleCopy, meta);
 
   const grid = element("div", "hexagram-grid");
   grid.append(createHexagramCard("本卦", result.original, result.moving.index, "動"), createHexagramCard("互卦", result.mutual), createHexagramCard("變卦", result.transformed, result.moving.index, "變"));
@@ -672,6 +699,7 @@ function initializeAnalyzer() {
 
   function changeMode(nextMode) {
     mode = nextMode;
+    form.dataset.activeMode = mode;
     for (const panel of modePanels) panel.hidden = panel.dataset.modePanel !== mode;
     for (const label of modeLabels) label.classList.toggle("is-active", label.dataset.modeLabel === mode);
     analyzerTitleText.textContent = modeContent[mode].label;

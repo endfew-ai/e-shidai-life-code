@@ -68,9 +68,9 @@ const modeContent = {
   iching: {
     label: "三數取卦",
     badge: "密碼",
-    description: "輸入密碼後推算本卦、互卦、動爻與變卦",
+    description: "三數推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
-    help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
+    help: "三個整數各自取卦，不會自動切分生日或號碼。",
     art: "/visuals/iching-instrument-b-v3.webp",
     cardArt: "/visuals/iching-instrument-b-v3.webp",
     titleArt: "/visuals/brush/title-iching-web-v1.webp",
@@ -338,16 +338,26 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
   );
 }
 
-function HexagramLines({ lines, movingIndex = -1, mark = "" }: { lines: number[]; movingIndex?: number; mark?: string }) {
+function HexagramLines({ lines, texts, movingIndex = -1, mark = "" }: { lines: number[]; texts: ReturnType<typeof getIChingText>["lines"]; movingIndex?: number; mark?: string }) {
   return (
-    <div className="hexagram-lines" aria-label="六爻卦象，畫面由上爻排列至初爻">
+    <div className="hexagram-lines" aria-label="六爻卦象與爻辭，畫面由上爻排列至初爻">
       {[5, 4, 3, 2, 1, 0].map((index) => (
         <div className={`line-row ${index === movingIndex ? "is-moving" : ""}`} key={index}>
-          <span>{lineNames[index]}</span>
+          <span className="line-position">{lineNames[index]}</span>
           <span className={`yao ${lines[index] === 1 ? "yang" : "yin"}`} aria-label={lines[index] === 1 ? "陽爻" : "陰爻"}><i />{lines[index] === 0 && <i />}</span>
-          <strong>{index === movingIndex ? mark : ""}</strong>
+          <strong className="line-change-mark">{index === movingIndex ? mark : ""}</strong>
+          <span className="line-text">{texts[index].text}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+function YaoLegend() {
+  return (
+    <div className="yao-legend" aria-label="卦爻顏色圖例">
+      <span className="is-yang"><i aria-hidden="true" />陽爻</span>
+      <span className="is-yin"><i aria-hidden="true" />陰爻</span>
     </div>
   );
 }
@@ -357,8 +367,9 @@ function HexagramCard({ label, value, movingIndex, mark }: { label: string; valu
   return (
     <article className="hexagram-card">
       <header><div><h3 className="hexagram-role-title brush-fixed-heading"><FixedBrushTitle text={label} className="brush-hexagram-role" /></h3><p className="hexagram-computed-name"><span>{text.symbol}</span>{value.name}</p></div><small>第 {value.hexId} 卦</small></header>
-      <p>上{value.upper.name}（{value.upper.nature}）・下{value.lower.name}（{value.lower.nature}）</p>
-      <HexagramLines lines={value.lines} movingIndex={movingIndex} mark={mark} />
+      <p className="hexagram-structure">上{value.upper.name}（{value.upper.nature}）・下{value.lower.name}（{value.lower.nature}）</p>
+      <p className="hexagram-judgment"><strong>卦辭</strong><span>{text.name}，{text.judgment}</span></p>
+      <HexagramLines lines={value.lines} texts={text.lines} movingIndex={movingIndex} mark={mark} />
     </article>
   );
 }
@@ -402,7 +413,7 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
 function IChingResults({ result, onReset }: { result: IChingResult; onReset: () => void }) {
   return (
     <section className="iching-results" aria-labelledby="iching-result-title">
-      <header className="iching-result-heading"><div><h2 id="iching-result-title" className="brush-iching-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" width={600} height={176} /></h2><p className="iching-structure">本卦・互卦・變卦</p></div><p>動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p></header>
+      <header className="iching-result-heading"><div><h2 id="iching-result-title" className="brush-iching-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" width={600} height={176} /></h2><p className="iching-structure">本卦・互卦・變卦</p></div><div className="iching-result-meta"><p>動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p><YaoLegend /></div></header>
       <div className="hexagram-grid">
         <HexagramCard label="本卦" value={result.original} movingIndex={result.moving.index} mark="動" />
         <HexagramCard label="互卦" value={result.mutual} />
@@ -623,7 +634,7 @@ export default function Home() {
       </section>
 
       <section className="analyzer-section" id="analyzer" aria-labelledby="analyzer-title">
-        <form className="analyzer-card" id="analyzer-form" onSubmit={handleAnalyze} noValidate>
+        <form className="analyzer-card" id="analyzer-form" data-active-mode={mode} onSubmit={handleAnalyze} noValidate>
           <fieldset className="mode-switch">
             <legend className="sr-only">分析模式</legend>
             {(Object.keys(modeContent) as AnalysisMode[]).map((key) => (
@@ -642,7 +653,7 @@ export default function Home() {
               <div className="input-panel" data-mode-panel={mode}>
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { setBirthday(event.target.value); setMessage(""); }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
                 {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={60} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "iching" && <div className="triple-input-grid">{[["第一個整數", "取上卦・除以 8"], ["第二個整數", "取下卦・除以 8"], ["第三個整數", "取動爻・除以 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
+                {mode === "iching" && <div className="triple-input-grid">{[["第一數", "上卦 ÷ 8"], ["第二數", "下卦 ÷ 8"], ["第三數", "動爻 ÷ 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
               </div>
 
               <div className="form-meta"><p id="input-help">{modeContent[mode].help}</p>{hasValue && <button type="button" className="text-button" onClick={handleReset}>清除輸入</button>}</div>
