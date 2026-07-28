@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+const UI_DENSITY_BASE_URL = process.env.UI_DENSITY_BASE_URL || "http://127.0.0.1:4197";
+
 const VIEWPORTS = [
   { label: "大型桌機", width: 1920, height: 1080 },
   { label: "附圖桌機", width: 1672, height: 941 },
@@ -13,7 +15,7 @@ const VIEWPORTS = [
 ];
 
 test.use({
-  baseURL: process.env.UI_DENSITY_BASE_URL || "http://127.0.0.1:4197",
+  baseURL: UI_DENSITY_BASE_URL.endsWith("/") ? UI_DENSITY_BASE_URL : `${UI_DENSITY_BASE_URL}/`,
   reducedMotion: "reduce",
   timezoneId: "Asia/Taipei",
 });
@@ -243,7 +245,7 @@ async function expectReferenceMobileDashboard(page) {
 }
 
 async function verifyHomepage(page) {
-  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.goto("index.html", { waitUntil: "networkidle" });
 
   const form = page.locator("#analyzer-form");
   const birthdayInput = page.locator("#birthday-input");
@@ -329,7 +331,7 @@ async function verifyHomepage(page) {
 
 async function expectDenseDesktopFirstFold(page, width, height) {
   await page.setViewportSize({ width, height });
-  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.goto("index.html", { waitUntil: "networkidle" });
   await page.waitForFunction(() => [...document.querySelectorAll(".dashboard-home-screen img")]
     .every((image) => image.complete && image.naturalWidth > 0));
 
@@ -396,7 +398,7 @@ async function unlockKangjie(page) {
 }
 
 async function verifyKangjie(page) {
-  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await page.goto("kangjie.html#meihua", { waitUntil: "networkidle" });
   await unlockKangjie(page);
 
   const tabs = page.locator("[data-kangjie-tab]");
@@ -465,7 +467,7 @@ for (const viewport of [
 
 test("首頁參考手機比例 390×693 依任務順序顯示四入口、表單、摘要與首排模塊", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 693 });
-  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.goto("index.html", { waitUntil: "networkidle" });
   await expectReferenceMobileDashboard(page);
   await expectNoHorizontalOverflow(page);
   await page.screenshot({
