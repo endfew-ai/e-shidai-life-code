@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 const VIEWPORTS = [
   { label: "附圖桌機", width: 1672, height: 941 },
   { label: "桌機", width: 1440, height: 900 },
+  { label: "Windows 125% 縮放", width: 1536, height: 790 },
   { label: "平板橫向", width: 1024, height: 768 },
   { label: "平板直向", width: 768, height: 1024 },
   { label: "手機", width: 390, height: 844 },
@@ -11,6 +12,7 @@ const VIEWPORTS = [
 
 test.use({
   baseURL: process.env.UI_DENSITY_BASE_URL || "http://127.0.0.1:4197",
+  reducedMotion: "reduce",
   timezoneId: "Asia/Taipei",
 });
 
@@ -86,6 +88,53 @@ async function expectReadableSamples(page, selectors, minimum, label) {
   }
 }
 
+async function expectHeroContentClearOfRail(page) {
+  await expect(page.locator(".dashboard-home-screen .hero-cta")).toBeVisible();
+
+  const report = await page.evaluate(() => {
+    const hero = document.querySelector(".dashboard-home-screen .hero");
+    const copy = document.querySelector(".dashboard-home-screen .hero-copy");
+    const title = document.querySelector(".dashboard-home-screen .hero-title");
+    const summary = document.querySelector(".dashboard-home-screen .hero-summary");
+    const cta = document.querySelector(".dashboard-home-screen .hero-cta");
+    const rail = document.querySelector(".dashboard-home-screen .hero-rail");
+
+    if (!hero || !copy || !title || !summary || !cta || !rail) {
+      return null;
+    }
+
+    const heroRect = hero.getBoundingClientRect();
+    const copyRect = copy.getBoundingClientRect();
+    const titleRect = title.getBoundingClientRect();
+    const summaryRect = summary.getBoundingClientRect();
+    const ctaRect = cta.getBoundingClientRect();
+    const railRect = rail.getBoundingClientRect();
+    const bottomHit = document.elementFromPoint(
+      ctaRect.left + ctaRect.width / 2,
+      ctaRect.bottom - 2,
+    );
+
+    return {
+      copyOverflow: copy.scrollHeight - copy.clientHeight,
+      titleAboveHero: heroRect.top - titleRect.top,
+      titleSummaryGap: summaryRect.top - titleRect.bottom,
+      summaryCtaGap: ctaRect.top - summaryRect.bottom,
+      ctaCopyBottomGap: copyRect.bottom - ctaRect.bottom,
+      ctaRailGap: railRect.top - ctaRect.bottom,
+      ctaOwnsBottomPoint: bottomHit === cta || cta.contains(bottomHit),
+    };
+  });
+
+  expect(report, "首頁主視覺各元素必須存在").not.toBeNull();
+  expect(report.copyOverflow, "主視覺文字不得溢出內容安全區").toBeLessThanOrEqual(1);
+  expect(report.titleAboveHero, "毛筆標題不得超出主視覺上緣").toBeLessThanOrEqual(0);
+  expect(report.titleSummaryGap, "毛筆標題與說明不得重疊").toBeGreaterThanOrEqual(0);
+  expect(report.summaryCtaGap, "說明與金色按鈕不得重疊").toBeGreaterThanOrEqual(0);
+  expect(report.ctaCopyBottomGap, "金色按鈕不得超出內容安全區").toBeGreaterThanOrEqual(-1);
+  expect(report.ctaRailGap, "金色按鈕必須完整位於資訊列上方").toBeGreaterThanOrEqual(1);
+  expect(report.ctaOwnsBottomPoint, "金色按鈕下緣不得被資訊列蓋住").toBe(true);
+}
+
 async function verifyHomepage(page) {
   await page.goto("/index.html", { waitUntil: "networkidle" });
 
@@ -97,6 +146,7 @@ async function verifyHomepage(page) {
   await expect(birthdayInput).toBeVisible();
   await expect(submit).toBeVisible();
   await expect(submit).toBeEnabled();
+  await expectHeroContentClearOfRail(page);
 
   await expectMinimumHeight(page.locator("[data-mode-label], .kangjie-mode-entry"), 44, "首頁模式入口");
   await expectMinimumHeight(submit, 44, "首頁主要分析按鈕");
