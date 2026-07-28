@@ -2088,6 +2088,21 @@
   --kangjie-panel: rgba(6, 27, 23, .97);
   --kangjie-gold-wash: rgba(199, 154, 69, .09);
 }
+.access-gate-index { font-size: 14px; }
+.access-gate-card > a {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
+}
+.kangjie-wordmark,
+.kangjie-shell .topbar > div a {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
+}
+.current-time-copy > span { font-size: 14px; }
+.current-time-copy strong { font-size: 16px; }
+.kangjie-overview span { font-size: 14px; }
 .kangjie-hero {
   background: #020c0a;
   height: 258px;
@@ -2140,11 +2155,33 @@
 
 @media (max-width: 650px) {
   .access-gate-card button { min-height: 46px; }
+  .kangjie-wordmark,
+  .kangjie-shell .topbar > div a {
+    font-size: 14px;
+  }
+  .line-row > .line-position,
+  .line-row > .line-change-mark { font-size: 14px; }
+  .calculation-input-grid pre {
+    max-height: none;
+    overflow: visible;
+  }
   .kangjie-hero { height: 202px; }
   .kangjie-overview article { min-height: 64px; }
   .kangjie-overview p { font-size: 15px; }
   .kangjie-tabs {
     position: static;
     top: auto;
+  }
+}
+
+/* 320–360px：爻辭已含初九、六二、上六等爻位，隱藏重複欄位以放大正文寬度。 */
+@media (max-width: 360px) {
+  .kangjie-shell .line-row > .line-position {
+    display: none;
+  }
+
+  .kangjie-shell .line-row {
+    gap: 3px;
+    grid-template-columns: minmax(60px, .42fr) 14px minmax(0, 1.58fr);
   }
 }

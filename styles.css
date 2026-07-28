@@ -32,7 +32,7 @@ body {
   line-height: 1.7;
   margin: 0;
   min-height: 100vh;
-  min-width: 320px;
+  min-width: 0;
 }
 body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
@@ -4269,6 +4269,153 @@ body:has([data-ui="xuanxing-aaa"]) {
   }
   .iching-results .yao { gap: 4px; }
   .iching-results .yao i { height: 6px; }
+}
+
+/* 手機工作台驗收版：保留 14–16px 文字與 44px 觸控面積，以網格重排取代縮字。 */
+@media (max-width: 640px) {
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .wordmark {
+    min-height: 44px;
+    padding-block: 5px;
+  }
+
+  .dashboard-home-screen .dashboard-lead > .hero {
+    height: 216px;
+  }
+
+  .dashboard-home-screen .dashboard-lead .hero-copy {
+    bottom: 48px;
+  }
+
+  .dashboard-home-screen .dashboard-lead .mode-art,
+  .dashboard-home-screen .visual-module-rail > header {
+    display: none;
+  }
+
+  #clear-button {
+    align-items: center;
+    display: inline-flex;
+    font-size: 14px;
+    justify-content: center;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .cockpit-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-ui="xuanxing-aaa"] .cockpit-status article,
+  [data-ui="xuanxing-aaa"] .cockpit-status article:nth-child(n) {
+    border-bottom: 1px solid var(--aaa-edge-soft);
+    min-height: 76px;
+    padding: 7px;
+  }
+
+  [data-ui="xuanxing-aaa"] .cockpit-status article:nth-child(2n) {
+    border-right: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .cockpit-status article:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .cockpit-status small {
+    font-size: 14px;
+  }
+
+  [data-ui="xuanxing-aaa"] .cockpit-status strong {
+    line-height: 1.35;
+    min-height: 22px;
+  }
+
+  .dashboard-home-screen .visual-module-grid {
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-home-screen .visual-module-grid > a {
+    min-height: 140px;
+  }
+
+  .dashboard-home-screen .visual-module-grid > a:nth-child(5) {
+    grid-column: 1 / 3;
+    min-height: 140px;
+  }
+
+  .dashboard-home-screen .visual-module-grid strong {
+    font-size: 17px;
+  }
+
+  .dashboard-home-screen .visual-module-grid small {
+    font-size: 14px;
+  }
+
+  .dashboard-home-screen .visual-module-grid em {
+    font-size: 14px;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-tabs button {
+    font-size: 14px;
+    min-height: 48px;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-grid button:nth-child(n) {
+    grid-column: span 1;
+    min-height: 132px;
+    padding: 12px;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-grid strong {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-grid small {
+    font-size: 14px;
+    line-height: 1.42;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-art {
+    opacity: .16;
+    width: 100%;
+  }
+}
+
+@media (min-width: 361px) and (max-width: 640px) {
+  .dashboard-home-screen .support-module-grid {
+    gap: 8px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-home-screen .support-module-grid > a:last-child {
+    grid-column: 1 / 3;
+  }
+}
+
+@media (max-width: 360px) {
+  [data-ui="xuanxing-aaa"] .cockpit-status article:not(.cockpit-time) em {
+    display: none;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-grid button:nth-child(n) {
+    min-height: 136px;
+  }
+
+  [data-ui="xuanxing-aaa"] .workspace-entry-grid small {
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    display: -webkit-box;
+    overflow: hidden;
+  }
 }
 
 @media print {

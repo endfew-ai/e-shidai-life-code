@@ -293,7 +293,7 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /data-current-time-detect/);
   assert.match(html, /重新套用現在/);
   assert.match(html, /自動偵測，可手動選/);
-  assert.match(html, /kangjie\.css\?v=20260728-yao-text-v2/);
+  assert.match(html, /kangjie\.css\?v=20260728-mobile-v3/);
   assert.match(html, /kangjie\.js\?v=20260728-yao-text-v2/);
   assert.match(scriptSource, /input\.value === "0000"/);
   assert.match(scriptSource, /initializeCurrentTimeDetection/);

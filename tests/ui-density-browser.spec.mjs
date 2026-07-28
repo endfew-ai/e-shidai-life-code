@@ -27,9 +27,15 @@ test.beforeEach(async ({ page }) => {
 async function expectNoHorizontalOverflow(page) {
   const dimensions = await page.evaluate(() => ({
     innerWidth: window.innerWidth,
-    documentWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+    documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
   }));
-  expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.innerWidth + 1);
+  expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1);
+  const scrollX = await page.evaluate(() => {
+    window.scrollTo({ left: 100, top: window.scrollY, behavior: "instant" });
+    return window.scrollX;
+  });
+  expect(scrollX, `頁面不得水平滑動（inner ${dimensions.innerWidth}／client ${dimensions.clientWidth}）`).toBe(0);
 }
 
 async function expectMinimumHeight(locator, minimum, label) {
@@ -115,6 +121,7 @@ async function expectHeroContentClearOfRail(page) {
     );
 
     return {
+      viewportWidth: window.innerWidth,
       copyOverflow: copy.scrollHeight - copy.clientHeight,
       titleAboveHero: heroRect.top - titleRect.top,
       titleSummaryGap: summaryRect.top - titleRect.bottom,
@@ -131,8 +138,48 @@ async function expectHeroContentClearOfRail(page) {
   expect(report.titleSummaryGap, "毛筆標題與說明不得重疊").toBeGreaterThanOrEqual(0);
   expect(report.summaryCtaGap, "說明與金色按鈕不得重疊").toBeGreaterThanOrEqual(0);
   expect(report.ctaCopyBottomGap, "金色按鈕不得超出內容安全區").toBeGreaterThanOrEqual(-1);
-  expect(report.ctaRailGap, "金色按鈕必須完整位於資訊列上方").toBeGreaterThanOrEqual(1);
+  expect(report.ctaRailGap, "金色按鈕必須完整位於資訊列上方")
+    .toBeGreaterThanOrEqual(report.viewportWidth <= 640 ? 7 : 1);
   expect(report.ctaOwnsBottomPoint, "金色按鈕下緣不得被資訊列蓋住").toBe(true);
+}
+
+async function expectCompactMobileDashboard(page) {
+  const report = await page.evaluate(() => {
+    const columns = (selector) => getComputedStyle(document.querySelector(selector))
+      .gridTemplateColumns.split(/\s+/).filter(Boolean).length;
+    const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+    return {
+      viewportWidth: window.innerWidth,
+      wordmarkHeight: rect(".dashboard-canvas > .topbar .wordmark").height,
+      cockpitColumns: columns(".cockpit-status"),
+      cockpitHeight: rect(".cockpit-status").height,
+      mainColumns: columns(".visual-module-grid"),
+      supportColumns: columns(".support-module-grid"),
+      workspaceTabColumns: columns(".workspace-tabs"),
+      workspaceEntryColumns: columns(".workspace-entry-grid"),
+      workspaceEntryHeights: [...document.querySelectorAll(".workspace-entry-grid button")]
+        .map((element) => element.getBoundingClientRect().height),
+      modeArtDisplay: getComputedStyle(document.querySelector(".dashboard-lead .mode-art")).display,
+      moduleHeadingDisplay: getComputedStyle(document.querySelector(".visual-module-rail > header")).display,
+    };
+  });
+
+  expect(report.wordmarkHeight, "手機品牌連結觸控高度").toBeGreaterThanOrEqual(44);
+  expect(report.cockpitColumns, "手機即時摘要應維持 2×2").toBe(2);
+  expect(report.cockpitHeight, "手機即時摘要不得退化成過長四列").toBeLessThanOrEqual(230);
+  expect(report.mainColumns, "手機五大入口應採 2+2+1").toBe(2);
+  expect(report.supportColumns, "手機支援入口欄數").toBe(report.viewportWidth <= 360 ? 1 : 2);
+  expect(report.workspaceTabColumns, "手機工作台分頁應採三欄兩列").toBe(3);
+  expect(report.workspaceEntryColumns, "手機工作台六入口應採兩欄三列").toBe(2);
+  expect(Math.max(...report.workspaceEntryHeights), "手機工作台入口不得過度拉長").toBeLessThanOrEqual(180);
+  expect(report.modeArtDisplay, "手機不重複顯示當前模式橫幅").toBe("none");
+  expect(report.moduleHeadingDisplay, "手機不重複顯示入口總標題").toBe("none");
+  await expectReadableSamples(
+    page,
+    [".cockpit-status small", ".visual-module-grid small"],
+    14,
+    "手機儀表與入口標籤",
+  );
 }
 
 async function verifyHomepage(page) {
@@ -150,9 +197,12 @@ async function verifyHomepage(page) {
 
   await expectMinimumHeight(page.locator("[data-mode-label], .kangjie-mode-entry"), 44, "首頁模式入口");
   await expectMinimumHeight(submit, 44, "首頁主要分析按鈕");
+  const readableSelectors = page.viewportSize().width <= 640
+    ? [".field-block > span", ".form-meta p"]
+    : [".mode-art figcaption > span", ".field-block > span", ".form-meta p"];
   await expectReadableSamples(
     page,
-    [".mode-art figcaption > span", ".field-block > span", ".form-meta p"],
+    readableSelectors,
     16,
     "首頁一般說明",
   );
@@ -163,6 +213,11 @@ async function verifyHomepage(page) {
   await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
 
   await birthdayInput.fill("1990-08-12");
+  await expect(page.locator("#clear-button")).toBeVisible();
+  if (page.viewportSize().width <= 640) {
+    await expectMinimumHeight(page.locator("#clear-button"), 44, "手機清除輸入按鈕");
+    await expectReadableSamples(page, ["#clear-button"], 14, "手機清除輸入按鈕");
+  }
   await submit.click();
   await expect(page.locator("#result-anchor")).toBeVisible();
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
@@ -186,15 +241,14 @@ async function verifyHomepage(page) {
       minimumCardWidth: Math.min(...children.map((child) => child.getBoundingClientRect().width)),
     };
   });
-  const expectedColumns = moduleGrid.viewportWidth <= 360
-    ? 1
-    : moduleGrid.viewportWidth <= 640
-      ? 2
-      : moduleGrid.viewportWidth <= 1180
-        ? 3
-        : 5;
+  const expectedColumns = moduleGrid.viewportWidth <= 640
+    ? 2
+    : moduleGrid.viewportWidth <= 1180
+      ? 3
+      : 5;
   expect(moduleGrid.columnCount).toBe(expectedColumns);
-  expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(150);
+  expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(moduleGrid.viewportWidth <= 360 ? 140 : 150);
+  if (moduleGrid.viewportWidth <= 640) await expectCompactMobileDashboard(page);
   await expectNoHorizontalOverflow(page);
 }
 
@@ -257,6 +311,7 @@ async function unlockKangjie(page) {
   await expect(gate).toBeVisible();
   await expect(gate.locator('[name="password"]')).toBeVisible();
   await expectMinimumHeight(gate.locator('button[type="submit"]'), 44, "康節密碼驗證按鈕");
+  await expectMinimumHeight(gate.locator('a[href="index.html"]'), 44, "康節密碼門返回首頁");
 
   await gate.locator('[name="password"]').fill("0000");
   await gate.locator('button[type="submit"]').click();
@@ -272,6 +327,7 @@ async function verifyKangjie(page) {
   const tabs = page.locator("[data-kangjie-tab]");
   await expect(tabs).toHaveCount(4);
   await expectMinimumHeight(tabs, 44, "康節主分頁");
+  await expectMinimumHeight(page.locator(".kangjie-wordmark, .kangjie-shell .topbar > div a"), 44, "康節頂欄連結");
 
   const tabPanels = [
     ["origins", "#panel-origins"],
@@ -295,10 +351,11 @@ async function verifyKangjie(page) {
   await expectMinimumHeight(submit, 44, "康節主要起卦按鈕");
   await expectReadableSamples(
     page,
-    [".kangjie-panel-heading > p", ".form-intro p", ".form-note"],
+    [".kangjie-panel-heading > p", ".form-intro p", ".form-note", ".current-time-copy strong"],
     16,
     "康節一般說明",
   );
+  await expectReadableSamples(page, [".current-time-copy > span"], 14, "康節時間標籤");
 
   await calendar.locator('[name="yearBranch"]').selectOption("5");
   await calendar.locator('[name="lunarMonth"]').fill("12");
