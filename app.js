@@ -612,6 +612,7 @@ function initializeAnalyzer() {
   const analyzerDescription = document.querySelector("#analyzer-description");
   const modeArt = document.querySelector("#mode-art-image");
   const quickModeLinks = [...document.querySelectorAll("[data-quick-mode]")];
+  const birthdayEntryLinks = [...document.querySelectorAll("[data-start-birthday]")];
   const resultAnchor = document.querySelector("#result-anchor");
   const accessDialog = document.querySelector("#iching-access-dialog");
   const accessForm = document.querySelector("#iching-access-form");
@@ -700,6 +701,7 @@ function initializeAnalyzer() {
   function changeMode(nextMode) {
     mode = nextMode;
     form.dataset.activeMode = mode;
+    for (const input of modeInputs) input.checked = input.value === mode;
     for (const panel of modePanels) panel.hidden = panel.dataset.modePanel !== mode;
     for (const label of modeLabels) label.classList.toggle("is-active", label.dataset.modeLabel === mode);
     analyzerTitleText.textContent = modeContent[mode].label;
@@ -718,6 +720,17 @@ function initializeAnalyzer() {
     updateCockpitResult(null);
     updateClearButton();
     window.setTimeout(() => currentInputs()[0].focus(), 0);
+  }
+
+  function startBirthdayAnalysis(event) {
+    event.preventDefault();
+    changeMode("birthday");
+    document.querySelector("#analyzer")?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+    window.history.replaceState(null, "", "#analyzer");
+    birthdayInput.focus({ preventScroll: true });
   }
 
   function resetCurrent() {
@@ -750,6 +763,9 @@ function initializeAnalyzer() {
       }
       changeMode(nextMode);
     });
+  }
+  for (const link of birthdayEntryLinks) {
+    link.addEventListener("click", startBirthdayAnalysis);
   }
   for (const input of [birthdayInput, codeInput, ...ichingInputs]) {
     input.addEventListener("input", () => {

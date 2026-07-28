@@ -23,7 +23,7 @@
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/hero-life-v1.webp" type="image/webp" fetchpriority="high" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=20260728-mobile-v7" />
-    <script type="module" src="app.js?v=20260728-iching-v5"></script>
+    <script type="module" src="app.js?v=20260728-birthday-entry-v1"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -31,7 +31,7 @@
         <a class="sidebar-brand" href="#top"><span aria-hidden="true">命</span><strong class="brush-title brush-sidebar-brand"><span class="sr-only">生命靈數</span><img class="brush-title-image" src="public/visuals/brush/brand-life-numerology-aaa-web-v1.webp" width="720" height="194" fetchpriority="high" decoding="async" alt="" aria-hidden="true" /></strong></a>
         <p class="sidebar-tagline">數字有軌跡，規則可核對</p>
         <p class="sidebar-intro">把生日、生命路徑、九宮、流年與數字紀錄集中在同一個可核對的工作台。</p>
-        <a class="sidebar-primary" href="#analyzer"><span>開始生日分析</span><b aria-hidden="true">→</b></a>
+        <a class="sidebar-primary" href="#analyzer" data-start-birthday aria-label="切換至生日命碼並聚焦出生日期欄位"><span>輸入生日開始分析</span><b aria-hidden="true">→</b></a>
         <a class="sidebar-secondary" href="#numerology-workspace" data-workspace-target="history"><span>開啟本機紀錄</span><b aria-hidden="true">↗</b></a>
         <nav class="sidebar-links" aria-label="功能捷徑">
           <a href="#analyzer" data-quick-mode="birthday"><span>01</span><strong>生日分析</strong><small>生命路徑與流年</small></a>
@@ -68,7 +68,7 @@
           <p class="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
           <h1 class="hero-title"><span class="brush-title brush-hero"><span class="sr-only">看見你的數字軌跡</span><img class="brush-title-image" src="public/visuals/brush/title-hero-web-v1.webp" width="900" height="576" decoding="async" alt="" aria-hidden="true" /></span></h1>
           <p class="hero-summary">從生日開始，核對你的生命路徑、數字分布與人生階段。</p>
-          <a class="hero-cta" href="#analyzer"><span>開始生命靈數分析</span><strong aria-hidden="true">↓</strong></a>
+          <a class="hero-cta" href="#analyzer" data-start-birthday aria-label="切換至生日命碼並聚焦出生日期欄位"><span>直接輸入出生日期</span><strong aria-hidden="true">↘</strong></a>
         </div>
         <div class="hero-rail"><p><strong class="brush-title brush-theme"><span class="sr-only">玄星觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-xuanxing-web-v1.webp" width="640" height="187" decoding="async" alt="" aria-hidden="true" /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>

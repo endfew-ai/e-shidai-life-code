@@ -77,6 +77,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
   assert.match(html, /class="dashboard-home-screen"/);
+  assert.match(html, /data-start-birthday/);
+  assert.match(html, /直接輸入出生日期/);
+  assert.match(appSource, /function startBirthdayAnalysis/);
+  assert.match(reactSource, /function startBirthdayAnalysis/);
   assert.match(html, /data-cockpit-time/);
   assert.match(html, /data-cockpit-mode/);
   assert.match(html, /data-cockpit-core/);

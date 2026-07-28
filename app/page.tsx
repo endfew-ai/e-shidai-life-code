@@ -509,6 +509,18 @@ export default function Home() {
     changeMode(nextMode);
   }
 
+  function startBirthdayAnalysis(event: ReactMouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    const mountedBirthdayInput = birthdayRef.current;
+    changeMode("birthday");
+    document.querySelector("#analyzer")?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+    window.history.replaceState(null, "", "#analyzer");
+    mountedBirthdayInput?.focus({ preventScroll: true });
+  }
+
   function closeAccessDialog() {
     setAccessOpen(false); setAccessPassword(""); setAccessMessage("");
   }
@@ -584,7 +596,7 @@ export default function Home() {
         </a>
         <p className="sidebar-tagline">數字有軌跡，規則可核對</p>
         <p className="sidebar-intro">把生日、生命路徑、九宮、流年與數字紀錄集中在同一個可核對的工作台。</p>
-        <a className="sidebar-primary" href="#analyzer"><span>開始生日分析</span><b aria-hidden="true">→</b></a>
+        <a className="sidebar-primary" href="#analyzer" onClick={startBirthdayAnalysis} aria-label="切換至生日命碼並聚焦出生日期欄位"><span>輸入生日開始分析</span><b aria-hidden="true">→</b></a>
         <a className="sidebar-secondary" href="#numerology-workspace" onClick={openWorkspace("history")}><span>開啟本機紀錄</span><b aria-hidden="true">↗</b></a>
         <nav className="sidebar-links" aria-label="功能捷徑">
           <a href="#analyzer" onClick={() => requestMode("birthday")}><span>01</span><strong>生日分析</strong><small>生命路徑與流年</small></a>
@@ -621,7 +633,7 @@ export default function Home() {
           <p className="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
           <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-web-v1.webp" text="看見你的數字軌跡" className="brush-hero" width={900} height={576} /></h1>
           <p className="hero-summary">從生日開始，核對你的生命路徑、數字分布與人生階段。</p>
-          <a className="hero-cta" href="#analyzer"><span>開始生命靈數分析</span><strong aria-hidden="true">↓</strong></a>
+          <a className="hero-cta" href="#analyzer" onClick={startBirthdayAnalysis} aria-label="切換至生日命碼並聚焦出生日期欄位"><span>直接輸入出生日期</span><strong aria-hidden="true">↘</strong></a>
         </div>
         <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-web-v1.webp" text="玄星觀象" className="brush-theme" width={640} height={187} /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
       </header>

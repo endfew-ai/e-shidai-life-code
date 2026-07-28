@@ -209,8 +209,10 @@ async function verifyHomepage(page) {
 
   await page.locator('[data-mode-label="code"]').click();
   await expect(page.locator('input[name="analysis-mode"][value="code"]')).toBeChecked();
-  await page.locator('[data-mode-label="birthday"]').click();
+  await page.locator(".dashboard-home-screen .hero-cta").click();
   await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
+  await expect(birthdayInput).toBeFocused();
+  await expect(page).toHaveURL(/#analyzer$/);
 
   await birthdayInput.fill("1990-08-12");
   await expect(page.locator("#clear-button")).toBeVisible();
