@@ -20,10 +20,11 @@
     <meta name="twitter:description" content="看見你的數字軌跡。從生日命碼開始，逐步核對完整算式。" />
     <meta name="twitter:image" content="https://endfew-ai.github.io/e-shidai-life-code/og-life-numerology-aaa-v1.png" />
     <link rel="preload" as="image" href="public/visuals/brush/brand-life-numerology-aaa-web-v1.webp" type="image/webp" fetchpriority="high" />
-    <link rel="preload" as="image" href="public/visuals/ai-dashboard/hero-life-v1.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v3/desktop-hero-command-v3.webp" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v3/mobile-celestial-arch-v3.webp" type="image/webp" fetchpriority="high" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260728-reference-v2" />
-    <script type="module" src="app.js?v=20260728-reference-v2"></script>
+    <link rel="stylesheet" href="styles.css?v=20260728-reference-v3" />
+    <script type="module" src="app.js?v=20260728-reference-v3"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -31,7 +32,7 @@
         <a class="sidebar-brand" href="#top"><span class="sidebar-crest" aria-hidden="true"><img src="public/visuals/ai-dashboard/reference-v2/brand-crest-v2.webp" width="512" height="512" fetchpriority="high" decoding="async" alt="" /></span><strong class="brush-title brush-sidebar-brand"><span class="sr-only">生命靈數</span><img class="brush-title-image" src="public/visuals/brush/brand-life-numerology-aaa-web-v1.webp" width="720" height="194" fetchpriority="high" decoding="async" alt="" aria-hidden="true" /></strong></a>
         <p class="sidebar-tagline">數字有軌跡，規則可核對</p>
         <p class="sidebar-intro">把生日、生命路徑、九宮、流年與數字紀錄集中在同一個可核對的工作台。</p>
-        <a class="sidebar-primary" href="#analyzer" data-start-birthday aria-label="切換至生日命碼並聚焦出生日期欄位"><span>輸入生日開始分析</span><b aria-hidden="true">→</b></a>
+        <a class="sidebar-primary" href="#analyzer" data-start-birthday aria-label="切換至生日命碼；空白時開啟日期欄，有日期時直接分析"><span>選擇生日開始</span><b aria-hidden="true">→</b></a>
         <a class="sidebar-secondary" href="#numerology-workspace" data-workspace-target="history"><span>開啟本機紀錄</span><b aria-hidden="true">↗</b></a>
         <nav class="sidebar-links" aria-label="功能捷徑">
           <a href="#analyzer" data-quick-mode="birthday"><span>01</span><strong>生日分析</strong><small>生命路徑與流年</small></a>
@@ -60,26 +61,18 @@
         <div><a href="#analyzer" data-quick-mode="birthday">生日分析</a><a href="#analyzer" data-quick-mode="code">數字頻譜</a><a class="nav-optional" href="#analyzer" data-quick-mode="birthday">九宮配置</a><a class="nav-optional" href="#analyzer" data-quick-mode="birthday">流年分析</a><a href="#numerology-workspace" data-workspace-target="home">進階工作台</a><a href="kangjie.html">邵康節專頁</a><a class="nav-optional" href="#method-source">規則來源</a><p class="visit-counter" data-visit-counter data-state="loading" role="status" aria-live="polite" aria-atomic="true"><span>累積造訪</span><strong data-visit-count>讀取中</strong><small>次</small></p></div>
       </nav>
 
-      <div class="dashboard-home-screen">
+      <div class="dashboard-home-screen reference-v3">
       <div class="dashboard-lead" data-ui-region="dashboard-lead">
       <header class="hero" id="top">
-        <img class="hero-art" src="public/visuals/ai-dashboard/hero-life-v1.webp" width="1915" height="821" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img class="hero-art" src="public/visuals/ai-dashboard/reference-v3/desktop-hero-command-v3.webp" width="1672" height="941" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
         <div class="hero-copy">
           <p class="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
           <h1 class="hero-title"><span class="brush-title brush-hero"><span class="sr-only">看見你的數字軌跡</span><img class="brush-title-image" src="public/visuals/brush/title-hero-web-v1.webp" width="900" height="576" decoding="async" alt="" aria-hidden="true" /></span></h1>
           <p class="hero-summary">從生日開始，核對你的生命路徑、數字分布與人生階段。</p>
-          <a class="hero-cta" href="#analyzer" data-start-birthday aria-label="切換至生日命碼並聚焦出生日期欄位"><span>直接輸入出生日期</span><strong aria-hidden="true">↘</strong></a>
+          <ul class="hero-proof" aria-label="分析特色"><li><strong>規則演算</strong><span>固定版本與逐步算式</span></li><li><strong>完整解析</strong><span>生日、路徑、九宮與流年</span></li><li><strong>隱私安全</strong><span>分析資料只在本機處理</span></li></ul>
         </div>
-        <div class="hero-rail"><p><strong class="brush-title brush-theme"><span class="sr-only">玄星觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-xuanxing-web-v1.webp" width="640" height="187" decoding="async" alt="" aria-hidden="true" /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
+        <div class="hero-rail"><p><strong class="brush-title brush-theme"><span class="sr-only">玄星觀象</span><img class="brush-title-image" src="public/visuals/brush/theme-xuanxing-web-v1.webp" width="640" height="187" decoding="async" alt="" aria-hidden="true" /></strong><span>生日生命靈數為主要分析</span></p><p>程式即時計算，沒有預填範例數值</p></div>
       </header>
-
-      <section class="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
-        <article class="cockpit-time"><span class="cockpit-dial" aria-hidden="true"><i></i></span><div><small>台北目前時間</small><strong data-cockpit-time>--:--</strong><em data-cockpit-date>日期讀取中</em></div></article>
-        <article><span class="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>生日命碼</strong><em data-cockpit-mode-note>生命路徑、生日數與個人流年</em></div></article>
-        <article><span class="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>待分析</strong><em data-cockpit-core-note>輸入資料後即時顯示</em></div></article>
-        <article><span class="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
-        <span class="cockpit-center-seal" aria-hidden="true"><img src="public/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width="384" height="384" loading="eager" decoding="async" alt="" /><i>☯</i></span>
-      </section>
 
       <section class="analyzer-section" id="analyzer" data-ui-region="analyzer" aria-labelledby="analyzer-title">
         <form class="analyzer-card" id="analyzer-form" data-active-mode="birthday" novalidate>
@@ -97,15 +90,61 @@
               <div class="input-panel" data-mode-panel="birthday"><label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label></div>
               <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
               <div class="input-panel" data-mode-panel="iching" hidden><div class="triple-input-grid"><label class="field-block"><span>第一數<small>上卦 ÷ 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第二數<small>下卦 ÷ 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第三數<small>動爻 ÷ 6</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message" /></label></div></div>
-              <div class="form-meta"><p id="input-help">只需西元生日；身分證請使用下方獨立入口。</p><button type="button" class="text-button" id="clear-button" hidden>清除輸入</button></div>
+              <div class="form-meta"><p id="input-help">只需生日；身分證請用下方獨立入口。</p><button type="button" class="text-button" id="clear-button" hidden>清除輸入</button></div>
               <p id="input-message" class="form-message" role="alert" aria-live="polite"></p>
-              <button type="submit" class="primary-button analyze-submit" id="analyze-button">分析生日命碼<img class="analyze-seal" src="public/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><span aria-hidden="true">↘</span></button>
+              <button type="submit" class="primary-button analyze-submit" id="analyze-button"><span data-analyze-label>分析生日命碼</span><img class="analyze-seal" src="public/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><b aria-hidden="true">↘</b></button>
             </div>
           </div>
+          <section class="desktop-result-preview" aria-label="生命路徑即時總覽">
+            <header><strong>生命路徑總覽</strong><span data-preview-status>等待輸入</span></header>
+            <div>
+              <article><small data-preview-label="primary">生命路徑數</small><strong data-preview-value="primary">－</strong></article>
+              <article><small data-preview-label="secondary">生日數</small><strong data-preview-value="secondary">－</strong></article>
+              <article><small data-preview-label="tertiary">態度數</small><strong data-preview-value="tertiary">－</strong></article>
+              <article><small data-preview-label="annual">個人流年</small><strong data-preview-value="annual">－</strong></article>
+            </div>
+          </section>
           <ul class="method-strip" aria-label="分析承諾"><li>版本化規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
         </form>
       </section>
       </div>
+
+      <section class="dashboard-analytics" data-ui-region="desktop-analytics" aria-label="生命靈數分析總覽">
+        <article class="analytics-overview">
+          <header><span>核心總覽</span><strong data-analytics-status>待分析</strong></header>
+          <div><span class="analytics-orbit" aria-hidden="true"><b data-analytics-core>－</b><em>核心</em></span><dl><div><dt>分析模式</dt><dd data-analytics-mode>生日命碼</dd></div><div><dt>資料狀態</dt><dd data-analytics-state>等待輸入</dd></div><div><dt>計算方式</dt><dd>固定規則</dd></div></dl></div>
+        </article>
+        <article class="analytics-spectrum">
+          <header><span data-analytics-distribution-title>數字出現次數</span><small>實際輸入 1 至 9</small></header>
+          <div class="digit-bars" role="img" aria-label="尚未分析，數字一至九出現次數皆為零">
+            <span data-digit-bar="1" style="--bar-level:0"><em>0</em><i></i><b>1</b></span>
+            <span data-digit-bar="2" style="--bar-level:0"><em>0</em><i></i><b>2</b></span>
+            <span data-digit-bar="3" style="--bar-level:0"><em>0</em><i></i><b>3</b></span>
+            <span data-digit-bar="4" style="--bar-level:0"><em>0</em><i></i><b>4</b></span>
+            <span data-digit-bar="5" style="--bar-level:0"><em>0</em><i></i><b>5</b></span>
+            <span data-digit-bar="6" style="--bar-level:0"><em>0</em><i></i><b>6</b></span>
+            <span data-digit-bar="7" style="--bar-level:0"><em>0</em><i></i><b>7</b></span>
+            <span data-digit-bar="8" style="--bar-level:0"><em>0</em><i></i><b>8</b></span>
+            <span data-digit-bar="9" style="--bar-level:0"><em>0</em><i></i><b>9</b></span>
+          </div>
+        </article>
+        <article class="analytics-core-detail">
+          <header><span>核心數字</span><small>程式即時計算</small></header>
+          <div><span class="analytics-core-medal" aria-hidden="true"><b data-analytics-core-large>－</b></span><p><strong data-analytics-title>等待輸入</strong><em data-analytics-note>輸入資料後顯示可核對的核心摘要。</em></p></div>
+        </article>
+        <article class="analytics-annual">
+          <header><span>個人流年摘要</span><small data-analytics-year>本年度</small></header>
+          <div><span class="analytics-year-medal"><small data-analytics-year-label>個人流年</small><strong data-analytics-annual>－</strong></span><p><strong data-analytics-annual-title>等待生日</strong><em data-analytics-annual-note>個人流年只在生日模式計算。</em></p></div>
+        </article>
+      </section>
+
+      <section class="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
+        <article class="cockpit-time"><span class="cockpit-dial" aria-hidden="true"><i></i></span><div><small>台北目前時間</small><strong data-cockpit-time>--:--</strong><em data-cockpit-date>日期讀取中</em></div></article>
+        <article><span class="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>生日命碼</strong><em data-cockpit-mode-note>生命路徑、生日數與個人流年</em></div></article>
+        <article><span class="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>待分析</strong><em data-cockpit-core-note>輸入資料後即時顯示</em></div></article>
+        <article><span class="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
+        <span class="cockpit-center-seal" aria-hidden="true"><img src="public/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width="384" height="384" loading="eager" decoding="async" alt="" /><i>☯</i></span>
+      </section>
 
       <section class="visual-module-rail" data-ui-region="modules" aria-labelledby="visual-module-title">
         <header><p>主要分析與進階工具</p><h2 id="visual-module-title"><span class="brush-title brush-visual-module"><span class="sr-only">進階靈數工作台</span><img class="brush-title-image" src="public/visuals/brush/title-workspace-web-v1.webp" width="640" height="122" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><span>點一下直接進入，結果由程式即時計算</span></header>

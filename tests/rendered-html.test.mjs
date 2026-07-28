@@ -30,7 +30,7 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /三數取卦/);
   assert.match(html, /邵康節易學/);
   assert.match(html, /分析生日命碼/);
-  assert.match(html, /所有分析輸入只在本機處理/);
+  assert.match(html, /分析資料只在本機處理/);
   assert.match(html, /看見你的/);
   assert.match(html, /數字軌跡/);
   assert.match(html, /Cheiro 原書色彩章/);

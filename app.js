@@ -29,7 +29,7 @@ const modeContent = {
     label: "生日命碼",
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
-    help: "只需西元生日；身分證請使用下方獨立入口。",
+    help: "只需生日；身分證請用下方獨立入口。",
     art: "public/visuals/ai-dashboard/life-path-v1.webp",
     artWidth: 960,
     artHeight: 640,
@@ -40,7 +40,7 @@ const modeContent = {
     label: "數字頻譜",
     description: "任意號碼的加總、核心數與數字分布",
     button: "分析數字頻譜",
-    help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
+    help: "支援全形、半形數字與空白；請勿輸入敏感資料。",
     art: "public/visuals/ai-dashboard/number-wave-v1.webp",
     artWidth: 960,
     artHeight: 640,
@@ -51,7 +51,7 @@ const modeContent = {
     label: "三數取卦",
     description: "三數推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
-    help: "三個整數各自取卦，不會自動切分生日或號碼。",
+    help: "請分別輸入三個整數，不會自動切分生日或號碼。",
     art: "public/visuals/iching-instrument-b-v3.webp",
     artWidth: 1586,
     artHeight: 992,
@@ -59,6 +59,96 @@ const modeContent = {
     alt: "低亮古金六爻測量儀視覺",
   },
 };
+
+function dashboardAnalytics(result, mode = "birthday") {
+  const modeLabel = modeContent[mode]?.label ?? "生日命碼";
+  const emptyCounts = Array.from({ length: 9 }, () => 0);
+  const emptyPreview = {
+    labels: ["生命路徑數", "生日數", "態度數", "個人流年"],
+    values: ["－", "－", "－", "－"],
+  };
+  if (!result) {
+    return {
+      status: "待分析",
+      modeLabel,
+      state: "等待輸入",
+      core: "－",
+      title: "等待輸入",
+      note: "輸入資料後顯示可核對的核心摘要。",
+      counts: emptyCounts,
+      distributionTitle: "數字出現次數",
+      annual: "－",
+      annualTitle: "等待生日",
+      annualNote: "個人流年只在生日模式計算。",
+      preview: emptyPreview,
+    };
+  }
+
+  if (result.kind === "birthday") {
+    return {
+      status: "生日分析完成",
+      modeLabel,
+      state: "結果已更新",
+      core: result.lifePath.display,
+      title: profiles[result.profileNumber]?.title ?? "生命路徑",
+      note: `生日數 ${result.birthday.display}，態度數 ${result.attitude.value}`,
+      counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
+      distributionTitle: "生日數字分佈",
+      annual: String(result.personalYear.value),
+      annualTitle: `個人流年數 ${result.personalYear.value}`,
+      annualNote: `${result.personalYear.year} 年，依生日與年度數字計算`,
+      preview: {
+        labels: ["生命路徑數", "生日數", "態度數", "個人流年"],
+        values: [result.lifePath.display, result.birthday.display, String(result.attitude.value), String(result.personalYear.value)],
+      },
+    };
+  }
+
+  if (result.kind === "code") {
+    return {
+      status: "數字頻譜完成",
+      modeLabel,
+      state: `${result.length} 位數字`,
+      core: String(result.core),
+      title: profiles[result.profileNumber]?.title ?? "數字核心",
+      note: `實際總和 ${result.sum}，未出現 ${result.missing.length} 個數字`,
+      counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
+      distributionTitle: "數字出現次數",
+      annual: "不適用",
+      annualTitle: "數字頻譜模式",
+      annualNote: "此模式只分析輸入數字，不推算個人流年。",
+      preview: {
+        labels: ["核心數", "數字總和", "輸入位數", "最常出現"],
+        values: [String(result.core), String(result.sum), String(result.length), result.strongest.join("、") || "無"],
+      },
+    };
+  }
+
+  const counts = Array.from({ length: 9 }, () => 0);
+  for (const value of result.inputs) {
+    for (const digit of String(value).match(/\d/g) ?? []) {
+      const number = Number(digit);
+      if (number >= 1 && number <= 9) counts[number - 1] += 1;
+    }
+  }
+  return {
+    status: "三數取卦完成",
+    modeLabel,
+    state: "卦象已更新",
+    core: result.original.symbol,
+    title: result.original.name,
+    note: `動爻 ${result.moving.name}，變卦 ${result.transformed.name}`,
+    counts,
+    distributionTitle: "輸入數字出現次數",
+    annual: "不適用",
+    annualTitle: "三數取卦模式",
+    annualNote: "此模式只依三個整數取卦，不推算個人流年。",
+    preview: {
+      labels: ["本卦", "互卦", "變卦", "動爻"],
+      values: [result.original.name, result.mutual.name, result.transformed.name, result.moving.name],
+    },
+  };
+}
 
 const fixedBrushTitles = {
   "這個結果怎麼算": "public/visuals/brush/title-calculation-explain-v2.webp",
@@ -606,7 +696,6 @@ function initializeAnalyzer() {
   const message = document.querySelector("#input-message");
   const help = document.querySelector("#input-help");
   const clearButton = document.querySelector("#clear-button");
-  const analyzeButton = document.querySelector("#analyze-button");
   const analyzerTitleText = document.querySelector("#analyzer-title-text");
   const analyzerTitleImage = document.querySelector("#analyzer-title-image");
   const analyzerDescription = document.querySelector("#analyzer-description");
@@ -619,6 +708,7 @@ function initializeAnalyzer() {
   const accessInput = document.querySelector("#iching-access-password");
   const accessMessage = document.querySelector("[data-iching-access-message]");
   const accessCancel = document.querySelector("[data-iching-access-cancel]");
+  const analyzeLabel = document.querySelector("[data-analyze-label]");
   const cockpitMode = document.querySelector("[data-cockpit-mode]");
   const cockpitModeNote = document.querySelector("[data-cockpit-mode-note]");
   const cockpitCore = document.querySelector("[data-cockpit-core]");
@@ -662,6 +752,49 @@ function initializeAnalyzer() {
     }
     cockpitCore.textContent = result.original.name;
     cockpitCoreNote.textContent = `動爻 ${result.moving.name}・變卦 ${result.transformed.name}`;
+  }
+  function updateDashboardAnalytics(result) {
+    const view = dashboardAnalytics(result, mode);
+    const setText = (selector, value) => {
+      for (const node of document.querySelectorAll(selector)) node.textContent = value;
+    };
+    setText("[data-analytics-status]", view.status);
+    setText("[data-analytics-mode]", view.modeLabel);
+    setText("[data-analytics-state]", view.state);
+    setText("[data-analytics-core]", view.core);
+    setText("[data-analytics-core-large]", view.core);
+    setText("[data-analytics-title]", view.title);
+    setText("[data-analytics-note]", view.note);
+    setText("[data-analytics-distribution-title]", view.distributionTitle);
+    setText("[data-analytics-annual]", view.annual);
+    setText("[data-analytics-annual-title]", view.annualTitle);
+    setText("[data-analytics-annual-note]", view.annualNote);
+    setText("[data-analytics-year]", result?.kind === "birthday" ? `${result.personalYear.year} 年` : "本年度");
+    setText("[data-analytics-year-label]", result?.kind === "birthday" ? "個人流年" : "模式狀態");
+    setText("[data-preview-status]", result ? "結果已更新" : "等待輸入");
+    ["primary", "secondary", "tertiary", "annual"].forEach((key, index) => {
+      setText(`[data-preview-label="${key}"]`, view.preview.labels[index]);
+      setText(`[data-preview-value="${key}"]`, view.preview.values[index]);
+    });
+
+    const maximum = Math.max(0, ...view.counts);
+    for (const bar of document.querySelectorAll("[data-digit-bar]")) {
+      const digit = Number(bar.dataset.digitBar);
+      const count = view.counts[digit - 1] ?? 0;
+      const level = maximum > 0 ? Math.max(8, Math.round((count / maximum) * 100)) : 0;
+      bar.style.setProperty("--bar-level", String(level));
+      const countLabel = bar.querySelector("em");
+      if (countLabel) countLabel.textContent = String(count);
+    }
+    const chart = document.querySelector(".digit-bars");
+    if (chart) {
+      chart.setAttribute(
+        "aria-label",
+        result
+          ? `數字一至九出現次數：${view.counts.map((count, index) => `${index + 1} 為 ${count} 次`).join("，")}`
+          : "尚未分析，數字一至九出現次數皆為零",
+      );
+    }
   }
   function focusResult() {
     window.setTimeout(() => {
@@ -708,7 +841,7 @@ function initializeAnalyzer() {
     analyzerTitleImage.src = modeContent[mode].titleArt;
     analyzerDescription.textContent = modeContent[mode].description;
     help.textContent = modeContent[mode].help;
-    analyzeButton.firstChild.textContent = modeContent[mode].button;
+    if (analyzeLabel) analyzeLabel.textContent = modeContent[mode].button;
     modeArt.src = modeContent[mode].art;
     modeArt.alt = modeContent[mode].alt;
     modeArt.width = modeContent[mode].artWidth;
@@ -718,12 +851,14 @@ function initializeAnalyzer() {
     clearResult();
     updateCockpitMode();
     updateCockpitResult(null);
+    updateDashboardAnalytics(null);
     updateClearButton();
     window.setTimeout(() => currentInputs()[0].focus(), 0);
   }
 
   function startBirthdayAnalysis(event) {
     event.preventDefault();
+    const shouldAnalyze = Boolean(birthdayInput.value);
     changeMode("birthday");
     const analyzer = document.querySelector("#analyzer");
     analyzer?.scrollIntoView({
@@ -735,6 +870,22 @@ function initializeAnalyzer() {
     window.setTimeout(() => analyzer?.classList.remove("is-entry-highlight"), 1400);
     window.history.replaceState(null, "", "#analyzer");
     birthdayInput.focus({ preventScroll: true });
+    if (shouldAnalyze) {
+      form.requestSubmit();
+      return;
+    }
+    try {
+      birthdayInput.showPicker?.();
+    } catch {
+      // 日期選擇器可能被瀏覽器的使用者手勢規則阻擋，欄位仍已正確聚焦。
+    }
+  }
+
+  function updateBirthdayEntryLabel() {
+    for (const link of birthdayEntryLinks) {
+      const label = link.querySelector("span");
+      if (label) label.textContent = birthdayInput.value ? "分析我的生命靈數" : "選擇生日開始";
+    }
   }
 
   function resetCurrent() {
@@ -743,6 +894,7 @@ function initializeAnalyzer() {
     setInvalid(false);
     clearResult();
     updateCockpitResult(null);
+    updateDashboardAnalytics(null);
     updateClearButton();
     currentInputs()[0].focus();
   }
@@ -775,7 +927,11 @@ function initializeAnalyzer() {
     input.addEventListener("input", () => {
       message.textContent = "";
       setInvalid(false);
+      clearResult();
+      updateCockpitResult(null);
+      updateDashboardAnalytics(null);
       updateClearButton();
+      if (input === birthdayInput) updateBirthdayEntryLabel();
     });
   }
 
@@ -802,10 +958,12 @@ function initializeAnalyzer() {
       setInvalid(false);
       resultAnchor.replaceChildren(result.kind === "iching" ? createIChingResult(result, resetCurrent) : createNumerologyResult(result, resetCurrent));
       updateCockpitResult(result);
+      updateDashboardAnalytics(result);
       focusResult();
     } catch (error) {
       clearResult();
       updateCockpitResult(null);
+      updateDashboardAnalytics(null);
       message.textContent = error instanceof Error ? error.message : "輸入資料無法計算，請重新確認。";
       setInvalid(true);
       currentInputs()[0].focus();
@@ -840,6 +998,8 @@ function initializeAnalyzer() {
   });
   updateCockpitMode();
   updateCockpitResult(null);
+  updateDashboardAnalytics(null);
+  updateBirthdayEntryLabel();
   updateClearButton();
 }
 

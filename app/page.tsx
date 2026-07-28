@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { FormEvent, MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
+import { CSSProperties, FormEvent, MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react";
 import {
   LO_SHU_ORDER,
   analyzeBirthday,
@@ -40,7 +40,7 @@ const modeContent = {
     badge: "主要",
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
-    help: "只需西元生日；身分證請使用下方獨立入口。",
+    help: "只需生日；身分證請用下方獨立入口。",
     art: "/visuals/ai-dashboard/life-path-v1.webp",
     cardArt: "/visuals/birthday-panel-b-v3.webp",
     titleArt: "/visuals/brush/title-birthday-web-v1.webp",
@@ -55,7 +55,7 @@ const modeContent = {
     badge: "次要",
     description: "任意號碼的加總、核心數與數字分布",
     button: "分析數字頻譜",
-    help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
+    help: "支援全形、半形數字與空白；請勿輸入敏感資料。",
     art: "/visuals/ai-dashboard/number-wave-v1.webp",
     cardArt: "/visuals/ai-dashboard/number-wave-v1.webp",
     titleArt: "/visuals/brush/title-spectrum-web-v1.webp",
@@ -70,7 +70,7 @@ const modeContent = {
     badge: "密碼",
     description: "三數推算本卦、互卦、動爻與變卦",
     button: "開始三數取卦",
-    help: "三個整數各自取卦，不會自動切分生日或號碼。",
+    help: "請分別輸入三個整數，不會自動切分生日或號碼。",
     art: "/visuals/iching-instrument-b-v3.webp",
     cardArt: "/visuals/iching-instrument-b-v3.webp",
     titleArt: "/visuals/brush/title-iching-web-v1.webp",
@@ -112,6 +112,92 @@ function getCockpitSummary(result: NumerologyResult | IChingResult | null) {
     return { value: `核心數 ${result.core}`, note: `${result.length} 位數・總和 ${result.sum}` };
   }
   return { value: result.original.name, note: `動爻 ${result.moving.name}・變卦 ${result.transformed.name}` };
+}
+
+function getDashboardAnalytics(result: NumerologyResult | IChingResult | null, mode: AnalysisMode) {
+  const modeLabel = modeContent[mode].label;
+  const emptyCounts = Array.from({ length: 9 }, () => 0);
+  if (!result) {
+    return {
+      status: "待分析",
+      modeLabel,
+      state: "等待輸入",
+      core: "－",
+      title: "等待輸入",
+      note: "輸入資料後顯示可核對的核心摘要。",
+      counts: emptyCounts,
+      distributionTitle: "數字出現次數",
+      annual: "－",
+      annualTitle: "等待生日",
+      annualNote: "個人流年只在生日模式計算。",
+      annualLabel: "模式狀態",
+      annualYear: "本年度",
+      previewLabels: ["生命路徑數", "生日數", "態度數", "個人流年"],
+      previewValues: ["－", "－", "－", "－"],
+    };
+  }
+  if (result.kind === "birthday") {
+    return {
+      status: "生日分析完成",
+      modeLabel,
+      state: "結果已更新",
+      core: result.lifePath.display,
+      title: profiles[result.profileNumber]?.title ?? "生命路徑",
+      note: `生日數 ${result.birthday.display}，態度數 ${result.attitude.value}`,
+      counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
+      distributionTitle: "生日數字分佈",
+      annual: String(result.personalYear.value),
+      annualTitle: `個人流年數 ${result.personalYear.value}`,
+      annualNote: `${result.personalYear.year} 年，依生日與年度數字計算`,
+      annualLabel: "個人流年",
+      annualYear: `${result.personalYear.year} 年`,
+      previewLabels: ["生命路徑數", "生日數", "態度數", "個人流年"],
+      previewValues: [result.lifePath.display, result.birthday.display, String(result.attitude.value), String(result.personalYear.value)],
+    };
+  }
+  if (result.kind === "code") {
+    return {
+      status: "數字頻譜完成",
+      modeLabel,
+      state: `${result.length} 位數字`,
+      core: String(result.core),
+      title: profiles[result.profileNumber]?.title ?? "數字核心",
+      note: `實際總和 ${result.sum}，未出現 ${result.missing.length} 個數字`,
+      counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
+      distributionTitle: "數字出現次數",
+      annual: "不適用",
+      annualTitle: "數字頻譜模式",
+      annualNote: "此模式只分析輸入數字，不推算個人流年。",
+      annualLabel: "模式狀態",
+      annualYear: "本年度",
+      previewLabels: ["核心數", "數字總和", "輸入位數", "最常出現"],
+      previewValues: [String(result.core), String(result.sum), String(result.length), result.strongest.join("、") || "無"],
+    };
+  }
+  const counts = Array.from({ length: 9 }, () => 0);
+  for (const value of result.inputs) {
+    for (const digit of String(value).match(/\d/g) ?? []) {
+      const number = Number(digit);
+      if (number >= 1 && number <= 9) counts[number - 1] += 1;
+    }
+  }
+  return {
+    status: "三數取卦完成",
+    modeLabel,
+    state: "卦象已更新",
+    core: result.original.symbol,
+    title: result.original.name,
+    note: `動爻 ${result.moving.name}，變卦 ${result.transformed.name}`,
+    counts,
+    distributionTitle: "輸入數字出現次數",
+    annual: "不適用",
+    annualTitle: "三數取卦模式",
+    annualNote: "此模式只依三個整數取卦，不推算個人流年。",
+    annualLabel: "模式狀態",
+    annualYear: "本年度",
+    previewLabels: ["本卦", "互卦", "變卦", "動爻"],
+    previewValues: [result.original.name, result.mutual.name, result.transformed.name, result.moving.name],
+  };
 }
 
 const fixedBrushTitles: Record<string, string> = {
@@ -512,6 +598,7 @@ export default function Home() {
   function startBirthdayAnalysis(event: ReactMouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
     const mountedBirthdayInput = birthdayRef.current;
+    const shouldAnalyze = Boolean(birthday);
     changeMode("birthday");
     const analyzer = document.querySelector("#analyzer");
     analyzer?.scrollIntoView({
@@ -522,7 +609,32 @@ export default function Home() {
     window.requestAnimationFrame(() => analyzer?.classList.add("is-entry-highlight"));
     window.setTimeout(() => analyzer?.classList.remove("is-entry-highlight"), 1400);
     window.history.replaceState(null, "", "#analyzer");
-    mountedBirthdayInput?.focus({ preventScroll: true });
+    if (mountedBirthdayInput) {
+      mountedBirthdayInput.focus({ preventScroll: true });
+      if (shouldAnalyze) {
+        document.querySelector<HTMLFormElement>("#analyzer-form")?.requestSubmit();
+        return;
+      }
+      try {
+        mountedBirthdayInput.showPicker?.();
+      } catch {
+        // 日期選擇器可能被瀏覽器的使用者手勢規則阻擋，欄位仍已正確聚焦。
+      }
+      return;
+    }
+    window.setTimeout(() => {
+      const birthdayInput = birthdayRef.current;
+      birthdayInput?.focus({ preventScroll: true });
+      if (shouldAnalyze) {
+        document.querySelector<HTMLFormElement>("#analyzer-form")?.requestSubmit();
+        return;
+      }
+      try {
+        birthdayInput?.showPicker?.();
+      } catch {
+        // 日期選擇器可能被瀏覽器的使用者手勢規則阻擋，欄位仍已正確聚焦。
+      }
+    }, 0);
   }
 
   function closeAccessDialog() {
@@ -590,6 +702,8 @@ export default function Home() {
 
   const hasValue = mode === "birthday" ? Boolean(birthday) : mode === "code" ? Boolean(numberCode) : ichingValues.some(Boolean);
   const cockpitSummary = getCockpitSummary(result);
+  const analyticsView = getDashboardAnalytics(result, mode);
+  const maximumDigitCount = Math.max(0, ...analyticsView.counts);
 
   return (
     <main className="site-shell" data-ui="xuanxing-aaa">
@@ -600,7 +714,7 @@ export default function Home() {
         </a>
         <p className="sidebar-tagline">數字有軌跡，規則可核對</p>
         <p className="sidebar-intro">把生日、生命路徑、九宮、流年與數字紀錄集中在同一個可核對的工作台。</p>
-        <a className="sidebar-primary" href="#analyzer" onClick={startBirthdayAnalysis} aria-label="切換至生日命碼並聚焦出生日期欄位"><span>輸入生日開始分析</span><b aria-hidden="true">→</b></a>
+        <a className="sidebar-primary" href="#analyzer" onClick={startBirthdayAnalysis} aria-label="切換至生日命碼；空白時開啟日期欄，有日期時直接分析"><span>{birthday ? "分析我的生命靈數" : "選擇生日開始"}</span><b aria-hidden="true">→</b></a>
         <a className="sidebar-secondary" href="#numerology-workspace" onClick={openWorkspace("history")}><span>開啟本機紀錄</span><b aria-hidden="true">↗</b></a>
         <nav className="sidebar-links" aria-label="功能捷徑">
           <a href="#analyzer" onClick={() => requestMode("birthday")}><span>01</span><strong>生日分析</strong><small>生命路徑與流年</small></a>
@@ -629,26 +743,18 @@ export default function Home() {
         <div><a href="#analyzer" onClick={() => requestMode("birthday")}>生日分析</a><a href="#analyzer" onClick={() => requestMode("code")}>數字頻譜</a><a className="nav-optional" href="#analyzer" onClick={() => requestMode("birthday")}>九宮配置</a><a className="nav-optional" href="#analyzer" onClick={() => requestMode("birthday")}>流年分析</a><a href="#numerology-workspace" onClick={openWorkspace("home")}>進階工作台</a><a href="/kangjie">邵康節專頁</a><a className="nav-optional" href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
       </nav>
 
-      <div className="dashboard-home-screen">
+      <div className="dashboard-home-screen reference-v3">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
-        <img className="hero-art" src="/visuals/ai-dashboard/hero-life-v1.webp" width={1915} height={821} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img className="hero-art" src="/visuals/ai-dashboard/reference-v3/desktop-hero-command-v3.webp" width={1672} height={941} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
         <div className="hero-copy">
           <p className="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
           <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-web-v1.webp" text="看見你的數字軌跡" className="brush-hero" width={900} height={576} /></h1>
           <p className="hero-summary">從生日開始，核對你的生命路徑、數字分布與人生階段。</p>
-          <a className="hero-cta" href="#analyzer" onClick={startBirthdayAnalysis} aria-label="切換至生日命碼並聚焦出生日期欄位"><span>直接輸入出生日期</span><strong aria-hidden="true">↘</strong></a>
+          <ul className="hero-proof" aria-label="分析特色"><li><strong>規則演算</strong><span>固定版本與逐步算式</span></li><li><strong>完整解析</strong><span>生日、路徑、九宮與流年</span></li><li><strong>隱私安全</strong><span>分析資料只在本機處理</span></li></ul>
         </div>
-        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-web-v1.webp" text="玄星觀象" className="brush-theme" width={640} height={187} /></strong><span>生日生命靈數為主要分析</span></p><p>版本化規則・完整算式・所有分析輸入只在本機處理</p></div>
+        <div className="hero-rail"><p><strong><BrushTitle src="/visuals/brush/theme-xuanxing-web-v1.webp" text="玄星觀象" className="brush-theme" width={640} height={187} /></strong><span>生日生命靈數為主要分析</span></p><p>程式即時計算，沒有預填範例數值</p></div>
       </header>
-
-      <section className="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
-        <article className="cockpit-time"><span className="cockpit-dial" aria-hidden="true"><i /></span><div><small>台北目前時間</small><strong data-cockpit-time>{cockpitClock.time}</strong><em data-cockpit-date>{cockpitClock.date}</em></div></article>
-        <article><span className="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>{modeContent[mode].label}</strong><em data-cockpit-mode-note>{modeContent[mode].description}</em></div></article>
-        <article><span className="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>{cockpitSummary.value}</strong><em data-cockpit-core-note>{cockpitSummary.note}</em></div></article>
-        <article><span className="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
-        <span className="cockpit-center-seal" aria-hidden="true"><img src="/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" /><i>☯</i></span>
-      </section>
 
       <section className="analyzer-section" id="analyzer" data-ui-region="analyzer" aria-labelledby="analyzer-title">
         <form className="analyzer-card" id="analyzer-form" data-active-mode={mode} onSubmit={handleAnalyze} noValidate>
@@ -668,20 +774,56 @@ export default function Home() {
             <figure className="mode-art"><img src={modeContent[mode].art} width={modeContent[mode].artWidth} height={modeContent[mode].artHeight} loading="lazy" decoding="async" alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title" className="brush-heading current-mode-heading"><BrushTitle src={modeContent[mode].titleArt} text={modeContent[mode].label} lazy width={modeContent[mode].titleWidth} height={modeContent[mode].titleHeight} /></h2><span>{modeContent[mode].description}</span></figcaption></figure>
             <div className="mode-controls">
               <div className="input-panel" data-mode-panel={mode}>
-                {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { setBirthday(event.target.value); setMessage(""); }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={60} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "iching" && <div className="triple-input-grid">{[["第一數", "上卦 ÷ 8"], ["第二數", "下卦 ÷ 8"], ["第三數", "動爻 ÷ 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
+                {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { setBirthday(event.target.value); setMessage(""); setResult(null); }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
+                {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={60} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); setResult(null); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
+                {mode === "iching" && <div className="triple-input-grid">{[["第一數", "上卦 ÷ 8"], ["第二數", "下卦 ÷ 8"], ["第三數", "動爻 ÷ 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); setResult(null); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
               </div>
 
               <div className="form-meta"><p id="input-help">{modeContent[mode].help}</p>{hasValue && <button type="button" className="text-button" onClick={handleReset}>清除輸入</button>}</div>
               <p id="input-message" className="form-message" role="alert" aria-live="polite">{message}</p>
-              <button type="submit" className="primary-button analyze-submit" id="analyze-button">{modeContent[mode].button}<img className="analyze-seal" src="/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><span aria-hidden="true">↘</span></button>
+              <button type="submit" className="primary-button analyze-submit" id="analyze-button"><span data-analyze-label>{modeContent[mode].button}</span><img className="analyze-seal" src="/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><b aria-hidden="true">↘</b></button>
             </div>
           </div>
+          <section className="desktop-result-preview" aria-label="生命路徑即時總覽">
+            <header><strong>生命路徑總覽</strong><span data-preview-status>{result ? "結果已更新" : "等待輸入"}</span></header>
+            <div>{(["primary", "secondary", "tertiary", "annual"] as const).map((key, index) => <article key={key}><small data-preview-label={key}>{analyticsView.previewLabels[index]}</small><strong data-preview-value={key}>{analyticsView.previewValues[index]}</strong></article>)}</div>
+          </section>
           <ul className="method-strip" aria-label="分析承諾"><li>版本化規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
         </form>
       </section>
       </div>
+
+      <section className="dashboard-analytics" data-ui-region="desktop-analytics" aria-label="生命靈數分析總覽">
+        <article className="analytics-overview">
+          <header><span>核心總覽</span><strong data-analytics-status>{analyticsView.status}</strong></header>
+          <div><span className="analytics-orbit" aria-hidden="true"><b data-analytics-core>{analyticsView.core}</b><em>核心</em></span><dl><div><dt>分析模式</dt><dd data-analytics-mode>{analyticsView.modeLabel}</dd></div><div><dt>資料狀態</dt><dd data-analytics-state>{analyticsView.state}</dd></div><div><dt>計算方式</dt><dd>固定規則</dd></div></dl></div>
+        </article>
+        <article className="analytics-spectrum">
+          <header><span data-analytics-distribution-title>{analyticsView.distributionTitle}</span><small>實際輸入 1 至 9</small></header>
+          <div className="digit-bars" role="img" aria-label={result ? `數字一至九出現次數：${analyticsView.counts.map((count, index) => `${index + 1} 為 ${count} 次`).join("，")}` : "尚未分析，數字一至九出現次數皆為零"}>
+            {analyticsView.counts.map((count, index) => {
+              const level = maximumDigitCount > 0 ? Math.max(8, Math.round((count / maximumDigitCount) * 100)) : 0;
+              return <span key={index + 1} data-digit-bar={index + 1} style={{ "--bar-level": level } as CSSProperties}><em>{count}</em><i /><b>{index + 1}</b></span>;
+            })}
+          </div>
+        </article>
+        <article className="analytics-core-detail">
+          <header><span>核心數字</span><small>程式即時計算</small></header>
+          <div><span className="analytics-core-medal" aria-hidden="true"><b data-analytics-core-large>{analyticsView.core}</b></span><p><strong data-analytics-title>{analyticsView.title}</strong><em data-analytics-note>{analyticsView.note}</em></p></div>
+        </article>
+        <article className="analytics-annual">
+          <header><span>個人流年摘要</span><small data-analytics-year>{analyticsView.annualYear}</small></header>
+          <div><span className="analytics-year-medal"><small data-analytics-year-label>{analyticsView.annualLabel}</small><strong data-analytics-annual>{analyticsView.annual}</strong></span><p><strong data-analytics-annual-title>{analyticsView.annualTitle}</strong><em data-analytics-annual-note>{analyticsView.annualNote}</em></p></div>
+        </article>
+      </section>
+
+      <section className="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
+        <article className="cockpit-time"><span className="cockpit-dial" aria-hidden="true"><i /></span><div><small>台北目前時間</small><strong data-cockpit-time>{cockpitClock.time}</strong><em data-cockpit-date>{cockpitClock.date}</em></div></article>
+        <article><span className="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>{modeContent[mode].label}</strong><em data-cockpit-mode-note>{modeContent[mode].description}</em></div></article>
+        <article><span className="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>{cockpitSummary.value}</strong><em data-cockpit-core-note>{cockpitSummary.note}</em></div></article>
+        <article><span className="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
+        <span className="cockpit-center-seal" aria-hidden="true"><img src="/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" /><i>☯</i></span>
+      </section>
 
       <section className="visual-module-rail" data-ui-region="modules" aria-labelledby="visual-module-title">
         <header><p>主要分析與進階工具</p><h2 id="visual-module-title"><BrushTitle src="/visuals/brush/title-workspace-web-v1.webp" text="進階靈數工作台" className="brush-visual-module" lazy width={640} height={122} /></h2><span>點一下直接進入，結果由程式即時計算</span></header>

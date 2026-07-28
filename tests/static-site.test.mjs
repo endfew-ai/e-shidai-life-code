@@ -43,6 +43,21 @@ const kangjieFixedBrushAssets = [
   "title-kangjie-tab-source-v2.webp",
 ];
 
+const referenceV2DashboardAssets = [
+  "analyze-dragon-seal-v2.webp",
+  "brand-crest-v2.webp",
+  "cockpit-seal-frame-v2.webp",
+  "portal-birthday-v2.webp",
+  "portal-spectrum-v2.webp",
+  "portal-iching-v2.webp",
+  "portal-kangjie-v2.webp",
+];
+
+const referenceV3DashboardAssets = [
+  "desktop-hero-command-v3.webp",
+  "mobile-celestial-arch-v3.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -65,28 +80,64 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.ok(html.indexOf('value="birthday"') < html.indexOf('value="iching"'));
   assert.match(html, /看見你的/);
   assert.match(html, /數字軌跡/);
-  assert.match(html, /所有分析輸入只在本機處理/);
+  assert.match(html, /分析資料只在本機處理/);
+  assert.match(reactSource, /分析資料只在本機處理/);
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日或身分證自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-aaa-v1\.png/);
-  assert.match(html, /ai-dashboard\/hero-life-v1\.webp/);
+  assert.match(html, /ai-dashboard\/reference-v3\/desktop-hero-command-v3\.webp/);
+  assert.match(html, /ai-dashboard\/reference-v3\/mobile-celestial-arch-v3\.webp/);
+  assert.match(reactSource, /ai-dashboard\/reference-v3\/desktop-hero-command-v3\.webp/);
+  assert.match(styles, /ai-dashboard\/reference-v3\/mobile-celestial-arch-v3\.webp/);
   assert.match(html, /title-hero-web-v1\.webp/);
   assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
   assert.match(html, /ai-dashboard\/life-path-v1\.webp/);
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3"/);
   assert.match(html, /data-start-birthday/);
-  assert.match(html, /直接輸入出生日期/);
+  assert.match(html, /class="sidebar-primary"[^>]*data-start-birthday/);
+  assert.match(html, /選擇生日開始/);
+  assert.match(appSource, /分析我的生命靈數/);
+  assert.match(reactSource, /分析我的生命靈數/);
   assert.match(appSource, /function startBirthdayAnalysis/);
   assert.match(reactSource, /function startBirthdayAnalysis/);
+  assert.match(html, /data-analyze-label/);
+  assert.match(reactSource, /data-analyze-label/);
+  assert.doesNotMatch(appSource, /analyzeButton\.firstChild/);
   assert.match(html, /data-cockpit-time/);
   assert.match(html, /data-cockpit-mode/);
   assert.match(html, /data-cockpit-core/);
   assert.match(appSource, /initializeCockpitClock/);
   assert.match(appSource, /timeZone: "Asia\/Taipei"/);
   assert.match(reactSource, /formatTaipeiClock/);
+  assert.match(html, /class="dashboard-analytics"/);
+  assert.match(html, /data-ui-region="desktop-analytics"/);
+  assert.match(reactSource, /className="dashboard-analytics"/);
+  for (const moduleClass of [
+    "analytics-overview",
+    "analytics-spectrum",
+    "analytics-core-detail",
+    "analytics-annual",
+  ]) {
+    assert.match(html, new RegExp(`class="${moduleClass}"`));
+    assert.match(reactSource, new RegExp(`className="${moduleClass}"`));
+  }
+  assert.equal(
+    (html.match(/data-preview-value="(?:primary|secondary|tertiary|annual)">－/g) ?? []).length,
+    4,
+    "未分析時四個預覽值必須全為破折號占位，不得放入假結果",
+  );
+  assert.match(html, /data-analytics-status>待分析/);
+  assert.match(html, /data-analytics-state>等待輸入/);
+  assert.match(html, /data-analytics-core>－/);
+  assert.match(html, /data-analytics-core-large>－/);
+  assert.match(html, /data-analytics-annual>－/);
+  assert.match(appSource, /distributionTitle: "輸入數字出現次數"/);
+  assert.match(reactSource, /distributionTitle: "輸入數字出現次數"/);
+  assert.doesNotMatch(appSource, /distributionTitle:\s*"[^"]*能量分[布佈][^"]*"/);
+  assert.doesNotMatch(reactSource, /distributionTitle:\s*"[^"]*能量分[布佈][^"]*"/);
   assert.match(html, /public\/visuals\/birthday-panel-b-v3\.webp/);
   assert.match(html, /birthday-panel-b-v3\.webp" width="1717" height="916"/);
   assert.match(html, /public\/visuals\/ai-dashboard\/number-wave-v1\.webp/);
@@ -223,6 +274,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/favicon.svg", import.meta.url)),
     access(new URL("../.nojekyll", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/hero-life-v1.webp", import.meta.url)),
+    ...referenceV2DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v2/${asset}`, import.meta.url))),
+    ...referenceV3DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v3/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
