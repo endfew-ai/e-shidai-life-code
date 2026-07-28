@@ -30,7 +30,9 @@ const modeContent = {
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
     help: "只需西元生日；身分證請使用下方獨立入口。",
-    art: "public/visuals/life-path-instrument-aaa-v1.webp",
+    art: "public/visuals/ai-dashboard/life-path-v1.webp",
+    artWidth: 960,
+    artHeight: 640,
     titleArt: "public/visuals/brush/title-birthday-web-v1.webp",
     alt: "九節點古金生命靈數分析儀",
   },
@@ -39,7 +41,9 @@ const modeContent = {
     description: "任意號碼的加總、核心數與數字分布",
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
-    art: "public/visuals/digit-spectrum-panel-b-v3.webp",
+    art: "public/visuals/ai-dashboard/number-wave-v1.webp",
+    artWidth: 960,
+    artHeight: 640,
     titleArt: "public/visuals/brush/title-spectrum-web-v1.webp",
     alt: "古金數字頻率波形與九點節律模組背景",
   },
@@ -49,6 +53,8 @@ const modeContent = {
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "public/visuals/iching-instrument-b-v3.webp",
+    artWidth: 1586,
+    artHeight: 992,
     titleArt: "public/visuals/brush/title-iching-web-v1.webp",
     alt: "低亮古金六爻測量儀視覺",
   },
@@ -578,6 +584,7 @@ function initializeAnalyzer() {
   const analyzerTitleImage = document.querySelector("#analyzer-title-image");
   const analyzerDescription = document.querySelector("#analyzer-description");
   const modeArt = document.querySelector("#mode-art-image");
+  const quickModeLinks = [...document.querySelectorAll("[data-quick-mode]")];
   const resultAnchor = document.querySelector("#result-anchor");
   const accessDialog = document.querySelector("#iching-access-dialog");
   const accessForm = document.querySelector("#iching-access-form");
@@ -646,6 +653,8 @@ function initializeAnalyzer() {
     analyzeButton.firstChild.textContent = modeContent[mode].button;
     modeArt.src = modeContent[mode].art;
     modeArt.alt = modeContent[mode].alt;
+    modeArt.width = modeContent[mode].artWidth;
+    modeArt.height = modeContent[mode].artHeight;
     message.textContent = "";
     setInvalid(false);
     clearResult();
@@ -669,6 +678,18 @@ function initializeAnalyzer() {
         return;
       }
       changeMode(input.value);
+    });
+  }
+  for (const link of quickModeLinks) {
+    link.addEventListener("click", (event) => {
+      const nextMode = link.dataset.quickMode;
+      if (!modeContent[nextMode]) return;
+      if (nextMode === "iching" && !ichingUnlocked) {
+        event.preventDefault();
+        openAccessDialog();
+        return;
+      }
+      changeMode(nextMode);
     });
   }
   for (const input of [birthdayInput, codeInput, ...ichingInputs]) {

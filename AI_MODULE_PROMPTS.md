@@ -206,3 +206,25 @@ Use one perfectly flat #00ff00 chroma-key background with no shadow, gradient, t
 4. 手機版可裁切或降低背景圖對比，但不可把操作文字做進圖片。
 5. `iching-manuscript-b-v3.webp` 右下索引只是裝飾，不可當成六十四卦資料來源。
 6. Hero 背景與「看見你的／數字軌跡」必須維持兩個不同檔案，禁止再次合成為單張 UI 圖。
+
+## 模組 12：玉金高密度工作台儀器圖
+
+2026-07 改版新增 5 張無文字 WebP 儀器圖，統一採深墨玉、古金、博物館級東方未來儀器語彙；所有標題、數字、公式與操作仍由 HTML 呈現。
+
+| 用途 | 網站檔案 | 尺寸 |
+| --- | --- | --- |
+| 生命靈數主視覺 | `public/visuals/ai-dashboard/hero-life-v1.webp` | 1915×821 |
+| 生命路徑九節點 | `public/visuals/ai-dashboard/life-path-v1.webp` | 960×640 |
+| 數字頻譜波形 | `public/visuals/ai-dashboard/number-wave-v1.webp` | 960×640 |
+| 洛書九宮矩陣 | `public/visuals/ai-dashboard/lo-shu-v1.webp` | 960×640 |
+| 康節書齋儀器 | `public/visuals/ai-dashboard/kangjie-study-v1.webp` | 960×640 |
+
+共同提示詞約束：
+
+```text
+Premium Chinese futurist museum instrument, deep black-jade lacquer, aged antique-gold inlay, subtle mineral texture, restrained cinematic lighting, dense but orderly information-dashboard composition.
+No text, no Chinese characters, no Arabic digits, no letters, no logo, no watermark, no buttons, no readable labels, no UI screenshot.
+Keep the center and lower third clear enough for real HTML overlays. Avoid purple neon, generic crystal imagery and Western zodiac symbols.
+```
+
+生命靈數模塊另加限制：不得出現八卦、六爻或易經符號，避免把生日靈數誤畫成易經功能；只有康節書齋儀器可使用無文字的易學器物意象。

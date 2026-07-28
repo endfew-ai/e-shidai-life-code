@@ -41,11 +41,13 @@ const modeContent = {
     description: "生命路徑、生日數、個人流年與傳統對應色",
     button: "分析生日命碼",
     help: "只需西元生日；身分證請使用下方獨立入口。",
-    art: "/visuals/life-path-instrument-aaa-v1.webp",
-    cardArt: "/ai-modules/core-orbit.webp",
+    art: "/visuals/ai-dashboard/life-path-v1.webp",
+    cardArt: "/visuals/birthday-panel-b-v3.webp",
     titleArt: "/visuals/brush/title-birthday-web-v1.webp",
     titleWidth: 600,
     titleHeight: 213,
+    artWidth: 960,
+    artHeight: 640,
     artAlt: "九節點古金生命靈數分析儀",
   },
   code: {
@@ -54,11 +56,13 @@ const modeContent = {
     description: "任意號碼的加總、核心數與數字分布",
     button: "分析數字頻譜",
     help: "接受半形或全形數字、空白與半形連字號；請勿輸入敏感資料。",
-    art: "/visuals/digit-spectrum-panel-b-v3.webp",
-    cardArt: "/ai-modules/language-signal.webp",
+    art: "/visuals/ai-dashboard/number-wave-v1.webp",
+    cardArt: "/visuals/ai-dashboard/number-wave-v1.webp",
     titleArt: "/visuals/brush/title-spectrum-web-v1.webp",
     titleWidth: 600,
     titleHeight: 174,
+    artWidth: 960,
+    artHeight: 640,
     artAlt: "古金數字頻率波形與九點節律模組背景",
   },
   iching: {
@@ -68,10 +72,12 @@ const modeContent = {
     button: "開始三數取卦",
     help: "三個整數各自取卦，不會把生日或一串號碼自動切段。",
     art: "/visuals/iching-instrument-b-v3.webp",
-    cardArt: "/ai-modules/shadow-prism.webp",
+    cardArt: "/visuals/iching-instrument-b-v3.webp",
     titleArt: "/visuals/brush/title-iching-web-v1.webp",
     titleWidth: 600,
     titleHeight: 176,
+    artWidth: 1586,
+    artHeight: 992,
     artAlt: "低亮古金六爻測量儀視覺",
   },
 } as const;
@@ -271,7 +277,7 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
           <div className="result-value">{result.headlineValue}<small>{profile.title}</small></div>
           <p>{profile.symbol}。以下內容只作文化娛樂與自我提問參考。</p>
         </div>
-        <figure className="result-art"><img src={resultArt} alt="古金數字節點分析視覺" /><figcaption>核心數 {result.headlineValue}</figcaption></figure>
+        <figure className="result-art"><img src={resultArt} width={result.kind === "birthday" ? 1586 : 1823} height={result.kind === "birthday" ? 992 : 863} loading="lazy" decoding="async" alt="古金數字節點分析視覺" /><figcaption>核心數 {result.headlineValue}</figcaption></figure>
       </header>
 
       <div className="metric-grid">{metrics.map((metric) => <MetricCard {...metric} key={metric.label} />)}</div>
@@ -332,7 +338,7 @@ function OriginalTextPanel({ result }: { result: IChingResult }) {
   return (
     <details className="classic-panel" aria-labelledby="classic-title">
       <summary className="classic-summary"><span><small>補充資料</small><strong id="classic-title"><BrushTitle src="/visuals/brush/title-classic-v4.webp" text="易經本文" className="brush-classic" /></strong></span><em>展開卦辭、彖、象與六爻原文</em><i>只列原文，不解卦</i></summary>
-      <img className="classic-panel-art" src="/visuals/iching-manuscript-b-v3.webp" alt="" aria-hidden="true" />
+      <img className="classic-panel-art" src="/visuals/iching-manuscript-b-v3.webp" width={1586} height={992} loading="lazy" decoding="async" alt="" aria-hidden="true" />
       <div className="classic-panel-inner">
         <div className="classic-name"><span aria-hidden="true">{original.symbol}</span><div><small>第 {original.id} 卦</small><p className="classic-computed-name">{original.name}・{original.fullName}</p></div></div>
 
@@ -510,13 +516,32 @@ export default function Home() {
 
   return (
     <main className="site-shell" data-ui="xuanxing-aaa">
+      <aside className="dashboard-sidebar" aria-label="快速功能">
+        <a className="sidebar-brand" href="#top">
+          <span aria-hidden="true">命</span>
+          <BrushTitle src="/visuals/brush/brand-life-numerology-aaa-web-v1.webp" text="生命靈數" className="brush-sidebar-brand" priority width={720} height={194} />
+        </a>
+        <p className="sidebar-tagline">數字有軌跡，規則可核對</p>
+        <a className="sidebar-primary" href="#analyzer"><span>開始生日分析</span><b aria-hidden="true">→</b></a>
+        <nav className="sidebar-links" aria-label="功能捷徑">
+          <a href="#analyzer" onClick={() => requestMode("birthday")}><span>01</span><strong>生日分析</strong><small>生命路徑與流年</small></a>
+          <a href="#analyzer" onClick={() => requestMode("code")}><span>02</span><strong>數字頻譜</strong><small>號碼核心與分布</small></a>
+          <a href="#numerology-workspace"><span>03</span><strong>進階工作台</strong><small>九宮、磁場與歷史</small></a>
+          <a href="/kangjie"><span>04</span><strong>邵康節易學</strong><small>獨立專頁・需密碼</small></a>
+          <a href="#method-source"><span>05</span><strong>規則來源</strong><small>公式、版本與界線</small></a>
+        </nav>
+        <div className="sidebar-status"><span aria-hidden="true" /><p><strong>本機安全運算</strong><small>輸入資料不上傳</small></p></div>
+      </aside>
+
+      <div className="dashboard-canvas">
       <nav className="topbar" aria-label="主要導覽">
         <a className="wordmark" href="#top"><span aria-hidden="true"><i>命</i></span><strong><BrushTitle src="/visuals/brush/brand-life-numerology-aaa-web-v1.webp" text="生命靈數" className="brush-brand" priority width={720} height={194} /></strong></a>
         <div><a href="#analyzer">生日分析</a><a href="#numerology-workspace">進階工作台</a><a href="/kangjie">邵康節專頁</a><a href="#method-source">規則來源</a><p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p></div>
       </nav>
 
+      <div className="dashboard-lead">
       <header className="hero" id="top">
-        <img className="hero-art" src="/visuals/hero-celestial-aaa-v1.webp" width={1915} height={821} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img className="hero-art" src="/visuals/ai-dashboard/hero-life-v1.webp" width={1915} height={821} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
         <div className="hero-copy">
           <p className="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
           <h1 className="hero-title"><BrushTitle src="/visuals/brush/title-hero-web-v1.webp" text="看見你的數字軌跡" className="brush-hero" width={900} height={576} /></h1>
@@ -538,16 +563,17 @@ export default function Home() {
           <fieldset className="mode-switch">
             <legend className="sr-only">分析模式</legend>
             {(Object.keys(modeContent) as AnalysisMode[]).map((key) => (
-              <label className={mode === key ? "is-active" : ""} data-mode-label={key} style={{ "--mode-card-art": `url("${modeContent[key].cardArt}")` } as React.CSSProperties} key={key}>
+              <label className={mode === key ? "is-active" : ""} data-mode-label={key} key={key}>
+                <img className="mode-card-art" src={modeContent[key].cardArt} width={key === "birthday" ? 1586 : key === "code" ? 960 : 1586} height={key === "code" ? 640 : 992} loading="lazy" decoding="async" alt="" aria-hidden="true" />
                 <input type="radio" name="analysis-mode" value={key} checked={mode === key} onChange={() => requestMode(key)} />
                 <span><strong><BrushTitle src={modeContent[key].titleArt} text={modeContent[key].label} className="brush-mode" width={modeContent[key].titleWidth} height={modeContent[key].titleHeight} /><em>{modeContent[key].badge}</em></strong><small>{modeContent[key].description}</small></span>
               </label>
             ))}
-            <a className="kangjie-mode-entry" href="/kangjie" style={{ "--mode-card-art": "url(\"/ai-modules/wellbeing-flow.webp\")" } as React.CSSProperties}><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" width={600} height={154} /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
+            <a className="kangjie-mode-entry" href="/kangjie"><img className="mode-card-art" src="/visuals/ai-dashboard/kangjie-study-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-mode brush-kangjie-entry" width={600} height={154} /><em>專頁</em></strong><small>梅花易數衍算與皇極經世尺度</small></span></a>
           </fieldset>
 
           <div className="mode-workbench">
-            <figure className="mode-art"><img src={modeContent[mode].art} loading="lazy" decoding="async" alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title" className="brush-heading current-mode-heading"><BrushTitle src={modeContent[mode].titleArt} text={modeContent[mode].label} lazy width={modeContent[mode].titleWidth} height={modeContent[mode].titleHeight} /></h2><span>{modeContent[mode].description}</span></figcaption></figure>
+            <figure className="mode-art"><img src={modeContent[mode].art} width={modeContent[mode].artWidth} height={modeContent[mode].artHeight} loading="lazy" decoding="async" alt={modeContent[mode].artAlt} /><figcaption><p className="section-index">當前分析模式</p><h2 id="analyzer-title" className="brush-heading current-mode-heading"><BrushTitle src={modeContent[mode].titleArt} text={modeContent[mode].label} lazy width={modeContent[mode].titleWidth} height={modeContent[mode].titleHeight} /></h2><span>{modeContent[mode].description}</span></figcaption></figure>
             <div className="mode-controls">
               <div className="input-panel" data-mode-panel={mode}>
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { setBirthday(event.target.value); setMessage(""); }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
@@ -562,6 +588,18 @@ export default function Home() {
           </div>
           <ul className="method-strip" aria-label="分析承諾"><li>版本化規則</li><li>顯示完整算式</li><li>分析資料不上傳</li></ul>
         </form>
+      </section>
+      </div>
+
+      <section className="visual-module-rail" aria-labelledby="visual-module-title">
+        <header><p>AI 儀器模塊・一眼找到要用的功能</p><h2 id="visual-module-title"><BrushTitle src="/visuals/brush/title-workspace-web-v1.webp" text="進階靈數工作台" className="brush-visual-module" lazy width={640} height={139} /></h2><span>所有數字與結果仍由程式即時計算</span></header>
+        <div className="visual-module-grid">
+          <a href="#analyzer" onClick={() => requestMode("birthday")}><img src="/visuals/birthday-panel-b-v3.webp" width={1586} height={992} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>01</small><strong>生日分析</strong><em>生命路徑・生日數</em></span></a>
+          <a href="#numerology-workspace"><img src="/visuals/ai-dashboard/life-path-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>02</small><strong>生命路徑</strong><em>人生階段・流年</em></span></a>
+          <a href="#analyzer" onClick={() => requestMode("code")}><img src="/visuals/ai-dashboard/number-wave-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>03</small><strong>數字頻譜</strong><em>號碼核心・分布</em></span></a>
+          <a href="#numerology-workspace"><img src="/visuals/ai-dashboard/lo-shu-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>04</small><strong>九宮配置</strong><em>數字連線・缺數</em></span></a>
+          <a href="/kangjie"><img src="/visuals/ai-dashboard/kangjie-study-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><small>05</small><strong>邵康節易學</strong><em>梅花易數・皇極經世</em></span></a>
+        </div>
       </section>
 
       <div ref={resultRef} className="result-anchor">{result?.kind === "iching" ? <IChingResults result={result} onReset={handleReset} /> : result && <NumerologyResults result={result} onReset={handleReset} />}</div>
@@ -578,6 +616,7 @@ export default function Home() {
 
       <section className="disclaimer" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-web-v1.webp" text="使用提醒" className="brush-disclaimer" lazy width={640} height={180} /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
       <footer><p>© {new Date().getFullYear()} 生命靈數</p><p>同一網址，自動適配手機與電腦</p></footer>
+      </div>
       <dialog ref={accessDialogRef} className="mode-password-dialog" aria-labelledby="iching-access-title-react" aria-describedby="iching-access-description-react" onCancel={(event) => { event.preventDefault(); closeAccessDialog(); }}>
         <form className="mode-password-card" onSubmit={handleAccessSubmit} noValidate>
           <button type="button" className="mode-password-close" onClick={closeAccessDialog} aria-label="關閉密碼視窗">×</button>

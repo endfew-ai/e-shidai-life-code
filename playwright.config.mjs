@@ -5,7 +5,7 @@ const testBaseUrl = `http://127.0.0.1:${testPort}`;
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: ["kangjie-browser.spec.mjs", "numerology-browser.spec.mjs"],
+  testMatch: ["kangjie-browser.spec.mjs", "numerology-browser.spec.mjs", "ui-density-browser.spec.mjs"],
   outputDir: "./output/playwright/results",
   fullyParallel: false,
   workers: 1,

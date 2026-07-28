@@ -69,17 +69,17 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日或身分證自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-aaa-v1\.png/);
-  assert.match(html, /hero-celestial-aaa-v1\.webp/);
+  assert.match(html, /ai-dashboard\/hero-life-v1\.webp/);
   assert.match(html, /title-hero-web-v1\.webp/);
   assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
-  assert.match(html, /life-path-instrument-aaa-v1\.webp/);
+  assert.match(html, /ai-dashboard\/life-path-v1\.webp/);
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail"/);
-  assert.match(html, /public\/ai-modules\/core-orbit\.webp/);
-  assert.match(html, /public\/ai-modules\/language-signal\.webp/);
-  assert.match(html, /public\/ai-modules\/shadow-prism\.webp/);
-  assert.match(html, /public\/ai-modules\/wellbeing-flow\.webp/);
+  assert.match(html, /public\/visuals\/birthday-panel-b-v3\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/number-wave-v1\.webp/);
+  assert.match(html, /public\/visuals\/iching-instrument-b-v3\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/kangjie-study-v1\.webp/);
   assert.match(html, /theme-xuanxing-web-v1\.webp/);
   assert.match(html, /title-birthday-web-v1\.webp/);
   assert.match(html, /title-spectrum-web-v1\.webp/);
@@ -174,10 +174,11 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/og-life-numerology-aaa-v1.png", import.meta.url)),
     access(new URL("../public/favicon.svg", import.meta.url)),
     access(new URL("../.nojekyll", import.meta.url)),
-    access(new URL("../public/ai-modules/core-orbit.webp", import.meta.url)),
-    access(new URL("../public/ai-modules/shadow-prism.webp", import.meta.url)),
-    access(new URL("../public/ai-modules/wellbeing-flow.webp", import.meta.url)),
-    access(new URL("../public/ai-modules/language-signal.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/hero-life-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
+    access(new URL("../public/visuals/ai-dashboard/kangjie-study-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/hero-celestial-background-v4.webp", import.meta.url)),
     access(new URL("../public/visuals/birthday-panel-b-v3.webp", import.meta.url)),
     access(new URL("../public/visuals/digit-spectrum-panel-b-v3.webp", import.meta.url)),
@@ -226,7 +227,7 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   ]);
 
   assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
-  assert.match(html, /title-kangjie-entry-v1\.webp/);
+  assert.match(html, /title-kangjie-entry-web-v1\.webp/);
   assert.match(html, /theme-kangjie-v1\.webp/);
   assert.match(html, /title-kangjie-hero-v1\.webp/);
   assert.match(html, /title-kangjie-origins-v1\.webp/);
@@ -249,8 +250,8 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /data-current-time-detect/);
   assert.match(html, /重新套用現在/);
   assert.match(html, /自動偵測，可手動選/);
-  assert.match(html, /kangjie\.css\?v=20260724-lines-v3/);
-  assert.match(html, /kangjie\.js\?v=20260724-lines-v3/);
+  assert.match(html, /kangjie\.css\?v=20260728-jade-dashboard-v1/);
+  assert.match(html, /kangjie\.js\?v=20260728-jade-dashboard-v1/);
   assert.match(scriptSource, /input\.value === "0000"/);
   assert.match(scriptSource, /initializeCurrentTimeDetection/);
   assert.match(appSource, /password === "0000"/);

@@ -4,11 +4,11 @@
 }
 
 .kangjie-locked [data-protected-content] {
-  visibility: hidden;
+  display: none;
 }
 
 .is-access-locked {
-  visibility: hidden;
+  display: none;
 }
 
 .kangjie-unlocked .access-gate,
@@ -2041,5 +2041,110 @@
   .line-row {
     grid-template-columns: 28px minmax(60px, 0.5fr) 17px minmax(0, 1.5fr);
     gap: 4px;
+  }
+}
+
+/* 玉金 AI 書齋版：加寬工作區、壓縮首屏並提高密碼入口可讀性。 */
+.kangjie-shell.site-shell {
+  max-width: 1720px;
+  padding-inline: clamp(12px, 2vw, 34px);
+}
+.access-gate {
+  background: #020b0a;
+}
+.access-gate::before {
+  background:
+    linear-gradient(90deg, rgba(2, 10, 9, .98) 0%, rgba(2, 13, 11, .9) 45%, rgba(2, 12, 10, .42) 72%, rgba(2, 9, 8, .68)),
+    linear-gradient(180deg, rgba(2, 9, 8, .12), rgba(2, 9, 8, .72));
+}
+.access-gate-art {
+  object-position: 64% center;
+  opacity: .8;
+}
+.access-gate-card {
+  background: linear-gradient(145deg, rgba(7, 29, 24, .97), rgba(2, 13, 12, .99));
+  border-color: rgba(221, 176, 86, .62);
+}
+.access-gate-index { font-size: 13px; }
+.access-gate-card > p {
+  font-size: 16px;
+  line-height: 1.65;
+}
+.access-gate-card form > label {
+  font-size: 14px;
+}
+.access-gate-card input,
+.access-gate-card button {
+  font-size: 16px;
+  min-height: 48px;
+}
+.access-gate-card [data-access-message] {
+  font-size: 14px;
+  min-height: 22px;
+}
+.access-gate-card > a { font-size: 14px; }
+
+.kangjie-shell {
+  --kangjie-panel: rgba(6, 27, 23, .97);
+  --kangjie-gold-wash: rgba(199, 154, 69, .09);
+}
+.kangjie-hero {
+  background: #020c0a;
+  height: 258px;
+}
+.kangjie-hero::before {
+  background:
+    linear-gradient(90deg, rgba(2, 10, 9, .98) 0%, rgba(2, 13, 11, .88) 38%, rgba(2, 12, 10, .24) 72%),
+    linear-gradient(180deg, transparent 42%, rgba(2, 10, 9, .78));
+}
+.kangjie-hero .hero-art {
+  object-position: 68% 58%;
+}
+.kangjie-overview {
+  background: linear-gradient(180deg, rgba(7, 27, 23, .98), rgba(2, 13, 12, .99));
+}
+.kangjie-overview article {
+  min-height: 70px;
+  padding-block: 8px;
+}
+.kangjie-overview p {
+  font-size: 14px;
+}
+.kangjie-workspace {
+  background:
+    radial-gradient(circle at 92% 0, rgba(25, 96, 76, .12), transparent 30rem),
+    linear-gradient(145deg, rgba(7, 27, 23, .99), rgba(2, 13, 12, .995));
+}
+.kangjie-tabs {
+  background: rgba(2, 12, 10, .96);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.kangjie-tabs button,
+.method-selector button {
+  background: rgba(3, 17, 14, .72);
+}
+.kangjie-tabs button[aria-selected="true"],
+.method-selector button[aria-selected="true"] {
+  background: linear-gradient(180deg, rgba(164, 113, 34, .2), rgba(5, 24, 20, .92));
+}
+.kangjie-panel,
+.kangjie-form,
+.hexagram-card,
+.calculation-audit,
+.kangjie-classic-excerpt {
+  background-color: rgba(3, 16, 14, .62);
+}
+.kangjie-panel[hidden] { content-visibility: hidden; }
+
+@media (max-width: 650px) {
+  .access-gate-card button { min-height: 46px; }
+  .kangjie-hero { height: 202px; }
+  .kangjie-overview article { min-height: 64px; }
+  .kangjie-overview p { font-size: 15px; }
+  .kangjie-tabs {
+    position: static;
+    top: auto;
   }
 }
