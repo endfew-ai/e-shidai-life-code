@@ -5829,6 +5829,42 @@ body:has([data-ui="xuanxing-aaa"]) {
   }
 }
 
+@media (min-width: 768px) and (max-width: 1180px) {
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 2px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a span {
+    font-size: 0;
+    white-space: nowrap;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a span::after {
+    font-size: 12px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(1) span::after { content: "生日"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(2) span::after { content: "路徑"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(3) span::after { content: "頻譜"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(4) span::after { content: "九宮"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(5) span::after { content: "流年"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(6) span::after { content: "工作台"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(7) span::after { content: "規則"; }
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a:nth-child(8) span::after { content: "隱私"; }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions .visit-counter {
+    min-width: 112px;
+  }
+}
+
 @media (max-width: 767px) {
   [data-ui="xuanxing-aaa"] {
     max-width: none;
@@ -7083,6 +7119,152 @@ body:has([data-ui="xuanxing-aaa"]) {
     justify-items: center;
     line-height: 1;
     text-align: center;
+  }
+}
+
+/* Reference v5: clearer actions, semantic ImageGen objects, and older-eye readability. */
+#result-life-path,
+#result-annual-cycle,
+#result-nine-grid,
+#numerology-workspace {
+  scroll-margin-top: 70px;
+}
+
+.workspace-return {
+  align-items: center;
+  border: 1px solid rgba(221, 178, 89, .52);
+  color: var(--aaa-brass-hot, var(--gold-bright));
+  display: inline-flex;
+  font-family: var(--sans);
+  font-size: 14px;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 6px;
+  min-height: 44px;
+  padding: 7px 10px;
+  text-decoration: none;
+}
+
+.workspace-return:hover,
+.workspace-return:focus-visible {
+  background: rgba(210, 164, 75, .1);
+  border-color: var(--aaa-brass-hot, var(--gold-bright));
+}
+
+@media (min-width: 1181px) {
+  .dashboard-home-screen.reference-v4 .dashboard-lead .hero-copy {
+    justify-content: flex-start;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .hero-title .brush-title-image {
+    height: auto;
+    max-height: none;
+    max-width: 410px;
+    width: min(100%, 410px);
+  }
+
+  .dashboard-home-screen.reference-v4 .hero-proof strong {
+    font-size: 13px;
+  }
+
+  .dashboard-home-screen.reference-v4 .hero-proof small {
+    font-size: 11px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card {
+    background:
+      linear-gradient(180deg, rgba(1, 9, 9, .72), rgba(1, 8, 8, .88)),
+      url("public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp") center / cover no-repeat,
+      #020b0a;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-analytics > article::before {
+    opacity: .4;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-analytics article > header strong,
+  .dashboard-home-screen.reference-v4 .dashboard-analytics article > header small,
+  .dashboard-home-screen.reference-v4 .analytics-overview dt,
+  .dashboard-home-screen.reference-v4 .analytics-overview dd,
+  .dashboard-home-screen.reference-v4 .analytics-orbit em,
+  .dashboard-home-screen.reference-v4 .analytics-year-medal small {
+    font-size: 11px;
+  }
+
+  .dashboard-home-screen.reference-v4 .digit-bars em,
+  .dashboard-home-screen.reference-v4 .digit-bars b {
+    font-size: 11px;
+  }
+
+  .dashboard-home-screen.reference-v4 .analytics-core-detail p em,
+  .dashboard-home-screen.reference-v4 .analytics-annual p em {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .dashboard-home-screen.reference-v4 .visual-module-grid b,
+  .dashboard-home-screen.reference-v4 .support-module-grid b {
+    font-size: 13px;
+  }
+
+  .dashboard-home-screen.reference-v4 .support-module-grid ul {
+    font-size: 12px;
+  }
+
+  .dashboard-sidebar .sidebar-quick strong {
+    font-size: 13px;
+  }
+
+  .dashboard-sidebar .sidebar-quick small,
+  .dashboard-sidebar .sidebar-links small,
+  .sidebar-version small {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-ui="xuanxing-aaa"] .visit-counter span,
+  [data-ui="xuanxing-aaa"] .visit-counter small {
+    font-size: 14px;
+  }
+
+  [data-ui="xuanxing-aaa"] .visit-counter strong {
+    font-size: 20px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .field-block > span,
+  .dashboard-home-screen.reference-v4 > .cockpit-status strong,
+  .dashboard-home-screen.reference-v4 > .mobile-function-atlas strong {
+    font-size: 16px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .mode-switch .brush-mode .brush-title-image,
+  .dashboard-home-screen.reference-v4 .dashboard-lead .mode-switch .brush-kangjie-entry .brush-title-image {
+    height: 20px;
+    max-width: 72px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card {
+    background:
+      linear-gradient(180deg, rgba(1, 10, 9, .72), rgba(1, 8, 8, .9)),
+      url("public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp") center / cover no-repeat,
+      #020b0a;
+  }
+
+  .workspace-return {
+    font-size: 16px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .dashboard-home-screen.reference-v4 .dashboard-lead .mode-switch .mode-card-art {
+    height: 33px;
+    width: 33px;
+  }
+
+  .dashboard-home-screen.reference-v4 > .mobile-function-atlas strong {
+    font-size: 16px;
   }
 }
 

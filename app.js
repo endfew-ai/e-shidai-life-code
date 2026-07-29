@@ -253,6 +253,7 @@ function createCalculationCard(result) {
 function createDigitDistribution(result) {
   const title = result.kind === "birthday" ? "生日數字九宮分布" : "自訂數字九宮分布";
   const card = element("details", "result-disclosure calculation-card digit-distribution");
+  if (result.kind === "birthday") card.id = "result-nine-grid";
   const summary = element("summary");
   const summaryCopy = element("span");
   summaryCopy.append(element("small", "", "數字分布"), element("strong", "", "查看完整九宮"));
@@ -446,6 +447,7 @@ function createNumerologyResult(result, onReset) {
   section.setAttribute("aria-labelledby", "result-title");
 
   const hero = element("header", "result-hero");
+  if (result.kind === "birthday") hero.id = "result-life-path";
   const copy = element("div", "result-copy");
   const title = element("h2", "brush-result-title");
   title.id = "result-title";
@@ -476,7 +478,14 @@ function createNumerologyResult(result, onReset) {
         ["最常出現", result.strongest.join("、"), result.strongest.length > 1 ? "並列最高次數" : "出現次數最高"],
       ];
   const metricGrid = element("div", "metric-grid");
-  for (const metric of metrics) metricGrid.append(createMetricCard(...metric));
+  for (const [index, metric] of metrics.entries()) {
+    const metricCard = createMetricCard(...metric);
+    if (result.kind === "birthday" && index === 3) {
+      metricCard.id = "result-annual-cycle";
+      metricCard.tabIndex = -1;
+    }
+    metricGrid.append(metricCard);
+  }
   section.append(metricGrid);
 
   if (result.kind === "birthday" && result.lifePath.isMaster) {
@@ -715,6 +724,8 @@ function initializeAnalyzer() {
   const cockpitCoreNote = document.querySelector("[data-cockpit-core-note]");
   let mode = "birthday";
   let ichingUnlocked = hasIChingAccess();
+  let birthdayAutoSubmitArmed = false;
+  let birthdayResultTarget = "overview";
 
   birthdayInput.max = localDateString();
   document.querySelector("#copyright-year").textContent = new Date().getFullYear();
@@ -796,11 +807,20 @@ function initializeAnalyzer() {
       );
     }
   }
-  function focusResult() {
+  function focusResult(resultTarget = "overview") {
     window.setTimeout(() => {
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      resultAnchor.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
-      resultAnchor.querySelector("h2")?.focus({ preventScroll: true });
+      const targetSelector = {
+        overview: "#result-life-path",
+        "life-path": "#result-life-path",
+        annual: "#result-annual-cycle",
+        grid: "#result-nine-grid",
+      }[resultTarget];
+      const target = document.querySelector(targetSelector) ?? resultAnchor;
+      if (target instanceof HTMLDetailsElement) target.open = true;
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      (target.querySelector("h2, summary") ?? target).focus?.({ preventScroll: true });
+      birthdayResultTarget = "overview";
     }, 80);
   }
 
@@ -832,6 +852,7 @@ function initializeAnalyzer() {
   }
 
   function changeMode(nextMode) {
+    birthdayAutoSubmitArmed = false;
     mode = nextMode;
     form.dataset.activeMode = mode;
     for (const input of modeInputs) input.checked = input.value === mode;
@@ -860,6 +881,8 @@ function initializeAnalyzer() {
     event.preventDefault();
     const shouldAnalyze = Boolean(birthdayInput.value);
     changeMode("birthday");
+    birthdayAutoSubmitArmed = !shouldAnalyze;
+    birthdayResultTarget = event.currentTarget?.dataset.resultTarget ?? "overview";
     const analyzer = document.querySelector("#analyzer");
     analyzer?.scrollIntoView({
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
@@ -871,9 +894,10 @@ function initializeAnalyzer() {
     window.history.replaceState(null, "", "#analyzer");
     birthdayInput.focus({ preventScroll: true });
     if (shouldAnalyze) {
-      form.requestSubmit();
+      window.setTimeout(() => form.requestSubmit(), 0);
       return;
     }
+    help.textContent = "請選擇出生日期；選好後會立即完成分析，不必再按一次。";
     try {
       birthdayInput.showPicker?.();
     } catch {
@@ -885,7 +909,7 @@ function initializeAnalyzer() {
     for (const link of birthdayEntryLinks) {
       const label = link.querySelector("span");
       if (label && link.classList.contains("sidebar-primary")) {
-        label.textContent = birthdayInput.value ? "立即產生完整結果" : "輸入生日立即分析";
+        label.textContent = birthdayInput.value ? "立即更新完整結果" : "選生日・直接看完整結果";
       }
     }
   }
@@ -936,6 +960,11 @@ function initializeAnalyzer() {
       if (input === birthdayInput) updateBirthdayEntryLabel();
     });
   }
+  birthdayInput.addEventListener("change", () => {
+    if (!birthdayAutoSubmitArmed || !birthdayInput.value) return;
+    birthdayAutoSubmitArmed = false;
+    form.requestSubmit();
+  });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -957,12 +986,15 @@ function initializeAnalyzer() {
         }));
       }
       message.textContent = "";
+      birthdayAutoSubmitArmed = false;
+      help.textContent = modeContent[mode].help;
       setInvalid(false);
       resultAnchor.replaceChildren(result.kind === "iching" ? createIChingResult(result, resetCurrent) : createNumerologyResult(result, resetCurrent));
       updateCockpitResult(result);
       updateDashboardAnalytics(result);
-      focusResult();
+      focusResult(mode === "birthday" ? birthdayResultTarget : "overview");
     } catch (error) {
+      birthdayAutoSubmitArmed = false;
       clearResult();
       updateCockpitResult(null);
       updateDashboardAnalytics(null);
@@ -1064,6 +1096,7 @@ function initializeWorkspaceLinks(workspaceRoot) {
       if (!tab) return;
       event.preventDefault();
       tab.click();
+      if (window.location.hash !== "#numerology-workspace") window.history.pushState(null, "", "#numerology-workspace");
     });
   }
 }

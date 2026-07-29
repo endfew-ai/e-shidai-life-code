@@ -475,6 +475,14 @@ async function expectDenseDesktopFirstFold(page, width, height) {
     ["public/visuals/ai-dashboard/reference-v4/analytics-spectrum-instrument-v4.webp", "頻譜儀表"],
     ["public/visuals/ai-dashboard/reference-v4/analytics-core-instrument-v4.webp", "核心數字儀表"],
     ["public/visuals/ai-dashboard/reference-v4/analytics-annual-instrument-v4.webp", "個人流年儀表"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp", "生日物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp", "生命路徑物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp", "數字頻譜物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp", "九宮配置物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp", "流年分析物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp", "專業工作台物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp", "規則來源物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp", "本機隱私物件徽章"],
   ]) {
     await expectImageAssetLoads(page, path, label);
   }
@@ -649,7 +657,7 @@ test("桌機未分析只顯示占位，1990-07-12 顯示可核對的真實結果
   await expectNoHorizontalOverflow(page);
 });
 
-test("桌機側欄生日 CTA 在空白時聚焦，已有日期時直接送出", async ({ page }) => {
+test("桌機側欄生日 CTA 空白時選完日期自動分析，已有日期時直接送出", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
   await page.goto("index.html", { waitUntil: "networkidle" });
 
@@ -663,12 +671,60 @@ test("桌機側欄生日 CTA 在空白時聚焦，已有日期時直接送出", 
   await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
   await expect(birthdayInput).toBeFocused();
   await expect(page.locator("#result-anchor")).toBeEmpty();
+  await expect(page.locator("#input-help")).toContainText("選好後會立即完成分析");
 
   await birthdayInput.fill("1990-07-12");
-  await sidebarCta.click();
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
   await expect(page.locator("[data-analytics-status]")).toHaveText("生日分析完成");
   await expect(page.locator("[data-analytics-core]")).toHaveText("2");
+
+  await page.locator('[data-mode-label="code"]').click();
+  await sidebarCta.click();
+  await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
+  await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+  await expectNoHorizontalOverflow(page);
+});
+
+test("生命路徑、流年、九宮與工作台入口各自直達真實內容並可返回", async ({ page }) => {
+  await page.setViewportSize({ width: 1672, height: 941 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+
+  const topbarEntries = page.locator(".topbar-actions > a");
+  await expect(topbarEntries).toHaveCount(8);
+  await expect(topbarEntries).toHaveText([
+    "生日分析",
+    "生命路徑",
+    "數字頻譜",
+    "九宮配置",
+    "流年分析",
+    "專業工作台",
+    "規則來源",
+    "本機隱私",
+  ]);
+
+  await topbarEntries.nth(1).click();
+  await expect(page.locator("#birthday-input")).toBeFocused();
+  await page.locator("#birthday-input").fill("1990-07-12");
+  await expect(page.locator("#result-life-path")).toBeVisible();
+  await expect(page.locator("#result-life-path")).toBeInViewport();
+
+  await topbarEntries.nth(4).click();
+  await expect(page.locator("#result-annual-cycle")).toBeVisible();
+  await expect(page.locator("#result-annual-cycle")).toBeInViewport();
+
+  await topbarEntries.nth(3).click();
+  await expect(page.locator("#result-nine-grid")).toHaveAttribute("open", "");
+  await expect(page.locator("#result-nine-grid")).toBeInViewport();
+
+  await topbarEntries.nth(5).click();
+  await expect(page).toHaveURL(/#numerology-workspace$/);
+  await expect(page.locator('[data-workspace-tab="home"]')).toHaveAttribute("aria-selected", "true");
+  const workspaceReturn = page.locator(".workspace-return");
+  await expect(workspaceReturn).toBeVisible();
+  await expectMinimumHeight(workspaceReturn, 44, "工作台返回分析台");
+  await workspaceReturn.click();
+  await expect(page).toHaveURL(/#analyzer$/);
+  await expect(page.locator("#analyzer")).toBeInViewport();
   await expectNoHorizontalOverflow(page);
 });
 

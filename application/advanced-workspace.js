@@ -126,6 +126,7 @@ function createWorkspaceMarkup(root, assetRoot) {
       <div class="workspace-clock" aria-live="off">
         <span>本機時間自動偵測</span>
         <time data-workspace-clock></time>
+        <a class="workspace-return" href="#analyzer">返回生日分析台 <b aria-hidden="true">↑</b></a>
       </div>
     </header>
     <nav class="workspace-tabs" role="tablist" aria-label="進階靈數功能">

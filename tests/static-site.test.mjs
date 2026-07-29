@@ -68,6 +68,11 @@ const referenceV4DashboardAssets = [
   ...Array.from({ length: 8 }, (_, index) => `function-bay-${index + 1}-v4.webp`),
 ];
 
+const referenceV5DashboardAssets = Array.from(
+  { length: 8 },
+  (_, index) => `function-bay-${index + 1}-v5.webp`,
+);
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -108,9 +113,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4"/);
   assert.match(html, /data-start-birthday/);
   assert.match(html, /class="sidebar-primary"[^>]*data-start-birthday/);
-  assert.match(html, /輸入生日立即分析/);
-  assert.match(appSource, /立即產生完整結果/);
-  assert.match(reactSource, /立即產生完整結果/);
+  assert.match(html, /選生日・直接看完整結果/);
+  assert.match(appSource, /立即更新完整結果/);
+  assert.match(reactSource, /立即更新完整結果/);
   assert.match(appSource, /function startBirthdayAnalysis/);
   assert.match(reactSource, /function startBirthdayAnalysis/);
   assert.match(html, /data-analyze-label/);
@@ -173,7 +178,11 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(reactSource, /className="support-module-grid"/);
   assert.match(html, /class="mobile-function-atlas"/);
   assert.match(reactSource, /className="mobile-function-atlas"/);
-  assert.equal((html.match(/function-bay-\d-v4\.webp/g) ?? []).length > 8, true);
+  assert.equal((html.match(/function-bay-\d-v5\.webp/g) ?? []).length > 8, true);
+  assert.match(html, /data-result-target="life-path"/);
+  assert.match(html, /data-result-target="grid"/);
+  assert.match(html, /data-result-target="annual"/);
+  assert.match(advancedSource, /class="workspace-return" href="#analyzer"/);
   assert.match(html, /九宮配置/);
   assert.match(html, /身分證命格/);
   assert.match(html, /不傳分析輸入/);
@@ -295,6 +304,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV2DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v2/${asset}`, import.meta.url))),
     ...referenceV3DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v3/${asset}`, import.meta.url))),
     ...referenceV4DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v4/${asset}`, import.meta.url))),
+    ...referenceV5DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v5/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
@@ -339,6 +349,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...mainFixedBrushAssets.map((asset) => access(new URL(`../public/visuals/brush/${asset}`, import.meta.url))),
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
     access(new URL("../docs/reference-v4-visual-assets.md", import.meta.url)),
+    access(new URL("../docs/reference-v5-visual-assets.md", import.meta.url)),
   ]);
 });
 
