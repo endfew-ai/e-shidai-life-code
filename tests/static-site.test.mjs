@@ -58,6 +58,16 @@ const referenceV3DashboardAssets = [
   "mobile-celestial-arch-v3.webp",
 ];
 
+const referenceV4DashboardAssets = [
+  "analytics-overview-instrument-v4.webp",
+  "analytics-spectrum-instrument-v4.webp",
+  "analytics-core-instrument-v4.webp",
+  "analytics-annual-instrument-v4.webp",
+  "analyzer-console-frame-v4.webp",
+  "hero-title-calligraphy-v4.png",
+  ...Array.from({ length: 8 }, (_, index) => `function-bay-${index + 1}-v4.webp`),
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -78,29 +88,29 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /href="kangjie\.html"/);
   assert.match(html, /本卦、互卦、動爻與變卦/);
   assert.ok(html.indexOf('value="birthday"') < html.indexOf('value="iching"'));
-  assert.match(html, /看見你的/);
-  assert.match(html, /數字軌跡/);
+  assert.match(html, /解碼生命・掌握命運/);
   assert.match(html, /分析資料只在本機處理/);
   assert.match(reactSource, /分析資料只在本機處理/);
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日或身分證自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-aaa-v1\.png/);
   assert.match(html, /ai-dashboard\/reference-v3\/desktop-hero-command-v3\.webp/);
-  assert.match(html, /ai-dashboard\/reference-v3\/mobile-celestial-arch-v3\.webp/);
+  assert.match(html, /ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png/);
+  assert.match(html, /ai-dashboard\/reference-v4\/analyzer-console-frame-v4\.webp/);
   assert.match(reactSource, /ai-dashboard\/reference-v3\/desktop-hero-command-v3\.webp/);
-  assert.match(styles, /ai-dashboard\/reference-v3\/mobile-celestial-arch-v3\.webp/);
-  assert.match(html, /title-hero-web-v1\.webp/);
+  assert.match(reactSource, /ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png/);
+  assert.match(styles, /ai-dashboard\/reference-v4\/analyzer-console-frame-v4\.webp/);
   assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
   assert.match(html, /ai-dashboard\/life-path-v1\.webp/);
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4"/);
   assert.match(html, /data-start-birthday/);
   assert.match(html, /class="sidebar-primary"[^>]*data-start-birthday/);
-  assert.match(html, /選擇生日開始/);
-  assert.match(appSource, /分析我的生命靈數/);
-  assert.match(reactSource, /分析我的生命靈數/);
+  assert.match(html, /輸入生日立即分析/);
+  assert.match(appSource, /立即產生完整結果/);
+  assert.match(reactSource, /立即產生完整結果/);
   assert.match(appSource, /function startBirthdayAnalysis/);
   assert.match(reactSource, /function startBirthdayAnalysis/);
   assert.match(html, /data-analyze-label/);
@@ -136,6 +146,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /data-analytics-annual>－/);
   assert.match(appSource, /distributionTitle: "輸入數字出現次數"/);
   assert.match(reactSource, /distributionTitle: "輸入數字出現次數"/);
+  assert.match(appSource, /core: getIChingText\(result\.original\.hexId\)\.symbol/);
+  assert.match(reactSource, /core: getIChingText\(result\.original\.hexId\)\.symbol/);
   assert.doesNotMatch(appSource, /distributionTitle:\s*"[^"]*能量分[布佈][^"]*"/);
   assert.doesNotMatch(reactSource, /distributionTitle:\s*"[^"]*能量分[布佈][^"]*"/);
   assert.match(html, /public\/visuals\/birthday-panel-b-v3\.webp/);
@@ -159,6 +171,12 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   }
   assert.match(html, /class="support-module-grid"/);
   assert.match(reactSource, /className="support-module-grid"/);
+  assert.match(html, /class="mobile-function-atlas"/);
+  assert.match(reactSource, /className="mobile-function-atlas"/);
+  assert.equal((html.match(/function-bay-\d-v4\.webp/g) ?? []).length > 8, true);
+  assert.match(html, /九宮配置/);
+  assert.match(html, /身分證命格/);
+  assert.match(html, /不傳分析輸入/);
   assert.match(html, /data-workspace-target="history"/);
   assert.match(appSource, /initializeWorkspaceLinks/);
   assert.match(reactSource, /function openWorkspace/);
@@ -193,7 +211,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     assert.ok(appSource.includes(asset), `${asset} must be referenced by the static application`);
     assert.ok(reactSource.includes(asset), `${asset} must be referenced by the React application`);
   }
-  assert.match(html, /<span class="sr-only">看見你的數字軌跡<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-hero-web-v1\.webp"/);
+  assert.match(html, /<span class="sr-only">解碼生命・掌握命運<\/span><img class="brush-title-image" src="public\/visuals\/ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png"/);
   assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-web-v1\.webp"/);
   assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-web-v1\.webp"/);
   assert.match(appSource, /brushTitleElement\("public\/visuals\/brush\/title-insight-v5\.webp", "把結果變成可觀察的問題"/);
@@ -276,6 +294,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/visuals/ai-dashboard/hero-life-v1.webp", import.meta.url)),
     ...referenceV2DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v2/${asset}`, import.meta.url))),
     ...referenceV3DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v3/${asset}`, import.meta.url))),
+    ...referenceV4DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v4/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
@@ -319,6 +338,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../public/visuals/brush/title-disclaimer-v5.webp", import.meta.url)),
     ...mainFixedBrushAssets.map((asset) => access(new URL(`../public/visuals/brush/${asset}`, import.meta.url))),
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
+    access(new URL("../docs/reference-v4-visual-assets.md", import.meta.url)),
   ]);
 });
 

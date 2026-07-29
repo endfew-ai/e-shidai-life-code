@@ -135,7 +135,7 @@ function dashboardAnalytics(result, mode = "birthday") {
     status: "三數取卦完成",
     modeLabel,
     state: "卦象已更新",
-    core: result.original.symbol,
+    core: getIChingText(result.original.hexId).symbol,
     title: result.original.name,
     note: `動爻 ${result.moving.name}，變卦 ${result.transformed.name}`,
     counts,
@@ -884,7 +884,9 @@ function initializeAnalyzer() {
   function updateBirthdayEntryLabel() {
     for (const link of birthdayEntryLinks) {
       const label = link.querySelector("span");
-      if (label) label.textContent = birthdayInput.value ? "分析我的生命靈數" : "選擇生日開始";
+      if (label && link.classList.contains("sidebar-primary")) {
+        label.textContent = birthdayInput.value ? "立即產生完整結果" : "輸入生日立即分析";
+      }
     }
   }
 

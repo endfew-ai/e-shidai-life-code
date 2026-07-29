@@ -141,6 +141,7 @@ async function expectHeroContentClearOfRail(page) {
     const summaryRect = summary.getBoundingClientRect();
     const proofRect = proofList.getBoundingClientRect();
     const railRect = rail.getBoundingClientRect();
+    const railStyle = getComputedStyle(rail);
 
     return {
       copyOverflow: copy.scrollHeight - copy.clientHeight,
@@ -148,6 +149,8 @@ async function expectHeroContentClearOfRail(page) {
       titleSummaryGap: summaryRect.top - titleRect.bottom,
       summaryProofGap: proofRect.top - summaryRect.bottom,
       proofCopyBottomGap: copyRect.bottom - proofRect.bottom,
+      proofHeroBottomGap: heroRect.bottom - proofRect.bottom,
+      railDisplay: railStyle.display,
       proofRailGap: railRect.top - proofRect.bottom,
     };
   });
@@ -158,7 +161,10 @@ async function expectHeroContentClearOfRail(page) {
   expect(report.titleSummaryGap, "毛筆標題與說明不得重疊").toBeGreaterThanOrEqual(0);
   expect(report.summaryProofGap, "說明與三項分析特色不得重疊").toBeGreaterThanOrEqual(0);
   expect(report.proofCopyBottomGap, "三項分析特色不得超出內容安全區").toBeGreaterThanOrEqual(-1);
-  expect(report.proofRailGap, "三項分析特色必須完整位於資訊列上方").toBeGreaterThanOrEqual(1);
+  expect(report.proofHeroBottomGap, "三項分析特色必須完整位於主視覺內").toBeGreaterThanOrEqual(1);
+  if (report.railDisplay !== "none") {
+    expect(report.proofRailGap, "三項分析特色必須完整位於資訊列上方").toBeGreaterThanOrEqual(1);
+  }
 }
 
 async function expectCompactMobileDashboard(page) {
@@ -174,14 +180,16 @@ async function expectCompactMobileDashboard(page) {
       cockpitColumns: columns(".cockpit-status"),
       cockpitCount: document.querySelectorAll(".cockpit-status > article").length,
       cockpitHeight: rect(".cockpit-status").height,
-      mainColumns: columns(".visual-module-grid"),
-      supportColumns: columns(".support-module-grid"),
+      atlasColumns: columns(".mobile-function-atlas"),
+      atlasCount: document.querySelectorAll(".mobile-function-atlas > a").length,
+      atlasBottom: rect(".mobile-function-atlas").bottom,
+      viewportHeight: window.innerHeight,
       workspaceTabColumns: columns(".workspace-tabs"),
       workspaceEntryColumns: columns(".workspace-entry-grid"),
       workspaceEntryHeights: [...document.querySelectorAll(".workspace-entry-grid button")]
         .map((element) => element.getBoundingClientRect().height),
       modeArtDisplay: getComputedStyle(document.querySelector(".dashboard-lead .mode-art")).display,
-      moduleHeadingDisplay: getComputedStyle(document.querySelector(".visual-module-rail > header")).display,
+      moduleRailDisplay: getComputedStyle(document.querySelector(".visual-module-rail")).display,
       desktopAnalyticsDisplay: getComputedStyle(document.querySelector("[data-ui-region='desktop-analytics']")).display,
     };
   });
@@ -191,18 +199,19 @@ async function expectCompactMobileDashboard(page) {
   }
   expect(report.cockpitCount, "手機即時摘要必須正好四格").toBe(4);
   expect(report.cockpitColumns, "手機即時摘要應維持 2×2").toBe(2);
-  expect(report.cockpitHeight, "手機即時摘要不得退化成過長四列").toBeLessThanOrEqual(190);
+  expect(report.cockpitHeight, "手機即時摘要不得退化成過長四列").toBeLessThanOrEqual(92);
   expect(report.desktopAnalyticsDisplay, "手機不得重複顯示桌機四模塊總覽").toBe("none");
-  expect(report.mainColumns, "手機五大入口應採 2+2+1").toBe(2);
-  expect(report.supportColumns, "手機支援入口應採單欄寬卡").toBe(1);
+  expect(report.atlasColumns, "手機八功能入口應採四欄兩列").toBe(4);
+  expect(report.atlasCount, "手機功能總覽必須正好八個入口").toBe(8);
+  expect(report.atlasBottom, "手機首屏必須完整顯示八個功能入口").toBeLessThanOrEqual(report.viewportHeight - 4);
   expect(report.workspaceTabColumns, "手機工作台分頁應採三欄兩列").toBe(3);
   expect(report.workspaceEntryColumns, "手機工作台六入口應採兩欄三列").toBe(2);
   expect(Math.max(...report.workspaceEntryHeights), "手機工作台入口不得過度拉長").toBeLessThanOrEqual(180);
   expect(report.modeArtDisplay, "手機不重複顯示當前模式橫幅").toBe("none");
-  expect(report.moduleHeadingDisplay, "手機不重複顯示入口總標題").toBe("none");
+  expect(report.moduleRailDisplay, "手機以八格總覽取代過長卡片牆").toBe("none");
   await expectReadableSamples(
     page,
-    [".cockpit-status small", ".visual-module-grid small"],
+    [".cockpit-status small", ".mobile-function-atlas strong", ".mobile-function-atlas small"],
     14,
     "手機儀表與入口標籤",
   );
@@ -214,10 +223,13 @@ async function expectReferenceMobileDashboard(page) {
   await expect(page.locator("[data-ui-region='mode-deck']")).toBeVisible();
   await expect(page.locator(".cockpit-center-seal")).toBeVisible();
   await expect(page.locator(".cockpit-status > article")).toHaveCount(4);
+  await expect(page.locator(".mobile-function-atlas")).toBeVisible();
+  await expect(page.locator(".mobile-function-atlas > a")).toHaveCount(8);
+  await expect(page.locator(".visual-module-rail")).toBeHidden();
   await expectImageAssetLoads(
     page,
-    "public/visuals/ai-dashboard/reference-v3/mobile-celestial-arch-v3.webp",
-    "手機天文拱門圖",
+    "public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp",
+    "手機分析台框架",
   );
 
   const report = await page.evaluate(() => {
@@ -239,8 +251,8 @@ async function expectReferenceMobileDashboard(page) {
     const centerSeal = document.querySelector(".cockpit-center-seal");
     const portalImages = [...document.querySelectorAll(".mode-switch .mode-card-art")];
     const cockpitCells = [...document.querySelectorAll(".cockpit-status > article")];
-    const firstRowCards = [...document.querySelectorAll(".visual-module-grid > a")].slice(0, 2);
-    const firstRowRects = firstRowCards.map((card) => card.getBoundingClientRect());
+    const atlasLinks = [...document.querySelectorAll(".mobile-function-atlas > a")];
+    const atlasRects = atlasLinks.map((card) => card.getBoundingClientRect());
     const centerOwnsPoint = (element) => {
       const box = element.getBoundingClientRect();
       const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
@@ -252,19 +264,22 @@ async function expectReferenceMobileDashboard(page) {
       modeEntryTopSpread: Math.max(...modeEntryTops) - Math.min(...modeEntryTops),
       analyzer: rect("[data-ui-region='analyzer']"),
       cockpit: rect("[data-ui-region='cockpit']"),
-      modules: rect("[data-ui-region='modules']"),
+      atlas: rect(".mobile-function-atlas"),
       cockpitCount: cockpitCells.length,
       cockpitColumns: getComputedStyle(document.querySelector(".cockpit-status"))
         .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-      firstRowCount: firstRowCards.length,
-      firstRowTopSpread: firstRowRects.length
-        ? Math.max(...firstRowRects.map((box) => box.top)) - Math.min(...firstRowRects.map((box) => box.top))
+      atlasCount: atlasLinks.length,
+      atlasColumns: getComputedStyle(document.querySelector(".mobile-function-atlas"))
+        .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      atlasWidthSpread: atlasRects.length
+        ? Math.max(...atlasRects.map((box) => box.width)) - Math.min(...atlasRects.map((box) => box.width))
         : null,
-      firstRowWidthSpread: firstRowRects.length
-        ? Math.max(...firstRowRects.map((box) => box.width)) - Math.min(...firstRowRects.map((box) => box.width))
-        : null,
-      firstRowBottom: firstRowRects.length ? Math.max(...firstRowRects.map((box) => box.bottom)) : null,
-      firstRowCentersAreClickable: firstRowCards.map(centerOwnsPoint),
+      atlasCentersAreClickable: atlasLinks.map(centerOwnsPoint),
+      atlasImageState: [...document.querySelectorAll(".mobile-function-atlas img")].map((image) => ({
+        complete: image.complete,
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight,
+      })),
       modeCentersAreClickable: modeEntries.map(centerOwnsPoint),
       portalImageState: portalImages.map((image) => ({
         complete: image.complete,
@@ -282,24 +297,29 @@ async function expectReferenceMobileDashboard(page) {
   expect(report.cockpitColumns, "手機摘要必須排成 2×2").toBe(2);
   expect(report.analyzer).not.toBeNull();
   expect(report.cockpit).not.toBeNull();
-  expect(report.modules).not.toBeNull();
+  expect(report.atlas).not.toBeNull();
   expect(report.cockpit.top, "摘要區必須接在分析器後方").toBeGreaterThanOrEqual(report.analyzer.bottom);
   expect(report.cockpit.top - report.analyzer.bottom, "分析器與摘要區不可出現大空白").toBeLessThanOrEqual(12);
-  expect(report.modules.top, "功能模塊必須接在摘要後方").toBeGreaterThanOrEqual(report.cockpit.bottom);
-  expect(report.modules.top - report.cockpit.bottom, "摘要與功能模塊不可出現大空白").toBeLessThanOrEqual(12);
-  expect(report.firstRowCount, "手機首列必須有兩張功能卡").toBe(2);
-  expect(report.firstRowTopSpread, "手機首列兩張卡頂線必須對齊").toBeLessThanOrEqual(1);
-  expect(report.firstRowWidthSpread, "手機首列兩張卡寬度必須一致").toBeLessThanOrEqual(2);
-  expect(report.firstRowBottom, "390×693 必須完整顯示首列兩張功能卡")
-    .toBeLessThanOrEqual(report.viewportHeight + 1);
+  expect(report.atlas.top, "八格功能總覽必須接在摘要後方").toBeGreaterThanOrEqual(report.cockpit.bottom);
+  expect(report.atlas.top - report.cockpit.bottom, "摘要與八格功能總覽不可出現大空白").toBeLessThanOrEqual(12);
+  expect(report.atlasCount, "手機必須正好顯示八個功能入口").toBe(8);
+  expect(report.atlasColumns, "手機八功能入口必須排成四欄兩列").toBe(4);
+  expect(report.atlasWidthSpread, "手機八格入口寬度必須一致").toBeLessThanOrEqual(2);
+  expect(report.atlas.bottom, "手機首屏必須完整顯示八個功能入口")
+    .toBeLessThanOrEqual(report.viewportHeight - 4);
   expect(report.modeCentersAreClickable.every(Boolean), "四個模式入口中央不得被裝飾圖遮住").toBe(true);
-  expect(report.firstRowCentersAreClickable.every(Boolean), "首列功能卡中央不得被裝飾圖遮住").toBe(true);
+  expect(report.atlasCentersAreClickable.every(Boolean), "八格功能入口中央不得被裝飾圖遮住").toBe(true);
+  expect(report.atlasImageState.length, "手機必須載入八張功能徽章").toBe(8);
+  expect(
+    report.atlasImageState.every((image) => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0),
+    "手機八張 AI 功能徽章都必須完成載入",
+  ).toBe(true);
   expect(report.centerSealPointerEvents, "中央儀器章不可攔截觸控").toBe("none");
   for (const image of report.portalImageState) {
     expect(image.complete).toBe(true);
     expect(image.naturalWidth, "四個 AI 圓盤圖必須載入").toBeGreaterThan(0);
-    expect(image.width, "四個圓盤寬度").toBeGreaterThanOrEqual(48);
-    expect(image.height, "四個圓盤高度").toBeGreaterThanOrEqual(48);
+    expect(image.width, "四個圓盤寬度").toBeGreaterThanOrEqual(32);
+    expect(image.height, "四個圓盤高度").toBeGreaterThanOrEqual(32);
   }
 }
 
@@ -354,12 +374,12 @@ async function verifyHomepage(page) {
   await expectMinimumHeight(page.locator("[data-mode-label], .kangjie-mode-entry"), 44, "首頁模式入口");
   await expectMinimumHeight(submit, 44, "首頁主要分析按鈕");
   const readableSelectors = page.viewportSize().width <= 767
-    ? [".field-block > span", ".form-meta p"]
+    ? [".field-block > span", ".mobile-function-atlas strong", ".mobile-function-atlas small"]
     : [".mode-art figcaption > span", ".field-block > span", ".form-meta p"];
   await expectReadableSamples(
     page,
     readableSelectors,
-    16,
+    page.viewportSize().width <= 767 ? 14 : 16,
     "首頁一般說明",
   );
 
@@ -401,22 +421,20 @@ async function verifyHomepage(page) {
     expect(tabOverflow.scrollWidth).toBeLessThanOrEqual(tabOverflow.clientWidth + 1);
   }
 
-  const moduleGrid = await page.locator(".visual-module-grid").evaluate((element) => {
-    const children = [...element.children];
-    return {
-      viewportWidth: window.innerWidth,
-      columnCount: getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-      minimumCardWidth: Math.min(...children.map((child) => child.getBoundingClientRect().width)),
-    };
-  });
-  const expectedColumns = moduleGrid.viewportWidth <= 767
-    ? 2
-    : moduleGrid.viewportWidth <= 1180
-      ? 3
-      : 5;
-  expect(moduleGrid.columnCount).toBe(expectedColumns);
-  expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(moduleGrid.viewportWidth <= 360 ? 140 : 150);
-  if (moduleGrid.viewportWidth <= 767) await expectCompactMobileDashboard(page);
+  if (page.viewportSize().width <= 767) {
+    await expectCompactMobileDashboard(page);
+  } else {
+    const moduleGrid = await page.locator(".visual-module-grid").evaluate((element) => {
+      const children = [...element.children];
+      return {
+        viewportWidth: window.innerWidth,
+        columnCount: getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+        minimumCardWidth: Math.min(...children.map((child) => child.getBoundingClientRect().width)),
+      };
+    });
+    expect(moduleGrid.columnCount).toBe(moduleGrid.viewportWidth <= 1180 ? 3 : 5);
+    expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(150);
+  }
   await expectNoHorizontalOverflow(page);
 }
 
@@ -436,15 +454,30 @@ async function expectDenseDesktopFirstFold(page, width, height) {
     await expect(analytics.locator(`.${moduleClass}`)).toBeVisible();
   }
   await expect(page.locator("[data-ui-region='cockpit']")).toBeHidden();
+  await expect(page.locator(".topbar-actions > a")).toHaveCount(8);
   await expect(page.locator(".visual-module-grid > a")).toHaveCount(5);
   await expect(page.locator(".support-module-grid > a")).toHaveCount(3);
+  await expect(page.locator(".support-module-grid > a ul")).toHaveCount(3);
+  await expect(page.locator(".support-module-grid > a li")).toHaveCount(12);
   await expect(page.locator(".dashboard-home-screen .hero-art"))
     .toHaveAttribute("src", /reference-v3\/desktop-hero-command-v3\.webp/);
+  await expect(page.locator(".dashboard-home-screen .hero-title img"))
+    .toHaveAttribute("src", /reference-v4\/hero-title-calligraphy-v4\.png/);
   await expectImageAssetLoads(
     page,
     "public/visuals/ai-dashboard/reference-v3/desktop-hero-command-v3.webp",
     "桌機主視覺圖",
   );
+  for (const [path, label] of [
+    ["public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png", "黃金毛筆主標"],
+    ["public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp", "分析輸入台"],
+    ["public/visuals/ai-dashboard/reference-v4/analytics-overview-instrument-v4.webp", "核心總覽儀表"],
+    ["public/visuals/ai-dashboard/reference-v4/analytics-spectrum-instrument-v4.webp", "頻譜儀表"],
+    ["public/visuals/ai-dashboard/reference-v4/analytics-core-instrument-v4.webp", "核心數字儀表"],
+    ["public/visuals/ai-dashboard/reference-v4/analytics-annual-instrument-v4.webp", "個人流年儀表"],
+  ]) {
+    await expectImageAssetLoads(page, path, label);
+  }
 
   const layout = await page.evaluate(() => {
     const rect = (selector) => {
@@ -472,6 +505,9 @@ async function expectDenseDesktopFirstFold(page, width, height) {
       mainModules: rect(".dashboard-home-screen .visual-module-grid"),
       supportModules: rect(".dashboard-home-screen .support-module-grid"),
       firstScreen: rect(".dashboard-home-screen"),
+      topbarActions: [...document.querySelectorAll(".topbar-actions > a")].map((element) => rect(
+        `.topbar-actions > a:nth-child(${[...element.parentElement.children].indexOf(element) + 1})`,
+      )),
       viewportHeight: window.innerHeight,
     };
   });
@@ -500,6 +536,13 @@ async function expectDenseDesktopFirstFold(page, width, height) {
   ).toBeLessThanOrEqual(Math.max(24, layout.viewportHeight * 0.03));
   expect(layout.mainModules.height).toBeGreaterThanOrEqual(150);
   expect(layout.supportModules.height).toBeGreaterThanOrEqual(80);
+  expect(layout.topbarActions.length, "桌機頂欄必須有八個真實功能入口").toBe(8);
+  for (let index = 1; index < layout.topbarActions.length; index += 1) {
+    expect(
+      layout.topbarActions[index].left,
+      `桌機頂欄第 ${index + 1} 個入口不得與前一個重疊`,
+    ).toBeGreaterThanOrEqual(layout.topbarActions[index - 1].right - 1);
+  }
   await expectNoHorizontalOverflow(page);
   await page.screenshot({
     path: `output/playwright/home-density-${width}x${height}.png`,
@@ -654,6 +697,8 @@ test("三數取卦總覽只稱輸入次數，不冒充能量分布", async ({ pa
   await expect(page.locator("#result-anchor")).toContainText("互卦");
   await expect(page.locator("#result-anchor")).toContainText("變卦");
   await expect(page.locator("[data-analytics-status]")).toHaveText("三數取卦完成");
+  await expect(page.locator("[data-analytics-core]")).not.toHaveText("");
+  await expect(page.locator("[data-analytics-core]")).not.toHaveText("－");
   await expect(distributionTitle).toHaveText("輸入數字出現次數");
   await expect(distributionTitle).not.toContainText(/能量分[布佈]/);
   await expect(page.locator("[data-analytics-annual]")).toHaveText("不適用");
@@ -677,13 +722,20 @@ for (const viewport of [
   });
 }
 
-test("首頁參考手機比例 390×693 依任務順序顯示四入口、表單、摘要與首排模塊", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 693 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
-  await expectReferenceMobileDashboard(page);
-  await expectNoHorizontalOverflow(page);
-  await page.screenshot({
-    path: "output/playwright/home-reference-mobile-390x693.png",
-    fullPage: false,
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 390, height: 693 },
+  { width: 360, height: 800 },
+  { width: 320, height: 720 },
+]) {
+  test(`手機首屏 ${viewport.width}×${viewport.height} 完整顯示四模式、表單、四摘要與八功能`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("index.html", { waitUntil: "networkidle" });
+    await expectReferenceMobileDashboard(page);
+    await expectNoHorizontalOverflow(page);
+    await page.screenshot({
+      path: `output/playwright/home-reference-mobile-${viewport.width}x${viewport.height}.png`,
+      fullPage: false,
+    });
   });
-});
+}
