@@ -639,7 +639,12 @@ test("桌機未分析只顯示占位，1990-07-12 顯示可核對的真實結果
   await expect(page.locator("[data-analytics-core-large]")).toHaveText("－");
   await expect(page.locator("[data-analytics-annual]")).toHaveText("－");
   await expect(page.locator("[data-preview-value]")).toHaveText(["－", "－", "－", "－"]);
-  await expect(page.locator("[data-digit-bar] em")).toHaveText(Array.from({ length: 9 }, () => "0"));
+  await expect(page.locator("[data-digit-bar] em")).toHaveText(Array.from({ length: 9 }, () => "－"));
+  await expect(page.locator(".digit-bars")).toHaveClass(/is-empty/);
+  await expect(page.locator(".digit-bars")).toHaveAttribute(
+    "aria-label",
+    "尚未分析，輸入資料後顯示數字一至九的出現次數",
+  );
 
   await page.locator("#birthday-input").fill("1990-07-12");
   await page.locator("#analyze-button").click();
@@ -676,8 +681,10 @@ test("桌機側欄生日 CTA 空白時選完日期自動分析，已有日期時
   await expect(birthdayInput).toBeFocused();
   await expect(page.locator("#result-anchor")).toBeEmpty();
   await expect(page.locator("#input-help")).toContainText("選好後會立即完成分析");
+  await expect(page.locator("#analyzer-form")).toHaveClass(/is-awaiting-birthday/);
 
   await birthdayInput.fill("1990-07-12");
+  await expect(page.locator("#analyzer-form")).not.toHaveClass(/is-awaiting-birthday/);
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
   await expect(page.locator("[data-analytics-status]")).toHaveText("生日分析完成");
   await expect(page.locator("[data-analytics-core]")).toHaveText("2");
@@ -706,9 +713,18 @@ test("生命路徑、流年、九宮與工作台入口各自直達真實內容�
     "本機隱私",
   ]);
 
+  await topbarEntries.nth(0).click();
+  await expect(page.locator("#birthday-input")).toBeFocused();
+  await expect(page.locator("#analyzer-form")).toHaveClass(/is-awaiting-birthday/);
+  await page.locator("#birthday-input").fill("1990-07-12");
+  await expect(page.locator("#result-life-path")).toBeVisible();
+
+  await topbarEntries.nth(2).click();
+  await expect(page.locator('input[name="analysis-mode"][value="code"]')).toBeChecked();
+  await expect(page.locator("#number-code")).toBeVisible();
+
   await topbarEntries.nth(1).click();
   await expect(page.locator("#birthday-input")).toBeFocused();
-  await page.locator("#birthday-input").fill("1990-07-12");
   await expect(page.locator("#result-life-path")).toBeVisible();
   await expect(page.locator("#result-life-path")).toBeInViewport();
 
@@ -729,6 +745,14 @@ test("生命路徑、流年、九宮與工作台入口各自直達真實內容�
   await workspaceReturn.click();
   await expect(page).toHaveURL(/#analyzer$/);
   await expect(page.locator("#analyzer")).toBeInViewport();
+
+  await topbarEntries.nth(6).click();
+  await expect(page).toHaveURL(/#method-source$/);
+  await expect(page.locator("#method-source")).toBeInViewport();
+
+  await topbarEntries.nth(7).click();
+  await expect(page).toHaveURL(/#privacy-section$/);
+  await expect(page.locator("#privacy-section")).toBeInViewport();
   await expectNoHorizontalOverflow(page);
 });
 
@@ -891,6 +915,76 @@ test("短高桌機三數取卦維持橫排標籤、完整提示與 44px 操作�
     path: "output/playwright/home-iching-analyzer-short-1536.png",
     fullPage: false,
   });
+});
+
+test("桌機 AI 模塊清楚可辨、短畫面去除重複側欄且高畫面填滿工具區", async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 790 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+
+  await expect(page.locator(".sidebar-links")).toBeHidden();
+  await expect(page.locator(".sidebar-start-guide")).toBeVisible();
+  await expect(page.locator(".sidebar-start-guide li")).toHaveText([
+    "1選擇出生日期按上方金色按鈕",
+    "2自動完成演算選好日期不必再按一次",
+    "3查看完整算式生命路徑、九宮與流年",
+  ]);
+  await expectMinimumHeight(page.locator(".topbar-actions img"), 30, "桌機頂欄 AI 功能圖");
+  const compactFinish = await page.evaluate(() => {
+    const sidebar = document.querySelector(".dashboard-sidebar");
+    const version = document.querySelector(".sidebar-version").getBoundingClientRect();
+    const modeImages = [...document.querySelectorAll(".mode-switch .mode-card-art")];
+    const supportLists = [...document.querySelectorAll(".support-module-grid ul")];
+    const quickSmall = [...document.querySelectorAll(".sidebar-quick small")];
+    return {
+      modeMinimum: Math.min(...modeImages.map((image) => image.getBoundingClientRect().width)),
+      modeTitleMinimum: Math.min(...[...document.querySelectorAll(".mode-switch .brush-title-image")]
+        .map((image) => image.getBoundingClientRect().height)),
+      visibleSupportLists: supportLists.filter((list) => getComputedStyle(list).display !== "none").length,
+      visibleSupportItems: [...document.querySelectorAll(".support-module-grid li")]
+        .filter((item) => getComputedStyle(item).display !== "none").length,
+      minimumQuickSmallFont: Math.min(...quickSmall.map((node) => Number.parseFloat(getComputedStyle(node).fontSize))),
+      sidebarClientHeight: sidebar.clientHeight,
+      sidebarScrollHeight: sidebar.scrollHeight,
+      versionBottom: version.bottom,
+      viewportHeight: window.innerHeight,
+    };
+  });
+  expect(compactFinish.modeMinimum).toBeGreaterThanOrEqual(30);
+  expect(compactFinish.modeTitleMinimum).toBeGreaterThanOrEqual(19.9);
+  expect(compactFinish.visibleSupportLists).toBe(3);
+  expect(compactFinish.visibleSupportItems).toBe(6);
+  expect(compactFinish.minimumQuickSmallFont).toBeGreaterThanOrEqual(12);
+  expect(compactFinish.sidebarScrollHeight).toBeLessThanOrEqual(compactFinish.sidebarClientHeight + 1);
+  expect(compactFinish.versionBottom).toBeLessThanOrEqual(compactFinish.viewportHeight + 1);
+
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+  const tallSidebar = await page.evaluate(() => {
+    const sidebar = document.querySelector(".dashboard-sidebar");
+    const quickGrid = document.querySelector(".sidebar-quick > div");
+    const quick = quickGrid.getBoundingClientRect();
+    const guide = document.querySelector(".sidebar-start-guide").getBoundingClientRect();
+    const status = document.querySelector(".sidebar-status").getBoundingClientRect();
+    const version = document.querySelector(".sidebar-version").getBoundingClientRect();
+    return {
+      columns: getComputedStyle(quickGrid).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      blankGap: status.top - guide.bottom,
+      guideGap: guide.top - quick.bottom,
+      minimumIcon: Math.min(...[...quickGrid.querySelectorAll("img")]
+        .map((image) => image.getBoundingClientRect().width)),
+      sidebarClientHeight: sidebar.clientHeight,
+      sidebarScrollHeight: sidebar.scrollHeight,
+      versionBottom: version.bottom,
+      viewportHeight: window.innerHeight,
+    };
+  });
+  expect(tallSidebar.columns).toBe(2);
+  expect(tallSidebar.minimumIcon).toBeGreaterThanOrEqual(42);
+  expect(tallSidebar.guideGap).toBeLessThanOrEqual(12);
+  expect(tallSidebar.blankGap, "高畫面側欄操作指南下方不應留下大片空白").toBeLessThanOrEqual(36);
+  expect(tallSidebar.sidebarScrollHeight).toBeLessThanOrEqual(tallSidebar.sidebarClientHeight + 1);
+  expect(tallSidebar.versionBottom).toBeLessThanOrEqual(tallSidebar.viewportHeight + 1);
+  await expectNoHorizontalOverflow(page);
 });
 
 for (const viewport of [

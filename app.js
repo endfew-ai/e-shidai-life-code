@@ -795,15 +795,16 @@ function initializeAnalyzer() {
       const level = maximum > 0 ? Math.max(8, Math.round((count / maximum) * 100)) : 0;
       bar.style.setProperty("--bar-level", String(level));
       const countLabel = bar.querySelector("em");
-      if (countLabel) countLabel.textContent = String(count);
+      if (countLabel) countLabel.textContent = result ? String(count) : "－";
     }
     const chart = document.querySelector(".digit-bars");
     if (chart) {
+      chart.classList.toggle("is-empty", !result);
       chart.setAttribute(
         "aria-label",
         result
           ? `數字一至九出現次數：${view.counts.map((count, index) => `${index + 1} 為 ${count} 次`).join("，")}`
-          : "尚未分析，數字一至九出現次數皆為零",
+          : "尚未分析，輸入資料後顯示數字一至九的出現次數",
       );
     }
   }
@@ -853,6 +854,7 @@ function initializeAnalyzer() {
 
   function changeMode(nextMode) {
     birthdayAutoSubmitArmed = false;
+    form.classList.remove("is-awaiting-birthday");
     mode = nextMode;
     form.dataset.activeMode = mode;
     for (const input of modeInputs) input.checked = input.value === mode;
@@ -894,12 +896,15 @@ function initializeAnalyzer() {
     window.history.replaceState(null, "", "#analyzer");
     birthdayInput.focus({ preventScroll: true });
     if (shouldAnalyze) {
+      form.classList.remove("is-awaiting-birthday");
       window.setTimeout(() => form.requestSubmit(), 0);
       return;
     }
+    form.classList.add("is-awaiting-birthday");
     help.textContent = "請選擇出生日期；選好後會立即完成分析，不必再按一次。";
     try {
-      birthdayInput.showPicker?.();
+      if (typeof birthdayInput.showPicker === "function") birthdayInput.showPicker();
+      else birthdayInput.click();
     } catch {
       // 日期選擇器可能被瀏覽器的使用者手勢規則阻擋，欄位仍已正確聚焦。
     }
@@ -917,6 +922,7 @@ function initializeAnalyzer() {
   function resetCurrent() {
     for (const input of currentInputs()) input.value = "";
     message.textContent = "";
+    form.classList.remove("is-awaiting-birthday");
     setInvalid(false);
     clearResult();
     updateCockpitResult(null);
@@ -957,6 +963,7 @@ function initializeAnalyzer() {
       updateCockpitResult(null);
       updateDashboardAnalytics(null);
       updateClearButton();
+      if (input === birthdayInput && input.value) form.classList.remove("is-awaiting-birthday");
       if (input === birthdayInput) updateBirthdayEntryLabel();
     });
   }
@@ -986,6 +993,7 @@ function initializeAnalyzer() {
         }));
       }
       message.textContent = "";
+      form.classList.remove("is-awaiting-birthday");
       birthdayAutoSubmitArmed = false;
       help.textContent = modeContent[mode].help;
       setInvalid(false);
@@ -995,6 +1003,7 @@ function initializeAnalyzer() {
       focusResult(mode === "birthday" ? birthdayResultTarget : "overview");
     } catch (error) {
       birthdayAutoSubmitArmed = false;
+      form.classList.remove("is-awaiting-birthday");
       clearResult();
       updateCockpitResult(null);
       updateDashboardAnalytics(null);
