@@ -103,7 +103,11 @@ async function unlockKangjie(page) {
 }
 
 async function unlockIChingMode(page) {
-  await page.locator('[data-mode-label="iching"]').click();
+  if (page.viewportSize().width > 1180) {
+    await page.locator(".sidebar-quick a[data-quick-mode='iching']").click();
+  } else {
+    await page.locator('[data-mode-label="iching"]').click();
+  }
   const dialog = page.locator("#iching-access-dialog");
   await expect(dialog).toBeVisible();
   await expect(page.locator('[data-mode-panel="iching"]')).toBeHidden();
@@ -496,8 +500,9 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await page.reload({ waitUntil: "networkidle" });
   await expect(page.locator("[data-visit-count]")).toHaveText("1,284");
   expect(counterRequests.at(-1)).toMatch(/homepage-visits\/$/);
-  await expect(page.locator("a.kangjie-mode-entry")).toBeVisible();
-  await expect(page.locator("a.kangjie-mode-entry .sr-only")).toHaveText("邵康節易學");
+  const desktopKangjieEntry = page.locator(".sidebar-quick a[href='kangjie.html']");
+  await expect(desktopKangjieEntry).toBeVisible();
+  await expect(desktopKangjieEntry).toContainText("康節");
   await expectAllImagesLoaded(page);
   await expectVisibleBrushTitlesUnclipped(page);
   await expectNoHorizontalOverflow(page);
@@ -514,7 +519,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await expectReadableExplanations(page);
   await page.screenshot({ path: "output/playwright/home-birthday-result-1440.png", fullPage: true });
 
-  await page.locator('[data-mode-label="code"]').click();
+  await page.locator(".topbar-actions > a").nth(2).click();
   await page.locator("#number-code").fill("1234");
   await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
   await expect(page.locator("#result-anchor")).toContainText("核心數");
@@ -544,13 +549,13 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await page.screenshot({ path: "output/playwright/home-iching-result-1440.png", fullPage: true });
 
   await page.reload({ waitUntil: "networkidle" });
-  await page.locator('[data-mode-label="iching"]').click();
+  await page.locator(".sidebar-quick a[data-quick-mode='iching']").click();
   await expect(page.locator("#iching-access-dialog")).toBeHidden();
   await expect(page.locator('[data-mode-panel="iching"]')).toBeVisible();
   expect(counterRequests.at(-1)).toMatch(/homepage-visits\/$/);
   expect(counterRequests.every((url) => /^https:\/\/api\.counterapi\.dev\/v1\/endfew-ai-e-shidai-life-code\/homepage-visits\/(?:up)?$/.test(url))).toBe(true);
 
-  await page.locator("a.kangjie-mode-entry").click();
+  await desktopKangjieEntry.click();
   await expect(page).toHaveURL(/\/kangjie(?:\.html)?(?:[?#]|$)/);
   await page.screenshot({ path: "output/playwright/kangjie-access-gate-1440.png", fullPage: false });
   await unlockKangjie(page);

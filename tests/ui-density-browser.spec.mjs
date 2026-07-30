@@ -228,7 +228,7 @@ async function expectReferenceMobileDashboard(page) {
   await expect(page.locator(".visual-module-rail")).toBeHidden();
   await expectImageAssetLoads(
     page,
-    "public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp",
+    "public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp",
     "手機分析台框架",
   );
 
@@ -375,7 +375,12 @@ async function verifyHomepage(page) {
     await expectHeroContentClearOfRail(page);
   }
 
-  await expectMinimumHeight(page.locator("[data-mode-label], .kangjie-mode-entry"), 44, "首頁模式入口");
+  if (page.viewportSize().width <= 1180) {
+    await expectMinimumHeight(page.locator("[data-mode-label], .kangjie-mode-entry"), 44, "首頁模式入口");
+  } else {
+    await expect(page.locator("[data-ui-region='mode-deck']")).toBeHidden();
+    await expectMinimumHeight(page.locator(".topbar-actions > a, .sidebar-quick a"), 44, "桌機功能入口");
+  }
   await expectMinimumHeight(submit, 44, "首頁主要分析按鈕");
   const readableSelectors = page.viewportSize().width <= 767
     ? [".field-block > span", ".mobile-function-atlas strong", ".mobile-function-atlas small"]
@@ -387,7 +392,11 @@ async function verifyHomepage(page) {
     "首頁一般說明",
   );
 
-  await page.locator('[data-mode-label="code"]').click();
+  if (page.viewportSize().width > 1180) {
+    await page.locator(".topbar-actions > a").nth(2).click();
+  } else {
+    await page.locator('[data-mode-label="code"]').click();
+  }
   await expect(page.locator('input[name="analysis-mode"][value="code"]')).toBeChecked();
   if (page.viewportSize().width <= 767) {
     await page.locator('[data-mode-label="birthday"]').click();
@@ -464,21 +473,20 @@ async function expectDenseDesktopFirstFold(page, width, height) {
   await expect(page.locator(".support-module-grid > a ul")).toHaveCount(3);
   await expect(page.locator(".support-module-grid > a li")).toHaveCount(12);
   await expect(page.locator(".dashboard-home-screen .hero-art"))
-    .toHaveAttribute("src", /reference-v3\/desktop-hero-command-v3\.webp/);
+    .toHaveAttribute("src", /reference-v10\/hero-celestial-command-v10\.webp/);
   await expect(page.locator(".dashboard-home-screen .hero-title img"))
     .toHaveAttribute("src", /reference-v4\/hero-title-calligraphy-v4\.png/);
   await expectImageAssetLoads(
     page,
-    "public/visuals/ai-dashboard/reference-v3/desktop-hero-command-v3.webp",
+    "public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp",
     "桌機主視覺圖",
   );
   for (const [path, label] of [
     ["public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png", "黃金毛筆主標"],
-    ["public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp", "分析輸入台"],
-    ["public/visuals/ai-dashboard/reference-v4/analytics-overview-instrument-v4.webp", "核心總覽儀表"],
-    ["public/visuals/ai-dashboard/reference-v4/analytics-spectrum-instrument-v4.webp", "頻譜儀表"],
-    ["public/visuals/ai-dashboard/reference-v4/analytics-core-instrument-v4.webp", "核心數字儀表"],
-    ["public/visuals/ai-dashboard/reference-v4/analytics-annual-instrument-v4.webp", "個人流年儀表"],
+    ["public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp", "新版分析儀表"],
+    ["public/visuals/ai-dashboard/reference-v10/sidebar-three-step-rail-v10.webp", "側欄三步流程"],
+    ["public/visuals/ai-dashboard/reference-v10/name-stroke-workbench-v10.webp", "姓名筆畫工作台"],
+    ["public/visuals/ai-dashboard/reference-v10/local-history-vault-v10.webp", "本機紀錄與隱私庫"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp", "生日物件徽章"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp", "生命路徑物件徽章"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp", "數字頻譜物件徽章"],
@@ -675,7 +683,7 @@ test("桌機側欄生日 CTA 空白時選完日期自動分析，已有日期時
   await expect(sidebarCta).toBeVisible();
   await expect(birthdayInput).toHaveValue("");
 
-  await page.locator('[data-mode-label="code"]').click();
+  await page.locator(".topbar-actions > a").nth(2).click();
   await sidebarCta.click();
   await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
   await expect(birthdayInput).toBeFocused();
@@ -689,7 +697,7 @@ test("桌機側欄生日 CTA 空白時選完日期自動分析，已有日期時
   await expect(page.locator("[data-analytics-status]")).toHaveText("生日分析完成");
   await expect(page.locator("[data-analytics-core]")).toHaveText("2");
 
-  await page.locator('[data-mode-label="code"]').click();
+  await page.locator(".topbar-actions > a").nth(2).click();
   await sidebarCta.click();
   await expect(page.locator('input[name="analysis-mode"][value="birthday"]')).toBeChecked();
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
@@ -760,7 +768,7 @@ test("三數取卦總覽只稱輸入次數，不冒充能量分布", async ({ pa
   await page.setViewportSize({ width: 1672, height: 941 });
   await page.goto("index.html", { waitUntil: "networkidle" });
 
-  await page.locator('[data-mode-label="iching"]').click();
+  await page.locator(".sidebar-quick a[data-quick-mode='iching']").click();
   const accessDialog = page.locator("#iching-access-dialog");
   await expect(accessDialog).toBeVisible();
   await accessDialog.locator("#iching-access-password").fill("0000");
@@ -856,7 +864,7 @@ test("短高桌機三數取卦維持橫排標籤、完整提示與 44px 操作�
   expect(proofFontSizes).toHaveLength(6);
   expect(proofFontSizes.every((size) => size >= 12), "短高桌機的主視覺證明卡文字至少 12px").toBe(true);
 
-  await page.locator('[data-mode-label="iching"]').click();
+  await page.locator(".sidebar-quick a[data-quick-mode='iching']").click();
   const accessDialog = page.locator("#iching-access-dialog");
   await expect(accessDialog).toBeVisible();
   await accessDialog.locator("#iching-access-password").fill("0000");
@@ -932,16 +940,14 @@ test("桌機 AI 模塊清楚可辨、短畫面去除重複側欄且高畫面填�
   const compactFinish = await page.evaluate(() => {
     const sidebar = document.querySelector(".dashboard-sidebar");
     const version = document.querySelector(".sidebar-version").getBoundingClientRect();
-    const modeImages = [...document.querySelectorAll(".mode-switch .mode-card-art")];
+    const modeDeck = document.querySelector(".mode-switch");
     const supportLists = [...document.querySelectorAll(".support-module-grid ul")];
     const quickSmall = [...document.querySelectorAll(".sidebar-quick small")];
     return {
-      modeMinimum: Math.min(...modeImages.map((image) => image.getBoundingClientRect().width)),
-      modeTitleMinimum: Math.min(...[...document.querySelectorAll(".mode-switch .brush-title-image")]
-        .map((image) => image.getBoundingClientRect().height)),
+      modeDeckDisplay: getComputedStyle(modeDeck).display,
       visibleSupportLists: supportLists.filter((list) => getComputedStyle(list).display !== "none").length,
       visibleSupportItems: [...document.querySelectorAll(".support-module-grid li")]
-        .filter((item) => getComputedStyle(item).display !== "none").length,
+        .filter((item) => getComputedStyle(item).display !== "none" && item.getClientRects().length > 0).length,
       minimumQuickSmallFont: Math.min(...quickSmall.map((node) => Number.parseFloat(getComputedStyle(node).fontSize))),
       sidebarClientHeight: sidebar.clientHeight,
       sidebarScrollHeight: sidebar.scrollHeight,
@@ -949,10 +955,9 @@ test("桌機 AI 模塊清楚可辨、短畫面去除重複側欄且高畫面填�
       viewportHeight: window.innerHeight,
     };
   });
-  expect(compactFinish.modeMinimum).toBeGreaterThanOrEqual(30);
-  expect(compactFinish.modeTitleMinimum).toBeGreaterThanOrEqual(19.9);
-  expect(compactFinish.visibleSupportLists).toBe(3);
-  expect(compactFinish.visibleSupportItems).toBe(6);
+  expect(compactFinish.modeDeckDisplay, "桌機不重複顯示四模式列").toBe("none");
+  expect(compactFinish.visibleSupportLists).toBe(0);
+  expect(compactFinish.visibleSupportItems).toBe(0);
   expect(compactFinish.minimumQuickSmallFont).toBeGreaterThanOrEqual(12);
   expect(compactFinish.sidebarScrollHeight).toBeLessThanOrEqual(compactFinish.sidebarClientHeight + 1);
   expect(compactFinish.versionBottom).toBeLessThanOrEqual(compactFinish.viewportHeight + 1);

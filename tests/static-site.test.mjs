@@ -79,6 +79,14 @@ const referenceV6DashboardAssets = [
   "iching-sensor-moving-v6.webp",
 ];
 
+const referenceV10DashboardAssets = [
+  "hero-celestial-command-v10.webp",
+  "analytics-instrument-triad-v10.webp",
+  "sidebar-three-step-rail-v10.webp",
+  "name-stroke-workbench-v10.webp",
+  "local-history-vault-v10.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -104,19 +112,20 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(reactSource, /分析資料只在本機處理/);
   assert.match(html, /不是科學人格測驗/);
   assert.match(html, /不會由生日或身分證自動起卦/);
-  assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-aaa-v1\.png/);
-  assert.match(html, /ai-dashboard\/reference-v3\/desktop-hero-command-v3\.webp/);
+  assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-v10\.png/);
+  assert.match(html, /ai-dashboard\/reference-v10\/hero-celestial-command-v10\.webp/);
   assert.match(html, /ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png/);
-  assert.match(html, /ai-dashboard\/reference-v4\/analyzer-console-frame-v4\.webp/);
-  assert.match(reactSource, /ai-dashboard\/reference-v3\/desktop-hero-command-v3\.webp/);
+  assert.match(html, /ai-dashboard\/reference-v10\/analytics-instrument-triad-v10\.webp/);
+  assert.match(reactSource, /ai-dashboard\/reference-v10\/hero-celestial-command-v10\.webp/);
   assert.match(reactSource, /ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png/);
-  assert.match(styles, /ai-dashboard\/reference-v4\/analyzer-console-frame-v4\.webp/);
+  assert.match(styles, /ai-dashboard\/reference-v10\/analytics-instrument-triad-v10\.webp/);
+  assert.match(styles, /ai-dashboard\/reference-v10\/sidebar-three-step-rail-v10\.webp/);
   assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
   assert.match(html, /ai-dashboard\/life-path-v1\.webp/);
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10"/);
   assert.match(html, /data-start-birthday/);
   assert.match(html, /class="sidebar-primary"[^>]*data-start-birthday/);
   assert.match(html, /選生日・直接看完整結果/);
@@ -172,9 +181,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/cockpit-seal-frame-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/analyze-dragon-seal-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/annual-cycle-v1\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/workbench-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v10\/name-stroke-workbench-v10\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/sources-library-v1\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/privacy-lock-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v10\/local-history-vault-v10\.webp/);
   assert.match(html, /title-workspace-web-v1\.webp" width="640" height="122"/);
   for (const moduleId of ["birthday", "life-path", "spectrum", "lo-shu", "annual-cycle", "workbench", "sources", "privacy"]) {
     assert.match(html, new RegExp(`data-module="${moduleId}"`));
@@ -308,6 +317,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../site-services.d.ts", import.meta.url)),
     access(new URL("../og-life-numerology-aaa-v1.png", import.meta.url)),
     access(new URL("../public/og-life-numerology-aaa-v1.png", import.meta.url)),
+    access(new URL("../og-life-numerology-v10.png", import.meta.url)),
+    access(new URL("../public/og-life-numerology-v10.png", import.meta.url)),
+    access(new URL("../public/og.png", import.meta.url)),
     access(new URL("../public/favicon.svg", import.meta.url)),
     access(new URL("../.nojekyll", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/hero-life-v1.webp", import.meta.url)),
@@ -316,6 +328,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV4DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v4/${asset}`, import.meta.url))),
     ...referenceV5DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v5/${asset}`, import.meta.url))),
     ...referenceV6DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v6/${asset}`, import.meta.url))),
+    ...referenceV10DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v10/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
@@ -362,6 +375,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../docs/reference-v4-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v5-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v6-visual-assets.md", import.meta.url)),
+    access(new URL("../docs/reference-v10-visual-assets.md", import.meta.url)),
   ]);
 });
 

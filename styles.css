@@ -7917,3 +7917,777 @@ body:has([data-ui="xuanxing-aaa"]) {
     display: none !important;
   }
 }
+
+/*
+ * Reference v10 cockpit rebuild.
+ * AI images are decorative instrument surfaces only. All labels, controls,
+ * computed values and accessibility names remain real HTML.
+ */
+.dashboard-home-screen.reference-v10,
+.dashboard-home-screen.reference-v10 * {
+  box-sizing: border-box;
+}
+
+@media (min-width: 1181px) {
+  [data-ui="xuanxing-aaa"] {
+    grid-template-columns: clamp(281px, 18.3vw, 306px) minmax(0, 1fr);
+  }
+
+  .dashboard-sidebar {
+    min-height: 0;
+    overflow: hidden;
+    padding: 8px 12px 7px;
+  }
+
+  .dashboard-sidebar .sidebar-brand {
+    gap: 2px;
+    padding-top: 0;
+  }
+
+  .dashboard-sidebar .sidebar-brand > .sidebar-crest {
+    height: 64px;
+    width: 64px;
+  }
+
+  .dashboard-sidebar .brush-sidebar-brand .brush-title-image {
+    height: 48px;
+    max-width: 224px;
+  }
+
+  .dashboard-sidebar .sidebar-tagline {
+    font-size: 13px;
+    margin: 0 0 4px;
+  }
+
+  .dashboard-sidebar .sidebar-intro {
+    font-size: 13px;
+    line-height: 1.42;
+    margin: 0 5px 6px;
+  }
+
+  .dashboard-sidebar .sidebar-primary {
+    font-size: 15px;
+    min-height: 46px;
+    padding-inline: 12px;
+  }
+
+  .dashboard-sidebar .sidebar-secondary {
+    font-size: 13px;
+    margin-top: 5px;
+    min-height: 38px;
+  }
+
+  .dashboard-sidebar .sidebar-links {
+    display: none;
+  }
+
+  .dashboard-sidebar .sidebar-quick {
+    margin-top: 6px;
+    padding-top: 5px;
+  }
+
+  .dashboard-sidebar .sidebar-quick > p {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  .dashboard-sidebar .sidebar-quick > div {
+    gap: 4px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-sidebar .sidebar-quick a {
+    gap: 4px;
+    grid-template-columns: 34px minmax(0, 1fr);
+    min-height: 49px;
+    padding: 4px 5px;
+  }
+
+  .dashboard-sidebar .sidebar-quick a > img {
+    height: 32px;
+    width: 32px;
+  }
+
+  .dashboard-sidebar .sidebar-quick strong {
+    font-size: 13px;
+  }
+
+  .dashboard-sidebar .sidebar-quick small {
+    font-size: 12px;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide {
+    background:
+      linear-gradient(90deg, rgba(1, 11, 10, .86), rgba(1, 11, 10, .44)),
+      url("public/visuals/ai-dashboard/reference-v10/sidebar-three-step-rail-v10.webp") center 42% / cover no-repeat;
+    border: 1px solid rgba(209, 166, 79, .35);
+    display: block;
+    flex: 1 1 auto;
+    isolation: isolate;
+    margin-top: 6px;
+    min-height: 112px;
+    overflow: hidden;
+    padding: 6px;
+    position: relative;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide::after {
+    background:
+      linear-gradient(var(--aaa-brass-hot), var(--aaa-brass-hot)) left top / 16px 1px no-repeat,
+      linear-gradient(var(--aaa-brass-hot), var(--aaa-brass-hot)) left top / 1px 16px no-repeat,
+      linear-gradient(var(--aaa-brass-hot), var(--aaa-brass-hot)) right bottom / 16px 1px no-repeat,
+      linear-gradient(var(--aaa-brass-hot), var(--aaa-brass-hot)) right bottom / 1px 16px no-repeat;
+    content: "";
+    inset: 4px;
+    opacity: .5;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide > p {
+    font-size: 12px;
+    margin: 0 0 3px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide ol {
+    display: grid;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide li {
+    background: linear-gradient(90deg, rgba(2, 13, 12, .9), rgba(2, 13, 12, .58));
+    grid-template-columns: 24px minmax(0, 1fr);
+    min-height: 31px;
+    padding: 2px 4px;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide li > span {
+    height: 22px;
+    width: 22px;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide strong,
+  .dashboard-sidebar .sidebar-start-guide small {
+    font-size: 12px;
+  }
+
+  .dashboard-sidebar .sidebar-status {
+    margin-top: auto;
+    min-height: 37px;
+    padding: 4px 4px 1px;
+  }
+
+  .dashboard-sidebar .sidebar-status strong,
+  .dashboard-sidebar .sidebar-version span {
+    font-size: 13px;
+  }
+
+  .dashboard-sidebar .sidebar-status small,
+  .dashboard-sidebar .sidebar-version small {
+    font-size: 12px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar {
+    height: 60px;
+    padding-inline: 7px 10px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions {
+    gap: 0;
+    grid-template-columns: repeat(8, minmax(56px, 1fr)) minmax(116px, auto);
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a {
+    gap: 5px;
+    min-width: 0;
+    padding-inline: 3px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a span {
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .topbar-actions img {
+    height: 30px;
+    width: 30px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .visit-counter {
+    margin-left: 4px;
+    min-width: 116px;
+    padding-inline: 7px;
+  }
+
+  .dashboard-home-screen.reference-v10 {
+    gap: 8px;
+    grid-template-rows:
+      clamp(282px, 38dvh, 392px)
+      clamp(142px, 15dvh, 164px)
+      minmax(248px, 1fr);
+    height: calc(100dvh - 60px);
+    min-height: 660px;
+    padding: 2px 8px 6px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead {
+    gap: 8px;
+    grid-template-columns: minmax(0, 2fr) clamp(410px, 32.5%, 520px);
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead > .hero {
+    box-shadow:
+      inset 0 0 0 1px rgba(242, 213, 148, .08),
+      inset 0 0 34px rgba(40, 129, 103, .08);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead > .hero::before {
+    background:
+      linear-gradient(90deg, rgba(1, 8, 8, .98) 0%, rgba(2, 11, 11, .88) 29%, rgba(2, 11, 11, .34) 51%, rgba(1, 7, 7, .04) 78%),
+      linear-gradient(180deg, rgba(1, 8, 8, .02) 47%, rgba(1, 8, 8, .78) 100%);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .hero-art {
+    filter: brightness(1.08) saturate(1.08);
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% center;
+    opacity: .94;
+    width: 100%;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .hero-copy {
+    bottom: 18px;
+    left: clamp(26px, 3vw, 52px);
+    max-width: 520px;
+    top: 15px;
+    width: 53%;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .hero-title .brush-title-image {
+    max-width: 430px;
+    width: min(100%, 430px);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .hero-summary {
+    font-size: clamp(15px, 1vw, 17px);
+    line-height: 1.42;
+    margin: 3px 0 8px;
+  }
+
+  .dashboard-home-screen.reference-v10 .hero-proof {
+    gap: 5px;
+    max-width: 500px;
+  }
+
+  .dashboard-home-screen.reference-v10 .hero-proof li {
+    background: linear-gradient(90deg, rgba(2, 15, 13, .9), rgba(2, 12, 11, .58));
+    gap: 5px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    min-height: 48px;
+    padding: 4px 5px;
+  }
+
+  .dashboard-home-screen.reference-v10 .hero-proof li > img {
+    height: 30px;
+    width: 30px;
+  }
+
+  .dashboard-home-screen.reference-v10 .hero-proof strong,
+  .dashboard-home-screen.reference-v10 .hero-proof small {
+    font-size: 12px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card {
+    background:
+      linear-gradient(180deg, rgba(1, 9, 9, .68), rgba(1, 8, 8, .9)),
+      url("public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp") center / cover no-repeat,
+      #020b0a;
+    grid-template-rows: clamp(138px, 38%, 158px) minmax(96px, 1fr) 34px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-workbench {
+    grid-template-rows: 40px minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-art {
+    background: linear-gradient(90deg, rgba(2, 16, 14, .96), rgba(2, 12, 11, .68));
+    height: 40px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-art figcaption {
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-art .current-mode-heading {
+    display: block;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-art .current-mode-heading .brush-title-image {
+    height: 24px;
+    max-width: 108px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-art figcaption > span {
+    color: #c6c8bd;
+    font-size: 16px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-controls {
+    align-content: center;
+    gap: 3px 7px;
+    grid-template-columns: minmax(0, 1fr) 144px;
+    padding: 7px 9px 5px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .field-block > span,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .form-meta p {
+    font-size: 16px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .field-block input,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyze-submit {
+    min-height: 44px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyze-submit {
+    font-size: 15px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyze-seal {
+    height: 30px;
+    width: 30px;
+  }
+
+  .dashboard-home-screen.reference-v10 .desktop-result-preview {
+    grid-template-rows: 27px minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10 .desktop-result-preview article {
+    padding: 4px 6px;
+  }
+
+  .dashboard-home-screen.reference-v10 .desktop-result-preview small {
+    font-size: 12px;
+  }
+
+  .dashboard-home-screen.reference-v10 .desktop-result-preview article strong {
+    font-size: clamp(18px, 1.3vw, 23px);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .method-strip,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .method-strip li {
+    height: 34px;
+    min-height: 34px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .method-strip li {
+    font-size: 12px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .desktop-result-preview,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .method-strip {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .mode-controls {
+    align-content: center;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .input-panel,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .analyze-submit,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .form-meta,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .form-message {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .triple-input-grid {
+    gap: 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .triple-input-grid .field-block {
+    gap: 2px;
+    grid-template-areas: "sensor" "copy" "input";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card[data-active-mode="iching"] .iching-sensor-art {
+    height: 42px;
+    justify-self: center;
+    width: 42px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics {
+    grid-template-columns: 1.03fr 1.45fr 1.07fr 1.45fr;
+    min-height: 0;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics > article::before {
+    background-image:
+      linear-gradient(90deg, rgba(1, 9, 9, .46), rgba(1, 9, 9, .7)),
+      url("public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp");
+    background-repeat: no-repeat;
+    background-size: 400% 100%;
+    filter: brightness(1.12) saturate(1.08);
+    opacity: .62;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics > .analytics-overview::before {
+    background-position: 0 center;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics > .analytics-spectrum::before {
+    background-position: 34% center;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics > .analytics-core-detail::before {
+    background-position: 68% center;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics > .analytics-annual::before {
+    background-position: 100% center;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics article > header {
+    height: 30px;
+    padding-inline: 8px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-analytics article > header span,
+  .dashboard-home-screen.reference-v10 .dashboard-analytics article > header strong,
+  .dashboard-home-screen.reference-v10 .dashboard-analytics article > header small,
+  .dashboard-home-screen.reference-v10 .analytics-overview dt,
+  .dashboard-home-screen.reference-v10 .analytics-overview dd,
+  .dashboard-home-screen.reference-v10 .digit-bars em,
+  .dashboard-home-screen.reference-v10 .digit-bars b {
+    font-size: 12px;
+  }
+
+  .dashboard-home-screen.reference-v10 .analytics-overview > div,
+  .dashboard-home-screen.reference-v10 .analytics-core-detail > div,
+  .dashboard-home-screen.reference-v10 .analytics-annual > div {
+    height: calc(100% - 30px);
+    padding: 6px 8px;
+  }
+
+  .dashboard-home-screen.reference-v10 .analytics-orbit,
+  .dashboard-home-screen.reference-v10 .analytics-core-medal,
+  .dashboard-home-screen.reference-v10 .analytics-year-medal {
+    height: 66px;
+    width: 66px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .visual-module-rail {
+    gap: 8px;
+    grid-template-rows: minmax(150px, 1.62fr) minmax(88px, 1fr);
+    min-height: 0;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-rail > header {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid,
+  .dashboard-home-screen.reference-v10 .support-module-grid {
+    gap: 8px;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid {
+    grid-template-columns: .94fr .98fr 1fr 1.04fr 1.12fr;
+  }
+
+  .dashboard-home-screen.reference-v10 .support-module-grid {
+    grid-template-columns: 1.24fr 1fr 1.2fr;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid > a > div,
+  .dashboard-home-screen.reference-v10 .support-module-grid > a > div {
+    bottom: 7px;
+    left: 10px;
+    right: 7px;
+    top: 7px;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid img,
+  .dashboard-home-screen.reference-v10 .support-module-grid img {
+    filter: brightness(1.16) saturate(1.08);
+    opacity: .78;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid strong {
+    font-size: clamp(17px, 1.12vw, 21px);
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid small {
+    font-size: 13px;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid em,
+  .dashboard-home-screen.reference-v10 .visual-module-grid ul,
+  .dashboard-home-screen.reference-v10 .support-module-grid em,
+  .dashboard-home-screen.reference-v10 .support-module-grid ul,
+  .dashboard-home-screen.reference-v10 .visual-module-grid b,
+  .dashboard-home-screen.reference-v10 .support-module-grid b {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 1181px) and (max-height: 900px) {
+  .dashboard-sidebar .sidebar-brand > .sidebar-crest {
+    height: 54px;
+    width: 54px;
+  }
+
+  .dashboard-sidebar .brush-sidebar-brand .brush-title-image {
+    height: 42px;
+  }
+
+  .dashboard-sidebar .sidebar-intro {
+    line-height: 1.32;
+    margin-bottom: 4px;
+  }
+
+  .dashboard-sidebar .sidebar-primary {
+    min-height: 42px;
+  }
+
+  .dashboard-sidebar .sidebar-secondary {
+    min-height: 35px;
+  }
+
+  .dashboard-sidebar .sidebar-quick a {
+    min-height: 44px;
+  }
+
+  .dashboard-sidebar .sidebar-start-guide li {
+    min-height: 28px;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid ul,
+  .dashboard-home-screen.reference-v10 .support-module-grid ul {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v10 .visual-module-grid > a > div,
+  .dashboard-home-screen.reference-v10 .support-module-grid > a > div {
+    align-content: space-between;
+    grid-template-rows: auto auto auto;
+  }
+}
+
+@media (min-width: 1181px) and (min-height: 951px) {
+  .dashboard-sidebar .sidebar-quick a {
+    grid-template-columns: 44px minmax(0, 1fr);
+    min-height: 58px;
+  }
+
+  .dashboard-sidebar .sidebar-quick a > img {
+    height: 42px;
+    width: 42px;
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1440px) {
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a span {
+    font-size: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar > .topbar-actions > a span::after {
+    font-size: 12px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead {
+    grid-template-columns: minmax(0, 1fr) 410px;
+  }
+
+  .dashboard-home-screen.reference-v10 .hero-proof small {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v10 .hero-proof li {
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-ui="xuanxing-aaa"] {
+    gap: 0;
+    padding: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas,
+  .dashboard-home-screen.reference-v10,
+  .dashboard-home-screen.reference-v10 .dashboard-lead,
+  .dashboard-home-screen.reference-v10 .analyzer-section,
+  .dashboard-home-screen.reference-v10 .analyzer-card {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar {
+    height: 50px;
+    min-height: 50px;
+    padding-inline: 5px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .wordmark {
+    min-width: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .wordmark .brush-title-image {
+    max-width: 118px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .visit-counter {
+    min-height: 44px;
+    min-width: 96px;
+    padding-inline: 5px;
+  }
+
+  .dashboard-home-screen.reference-v10 {
+    gap: 4px;
+    padding: 3px 0 5px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card {
+    background:
+      linear-gradient(180deg, rgba(1, 10, 9, .72), rgba(1, 8, 8, .9)),
+      url("public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp") center / cover no-repeat,
+      #020b0a;
+    grid-template-rows: 76px auto;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch {
+    height: 76px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch label,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch .kangjie-mode-entry {
+    min-height: 76px;
+    padding-top: 40px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch .mode-card-art {
+    height: 34px;
+    width: 34px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch .brush-mode .brush-title-image,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch .brush-kangjie-entry .brush-title-image {
+    height: 20px;
+    max-width: 70px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-controls {
+    gap: 3px 5px;
+    grid-template-columns: minmax(0, 1fr) minmax(118px, 34%);
+    padding: 4px 5px 5px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .field-block > span,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .form-meta p,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .form-message {
+    font-size: 15px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .field-block input,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyze-submit,
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas a {
+    min-height: 44px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .cockpit-status {
+    margin-top: 0;
+    min-height: 90px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .cockpit-status article,
+  .dashboard-home-screen.reference-v10 > .cockpit-status article:nth-child(n) {
+    min-height: 45px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .cockpit-status small,
+  .dashboard-home-screen.reference-v10 > .cockpit-status strong {
+    font-size: 15px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas {
+    gap: 3px;
+    margin-top: 0;
+    min-height: 130px;
+    padding: 3px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas a {
+    min-width: 0;
+    padding: 2px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas img {
+    height: 52px;
+    width: 52px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas strong,
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas small {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 360px) {
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .wordmark .brush-title-image {
+    max-width: 104px;
+  }
+
+  [data-ui="xuanxing-aaa"] .dashboard-canvas > .topbar .visit-counter {
+    min-width: 91px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .analyzer-card {
+    grid-template-rows: 72px auto;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch label,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch .kangjie-mode-entry {
+    height: 72px;
+    min-height: 72px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch label,
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-switch .kangjie-mode-entry {
+    padding-top: 38px;
+  }
+
+  .dashboard-home-screen.reference-v10 .dashboard-lead .mode-controls {
+    grid-template-columns: minmax(0, 1fr) 112px;
+  }
+
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas strong,
+  .dashboard-home-screen.reference-v10 > .mobile-function-atlas small {
+    font-size: 14px;
+  }
+}

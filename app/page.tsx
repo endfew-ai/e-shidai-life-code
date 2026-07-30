@@ -776,8 +776,18 @@ export default function Home() {
             <a href="#numerology-workspace" onClick={openWorkspace("identity")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>身分證</strong><small>命格</small></span></a>
             <a href="#numerology-workspace" onClick={openWorkspace("history")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>紀錄</strong><small>本機</small></span></a>
             <a href="#numerology-workspace" onClick={openWorkspace("sources")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>規則</strong><small>來源</small></span></a>
+            <a href="/kangjie"><img src="/visuals/ai-dashboard/reference-v2/portal-kangjie-v2.webp" width={512} height={512} alt="" aria-hidden="true" /><span><strong>康節</strong><small>專頁</small></span></a>
+            <a href="#numerology-workspace" onClick={openWorkspace("home")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>專業</strong><small>工作台</small></span></a>
           </div>
         </div>
+        <section className="sidebar-start-guide" aria-label="三步取得生命靈數結果">
+          <p>三步取得完整結果</p>
+          <ol>
+            <li><span>1</span><strong>選擇出生日期</strong><small>按上方金色按鈕</small></li>
+            <li><span>2</span><strong>自動完成演算</strong><small>選好日期不必再按一次</small></li>
+            <li><span>3</span><strong>查看完整算式</strong><small>生命路徑、九宮與流年</small></li>
+          </ol>
+        </section>
         <div className="sidebar-status"><span aria-hidden="true" /><p><strong>本機安全運算</strong><small>輸入資料不上傳</small></p></div>
         <a className="sidebar-version" href="#method-source"><span>公開版 0.1.0</span><small>公式、來源與版本紀錄</small></a>
       </aside>
@@ -798,10 +808,10 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
-        <img className="hero-art" src="/visuals/ai-dashboard/reference-v3/desktop-hero-command-v3.webp" width={1672} height={941} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
+        <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
         <div className="hero-copy">
           <p className="hero-kicker"><span>玄星觀象</span><em>生命靈數演算系統</em></p>
           <h1 className="hero-title"><BrushTitle src="/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png" text="解碼生命・掌握命運" className="brush-hero" width={2014} height={780} /></h1>
@@ -901,9 +911,9 @@ export default function Home() {
           <a data-module="annual-cycle" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "annual")}><img src="/visuals/ai-dashboard/annual-cycle-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><small>流年分析</small><strong>年度週期</strong><em>個人年與人生階段</em><ul><li>個人流年</li><li>年度位置</li><li>階段提醒</li></ul><b>立即分析 <i aria-hidden="true">→</i></b></div></a>
         </div>
         <div className="support-module-grid" data-ui-region="support" aria-label="工作台支援模塊">
-          <a data-module="workbench" href="#numerology-workspace" onClick={openWorkspace("home")} aria-label="專業工作台：開啟九宮、磁場與本機紀錄"><img src="/visuals/ai-dashboard/workbench-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>專業工作台</strong><em>九宮、磁場與本機紀錄</em><ul><li>九宮配置</li><li>號碼磁場</li><li>身分證命格</li><li>分析歷史</li></ul><b>開啟工作台 <i aria-hidden="true">→</i></b></div></a>
+          <a data-module="workbench" href="#numerology-workspace" onClick={openWorkspace("home")} aria-label="專業工作台：開啟九宮、磁場與本機紀錄"><img src="/visuals/ai-dashboard/reference-v10/name-stroke-workbench-v10.webp" width={1672} height={941} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>專業工作台</strong><em>九宮、磁場與本機紀錄</em><ul><li>九宮配置</li><li>號碼磁場</li><li>身分證命格</li><li>分析歷史</li></ul><b>開啟工作台 <i aria-hidden="true">→</i></b></div></a>
           <a data-module="sources" href="#method-source" aria-label="規則來源：查看版本、公式與使用界線"><img src="/visuals/ai-dashboard/sources-library-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>規則來源</strong><em>版本、公式與使用界線</em><ul><li>演算規則</li><li>資料來源</li><li>版本紀錄</li><li>使用界線</li></ul><b>核對規則 <i aria-hidden="true">→</i></b></div></a>
-          <a data-module="privacy" href="#privacy-section" aria-label="本機隱私：查看分析資料處理說明"><img src="/visuals/ai-dashboard/privacy-lock-v1.webp" width={960} height={640} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>本機隱私</strong><em>分析輸入不送往服務</em><ul><li>本機運算</li><li>本機儲存</li><li>可自行清除</li><li>不傳分析輸入</li></ul><b>查看說明 <i aria-hidden="true">→</i></b></div></a>
+          <a data-module="privacy" href="#privacy-section" aria-label="本機隱私：查看分析資料處理說明"><img src="/visuals/ai-dashboard/reference-v10/local-history-vault-v10.webp" width={1672} height={941} loading="lazy" decoding="async" alt="" aria-hidden="true" /><div><strong>本機隱私</strong><em>分析輸入不送往服務</em><ul><li>本機運算</li><li>本機儲存</li><li>可自行清除</li><li>不傳分析輸入</li></ul><b>查看說明 <i aria-hidden="true">→</i></b></div></a>
         </div>
       </section>
       </div>
