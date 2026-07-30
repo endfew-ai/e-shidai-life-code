@@ -656,6 +656,14 @@ for (const viewport of [
     await page.goto("/index.html", { waitUntil: "networkidle" });
     await unlockIChingMode(page);
     await expectNoAnalyzerOverlap(page);
+    const sensorArt = page.locator(".iching-sensor-art");
+    await expect(sensorArt).toHaveCount(3);
+    expect(await sensorArt.evaluateAll((images) => images.every((image) =>
+      image.complete
+      && image.naturalWidth === 384
+      && image.naturalHeight === 384
+      && image.getBoundingClientRect().width >= 42
+      && image.getBoundingClientRect().height >= 42))).toBe(true);
     await page.locator("#analyzer-form").screenshot({
       path: `output/playwright/home-iching-analyzer-${viewport.width}.png`,
     });

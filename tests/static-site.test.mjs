@@ -73,6 +73,12 @@ const referenceV5DashboardAssets = Array.from(
   (_, index) => `function-bay-${index + 1}-v5.webp`,
 );
 
+const referenceV6DashboardAssets = [
+  "iching-sensor-upper-v6.webp",
+  "iching-sensor-lower-v6.webp",
+  "iching-sensor-moving-v6.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -183,6 +189,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /data-result-target="grid"/);
   assert.match(html, /data-result-target="annual"/);
   assert.match(advancedSource, /class="workspace-return" href="#analyzer"/);
+  assert.equal((html.match(/class="iching-sensor-art"/g) ?? []).length, 3);
+  assert.equal((reactSource.match(/iching-sensor-(?:upper|lower|moving)-v6\.webp/g) ?? []).length, 3);
+  assert.match(styles, /Reference v6: three distinct ImageGen instruments/);
+  assert.match(styles, /開始三數取卦/);
   assert.match(html, /九宮配置/);
   assert.match(html, /身分證命格/);
   assert.match(html, /不傳分析輸入/);
@@ -228,7 +238,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /data-personal-color-guide/);
   assert.match(reactSource, /function BirthdayColorGuide/);
   assert.match(reactSource, /data-personal-color-guide/);
-  assert.match(appSource, /from "\.\/site-services\.js"/);
+  assert.match(appSource, /from "\.\/site-services\.js\?v=20260730-reference-v6"/);
   assert.match(reactSource, /from "\.\.\/site-services\.js"/);
   assert.match(appSource, /isIChingAccessCode/);
   assert.match(reactSource, /isIChingAccessCode/);
@@ -305,6 +315,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV3DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v3/${asset}`, import.meta.url))),
     ...referenceV4DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v4/${asset}`, import.meta.url))),
     ...referenceV5DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v5/${asset}`, import.meta.url))),
+    ...referenceV6DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v6/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
@@ -350,6 +361,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../AI_MODULE_PROMPTS.md", import.meta.url)),
     access(new URL("../docs/reference-v4-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v5-visual-assets.md", import.meta.url)),
+    access(new URL("../docs/reference-v6-visual-assets.md", import.meta.url)),
   ]);
 });
 

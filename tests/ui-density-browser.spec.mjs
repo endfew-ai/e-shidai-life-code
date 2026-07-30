@@ -265,6 +265,7 @@ async function expectReferenceMobileDashboard(page) {
       analyzer: rect("[data-ui-region='analyzer']"),
       cockpit: rect("[data-ui-region='cockpit']"),
       atlas: rect(".mobile-function-atlas"),
+      methodSource: rect(".method-source > details"),
       cockpitCount: cockpitCells.length,
       cockpitColumns: getComputedStyle(document.querySelector(".cockpit-status"))
         .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
@@ -298,10 +299,13 @@ async function expectReferenceMobileDashboard(page) {
   expect(report.analyzer).not.toBeNull();
   expect(report.cockpit).not.toBeNull();
   expect(report.atlas).not.toBeNull();
+  expect(report.methodSource).not.toBeNull();
   expect(report.cockpit.top, "摘要區必須接在分析器後方").toBeGreaterThanOrEqual(report.analyzer.bottom);
   expect(report.cockpit.top - report.analyzer.bottom, "分析器與摘要區不可出現大空白").toBeLessThanOrEqual(12);
   expect(report.atlas.top, "八格功能總覽必須接在摘要後方").toBeGreaterThanOrEqual(report.cockpit.bottom);
   expect(report.atlas.top - report.cockpit.bottom, "摘要與八格功能總覽不可出現大空白").toBeLessThanOrEqual(12);
+  expect(report.methodSource.top, "規則來源必須接在八格功能總覽後方").toBeGreaterThanOrEqual(report.atlas.bottom);
+  expect(report.methodSource.top - report.atlas.bottom, "八格功能總覽與規則來源不可出現大空白").toBeLessThanOrEqual(16);
   expect(report.atlasCount, "手機必須正好顯示八個功能入口").toBe(8);
   expect(report.atlasColumns, "手機八功能入口必須排成四欄兩列").toBe(4);
   expect(report.atlasWidthSpread, "手機八格入口寬度必須一致").toBeLessThanOrEqual(2);

@@ -24,8 +24,8 @@
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png" type="image/png" fetchpriority="high" />
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp" type="image/webp" fetchpriority="high" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260730-reference-v5" />
-    <script type="module" src="app.js?v=20260730-reference-v5"></script>
+    <link rel="stylesheet" href="styles.css?v=20260730-reference-v6" />
+    <script type="module" src="app.js?v=20260730-reference-v6"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -101,7 +101,13 @@
             <div class="mode-controls">
               <div class="input-panel" data-mode-panel="birthday"><label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label></div>
               <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
-              <div class="input-panel" data-mode-panel="iching" hidden><div class="triple-input-grid"><label class="field-block"><span>第一數<small>上卦 ÷ 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第二數<small>下卦 ÷ 8</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message" /></label><label class="field-block"><span>第三數<small>動爻 ÷ 6</small></span><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message" /></label></div></div>
+              <div class="input-panel" data-mode-panel="iching" hidden>
+                <div class="triple-input-grid">
+                  <label class="field-block"><span>第一數<small>上卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-upper-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label>
+                  <label class="field-block"><span>第二數<small>下卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-lower-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message" /></label>
+                  <label class="field-block"><span>第三數<small>動爻 ÷ 6</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-moving-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message" /></label>
+                </div>
+              </div>
               <div class="form-meta"><p id="input-help" aria-live="polite">只需生日；身分證請用下方獨立入口。</p><button type="button" class="text-button" id="clear-button" hidden>清除輸入</button></div>
               <p id="input-message" class="form-message" role="alert" aria-live="polite"></p>
               <button type="submit" class="primary-button analyze-submit" id="analyze-button"><span data-analyze-label>分析生日命碼</span><img class="analyze-seal" src="public/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><b aria-hidden="true">↘</b></button>

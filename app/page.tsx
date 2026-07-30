@@ -83,6 +83,27 @@ const modeContent = {
   },
 } as const;
 
+const ichingSensorInputs = [
+  {
+    label: "第一數",
+    help: "上卦 ÷ 8",
+    placeholder: "例如：9",
+    art: "/visuals/ai-dashboard/reference-v6/iching-sensor-upper-v6.webp",
+  },
+  {
+    label: "第二數",
+    help: "下卦 ÷ 8",
+    placeholder: "例如：13",
+    art: "/visuals/ai-dashboard/reference-v6/iching-sensor-lower-v6.webp",
+  },
+  {
+    label: "第三數",
+    help: "動爻 ÷ 6",
+    placeholder: "例如：20",
+    art: "/visuals/ai-dashboard/reference-v6/iching-sensor-moving-v6.webp",
+  },
+] as const;
+
 function formatTaipeiClock(date = new Date()) {
   return {
     time: new Intl.DateTimeFormat("zh-TW", {
@@ -810,7 +831,7 @@ export default function Home() {
               <div className="input-panel" data-mode-panel={mode}>
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { const nextBirthday = event.target.value; setBirthday(nextBirthday); setMessage(""); setEntryHint(""); setResult(null); if (birthdayAutoSubmitRef.current && nextBirthday) { birthdayAutoSubmitRef.current = false; window.setTimeout(() => document.querySelector<HTMLFormElement>("#analyzer-form")?.requestSubmit(), 0); } }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
                 {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={60} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); setResult(null); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "iching" && <div className="triple-input-grid">{[["第一數", "上卦 ÷ 8"], ["第二數", "下卦 ÷ 8"], ["第三數", "動爻 ÷ 6"]].map(([label, help], index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); setResult(null); }} placeholder={`例如：${[9, 13, 20][index]}`} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
+                {mode === "iching" && <div className="triple-input-grid">{ichingSensorInputs.map(({ label, help, placeholder, art }, index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><img className="iching-sensor-art" src={art} width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); setResult(null); }} placeholder={placeholder} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
               </div>
 
               <div className="form-meta"><p id="input-help" aria-live="polite">{entryHint || modeContent[mode].help}</p>{hasValue && <button type="button" className="text-button" onClick={handleReset}>清除輸入</button>}</div>

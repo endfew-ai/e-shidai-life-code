@@ -60,6 +60,20 @@ test("visit counter increments once and then reads without incrementing in the s
   assert.equal(storage.getItem(VISIT_COUNTER_SESSION_KEY), "1");
 });
 
+test("visit counter retries with a read-only request after a transient increment failure", async () => {
+  const storage = memoryStore();
+  const requests = [];
+  const fetchImpl = async (url) => {
+    requests.push(url);
+    if (requests.length === 1) throw new TypeError("temporary CORS response failure");
+    return { ok: true, status: 200, async json() { return { count: 77 }; } };
+  };
+
+  const result = await loadCumulativeVisitCount({ fetchImpl, sessionStore: storage });
+  assert.deepEqual(result, { value: 77, incremented: true });
+  assert.deepEqual(requests, [`${VISIT_COUNTER_ENDPOINT}up`, VISIT_COUNTER_ENDPOINT]);
+});
+
 test("visit counter rejects failed and malformed service responses", async () => {
   assert.equal(parseVisitCount({ count: 0 }), 0);
   assert.equal(parseVisitCount({ count: "123" }), 123);
