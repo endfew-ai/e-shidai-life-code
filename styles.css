@@ -7416,6 +7416,7 @@ body:has([data-ui="xuanxing-aaa"]) {
 }
 
 @media (min-width: 1181px) {
+  .dashboard-home-screen.reference-v4 .hero-proof li > span,
   .dashboard-home-screen.reference-v4 .hero-proof small,
   .dashboard-home-screen.reference-v4 .desktop-result-preview small,
   .dashboard-home-screen.reference-v4 .method-strip li,

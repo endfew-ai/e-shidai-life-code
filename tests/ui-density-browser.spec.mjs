@@ -825,6 +825,13 @@ test("平板摘要完整可讀、來源區緊接模塊且三數輸入至少 44px
 test("短高桌機三數取卦維持橫排標籤、完整提示與 44px 操作區", async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 790 });
   await page.goto("index.html", { waitUntil: "networkidle" });
+
+  const proofFontSizes = await page.locator(".hero-proof li > span, .hero-proof small").evaluateAll(
+    (elements) => elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)),
+  );
+  expect(proofFontSizes).toHaveLength(6);
+  expect(proofFontSizes.every((size) => size >= 12), "短高桌機的主視覺證明卡文字至少 12px").toBe(true);
+
   await page.locator('[data-mode-label="iching"]').click();
   const accessDialog = page.locator("#iching-access-dialog");
   await expect(accessDialog).toBeVisible();
