@@ -15,6 +15,22 @@ Reference v4 依使用者提供的黑金玄星儀表參考圖，補足首頁各�
 | 分析輸入台 | `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\call_7XT8aiHx4RK11PCsJJzvUZB2.png` | `public/visuals/ai-dashboard/reference-v4/analyzer-console-frame-v4.webp` | 724×543 |
 | 黃金毛筆主標 | `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\call_gjzLY43UOCMr4T7A9c5abRoj.png` | `public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png` | 2014×780，RGBA |
 
+### 四模式毛筆標題
+
+四個模式名稱各由一張獨立 ImageGen 原圖製作，完成綠幕去背、裁切與高解析
+WebP 後，再產生首頁使用的 600px 寬網站副本。可讀名稱另保留在 HTML 的
+`sr-only` 文字中，圖片不承擔功能語意。
+
+| 模式 | ImageGen 原始 PNG | 原圖尺寸／位元組 | 原圖 SHA-256 | 高解析 → 網站副本 |
+| --- | --- | --- | --- | --- |
+| 生日命碼 | `C:\Users\Hung\.codex\generated_images\019f75c2-ca06-79a3-a780-332368133223\exec-640640b2-f7b0-4180-b146-da71fd54b370.png` | 1774×887／1,549,409 | `57A6B2A9F5FC179A6FA098F5400EB147EAE01BBFFC9AD312821914113848E62E` | `title-birthday-v4.webp` → `title-birthday-web-v1.webp` |
+| 數字頻譜 | `C:\Users\Hung\.codex\generated_images\019f75c2-ca06-79a3-a780-332368133223\exec-522ea2a5-b604-4942-8dfc-e277f77d7ef5.png` | 1920×819／1,691,168 | `03D3ADBA48D33E9AB52E15804B00C625732AF23A5570D1DD030D8AD5F5D40123` | `title-spectrum-v4.webp` → `title-spectrum-web-v1.webp` |
+| 三數取卦 | `C:\Users\Hung\.codex\generated_images\019f75c3-1671-7933-9493-8d0ff4259c8a\exec-f5fbf2d7-5e90-4d0c-aca5-fc934ea1a6fe.png` | 1997×788／1,603,157 | `05825898B68D6A5FBBC83442629D3AFF84D7A93C3712B93224B74DBFA797621A` | `title-iching-v4.webp` → `title-iching-web-v1.webp` |
+| 邵康節易學 | `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-4bfd8482-5259-4bf5-884d-a4edf9fc8178.png` | 1905×825／1,472,001 | `C0712A7978CBFE2D2CD2824A612C22B1D97F52F3A1120873E421CFD73E3B54F8` | `title-kangjie-entry-v1.webp` → `title-kangjie-entry-web-v1.webp` |
+
+高解析與網站副本均位於 `public/visuals/brush/`；轉換關係由
+`scripts/build-aaa-social-assets.py` 固定記錄。
+
 ## 提示詞摘要
 
 ### 四格分析儀表

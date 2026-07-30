@@ -7432,6 +7432,180 @@ body:has([data-ui="xuanxing-aaa"]) {
   }
 }
 
+/* Reference v7 completion pass: short desktops and tablets must stay dense without clipping text. */
+@media (min-width: 1181px) and (max-height: 900px) {
+  .dashboard-home-screen.reference-v4 {
+    gap: 8px;
+    grid-template-rows:
+      clamp(300px, 38dvh, 342px)
+      157px
+      minmax(0, 1fr);
+    height: calc(100dvh - 60px);
+    min-height: 0;
+    padding-block: 4px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead {
+    grid-template-rows: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .dashboard-home-screen.reference-v4 > .visual-module-rail {
+    grid-template-rows: minmax(150px, 1.56fr) minmax(82px, 1fr);
+    height: auto;
+    min-height: 0;
+  }
+
+  .dashboard-home-screen.reference-v4 .visual-module-grid,
+  .dashboard-home-screen.reference-v4 .support-module-grid {
+    min-height: 0;
+  }
+
+  .dashboard-sidebar {
+    min-height: 0;
+    padding-block: 8px 5px;
+  }
+
+  .dashboard-sidebar .sidebar-brand > .sidebar-crest {
+    height: 60px;
+    width: 60px;
+  }
+
+  .dashboard-sidebar .brush-sidebar-brand .brush-title-image {
+    height: 46px;
+  }
+
+  .dashboard-sidebar .sidebar-intro {
+    line-height: 1.35;
+    margin-bottom: 5px;
+  }
+
+  .dashboard-sidebar .sidebar-links {
+    margin-top: 4px;
+  }
+
+  .dashboard-sidebar .sidebar-quick {
+    margin-top: 5px;
+    padding-top: 5px;
+  }
+
+  .dashboard-sidebar .sidebar-status {
+    min-height: 36px;
+    padding-top: 4px;
+  }
+}
+
+@media (min-width: 1181px) and (max-width: 1600px) {
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] {
+    grid-template-rows: 44px minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .desktop-result-preview,
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .method-strip {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .mode-controls {
+    align-content: center;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .input-panel,
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .analyze-submit,
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .form-meta,
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .form-message {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .triple-input-grid .field-block {
+    gap: 2px;
+    grid-template-areas:
+      "sensor"
+      "copy"
+      "input";
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .triple-input-grid .field-block > span {
+    display: block;
+    font-size: 13px;
+    min-height: 20px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .triple-input-grid .field-block > span small {
+    display: inline;
+    font-size: 12px;
+    margin-left: 3px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .iching-sensor-art {
+    height: 42px;
+    justify-self: center;
+    width: 42px;
+  }
+
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .analyze-submit {
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 980px) {
+  .dashboard-home-screen.reference-v4 > .cockpit-status {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 136px;
+  }
+
+  .dashboard-home-screen.reference-v4 > .cockpit-status article,
+  .dashboard-home-screen.reference-v4 > .cockpit-status article:nth-child(n) {
+    gap: 8px;
+    grid-template-columns: 40px minmax(0, 1fr);
+    min-height: 68px;
+    padding: 5px 10px;
+  }
+
+  .dashboard-home-screen.reference-v4 > .cockpit-status article:nth-child(2n) {
+    padding-left: 12px;
+  }
+
+  .dashboard-home-screen.reference-v4 > .cockpit-status article > span {
+    height: 38px;
+    width: 38px;
+  }
+
+  .dashboard-home-screen.reference-v4 > .cockpit-status strong,
+  .dashboard-home-screen.reference-v4 > .cockpit-status em {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1180px) {
+  [data-ui="xuanxing-aaa"] .method-source {
+    margin-top: 10px;
+    padding-top: 0;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1180px) and (max-height: 820px) {
+  .dashboard-home-screen.reference-v4 .dashboard-lead .analyzer-card[data-active-mode="iching"] .triple-input-grid input {
+    min-height: 44px;
+  }
+}
+
+@media (min-width: 1181px) {
+  .dashboard-home-screen.reference-v3.reference-v4 .dashboard-lead .method-strip li,
+  .dashboard-sidebar .sidebar-links small,
+  .dashboard-sidebar .sidebar-quick small {
+    font-size: 12px;
+  }
+}
+
 @media print {
   .mobile-function-atlas {
     display: none !important;

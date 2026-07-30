@@ -12,9 +12,11 @@
 
 正式 WebP 由 ImageGen 原始 PNG 以 Lanczos 縮放至 384×384，WebP 品質 84。原始生成檔保留於：
 
-- `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-26b5410e-169b-4c7e-9034-d64bcab014d8.png`
-- `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-285d692b-e03d-4ea2-b04f-81fc3c8f6b81.png`
-- `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-cfd706a5-b3bc-475d-9c11-066d896adc8c.png`
+| 用途 | ImageGen 原始 PNG | 尺寸 | 位元組 | SHA-256 |
+| --- | --- | ---: | ---: | --- |
+| 第一數／上卦 | `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-26b5410e-169b-4c7e-9034-d64bcab014d8.png` | 1254×1254 | 2,462,574 | `81B9181403CD64332AFB83018A02797D6A2992365C347362B52D7D6993C2DD3F` |
+| 第二數／下卦 | `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-285d692b-e03d-4ea2-b04f-81fc3c8f6b81.png` | 1254×1254 | 2,669,884 | `DA853491019D6F3D546DE57AEAFEB5AC60B4BD3D90D80854BB0974EC3D8220AB` |
+| 第三數／動爻 | `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\exec-cfd706a5-b3bc-475d-9c11-066d896adc8c.png` | 1254×1254 | 2,785,164 | `4FCF81B2B27098AE90FB1E80CEA0C10A895DD678947DA983494DBCC75BCCF501` |
 
 ## 提示詞設計
 

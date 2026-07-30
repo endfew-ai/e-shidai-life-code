@@ -7,7 +7,7 @@ Reference v5 將原本縮小後外觀相近的八個圓環徽章，改成八個�
 ## 生成與後製
 
 - 生成工具：OpenAI 內建 ImageGen。
-- 原始輸出：各 1536×1536 PNG。
+- 原始輸出：各 1254×1254 RGB PNG。
 - 正式輸出：以 FFmpeg Lanczos 縮放為 384×384，轉成品質 84 的 WebP。
 - 原始 ImageGen PNG 保留在 `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8`，未刪除或覆寫。
 
@@ -23,6 +23,22 @@ Reference v5 將原本縮小後外觀相近的八個圓環徽章，改成八個�
 | 6 | 專業工作台 | 算盤、羅盤、卷軸 | `exec-e8b64fca-59c9-46ad-8cd4-626ed2f8327d.png` | `public/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp` |
 | 7 | 規則來源 | 線裝書、竹簡、空白驗證印 | `exec-eaf2199a-4ed9-4ea5-b5fe-b266f14b3d79.png` | `public/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp` |
 | 8 | 本機隱私 | 玉石機械鎖與盾牌 | `exec-7be3a39b-a951-490d-b523-3dcfdefdc203.png` | `public/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp` |
+
+## 原始檔稽核
+
+下表以保留的 ImageGen 原圖直接計算；完整路徑皆位於
+`C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\`。
+
+| 功能 | 原始檔位元組 | 原始檔 SHA-256 |
+| --- | ---: | --- |
+| 生日分析 | 2,028,397 | `54FF5EE7FA841B47EF736D64CE51B03B212A2C55841918FC9DD4A99D114E4C77` |
+| 生命路徑 | 2,130,850 | `CB53531C6A9A24C1703317FCC07EA43B124638242601BB27FEB90D3C7330BA06` |
+| 數字頻譜 | 2,058,865 | `D0837FF24D2C656E2B1FF6934BEDF033DE908822D29ECAA2A3B4F5D89217BAF6` |
+| 九宮配置 | 2,502,811 | `C40A7B4D9D00434A3D65A89173137653F27DC391F2C19EFE9FA56AFA9B59AF65` |
+| 流年分析 | 2,226,604 | `28D080FEAF8DED4B67638620EFAEDB57F23369ACE5A1CA192D6155BB3DB91B0A` |
+| 專業工作台 | 1,956,240 | `F8DC3D8ED041DF0A7DFED519D9929F5B9885B3B02BCD84CB6E494CFB2DCC2495` |
+| 規則來源 | 2,037,043 | `EFEF5994B6028426CA8E6FA77BA4DB7686839EAFC249A57078DFFF876ADB6D8D` |
+| 本機隱私 | 1,836,292 | `20CA2FE5BF1C6623CEB6E29D91DABDCB6306925A44B29E50C9D772C954DA3A7E` |
 
 ## 共同提示詞骨架
 

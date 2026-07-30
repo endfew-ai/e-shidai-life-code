@@ -25,6 +25,18 @@
 
 `public/visuals/ai-dashboard/reference-v2/`
 
+## 四模式入口原圖稽核
+
+四個入口均由獨立 ImageGen 原圖縮放為網站 WebP；原圖皆為 1254×1254 PNG，
+保留在 `C:\Users\Hung\.codex\generated_images\019f6ddd-80b7-77b3-8c43-bf9970819ab8\`。
+
+| 用途／正式入口 | ImageGen 原始檔 | 位元組 | SHA-256 |
+| --- | --- | ---: | --- |
+| 生日命碼／`portal-birthday-v2.webp` | `call_C7b0BOwkUgYteAEkB2dg1WXk.png` | 2,902,632 | `AC205FB317D4C397966125CBCFC97253B1987FD315EF76831EE70CF1E887E2D1` |
+| 數字頻譜／`portal-spectrum-v2.webp` | `call_LAIgjg9dOsKlwxRXIoDufF1Q.png` | 2,936,972 | `6F87785C62C8F4124611D613A1E7EEA51CDD6F7DDBEF97BF0741BA1ACDD4674D` |
+| 三數取卦／`portal-iching-v2.webp` | `call_LoPEJme7yNTLWh9YrbPsSEja.png` | 2,745,761 | `DB70B3067215A066325C4D59CAF2FC21F94AF9F67880582090009314EFC3C1A6` |
+| 邵康節易學／`portal-kangjie-v2.webp` | `call_CnOsQmk123lDtNiU69S4vgT0.png` | 2,356,091 | `058A0FD0087ED0D9829120FE838C7946F174439BB5B41B3AA212C54C53D6239F` |
+
 ## 共用提示詞骨架
 
 ```text

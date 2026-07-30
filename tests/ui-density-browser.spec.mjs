@@ -773,9 +773,124 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
+test("平板摘要完整可讀、來源區緊接模塊且三數輸入至少 44px", async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+
+  const tabletLayout = await page.evaluate(() => {
+    const cockpit = document.querySelector(".cockpit-status");
+    const rail = document.querySelector(".visual-module-rail").getBoundingClientRect();
+    const source = document.querySelector(".method-source > details").getBoundingClientRect();
+    const textSamples = [...cockpit.querySelectorAll("strong, em")].map((element) => ({
+      text: element.textContent.trim(),
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+    }));
+    return {
+      cockpitColumns: getComputedStyle(cockpit).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      sourceGap: source.top - rail.bottom,
+      textSamples,
+    };
+  });
+
+  expect(tabletLayout.cockpitColumns, "768px 平板摘要必須改為 2×2，不能壓成四個窄欄").toBe(2);
+  expect(tabletLayout.sourceGap, "平板模塊與規則來源不可留下大空白").toBeLessThanOrEqual(16);
+  for (const sample of tabletLayout.textSamples) {
+    expect(
+      sample.scrollWidth <= sample.clientWidth + 1 && sample.scrollHeight <= sample.clientHeight + 2,
+      `平板摘要文字不得被裁切：${sample.text}`,
+    ).toBe(true);
+  }
+
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.locator('[data-mode-label="iching"]').click();
+  const accessDialog = page.locator("#iching-access-dialog");
+  await expect(accessDialog).toBeVisible();
+  await accessDialog.locator("#iching-access-password").fill("0000");
+  await accessDialog.locator('button[type="submit"]').click();
+  await expectMinimumHeight(page.locator(".iching-input"), 44, "平板三數取卦輸入框");
+
+  const compactTabletGap = await page.evaluate(() => {
+    const rail = document.querySelector(".visual-module-rail").getBoundingClientRect();
+    const source = document.querySelector(".method-source > details").getBoundingClientRect();
+    return source.top - rail.bottom;
+  });
+  expect(compactTabletGap, "1024px 平板模塊與規則來源不可留下大空白").toBeLessThanOrEqual(16);
+  await expectNoHorizontalOverflow(page);
+});
+
+test("短高桌機三數取卦維持橫排標籤、完整提示與 44px 操作區", async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 790 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.locator('[data-mode-label="iching"]').click();
+  const accessDialog = page.locator("#iching-access-dialog");
+  await expect(accessDialog).toBeVisible();
+  await accessDialog.locator("#iching-access-password").fill("0000");
+  await accessDialog.locator('button[type="submit"]').click();
+
+  const compactIChing = await page.evaluate(() => {
+    const controls = document.querySelector(".analyzer-card[data-active-mode='iching'] .mode-controls");
+    const analyzer = document.querySelector(".analyzer-card");
+    const controlsRect = controls.getBoundingClientRect();
+    const analyzerRect = analyzer.getBoundingClientRect();
+    const fields = [...controls.querySelectorAll(".triple-input-grid .field-block")].map((field) => {
+      const label = field.querySelector(":scope > span");
+      const sensor = field.querySelector(".iching-sensor-art");
+      const input = field.querySelector(".iching-input");
+      const labelRect = label.getBoundingClientRect();
+      const sensorRect = sensor.getBoundingClientRect();
+      const inputRect = input.getBoundingClientRect();
+      return {
+        labelClientWidth: label.clientWidth,
+        labelScrollWidth: label.scrollWidth,
+        labelClientHeight: label.clientHeight,
+        labelScrollHeight: label.scrollHeight,
+        labelWritingMode: getComputedStyle(label).writingMode,
+        sensorWidth: sensorRect.width,
+        sensorBottom: sensorRect.bottom,
+        labelTop: labelRect.top,
+        labelBottom: labelRect.bottom,
+        inputTop: inputRect.top,
+        inputHeight: inputRect.height,
+      };
+    });
+    const help = controls.querySelector(".form-meta");
+    return {
+      controlsBottom: controlsRect.bottom,
+      analyzerBottom: analyzerRect.bottom,
+      fields,
+      helpClientWidth: help.clientWidth,
+      helpScrollWidth: help.scrollWidth,
+    };
+  });
+
+  expect(compactIChing.controlsBottom).toBeLessThanOrEqual(compactIChing.analyzerBottom + 1);
+  expect(compactIChing.helpScrollWidth, "短高桌機的三數提示不可被裁切").toBeLessThanOrEqual(compactIChing.helpClientWidth + 1);
+  for (const field of compactIChing.fields) {
+    expect(field.labelWritingMode).toBe("horizontal-tb");
+    expect(field.labelScrollWidth).toBeLessThanOrEqual(field.labelClientWidth + 1);
+    expect(field.labelScrollHeight).toBeLessThanOrEqual(field.labelClientHeight + 2);
+    expect(field.sensorWidth).toBeGreaterThanOrEqual(36);
+    expect(field.sensorBottom).toBeLessThanOrEqual(field.labelTop + 1);
+    expect(field.labelBottom).toBeLessThanOrEqual(field.inputTop + 1);
+    expect(field.inputHeight).toBeGreaterThanOrEqual(44);
+  }
+  await expectMinimumHeight(page.locator("#analyze-button"), 44, "短高桌機三數取卦按鈕");
+  await expectNoHorizontalOverflow(page);
+  await page.screenshot({
+    path: "output/playwright/home-iching-analyzer-short-1536.png",
+    fullPage: false,
+  });
+});
+
 for (const viewport of [
   { width: 1672, height: 941 },
   { width: 1920, height: 1080 },
+  { width: 1440, height: 900 },
+  { width: 1536, height: 790 },
 ]) {
   test(`首頁第一屏 ${viewport.width}×${viewport.height} 完整顯示所有主要模塊`, async ({ page }) => {
     await expectDenseDesktopFirstFold(page, viewport.width, viewport.height);
