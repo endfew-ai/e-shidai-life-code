@@ -238,7 +238,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /data-personal-color-guide/);
   assert.match(reactSource, /function BirthdayColorGuide/);
   assert.match(reactSource, /data-personal-color-guide/);
-  assert.match(appSource, /from "\.\/site-services\.js\?v=20260730-reference-v8"/);
+  assert.match(appSource, /from "\.\/site-services\.js\?v=20260730-reference-v10"/);
   assert.match(reactSource, /from "\.\.\/site-services\.js"/);
   assert.match(appSource, /isIChingAccessCode/);
   assert.match(reactSource, /isIChingAccessCode/);

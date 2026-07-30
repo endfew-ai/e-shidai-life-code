@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   ICHING_ACCESS_SESSION_KEY,
   VISIT_COUNTER_ENDPOINT,
+  VISIT_COUNTER_INCREMENT_TIMEOUT_MS,
   VISIT_COUNTER_SESSION_KEY,
   VISIT_COUNTER_TIMEOUT_MS,
   hasIChingAccess,
@@ -14,6 +15,8 @@ import {
 } from "../site-services.js";
 
 test("visit counter timeout allows the observed public service response window", () => {
+  assert.ok(VISIT_COUNTER_INCREMENT_TIMEOUT_MS >= 5_000);
+  assert.ok(VISIT_COUNTER_TIMEOUT_MS > VISIT_COUNTER_INCREMENT_TIMEOUT_MS);
   assert.ok(VISIT_COUNTER_TIMEOUT_MS >= 8_000);
 });
 
@@ -71,6 +74,24 @@ test("visit counter retries with a read-only request after a transient increment
 
   const result = await loadCumulativeVisitCount({ fetchImpl, sessionStore: storage });
   assert.deepEqual(result, { value: 77, incremented: true });
+  assert.deepEqual(requests, [`${VISIT_COUNTER_ENDPOINT}up`, VISIT_COUNTER_ENDPOINT]);
+});
+
+test("visit counter falls back to a read-only request when increment response is slow", async () => {
+  const storage = memoryStore();
+  const requests = [];
+  const fetchImpl = async (url) => {
+    requests.push(url);
+    if (url.endsWith("/up")) return new Promise(() => {});
+    return { ok: true, status: 200, async json() { return { count: 81 }; } };
+  };
+
+  const result = await loadCumulativeVisitCount({
+    fetchImpl,
+    sessionStore: storage,
+    incrementTimeoutMs: 5,
+  });
+  assert.deepEqual(result, { value: 81, incremented: true });
   assert.deepEqual(requests, [`${VISIT_COUNTER_ENDPOINT}up`, VISIT_COUNTER_ENDPOINT]);
 });
 

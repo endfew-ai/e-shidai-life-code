@@ -15,7 +15,7 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
-} from "./site-services.js?v=20260730-reference-v8";
+} from "./site-services.js?v=20260730-reference-v10";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
 import {
