@@ -151,6 +151,16 @@ export default function KangjiePage() {
   const [message, setMessage] = useState("");
   const [textCount, setTextCount] = useState(0);
   const [currentTime, setCurrentTime] = useState<CurrentCalendarParts | null>(null);
+
+  useEffect(() => {
+    if (window.location.hash !== "#name-strokes") return;
+    const timer = window.setTimeout(() => {
+      setPageTab("meihua");
+      setMethod("text");
+      setTextMode("surname");
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const [currentTimeError, setCurrentTimeError] = useState("");
   const [calendarProfile, setCalendarProfile] = useState("taipei-lunar-new-year-v1");
   const [calendarTimeZone, setCalendarTimeZone] = useState("Asia/Taipei");

@@ -125,7 +125,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11"/);
   assert.match(html, /data-start-birthday/);
   assert.match(html, /class="sidebar-primary"[^>]*data-start-birthday/);
   assert.match(html, /選生日・直接看完整結果/);
@@ -138,7 +138,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.doesNotMatch(appSource, /analyzeButton\.firstChild/);
   assert.match(html, /data-cockpit-time/);
   assert.match(html, /data-cockpit-mode/);
-  assert.match(html, /data-cockpit-core/);
+  assert.match(html, /class="cockpit-live-rail"/);
+  assert.equal((html.match(/data-cockpit-result-value="(?:primary|secondary|tertiary|annual)"/g) ?? []).length, 4);
   assert.match(appSource, /initializeCockpitClock/);
   assert.match(appSource, /timeZone: "Asia\/Taipei"/);
   assert.match(reactSource, /formatTaipeiClock/);
@@ -178,7 +179,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/portal-iching-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/portal-kangjie-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/brand-crest-v2\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/cockpit-seal-frame-v2\.webp/);
+  assert.match(html, /data-cockpit-result-label="primary">生命路徑數/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/analyze-dragon-seal-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/annual-cycle-v1\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v10\/name-stroke-workbench-v10\.webp/);
@@ -191,8 +192,15 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   }
   assert.match(html, /class="support-module-grid"/);
   assert.match(reactSource, /className="support-module-grid"/);
-  assert.match(html, /class="mobile-function-atlas"/);
-  assert.match(reactSource, /className="mobile-function-atlas"/);
+  assert.match(html, /class="mobile-function-atlas function-command-grid"/);
+  assert.match(reactSource, /className="mobile-function-atlas function-command-grid"/);
+  assert.equal((html.match(/data-command-module=/g) ?? []).length, 16);
+  assert.equal((reactSource.match(/data-command-module=/g) ?? []).length, 16);
+  assert.match(html, /data-workspace-entry="phone_number"/);
+  assert.match(html, /data-workspace-entry="vehicle_address"/);
+  assert.match(html, /data-workspace-entry="custom_sequence"/);
+  assert.match(reactSource, /openWorkspaceEntry\("phone_number"\)/);
+  assert.match(html, /href="kangjie\.html#name-strokes"/);
   assert.equal((html.match(/function-bay-\d-v5\.webp/g) ?? []).length > 8, true);
   assert.match(html, /data-result-target="life-path"/);
   assert.match(html, /data-result-target="grid"/);
@@ -247,7 +255,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /data-personal-color-guide/);
   assert.match(reactSource, /function BirthdayColorGuide/);
   assert.match(reactSource, /data-personal-color-guide/);
-  assert.match(appSource, /from "\.\/site-services\.js\?v=20260730-reference-v10"/);
+  assert.match(appSource, /from "\.\/site-services\.js\?v=20260801-reference-v11"/);
   assert.match(reactSource, /from "\.\.\/site-services\.js"/);
   assert.match(appSource, /isIChingAccessCode/);
   assert.match(reactSource, /isIChingAccessCode/);
@@ -276,7 +284,6 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.doesNotMatch(`${html}\n${appSource}\n${reactSource}`, /科學證明|科學認證|保證改運|保證帶來/);
   assert.doesNotMatch(html, /<h2>方法與本文來源<\/h2>/);
   assert.doesNotMatch(html, /<h2 id="disclaimer-title">使用提醒<\/h2>/);
-  assert.doesNotMatch(html, /birth-orbit-b-v2\.webp/);
   assert.match(html, /<link rel="icon" href="public\/favicon\.svg"/);
   assert.match(appSource, /from "\.\/calculator-core\.js"/);
   assert.match(appSource, /from "\.\/iching-text\.js"/);
@@ -376,6 +383,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../docs/reference-v5-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v6-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v10-visual-assets.md", import.meta.url)),
+    access(new URL("../docs/reference-v11-compact-command-layout.md", import.meta.url)),
   ]);
 });
 

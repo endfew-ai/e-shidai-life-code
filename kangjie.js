@@ -192,6 +192,18 @@ function initializeMethodTabs() {
   }
 }
 
+function initializeNameStrokeDeepLink() {
+  if (location.hash !== "#name-strokes") return;
+  openPageTab("meihua", { updateHash: false });
+  activateTabs("[data-method-tab]", "[data-method-panel]", "text");
+  const textMode = document.querySelector("[data-text-mode]");
+  if (textMode) {
+    textMode.value = "surname";
+    textMode.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  document.querySelector("#workspace")?.scrollIntoView({ behavior: "auto", block: "start" });
+}
+
 function createHexagramLines(lines, texts, movingIndex = -1, mark = "") {
   const wrapper = element("div", "hexagram-lines");
   wrapper.setAttribute("aria-label", "六爻卦象與爻辭，畫面由上爻排列至初爻");
@@ -731,3 +743,4 @@ initializeCurrentTimeDetection();
 initializeAdvancedFormControls();
 initializeMeihuaForms();
 initializeHuangjiForm();
+initializeNameStrokeDeepLink();

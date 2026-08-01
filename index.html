@@ -24,8 +24,8 @@
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png" type="image/png" fetchpriority="high" />
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp" type="image/webp" fetchpriority="high" media="(min-width: 861px)" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260730-reference-v10" />
-    <script type="module" src="app.js?v=20260730-reference-v10"></script>
+    <link rel="stylesheet" href="styles.css?v=20260801-reference-v11" />
+    <script type="module" src="app.js?v=20260801-reference-v11"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -83,7 +83,7 @@
         </div>
       </nav>
 
-      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10">
+      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11">
       <div class="dashboard-lead" data-ui-region="dashboard-lead">
       <header class="hero" id="top">
         <img class="hero-art" src="public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width="1774" height="887" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -139,8 +139,8 @@
 
       <section class="dashboard-analytics" data-ui-region="desktop-analytics" aria-label="生命靈數分析總覽">
         <article class="analytics-overview">
-          <header><span>核心總覽</span><strong data-analytics-status>待分析</strong></header>
-          <div><span class="analytics-orbit" aria-hidden="true"><b data-analytics-core>－</b><em>核心</em></span><dl><div><dt>分析模式</dt><dd data-analytics-mode>生日命碼</dd></div><div><dt>資料狀態</dt><dd data-analytics-state>等待輸入</dd></div><div><dt>計算方式</dt><dd>固定規則</dd></div></dl></div>
+          <header><span>分析狀態</span><strong data-analytics-status>待分析</strong></header>
+          <div><span class="analytics-orbit" aria-hidden="true"><b>式</b><em>規則</em></span><span class="sr-only" data-analytics-core>－</span><dl><div><dt>目前模式</dt><dd data-analytics-mode>生日命碼</dd></div><div><dt>結果狀態</dt><dd data-analytics-state>等待輸入</dd></div><div><dt>計算方式</dt><dd>固定規則</dd></div></dl></div>
         </article>
         <article class="analytics-spectrum">
           <header><span data-analytics-distribution-title>數字出現次數</span><small>實際輸入 1 至 9</small></header>
@@ -157,8 +157,8 @@
           </div>
         </article>
         <article class="analytics-core-detail">
-          <header><span>核心數字</span><small>程式即時計算</small></header>
-          <div><span class="analytics-core-medal" aria-hidden="true"><b data-analytics-core-large>－</b></span><p><strong data-analytics-title>等待輸入</strong><em data-analytics-note>輸入資料後顯示可核對的核心摘要。</em></p></div>
+          <header><span>本次主要結果</span><small data-preview-label="primary">生命路徑數</small></header>
+          <div><span class="analytics-core-medal" aria-hidden="true"><b data-analytics-core-large>－</b></span><p><strong data-analytics-title>等待輸入</strong><em data-analytics-note>輸入資料後顯示主要結果與計算摘要。</em></p></div>
         </article>
         <article class="analytics-annual">
           <header><span>個人流年摘要</span><small data-analytics-year>本年度</small></header>
@@ -166,23 +166,31 @@
         </article>
       </section>
 
-      <section class="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
-        <article class="cockpit-time"><span class="cockpit-dial" aria-hidden="true"><i></i></span><div><small>台北目前時間</small><strong data-cockpit-time>--:--</strong><em data-cockpit-date>日期讀取中</em></div></article>
-        <article><span class="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>生日命碼</strong><em data-cockpit-mode-note>生命路徑、生日數與個人流年</em></div></article>
-        <article><span class="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>待分析</strong><em data-cockpit-core-note>輸入資料後即時顯示</em></div></article>
-        <article><span class="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
-        <span class="cockpit-center-seal" aria-hidden="true"><img src="public/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width="384" height="384" loading="eager" decoding="async" alt="" /><i>☯</i></span>
+      <section class="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="四項主要結果">
+        <header class="cockpit-live-rail"><span>台北 <strong data-cockpit-time>--:--</strong><em data-cockpit-date>日期讀取中</em></span><span>模式 <strong data-cockpit-mode>生日命碼</strong><em data-cockpit-mode-note>生命路徑、生日數與個人流年</em></span><span>本機安全運算</span></header>
+        <article><small data-cockpit-result-label="primary">生命路徑數</small><strong data-cockpit-result-value="primary">－</strong></article>
+        <article><small data-cockpit-result-label="secondary">生日數</small><strong data-cockpit-result-value="secondary">－</strong></article>
+        <article><small data-cockpit-result-label="tertiary">態度數</small><strong data-cockpit-result-value="tertiary">－</strong></article>
+        <article><small data-cockpit-result-label="annual">個人流年</small><strong data-cockpit-result-value="annual">－</strong></article>
       </section>
 
-      <nav class="mobile-function-atlas" aria-label="全部功能">
-        <a href="#analyzer" data-start-birthday><img src="public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>生日</strong><small>命碼</small></span></a>
-        <a href="#analyzer" data-start-birthday data-result-target="life-path"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>生命</strong><small>路徑</small></span></a>
-        <a href="#analyzer" data-quick-mode="code"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>數字</strong><small>頻譜</small></span></a>
-        <a href="#analyzer" data-start-birthday data-result-target="grid"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>九宮</strong><small>配置</small></span></a>
-        <a href="#analyzer" data-start-birthday data-result-target="annual"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>個人</strong><small>流年</small></span></a>
-        <a href="#numerology-workspace" data-workspace-target="home"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>專業</strong><small>工作台</small></span></a>
-        <a href="#method-source"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>規則</strong><small>來源</small></span></a>
-        <a href="#privacy-section"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>本機</strong><small>隱私</small></span></a>
+      <nav class="mobile-function-atlas function-command-grid" aria-label="全部功能">
+        <a data-command-module="birthday" href="#analyzer" data-start-birthday><img src="public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>生日分析</strong><small>完整結果</small></span></a>
+        <a data-command-module="life-path" href="#analyzer" data-start-birthday data-result-target="life-path"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>生命路徑</strong><small>主要數字</small></span></a>
+        <a data-command-module="spectrum" href="#analyzer" data-quick-mode="code"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>數字頻譜</strong><small>號碼分布</small></span></a>
+        <a data-command-module="lo-shu" href="#analyzer" data-start-birthday data-result-target="grid"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>九宮配置</strong><small>連線缺數</small></span></a>
+        <a data-command-module="annual" href="#analyzer" data-start-birthday data-result-target="annual"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>個人流年</strong><small>年度週期</small></span></a>
+        <a data-command-module="color" href="#analyzer" data-start-birthday data-result-target="color"><img src="public/visuals/ai-dashboard/annual-cycle-v1.webp" width="960" height="640" alt="" aria-hidden="true" /><span><strong>適合色彩</strong><small>生日對應</small></span></a>
+        <a data-command-module="iching" href="#analyzer" data-quick-mode="iching"><img src="public/visuals/ai-dashboard/reference-v2/portal-iching-v2.webp" width="512" height="512" alt="" aria-hidden="true" /><span><strong>三數取卦</strong><small>需密碼</small></span></a>
+        <a data-command-module="name-strokes" href="kangjie.html#name-strokes"><img src="public/visuals/ai-dashboard/reference-v10/name-stroke-workbench-v10.webp" width="1672" height="941" alt="" aria-hidden="true" /><span><strong>姓名筆畫</strong><small>自動查畫</small></span></a>
+        <a data-command-module="kangjie" href="kangjie.html"><img src="public/visuals/ai-dashboard/reference-v2/portal-kangjie-v2.webp" width="512" height="512" alt="" aria-hidden="true" /><span><strong>康節易學</strong><small>專業專頁</small></span></a>
+        <a data-command-module="identity" href="#numerology-workspace" data-workspace-target="identity"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>身分證命格</strong><small>獨立入口</small></span></a>
+        <a data-command-module="phone" href="#numerology-workspace" data-workspace-target="sequence" data-workspace-entry="phone_number"><img src="public/visuals/digit-spectrum-panel-b-v3.webp" width="1823" height="863" alt="" aria-hidden="true" /><span><strong>手機磁場</strong><small>滑動配對</small></span></a>
+        <a data-command-module="vehicle" href="#numerology-workspace" data-workspace-target="sequence" data-workspace-entry="vehicle_address"><img src="public/visuals/birth-orbit-b-v2.webp" width="1536" height="1024" alt="" aria-hidden="true" /><span><strong>車牌門牌</strong><small>英數轉換</small></span></a>
+        <a data-command-module="sequence" href="#numerology-workspace" data-workspace-target="sequence" data-workspace-entry="custom_sequence"><img src="public/visuals/digit-wave-b-v2.webp" width="1600" height="954" alt="" aria-hidden="true" /><span><strong>自訂序列</strong><small>其他編號</small></span></a>
+        <a data-command-module="history" href="#numerology-workspace" data-workspace-target="history"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>本機紀錄</strong><small>遮罩保存</small></span></a>
+        <a data-command-module="settings" href="#numerology-workspace" data-workspace-target="settings"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>規則設定</strong><small>版本切換</small></span></a>
+        <a data-command-module="sources" href="#numerology-workspace" data-workspace-target="sources"><img src="public/visuals/ai-dashboard/sources-library-v1.webp" width="960" height="640" alt="" aria-hidden="true" /><span><strong>規則來源</strong><small>公式界線</small></span></a>
       </nav>
 
       <section class="visual-module-rail" data-ui-region="modules" aria-labelledby="visual-module-title">

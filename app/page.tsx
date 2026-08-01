@@ -29,7 +29,7 @@ import {
 } from "../infrastructure/numerology-storage.js";
 
 type AnalysisMode = "birthday" | "code" | "iching";
-type BirthdayResultTarget = "overview" | "life-path" | "annual" | "grid";
+type BirthdayResultTarget = "overview" | "life-path" | "annual" | "grid" | "color";
 type BirthdayResult = ReturnType<typeof analyzeBirthday>;
 type CodeResult = ReturnType<typeof analyzeDigitCode>;
 type IChingResult = ReturnType<typeof calculateIChing>;
@@ -54,7 +54,7 @@ const modeContent = {
   code: {
     label: "數字頻譜",
     badge: "次要",
-    description: "任意號碼的加總、核心數與數字分布",
+    description: "任意號碼的加總、歸一數與數字分布",
     button: "分析數字頻譜",
     help: "支援全形、半形數字與空白；請勿輸入敏感資料。",
     art: "/visuals/ai-dashboard/number-wave-v1.webp",
@@ -122,20 +122,6 @@ function formatTaipeiClock(date = new Date()) {
   };
 }
 
-function getCockpitSummary(result: NumerologyResult | IChingResult | null) {
-  if (!result) return { value: "待分析", note: "輸入資料後即時顯示" };
-  if (result.kind === "birthday") {
-    return {
-      value: `生命路徑 ${result.lifePath.display}`,
-      note: `生日數 ${result.birthday.display}・${result.personalYear.year} 流年 ${result.personalYear.value}`,
-    };
-  }
-  if (result.kind === "code") {
-    return { value: `核心數 ${result.core}`, note: `${result.length} 位數・總和 ${result.sum}` };
-  }
-  return { value: result.original.name, note: `動爻 ${result.moving.name}・變卦 ${result.transformed.name}` };
-}
-
 function getDashboardAnalytics(result: NumerologyResult | IChingResult | null, mode: AnalysisMode) {
   const modeLabel = modeContent[mode].label;
   const emptyCounts = Array.from({ length: 9 }, () => 0);
@@ -146,7 +132,7 @@ function getDashboardAnalytics(result: NumerologyResult | IChingResult | null, m
       state: "等待輸入",
       core: "－",
       title: "等待輸入",
-      note: "輸入資料後顯示可核對的核心摘要。",
+      note: "輸入資料後顯示主要結果與計算摘要。",
       counts: emptyCounts,
       distributionTitle: "數字出現次數",
       annual: "－",
@@ -183,7 +169,7 @@ function getDashboardAnalytics(result: NumerologyResult | IChingResult | null, m
       modeLabel,
       state: `${result.length} 位數字`,
       core: String(result.core),
-      title: profiles[result.profileNumber]?.title ?? "數字核心",
+      title: profiles[result.profileNumber]?.title ?? "數字歸一結果",
       note: `實際總和 ${result.sum}，未出現 ${result.missing.length} 個數字`,
       counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
       distributionTitle: "數字出現次數",
@@ -192,7 +178,7 @@ function getDashboardAnalytics(result: NumerologyResult | IChingResult | null, m
       annualNote: "此模式只分析輸入數字，不推算個人流年。",
       annualLabel: "模式狀態",
       annualYear: "本年度",
-      previewLabels: ["核心數", "數字總和", "輸入位數", "最常出現"],
+      previewLabels: ["號碼歸一數", "數字總和", "輸入位數", "最常出現"],
       previewValues: [String(result.core), String(result.sum), String(result.length), result.strongest.join("、") || "無"],
     };
   }
@@ -687,6 +673,7 @@ export default function Home() {
         "life-path": "#result-life-path",
         annual: "#result-annual-cycle",
         grid: "#result-nine-grid",
+        color: "#color-guide-title",
       }[resultTarget];
       const target = document.querySelector<HTMLElement>(targetSelector) ?? resultRef.current;
       if (target instanceof HTMLDetailsElement) target.open = true;
@@ -744,8 +731,17 @@ export default function Home() {
     };
   }
 
+  function openWorkspaceEntry(entry: "phone_number" | "vehicle_address" | "custom_sequence") {
+    return (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      const entryButton = document.querySelector<HTMLButtonElement>(`[data-entry="${entry}"]`);
+      if (entryButton) entryButton.click();
+      else document.querySelector<HTMLButtonElement>('[data-workspace-tab="sequence"]')?.click();
+      if (window.location.hash !== "#numerology-workspace") window.history.pushState(null, "", "#numerology-workspace");
+    };
+  }
+
   const hasValue = mode === "birthday" ? Boolean(birthday) : mode === "code" ? Boolean(numberCode) : ichingValues.some(Boolean);
-  const cockpitSummary = getCockpitSummary(result);
   const analyticsView = getDashboardAnalytics(result, mode);
   const maximumDigitCount = Math.max(0, ...analyticsView.counts);
 
@@ -808,7 +804,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -860,8 +856,8 @@ export default function Home() {
 
       <section className="dashboard-analytics" data-ui-region="desktop-analytics" aria-label="生命靈數分析總覽">
         <article className="analytics-overview">
-          <header><span>核心總覽</span><strong data-analytics-status>{analyticsView.status}</strong></header>
-          <div><span className="analytics-orbit" aria-hidden="true"><b data-analytics-core>{analyticsView.core}</b><em>核心</em></span><dl><div><dt>分析模式</dt><dd data-analytics-mode>{analyticsView.modeLabel}</dd></div><div><dt>資料狀態</dt><dd data-analytics-state>{analyticsView.state}</dd></div><div><dt>計算方式</dt><dd>固定規則</dd></div></dl></div>
+          <header><span>分析狀態</span><strong data-analytics-status>{analyticsView.status}</strong></header>
+          <div><span className="analytics-orbit" aria-hidden="true"><b>式</b><em>規則</em></span><span className="sr-only" data-analytics-core>{analyticsView.core}</span><dl><div><dt>目前模式</dt><dd data-analytics-mode>{analyticsView.modeLabel}</dd></div><div><dt>結果狀態</dt><dd data-analytics-state>{analyticsView.state}</dd></div><div><dt>計算方式</dt><dd>固定規則</dd></div></dl></div>
         </article>
         <article className="analytics-spectrum">
           <header><span data-analytics-distribution-title>{analyticsView.distributionTitle}</span><small>實際輸入 1 至 9</small></header>
@@ -873,7 +869,7 @@ export default function Home() {
           </div>
         </article>
         <article className="analytics-core-detail">
-          <header><span>核心數字</span><small>程式即時計算</small></header>
+          <header><span>本次主要結果</span><small data-preview-label="primary">{analyticsView.previewLabels[0]}</small></header>
           <div><span className="analytics-core-medal" aria-hidden="true"><b data-analytics-core-large>{analyticsView.core}</b></span><p><strong data-analytics-title>{analyticsView.title}</strong><em data-analytics-note>{analyticsView.note}</em></p></div>
         </article>
         <article className="analytics-annual">
@@ -882,23 +878,28 @@ export default function Home() {
         </article>
       </section>
 
-      <section className="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="即時分析摘要">
-        <article className="cockpit-time"><span className="cockpit-dial" aria-hidden="true"><i /></span><div><small>台北目前時間</small><strong data-cockpit-time>{cockpitClock.time}</strong><em data-cockpit-date>{cockpitClock.date}</em></div></article>
-        <article><span className="cockpit-mark" aria-hidden="true">式</span><div><small>目前分析模式</small><strong data-cockpit-mode>{modeContent[mode].label}</strong><em data-cockpit-mode-note>{modeContent[mode].description}</em></div></article>
-        <article><span className="cockpit-mark" aria-hidden="true">核</span><div><small>核心摘要</small><strong data-cockpit-core>{cockpitSummary.value}</strong><em data-cockpit-core-note>{cockpitSummary.note}</em></div></article>
-        <article><span className="cockpit-mark" aria-hidden="true">安</span><div><small>資料處理</small><strong>只在本機</strong><em>分析輸入不送往服務</em></div></article>
-        <span className="cockpit-center-seal" aria-hidden="true"><img src="/visuals/ai-dashboard/reference-v2/cockpit-seal-frame-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" /><i>☯</i></span>
+      <section className="trust-rail cockpit-status" data-ui-region="cockpit" aria-label="四項主要結果">
+        <header className="cockpit-live-rail"><span>台北 <strong data-cockpit-time>{cockpitClock.time}</strong><em data-cockpit-date>{cockpitClock.date}</em></span><span>模式 <strong data-cockpit-mode>{modeContent[mode].label}</strong><em data-cockpit-mode-note>{modeContent[mode].description}</em></span><span>本機安全運算</span></header>
+        {(["primary", "secondary", "tertiary", "annual"] as const).map((key, index) => <article key={key}><small data-cockpit-result-label={key}>{analyticsView.previewLabels[index]}</small><strong data-cockpit-result-value={key}>{analyticsView.previewValues[index]}</strong></article>)}
       </section>
 
-      <nav className="mobile-function-atlas" aria-label="全部功能">
-        <a href="#analyzer" onClick={startBirthdayAnalysis}><img src="/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>生日</strong><small>命碼</small></span></a>
-        <a href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "life-path")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>生命</strong><small>路徑</small></span></a>
-        <a href="#analyzer" onClick={() => requestMode("code")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>數字</strong><small>頻譜</small></span></a>
-        <a href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "grid")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>九宮</strong><small>配置</small></span></a>
-        <a href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "annual")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>個人</strong><small>流年</small></span></a>
-        <a href="#numerology-workspace" onClick={openWorkspace("home")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>專業</strong><small>工作台</small></span></a>
-        <a href="#method-source"><img src="/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>規則</strong><small>來源</small></span></a>
-        <a href="#privacy-section"><img src="/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>本機</strong><small>隱私</small></span></a>
+      <nav className="mobile-function-atlas function-command-grid" aria-label="全部功能">
+        <a data-command-module="birthday" href="#analyzer" onClick={startBirthdayAnalysis}><img src="/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>生日分析</strong><small>完整結果</small></span></a>
+        <a data-command-module="life-path" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "life-path")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>生命路徑</strong><small>主要數字</small></span></a>
+        <a data-command-module="spectrum" href="#analyzer" onClick={() => requestMode("code")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>數字頻譜</strong><small>號碼分布</small></span></a>
+        <a data-command-module="lo-shu" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "grid")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>九宮配置</strong><small>連線缺數</small></span></a>
+        <a data-command-module="annual" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "annual")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>個人流年</strong><small>年度週期</small></span></a>
+        <a data-command-module="color" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "color")}><img src="/visuals/ai-dashboard/annual-cycle-v1.webp" width={960} height={640} alt="" aria-hidden="true" /><span><strong>適合色彩</strong><small>生日對應</small></span></a>
+        <a data-command-module="iching" href="#analyzer" onClick={() => requestMode("iching")}><img src="/visuals/ai-dashboard/reference-v2/portal-iching-v2.webp" width={512} height={512} alt="" aria-hidden="true" /><span><strong>三數取卦</strong><small>需密碼</small></span></a>
+        <a data-command-module="name-strokes" href="/kangjie#name-strokes"><img src="/visuals/ai-dashboard/reference-v10/name-stroke-workbench-v10.webp" width={1672} height={941} alt="" aria-hidden="true" /><span><strong>姓名筆畫</strong><small>自動查畫</small></span></a>
+        <a data-command-module="kangjie" href="/kangjie"><img src="/visuals/ai-dashboard/reference-v2/portal-kangjie-v2.webp" width={512} height={512} alt="" aria-hidden="true" /><span><strong>康節易學</strong><small>專業專頁</small></span></a>
+        <a data-command-module="identity" href="#numerology-workspace" onClick={openWorkspace("identity")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>身分證命格</strong><small>獨立入口</small></span></a>
+        <a data-command-module="phone" href="#numerology-workspace" onClick={openWorkspaceEntry("phone_number")}><img src="/visuals/digit-spectrum-panel-b-v3.webp" width={1823} height={863} alt="" aria-hidden="true" /><span><strong>手機磁場</strong><small>滑動配對</small></span></a>
+        <a data-command-module="vehicle" href="#numerology-workspace" onClick={openWorkspaceEntry("vehicle_address")}><img src="/visuals/birth-orbit-b-v2.webp" width={1536} height={1024} alt="" aria-hidden="true" /><span><strong>車牌門牌</strong><small>英數轉換</small></span></a>
+        <a data-command-module="sequence" href="#numerology-workspace" onClick={openWorkspaceEntry("custom_sequence")}><img src="/visuals/digit-wave-b-v2.webp" width={1600} height={954} alt="" aria-hidden="true" /><span><strong>自訂序列</strong><small>其他編號</small></span></a>
+        <a data-command-module="history" href="#numerology-workspace" onClick={openWorkspace("history")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>本機紀錄</strong><small>遮罩保存</small></span></a>
+        <a data-command-module="settings" href="#numerology-workspace" onClick={openWorkspace("settings")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>規則設定</strong><small>版本切換</small></span></a>
+        <a data-command-module="sources" href="#numerology-workspace" onClick={openWorkspace("sources")}><img src="/visuals/ai-dashboard/sources-library-v1.webp" width={960} height={640} alt="" aria-hidden="true" /><span><strong>規則來源</strong><small>公式界線</small></span></a>
       </nav>
 
       <section className="visual-module-rail" data-ui-region="modules" aria-labelledby="visual-module-title">

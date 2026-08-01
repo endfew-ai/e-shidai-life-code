@@ -15,7 +15,7 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
-} from "./site-services.js?v=20260730-reference-v10";
+} from "./site-services.js?v=20260801-reference-v11";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
 import {
@@ -38,7 +38,7 @@ const modeContent = {
   },
   code: {
     label: "數字頻譜",
-    description: "任意號碼的加總、核心數與數字分布",
+    description: "任意號碼的加總、歸一數與數字分布",
     button: "分析數字頻譜",
     help: "支援全形、半形數字與空白；請勿輸入敏感資料。",
     art: "public/visuals/ai-dashboard/number-wave-v1.webp",
@@ -74,7 +74,7 @@ function dashboardAnalytics(result, mode = "birthday") {
       state: "等待輸入",
       core: "－",
       title: "等待輸入",
-      note: "輸入資料後顯示可核對的核心摘要。",
+      note: "輸入資料後顯示主要結果與計算摘要。",
       counts: emptyCounts,
       distributionTitle: "數字出現次數",
       annual: "－",
@@ -110,7 +110,7 @@ function dashboardAnalytics(result, mode = "birthday") {
       modeLabel,
       state: `${result.length} 位數字`,
       core: String(result.core),
-      title: profiles[result.profileNumber]?.title ?? "數字核心",
+      title: profiles[result.profileNumber]?.title ?? "數字歸一結果",
       note: `實際總和 ${result.sum}，未出現 ${result.missing.length} 個數字`,
       counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
       distributionTitle: "數字出現次數",
@@ -118,7 +118,7 @@ function dashboardAnalytics(result, mode = "birthday") {
       annualTitle: "數字頻譜模式",
       annualNote: "此模式只分析輸入數字，不推算個人流年。",
       preview: {
-        labels: ["核心數", "數字總和", "輸入位數", "最常出現"],
+        labels: ["號碼歸一數", "數字總和", "輸入位數", "最常出現"],
         values: [String(result.core), String(result.sum), String(result.length), result.strongest.join("、") || "無"],
       },
     };
@@ -786,6 +786,8 @@ function initializeAnalyzer() {
     ["primary", "secondary", "tertiary", "annual"].forEach((key, index) => {
       setText(`[data-preview-label="${key}"]`, view.preview.labels[index]);
       setText(`[data-preview-value="${key}"]`, view.preview.values[index]);
+      setText(`[data-cockpit-result-label="${key}"]`, view.preview.labels[index]);
+      setText(`[data-cockpit-result-value="${key}"]`, view.preview.values[index]);
     });
 
     const maximum = Math.max(0, ...view.counts);
@@ -816,6 +818,7 @@ function initializeAnalyzer() {
         "life-path": "#result-life-path",
         annual: "#result-annual-cycle",
         grid: "#result-nine-grid",
+        color: "#color-guide-title",
       }[resultTarget];
       const target = document.querySelector(targetSelector) ?? resultAnchor;
       if (target instanceof HTMLDetailsElement) target.open = true;
@@ -1102,9 +1105,12 @@ function initializeWorkspaceLinks(workspaceRoot) {
     link.addEventListener("click", (event) => {
       const target = link.dataset.workspaceTarget;
       const tab = workspaceRoot.querySelector(`[data-workspace-tab="${target}"]`);
-      if (!tab) return;
+      const entry = link.dataset.workspaceEntry;
+      const entryButton = entry ? workspaceRoot.querySelector(`[data-entry="${entry}"]`) : null;
+      if (!tab && !entryButton) return;
       event.preventDefault();
-      tab.click();
+      if (entryButton) entryButton.click();
+      else tab.click();
       if (window.location.hash !== "#numerology-workspace") window.history.pushState(null, "", "#numerology-workspace");
     });
   }
