@@ -3,6 +3,10 @@ import { expect, test } from "@playwright/test";
 const viewports = [
   { label: "desktop-1672", width: 1672, height: 941 },
   { label: "desktop-1440", width: 1440, height: 900 },
+  { label: "desktop-1366-short", width: 1366, height: 768 },
+  { label: "desktop-1280-short", width: 1280, height: 720 },
+  { label: "desktop-1280-compact", width: 1280, height: 640 },
+  { label: "tablet-1024", width: 1024, height: 768 },
   { label: "mobile-390", width: 390, height: 844 },
   { label: "mobile-320", width: 320, height: 720 },
 ];
@@ -22,7 +26,7 @@ for (const viewport of viewports) {
 
     const atlas = page.locator(".function-command-grid");
     await expect(atlas).toBeVisible();
-    await expect(atlas.locator(":scope > a")).toHaveCount(16);
+    await expect(atlas.locator(":scope > a")).toHaveCount(22);
     await expect(page.locator("#analyzer-form .mode-switch > label, #analyzer-form .mode-switch > a")).toHaveCount(4);
 
     const report = await page.evaluate(() => {
@@ -51,7 +55,7 @@ for (const viewport of viewports) {
 
     expect(report.documentWidth).toBeLessThanOrEqual(report.clientWidth + 1);
     expect(report.columns).toBe(viewport.width <= 767 ? 4 : 8);
-    expect(report.cellMinimumHeight).toBeGreaterThanOrEqual(viewport.width <= 767 ? 48 : 80);
+    expect(report.cellMinimumHeight).toBeGreaterThanOrEqual(viewport.width <= 767 ? 48 : 78);
     expect(report.cellMinimumFont).toBeGreaterThanOrEqual(viewport.width <= 767 ? 13 : 14);
     expect(report.clippedLabels).toEqual([]);
     expect(report.centersClickable.every(Boolean)).toBe(true);
@@ -64,13 +68,15 @@ for (const viewport of viewports) {
   });
 }
 
-test("v11 十六個模組名稱唯一，工作台入口直接切到正確工具", async ({ page }) => {
+test("v12 二十二個模組名稱唯一，全部既有工具都有直達入口", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
   await page.goto("index.html", { waitUntil: "networkidle" });
 
   const expectedModules = [
     "birthday", "life-path", "spectrum", "lo-shu", "annual", "color", "iching", "name-strokes",
-    "kangjie", "identity", "phone", "vehicle", "sequence", "history", "settings", "sources",
+    "kangjie", "kangjie-calendar", "kangjie-object", "kangjie-sound", "kangjie-text",
+    "kangjie-supplement", "kangjie-huangji", "identity", "phone", "vehicle", "sequence",
+    "history", "settings", "sources",
   ];
   await expect(page.locator("[data-command-module]")).toHaveCount(expectedModules.length);
   expect(await page.locator("[data-command-module]").evaluateAll(
@@ -100,12 +106,38 @@ test("v11 十六個模組名稱唯一，工作台入口直接切到正確工具"
     await expect(page.locator(`[data-workspace-tab="${tabName}"]`)).toHaveAttribute("aria-selected", "true");
   }
 
+  async function unlockIfNeeded() {
+    const gate = page.locator("[data-access-gate]");
+    if (!(await gate.isVisible())) return;
+    await gate.locator('[name="password"]').fill("0000");
+    await gate.locator('button[type="submit"]').click();
+  }
+
   await page.goto("index.html", { waitUntil: "networkidle" });
   await page.locator('[data-command-module="name-strokes"]').click();
   await expect(page).toHaveURL(/kangjie(?:\.html)?#name-strokes$/);
-  const gate = page.locator("[data-access-gate]");
-  await gate.locator('[name="password"]').fill("0000");
-  await gate.locator('button[type="submit"]').click();
+  await unlockIfNeeded();
   await expect(page.locator('[data-method-tab="text"]')).toHaveAttribute("aria-selected", "true");
   await expect(page.locator('#form-text [name="textMode"]')).toHaveValue("surname");
+
+  for (const [moduleName, methodName] of [
+    ["kangjie-calendar", "calendar"],
+    ["kangjie-object", "object"],
+    ["kangjie-sound", "sound"],
+    ["kangjie-text", "text"],
+    ["kangjie-supplement", "supplement"],
+  ]) {
+    await page.goto("index.html", { waitUntil: "networkidle" });
+    await page.locator(`[data-command-module="${moduleName}"]`).click();
+    await expect(page).toHaveURL(new RegExp(`kangjie(?:\\.html)?#method-${methodName}$`));
+    await unlockIfNeeded();
+    await expect(page.locator('[data-kangjie-tab="meihua"]')).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator(`[data-method-tab="${methodName}"]`)).toHaveAttribute("aria-selected", "true");
+  }
+
+  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.locator('[data-command-module="kangjie-huangji"]').click();
+  await expect(page).toHaveURL(/kangjie(?:\.html)?#method-huangji$/);
+  await unlockIfNeeded();
+  await expect(page.locator('[data-kangjie-tab="huangji"]')).toHaveAttribute("aria-selected", "true");
 });

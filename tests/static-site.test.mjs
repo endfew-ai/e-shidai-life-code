@@ -194,13 +194,26 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(reactSource, /className="support-module-grid"/);
   assert.match(html, /class="mobile-function-atlas function-command-grid"/);
   assert.match(reactSource, /className="mobile-function-atlas function-command-grid"/);
-  assert.equal((html.match(/data-command-module=/g) ?? []).length, 16);
-  assert.equal((reactSource.match(/data-command-module=/g) ?? []).length, 16);
+  assert.equal((html.match(/data-command-module=/g) ?? []).length, 22);
+  assert.equal((reactSource.match(/data-command-module=/g) ?? []).length, 22);
+  for (const moduleId of [
+    "kangjie-calendar", "kangjie-object", "kangjie-sound",
+    "kangjie-text", "kangjie-supplement", "kangjie-huangji",
+  ]) {
+    assert.match(html, new RegExp(`data-command-module="${moduleId}"`));
+    assert.match(reactSource, new RegExp(`data-command-module="${moduleId}"`));
+  }
+  for (const asset of ["calendar", "object", "sound", "text", "supplement", "huangji"]) {
+    assert.match(html, new RegExp(`reference-v12/kangjie-${asset}-v12\\.webp`));
+    assert.match(reactSource, new RegExp(`reference-v12/kangjie-${asset}-v12\\.webp`));
+  }
   assert.match(html, /data-workspace-entry="phone_number"/);
   assert.match(html, /data-workspace-entry="vehicle_address"/);
   assert.match(html, /data-workspace-entry="custom_sequence"/);
   assert.match(reactSource, /openWorkspaceEntry\("phone_number"\)/);
   assert.match(html, /href="kangjie\.html#name-strokes"/);
+  assert.match(html, /href="kangjie\.html#method-calendar"/);
+  assert.match(html, /href="kangjie\.html#method-huangji"/);
   assert.equal((html.match(/function-bay-\d-v5\.webp/g) ?? []).length > 8, true);
   assert.match(html, /data-result-target="life-path"/);
   assert.match(html, /data-result-target="grid"/);

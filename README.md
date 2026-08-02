@@ -28,6 +28,7 @@ https://endfew-ai.github.io/e-shidai-life-code/kangjie.html
 - 動態算出的卦名、數值、年份與公式保留為可選取的真實文字，避免 AI 假字及資料失真。
 - 桌機與手機共用同一個高密度工作台；主頁四個入口在手機採 2×2 排列，完整長文採原生可展開區塊。
 - 參考圖反推母提示詞與各模組 Image2 提示詞收錄在 [`AI_MODULE_PROMPTS.md`](AI_MODULE_PROMPTS.md)。
+- 22 個直達入口、六張康節 AI 模組圖與跨尺寸驗收規則收錄在 [`docs/reference-v12-complete-command-layout.md`](docs/reference-v12-complete-command-layout.md)。
 
 ## 隱私與使用方式
 

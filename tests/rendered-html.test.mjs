@@ -34,7 +34,13 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /解碼生命・掌握命運/);
   assert.match(html, /reference-v4\/hero-title-calligraphy-v4\.png/);
   assert.match(html, /class="mobile-function-atlas function-command-grid"/);
-  assert.equal((html.match(/data-command-module=/g) ?? []).length, 16);
+  assert.equal((html.match(/data-command-module=/g) ?? []).length, 22);
+  assert.match(html, /年月日時/);
+  assert.match(html, /物數起卦/);
+  assert.match(html, /聲音起卦/);
+  assert.match(html, /字占姓名/);
+  assert.match(html, /古例補充/);
+  assert.match(html, /元會運世/);
   assert.match(html, /看見你的/);
   assert.match(html, /數字軌跡/);
   assert.match(html, /Cheiro 原書色彩章/);

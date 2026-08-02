@@ -192,14 +192,29 @@ function initializeMethodTabs() {
   }
 }
 
-function initializeNameStrokeDeepLink() {
-  if (location.hash !== "#name-strokes") return;
-  openPageTab("meihua", { updateHash: false });
-  activateTabs("[data-method-tab]", "[data-method-panel]", "text");
-  const textMode = document.querySelector("[data-text-mode]");
-  if (textMode) {
-    textMode.value = "surname";
-    textMode.dispatchEvent(new Event("change", { bubbles: true }));
+function initializeMethodDeepLink() {
+  const methodByHash = {
+    "#method-calendar": "calendar",
+    "#method-object": "object",
+    "#method-sound": "sound",
+    "#method-text": "text",
+    "#method-supplement": "supplement",
+  };
+  const method = methodByHash[location.hash];
+  if (location.hash === "#method-huangji") {
+    openPageTab("huangji", { updateHash: false });
+  } else if (location.hash === "#name-strokes" || method) {
+    openPageTab("meihua", { updateHash: false });
+    activateTabs("[data-method-tab]", "[data-method-panel]", method || "text");
+    if (location.hash === "#name-strokes") {
+      const textMode = document.querySelector("[data-text-mode]");
+      if (textMode) {
+        textMode.value = "surname";
+        textMode.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+  } else {
+    return;
   }
   document.querySelector("#workspace")?.scrollIntoView({ behavior: "auto", block: "start" });
 }
@@ -743,4 +758,4 @@ initializeCurrentTimeDetection();
 initializeAdvancedFormControls();
 initializeMeihuaForms();
 initializeHuangjiForm();
-initializeNameStrokeDeepLink();
+initializeMethodDeepLink();

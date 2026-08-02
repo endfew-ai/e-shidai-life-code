@@ -265,3 +265,26 @@ Deep jade-and-antique-brass astrolabe lock on a low pedestal, closed mechanical 
 ```
 
 四張圖只作卡片底景。流年數字、工作台狀態、來源連結、隱私說明及所有按鈕皆由可存取 HTML 呈現。
+
+## 模組 14：康節六大方法直達圖
+
+2026-08 單畫面控制台新增六張 1:1 專用圖。使用內建 ImageGen 產生原始 PNG，再轉為 768×768、WebP 品質 82；原始生成檔保留，不覆蓋舊素材。
+
+共同提示詞：
+
+```text
+Square responsive dashboard module art, ultra-detailed cinematic 3D illustration, ancient Chinese bronze craftsmanship fused with restrained futuristic instrument design. Deep black-jade observatory panel, oxidized dark green, aged brass and muted gold; subtle teal inner glow and warm rim light. Keep one centered instrument entirely inside the middle 68% safe area with generous dark margins, readable when cropped into a small card. No text, letters, numerals, Chinese characters, calligraphy, logo, watermark, human figure or UI screenshot. Avoid bright neon, purple, glossy game-icon styling, busy corners and excessive bloom.
+```
+
+各圖主體提示：
+
+```text
+年月日時：lunar calendar wheel, four seasonal gates, twelve subtle unlabeled orbital nodes, central time dial.
+物數起卦：bronze counting tokens, eight-position ring, small balanced mechanical pointer.
+聲音起卦：two concentric resonance chambers, visible wave rings, suspended bronze tuning sphere, eight radial sensors; no music-note or equalizer cliché.
+字占姓名：unopened dark scroll, suspended calligraphy brush, luminous segmented brush-stroke paths, precise counting ring; the scroll must contain no writing.
+古例補充：bronze ruler, nested compass, directional sight, proportional rods, calm central jade lens; unified instrument rather than scattered objects.
+元會運世：four clearly nested cosmic chronology rings, thirty subtle nodes, central dark-jade sphere, golden epoch pointer; no clock-face numbers or zodiac symbols.
+```
+
+網站輸出位於 `public/visuals/ai-dashboard/reference-v12/`，對應清單及跨尺寸規則見 `docs/reference-v12-complete-command-layout.md`。

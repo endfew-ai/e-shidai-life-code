@@ -153,11 +153,24 @@ export default function KangjiePage() {
   const [currentTime, setCurrentTime] = useState<CurrentCalendarParts | null>(null);
 
   useEffect(() => {
-    if (window.location.hash !== "#name-strokes") return;
+    const hash = window.location.hash;
+    const methodByHash: Partial<Record<string, MethodTab>> = {
+      "#method-calendar": "calendar",
+      "#method-object": "object",
+      "#method-sound": "sound",
+      "#method-text": "text",
+      "#method-supplement": "supplement",
+    };
+    const deepLinkedMethod = methodByHash[hash];
+    if (hash !== "#name-strokes" && hash !== "#method-huangji" && !deepLinkedMethod) return;
     const timer = window.setTimeout(() => {
+      if (hash === "#method-huangji") {
+        setPageTab("huangji");
+        return;
+      }
       setPageTab("meihua");
-      setMethod("text");
-      setTextMode("surname");
+      setMethod(deepLinkedMethod || "text");
+      if (hash === "#name-strokes") setTextMode("surname");
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);

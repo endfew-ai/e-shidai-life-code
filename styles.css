@@ -9289,7 +9289,7 @@ body:has([data-ui="xuanxing-aaa"]) {
     display: grid;
     gap: 5px;
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     margin: 0;
     min-height: 0;
     padding: 0;
@@ -9617,9 +9617,9 @@ body:has([data-ui="xuanxing-aaa"]) {
     gap: 4px;
     grid-auto-rows: minmax(82px, 1fr);
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(82px, 1fr));
+    grid-template-rows: repeat(3, minmax(82px, 1fr));
     margin: 0;
-    min-height: 168px;
+    min-height: 254px;
     padding: 0;
   }
 
@@ -9641,4 +9641,91 @@ body:has([data-ui="xuanxing-aaa"]) {
 .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .iching-input,
 .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .analyze-submit {
   min-height: 44px;
+}
+
+/* v12: every primary tool is visible, including the six Kangjie method families. */
+@media (min-width: 1181px) and (max-height: 800px) {
+  .dashboard-home-screen.reference-v10.reference-v11 {
+    grid-template-rows:
+      minmax(220px, 40fr)
+      minmax(80px, 15fr)
+      minmax(180px, 45fr);
+    min-height: 0;
+  }
+
+  [data-ui="xuanxing-aaa"] > .dashboard-sidebar {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .analyzer-card {
+    grid-template-rows: 48px minmax(70px, 1fr) 58px 24px;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .mode-switch,
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .mode-switch label,
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .mode-switch .kangjie-mode-entry {
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .mode-workbench {
+    grid-template-rows: 28px minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .mode-art {
+    height: 28px;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .desktop-result-preview {
+    grid-template-rows: 20px minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .method-strip,
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead .method-strip li {
+    height: 24px;
+    min-height: 24px;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 > .function-command-grid > a {
+    padding: 5px 7px;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 > .function-command-grid strong {
+    font-size: 15px;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 > .function-command-grid small {
+    display: none;
+  }
+}
+
+@media (min-width: 1181px) and (max-height: 680px) {
+  [data-ui="xuanxing-aaa"] > .dashboard-sidebar .sidebar-start-guide {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v10.reference-v11 .hero-proof {
+    display: none;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1180px) {
+  .dashboard-home-screen.reference-v10.reference-v11 .dashboard-lead {
+    grid-template-areas: "hero analyzer";
+    grid-template-rows: 250px;
+  }
+}
+
+@media (min-width: 768px) {
+  .dashboard-home-screen.reference-v10.reference-v11 > .function-command-grid > a:nth-child(17) {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-home-screen.reference-v10.reference-v11 > .function-command-grid > a:nth-child(21) {
+    grid-column: 2;
+  }
 }
