@@ -15,6 +15,7 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
+  VISIT_COUNTER_VERIFIED_MINIMUM,
 } from "./site-services.js?v=20260802-reference-v13";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
@@ -1136,16 +1137,33 @@ function initializeVisitCounter() {
   const output = document.querySelector("[data-visit-count]");
   if (!container || !output) return;
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), VISIT_COUNTER_TIMEOUT_MS);
-  loadCumulativeVisitCount({ signal: controller.signal })
-    .then(({ value }) => {
-      const formatted = new Intl.NumberFormat("zh-TW").format(value);
-      output.textContent = formatted;
-      container.dataset.state = "ready";
-      container.setAttribute("aria-label", `累積造訪 ${formatted} 次`);
-      container.title = "累積造訪次數；同一瀏覽器分頁重新整理不重複累加";
-    })
+  let timedOut = false;
+  const timeout = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, VISIT_COUNTER_TIMEOUT_MS);
+  const renderCount = (value, fallback = false) => {
+    const formatted = new Intl.NumberFormat("zh-TW").format(value);
+    output.textContent = fallback ? `${formatted}+` : formatted;
+    container.dataset.state = "ready";
+    container.dataset.quality = fallback ? "verified-minimum" : "live";
+    container.setAttribute("aria-label", fallback
+      ? `累積造訪至少 ${formatted} 次`
+      : `累積造訪 ${formatted} 次`);
+    container.title = fallback
+      ? "計數服務暫時無法讀取；目前顯示發佈前已驗證的最低累積值"
+      : "累積造訪次數；同一瀏覽器分頁重新整理不重複累加";
+  };
+  loadCumulativeVisitCount({
+    signal: controller.signal,
+    fallbackMinimum: VISIT_COUNTER_VERIFIED_MINIMUM,
+  })
+    .then(({ value, fallback }) => renderCount(value, fallback))
     .catch(() => {
+      if (timedOut) {
+        renderCount(VISIT_COUNTER_VERIFIED_MINIMUM, true);
+        return;
+      }
       output.textContent = "--";
       container.dataset.state = "unavailable";
       container.setAttribute("aria-label", "累積造訪次數暫時無法讀取");

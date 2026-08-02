@@ -2,6 +2,7 @@ export const ICHING_ACCESS_CODE: "0000";
 export const ICHING_ACCESS_SESSION_KEY: string;
 export const VISIT_COUNTER_SESSION_KEY: string;
 export const VISIT_COUNTER_ENDPOINT: string;
+export const VISIT_COUNTER_VERIFIED_MINIMUM: number;
 export const VISIT_COUNTER_INCREMENT_TIMEOUT_MS: number;
 export const VISIT_COUNTER_TIMEOUT_MS: number;
 
@@ -11,10 +12,13 @@ export type VisitCounterOptions = {
   sessionStore?: SessionStore | null;
   signal?: AbortSignal;
   incrementTimeoutMs?: number;
+  fallbackMinimum?: number | null;
 };
 
 export function isIChingAccessCode(value: unknown): boolean;
 export function hasIChingAccess(sessionStore?: SessionStore | null): boolean;
 export function rememberIChingAccess(sessionStore?: SessionStore | null): boolean;
 export function parseVisitCount(payload: unknown): number;
-export function loadCumulativeVisitCount(options?: VisitCounterOptions): Promise<{ value: number; incremented: boolean }>;
+export function loadCumulativeVisitCount(options?: VisitCounterOptions): Promise<
+  { value: number; incremented: boolean; fallback?: true }
+>;

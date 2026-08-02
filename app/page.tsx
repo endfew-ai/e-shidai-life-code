@@ -19,6 +19,7 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
+  VISIT_COUNTER_VERIFIED_MINIMUM,
 } from "../site-services.js";
 import { analyzeBirthdayV2 } from "../application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "../application/advanced-workspace.js";
@@ -570,6 +571,7 @@ export default function Home() {
   const [accessMessage, setAccessMessage] = useState("");
   const [visitCount, setVisitCount] = useState("讀取中");
   const [visitState, setVisitState] = useState<"loading" | "ready" | "unavailable">("loading");
+  const [visitFallback, setVisitFallback] = useState(false);
   const [cockpitClock, setCockpitClock] = useState({ time: "--:--", date: "台北時間" });
   const resultRef = useRef<HTMLDivElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
@@ -591,18 +593,35 @@ export default function Home() {
 
   useEffect(() => {
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), VISIT_COUNTER_TIMEOUT_MS);
-    loadCumulativeVisitCount({ signal: controller.signal })
-      .then(({ value }) => {
+    let active = true;
+    let timedOut = false;
+    const timeout = window.setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, VISIT_COUNTER_TIMEOUT_MS);
+    loadCumulativeVisitCount({
+      signal: controller.signal,
+      fallbackMinimum: VISIT_COUNTER_VERIFIED_MINIMUM,
+    })
+      .then(({ value, fallback }) => {
+        if (!active) return;
         setVisitCount(new Intl.NumberFormat("zh-TW").format(value));
+        setVisitFallback(Boolean(fallback));
         setVisitState("ready");
       })
       .catch(() => {
+        if (!active) return;
+        if (timedOut) {
+          setVisitCount(new Intl.NumberFormat("zh-TW").format(VISIT_COUNTER_VERIFIED_MINIMUM));
+          setVisitFallback(true);
+          setVisitState("ready");
+          return;
+        }
         setVisitCount("--");
         setVisitState("unavailable");
       })
       .finally(() => window.clearTimeout(timeout));
-    return () => { controller.abort(); window.clearTimeout(timeout); };
+    return () => { active = false; controller.abort(); window.clearTimeout(timeout); };
   }, []);
 
   useEffect(() => {
@@ -831,7 +850,7 @@ export default function Home() {
           <a href="#numerology-workspace" onClick={openWorkspace("home")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span>專業工作台</span></a>
           <a href="#method-source"><img src="/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span>規則來源</span></a>
           <a href="#privacy-section"><img src="/visuals/ai-dashboard/reference-v13/identity-verification-v13.webp" width={768} height={768} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>本機隱私</span></a>
-          <p className="visit-counter" data-visit-counter data-state={visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"}><span>累積造訪</span><strong data-visit-count>{visitCount}</strong><small>次</small></p>
+          <p className="visit-counter" data-visit-counter data-state={visitState} data-quality={visitFallback ? "verified-minimum" : "live"} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? visitFallback ? `累積造訪至少 ${visitCount} 次` : `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"} title={visitFallback ? "計數服務暫時無法讀取；目前顯示發佈前已驗證的最低累積值" : "累積造訪次數；同一瀏覽器分頁重新整理不重複累加"}><span>累積造訪</span><strong data-visit-count>{visitCount}{visitFallback ? "+" : ""}</strong><small>次</small></p>
         </div>
       </nav>
 

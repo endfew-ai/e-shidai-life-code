@@ -123,6 +123,23 @@ export type BirthdayAnalysis = {
       readonly masterNumberMode: "disabled";
     };
   };
+  personalMonth: {
+    targetDate: string;
+    year: number;
+    month: number;
+    value: number;
+    calculationText: string;
+    ruleProfile: PersonalCalendarCycleRuleProfile;
+  };
+  personalDay: {
+    targetDate: string;
+    year: number;
+    month: number;
+    day: number;
+    value: number;
+    calculationText: string;
+    ruleProfile: PersonalCalendarCycleRuleProfile;
+  };
   cycles: Array<{
     year: number;
     value: number;
@@ -225,6 +242,7 @@ export function calculateIChing(rawValues: unknown[]): IChingAnalysis;
 import type {
   BirthGridAnalysis,
   LifePathRuleProfile,
+  PersonalCalendarCycleRuleProfile,
   RuleSet,
   RuleSetOverrides,
 } from "./domain/numerology/index.js";

@@ -7,6 +7,7 @@ import {
   VISIT_COUNTER_INCREMENT_TIMEOUT_MS,
   VISIT_COUNTER_SESSION_KEY,
   VISIT_COUNTER_TIMEOUT_MS,
+  VISIT_COUNTER_VERIFIED_MINIMUM,
   hasIChingAccess,
   isIChingAccessCode,
   loadCumulativeVisitCount,
@@ -80,9 +81,19 @@ test("visit counter retries with a read-only request after a transient increment
 test("visit counter falls back to a read-only request when increment response is slow", async () => {
   const storage = memoryStore();
   const requests = [];
-  const fetchImpl = async (url) => {
+  let incrementWasAborted = false;
+  const fetchImpl = async (url, options) => {
     requests.push(url);
-    if (url.endsWith("/up")) return new Promise(() => {});
+    if (url.endsWith("/up")) {
+      return new Promise((_, reject) => {
+        options.signal.addEventListener("abort", () => {
+          incrementWasAborted = true;
+          const error = new Error("aborted");
+          error.name = "AbortError";
+          reject(error);
+        }, { once: true });
+      });
+    }
     return { ok: true, status: 200, async json() { return { count: 81 }; } };
   };
 
@@ -93,6 +104,7 @@ test("visit counter falls back to a read-only request when increment response is
   });
   assert.deepEqual(result, { value: 81, incremented: true });
   assert.deepEqual(requests, [`${VISIT_COUNTER_ENDPOINT}up`, VISIT_COUNTER_ENDPOINT]);
+  assert.equal(incrementWasAborted, true, "逾時的累加請求必須實際中止，不能留在背景占用資源");
 });
 
 test("visit counter rejects failed and malformed service responses", async () => {
@@ -107,4 +119,32 @@ test("visit counter rejects failed and malformed service responses", async () =>
     /503/,
   );
   assert.equal(storage.getItem(VISIT_COUNTER_SESSION_KEY), "1", "失敗後仍應避免同一頁籤反覆灌入計數");
+});
+
+test("visit counter service outage returns only the controlled verified release minimum", async () => {
+  const sessionStore = memoryStore();
+  const result = await loadCumulativeVisitCount({
+    fetchImpl: async () => ({ ok: false, status: 503 }),
+    sessionStore,
+    fallbackMinimum: VISIT_COUNTER_VERIFIED_MINIMUM,
+  });
+  assert.deepEqual(result, {
+    value: VISIT_COUNTER_VERIFIED_MINIMUM,
+    incremented: true,
+    fallback: true,
+  });
+});
+
+test("visit counter preserves AbortSignal cancellation instead of converting it to fallback success", async () => {
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(
+    loadCumulativeVisitCount({
+      fetchImpl: async () => ({ ok: false, status: 503 }),
+      sessionStore: memoryStore(),
+      signal: controller.signal,
+      fallbackMinimum: VISIT_COUNTER_VERIFIED_MINIMUM,
+    }),
+    (error) => error?.name === "AbortError",
+  );
 });
