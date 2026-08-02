@@ -210,6 +210,27 @@ test("月令旺衰只依原文標示旺、衰、平，並把本互變逐一對�
   assert.equal(result.calculationTrace.modulo.upper.quotient, "2");
 });
 
+test("自動農曆結果保留實際 provider，只有立春模式才加列氣象署節氣來源", () => {
+  const instant = new Date("2026-08-02T04:00:00.000Z");
+  const lunarNewYearCalendar = detectCalendarParts(instant, {
+    profile: "taipei-lunar-new-year-v1",
+  });
+  const lunarNewYearResult = calculateCalendarMethod(lunarNewYearCalendar);
+  assert.deepEqual(
+    lunarNewYearResult.dataSourceRefs.map(({ id }) => id),
+    ["ECMA402-INTL-CHINESE-01"],
+  );
+
+  const lichunCalendar = detectCalendarParts(instant, {
+    profile: "taipei-lichun-v1",
+  });
+  const lichunResult = calculateCalendarMethod(lichunCalendar);
+  assert.deepEqual(
+    lichunResult.dataSourceRefs.map(({ id }) => id),
+    ["ECMA402-INTL-CHINESE-01", "CWA-SOLAR-TERMS-01"],
+  );
+});
+
 test("現代三數入口使用統一引擎並明列版本與非古籍主法界線", () => {
   const result = calculateModernThreeNumberMethod([10, 20, 30]);
   assert.equal(result.method, "modern-three-number");
@@ -623,6 +644,8 @@ test("Calendar profiles 分離正月初一年界、閏月規則、晚子時換�
   assert.equal(lunarBoundaryAtSameInstant.branchYear, 2025);
   assert.equal(lunarBoundaryAtSameInstant.yearBranch, 6);
   assert.equal(afterLichun.lichunInstantIso, "2026-02-03T20:02:00.000Z");
+  assert.deepEqual(afterLichun.crossCheckedBy, ["CWA-SOLAR-TERMS-01"]);
+  assert.deepEqual(afterLichun.sourceIds, ["ECMA402-INTL-CHINESE-01", "CWA-SOLAR-TERMS-01"]);
 
   const manual = normalizeManualCalendarParts({
     yearBranch: 4,
@@ -633,6 +656,9 @@ test("Calendar profiles 分離正月初一年界、閏月規則、晚子時換�
     calendarProfile: "taipei-lunar-new-year-v1",
   });
   assert.equal(manual.mode, "manual");
+  assert.equal(manual.computedBy, "manual-input");
+  assert.equal(manual.oracleCoverage.status, "not_applicable");
+  assert.deepEqual(manual.crossCheckedBy, []);
   assert.equal(manual.isLeapMonth, true);
   assert.equal(manual.calendarProfileId, "taipei-lunar-new-year-v1");
 

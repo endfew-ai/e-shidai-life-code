@@ -19,6 +19,9 @@ import type {
   SymbolMode,
   TimelineOptions,
   TimelineProfileId,
+  TaiwanIdentityAnalysisInputType,
+  TaiwanIdentityDocumentSelection,
+  TaiwanIdentityDocumentType,
   TaiwanIdValidation,
 } from "../domain/numerology/index.js";
 
@@ -27,7 +30,9 @@ export type AnalysisInputType =
   | "phone_number"
   | "vehicle_address"
   | "custom_sequence"
-  | "taiwan_national_id";
+  | "taiwan_national_id"
+  | "taiwan_foreign_ui_new"
+  | "unverified_taiwan_identity_sequence";
 
 export interface AnalysisClockInput {
   readonly todayValue: string;
@@ -54,6 +59,7 @@ export interface SequenceAnalysisInput extends AnalysisClockInput, AnalysisRuleI
 
 export interface IdentityAnalysisInput extends AnalysisClockInput, AnalysisRuleInput {
   readonly value: unknown;
+  readonly documentType?: TaiwanIdentityDocumentSelection;
   readonly allowInvalidChecksum?: boolean;
   readonly timelineProfile?: TimelineProfileId;
   readonly timelineOptions?: TimelineOptions;
@@ -99,7 +105,12 @@ export interface SequenceAnalysisResult extends AnalysisResultBase {
 }
 
 export interface IdentityAnalysisResult extends AnalysisResultBase {
-  readonly inputType: "taiwan_national_id";
+  readonly kind: "identity";
+  readonly inputType: TaiwanIdentityAnalysisInputType;
+  readonly documentType: Exclude<TaiwanIdentityDocumentType, "foreign_ui_legacy" | "unsupported">;
+  readonly validationScope: "format_checksum_only";
+  readonly issuanceVerified: false;
+  readonly sensitiveNormalizedInput: string;
   readonly lifePathResult: null;
   readonly birthdayNumberResult: null;
   readonly birthGridResult: null;

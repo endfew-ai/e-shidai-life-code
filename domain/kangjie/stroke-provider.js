@@ -134,7 +134,7 @@ export function lookupStroke(character, {
     character,
     selected,
     candidates,
-    status: selected ? (warnings.length ? "conflict" : "resolved") : "manual",
+    status: selected ? (warnings.length ? "conflict" : "resolved") : "unresolved",
     requiresManualInput: !selected,
     selectedBy,
     warnings,

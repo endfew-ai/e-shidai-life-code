@@ -1,6 +1,6 @@
 # 規則來源與可信度分類
 
-日期：2026-07-23
+最後核對：2026-08-02
 
 ## 一、來源原則
 
@@ -18,11 +18,12 @@
 
 ## 二、來源 profile
 
-### `taiwan-national-id-official`
+### `taiwan-identity-document-official`
 
 用途只限：
 
 - 台灣國民身分證統一編號格式；
+- 新式外來人口統一證號的 8／9 格式；
 - 字母區碼；
 - 檢查碼邏輯。
 
@@ -30,8 +31,13 @@
 
 - [政府資料標準平臺：國民身分證統一編號](https://schema.gov.tw/lists/167)
 - [行政院公報：國民身分證統一編號檢查方法](https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg011228/ch04/type2/gov30/num2/OEg.pdf)
+- [內政部移民署：新式外來人口統一證號](https://www.immigration.gov.tw/5385/12162/238449//CP_QA?alias=QAClass&type=%E5%85%A7%E6%94%BF%E9%83%A8%E7%A7%BB%E6%B0%91%E7%BD%B2)
+- [財政部：新舊式外來人口統一證號格式差異](https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/alien-tax-question/other/781zJ3Y)
+- [內政部移民署：新式統號比照國民身分證編碼原則](https://servicestation.immigration.gov.tw/1361/1365/6484/6517/246559/)
 
-這些官方資料**不支持** A=01 民俗轉換、八大磁場、人格判讀或人生階段預測。
+驗證結果固定標示 `validationScope = format_checksum_only` 與 `issuanceVerified = false`；通過格式與檢查碼不代表證號已配發，也不驗證持有人身分。舊式外來人口統一證號只辨識格式，本版不冒充已實作其官方檢查規則。這些官方資料**不支持** A=01 民俗轉換、八大磁場、人格判讀或人生階段預測。
+
+`taiwan-national-id-official` 保留為舊版相容 profile；新版證號驗證一律回傳上述通用 profile，避免把外來人口證號誤標成國民身分證規則。
 
 ### `uploaded-numerology-v2`
 
@@ -94,7 +100,7 @@
 
 | 規則 | 來源 profile | 可信度 | 備註 |
 | --- | --- | --- | --- |
-| 身分證格式／檢查碼 | `taiwan-national-id-official` | 官方邏輯 | 不含民俗解讀 |
+| 台灣證號格式／檢查碼 | `taiwan-identity-document-official` | 官方邏輯 | 不含民俗解讀，也不查證配發狀態 |
 | 完整生日八位數加總 | `uploaded-numerology-v2` | 民俗教材 | 新版預設 |
 | 分段月日年加總 | `legacy-project-v1` | 舊站行為 | 相容模式 |
 | 生日九宮格與連線 | `uploaded-numerology-v2` | 民俗教材 | 0 不入格 |

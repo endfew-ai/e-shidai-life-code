@@ -99,14 +99,15 @@ test("Cheiro 1 to 9 palettes preserve the documented color families and valid di
   for (let number = 1; number <= 9; number += 1) {
     const palette = CHEIRO_BIRTH_COLOR_PALETTES[number];
     assert.equal(palette.number, number);
-    assert.deepEqual(palette.sourceFamilies, expectedFamilies[number]);
-    assert.deepEqual(palette.swatches.map(({ role }) => role), ["primary", "support", "accent"]);
-    assert.equal(new Set(palette.swatches.map(({ hex }) => hex)).size, 3);
+    assert.deepEqual(palette.historicalColorFamilies, expectedFamilies[number]);
+    assert.deepEqual(palette.editorialDigitalSwatches.map(({ role }) => role), ["primary", "support", "accent"]);
+    assert.equal(new Set(palette.editorialDigitalSwatches.map(({ hex }) => hex)).size, 3);
     assert.ok(palette.avoidNote.trim());
-    for (const swatch of palette.swatches) {
+    for (const swatch of palette.editorialDigitalSwatches) {
       assert.ok(swatch.name.trim());
       assert.match(swatch.hex, /^#[0-9A-F]{6}$/);
-      assert.ok(swatch.sourceRelation.trim());
+      assert.equal(swatch.authority, "site-editorial");
+      assert.match(swatch.sourceRelation, /本站數位色票/);
     }
     assert.deepEqual(Object.keys(palette.uses).sort(), ["digital", "space", "wear"]);
   }
@@ -158,7 +159,7 @@ test("birth color is source-backed while life-path and attitude colors are label
   for (const assignment of guide.composition) {
     assert.deepEqual(
       assignment.swatch,
-      CHEIRO_BIRTH_COLOR_PALETTES[assignment.mappedNumber].swatches[assignment.selectedSwatchIndex],
+      CHEIRO_BIRTH_COLOR_PALETTES[assignment.mappedNumber].editorialDigitalSwatches[assignment.selectedSwatchIndex],
     );
   }
   assert.match(guide.disclaimer, /歷史數字命理/);

@@ -736,7 +736,7 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await page.locator(".topbar-actions > a").nth(2).click();
   await page.locator("#number-code").fill("1234");
   await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
-  await expect(page.locator("#result-anchor")).toContainText("核心數");
+  await expect(page.locator("#result-anchor")).toContainText("號碼歸一數");
   await expect(page.locator("[data-personal-color-guide]")).toHaveCount(0);
 
   await unlockIChingMode(page);

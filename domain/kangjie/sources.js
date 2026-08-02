@@ -79,6 +79,14 @@ export const SOURCE_REFS = Object.freeze({
     scope: "節氣日期與臺灣時間；立春年界只在使用者選擇該曆法設定時採用",
     accessedOn: "2026-08-02",
   }),
+  ECMA402_INTL_CHINESE_01: Object.freeze({
+    id: "ECMA402-INTL-CHINESE-01",
+    title: "ECMAScript Internationalization API Specification・DateTimeFormat",
+    organization: "Ecma International / TC39",
+    url: "https://tc39.es/ecma402/#datetimeformat-objects",
+    scope: "瀏覽器 Intl.DateTimeFormat 的曆法與時區計算介面；本站自動農曆換算的實際 runtime provider",
+    accessedOn: "2026-08-02",
+  }),
   UNICODE_UNIHAN_17: Object.freeze({
     id: "UNICODE-UNIHAN-17.0.0",
     title: "Unihan Database, kTotalStrokes",

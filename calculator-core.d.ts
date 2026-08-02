@@ -4,8 +4,7 @@ export type LifeProfile = {
   traits: string;
   shadow: string;
   wellbeing: string;
-  color: string;
-  hex: string;
+  editorialUiColor: { name: string; hex: `#${string}` };
   marker: string;
   markerDesc: string;
   advice: string;
@@ -16,13 +15,14 @@ export type DigitalColorSwatch = {
   role: "primary" | "support" | "accent";
   name: string;
   hex: `#${string}`;
+  authority: "site-editorial";
   sourceRelation: string;
 };
 export type CheiroColorPaletteEntry = {
   number: ColorNumber;
-  sourceFamilies: string[];
+  historicalColorFamilies: string[];
   avoidNote: string;
-  swatches: DigitalColorSwatch[];
+  editorialDigitalSwatches: DigitalColorSwatch[];
   uses: { wear: string; space: string; digital: string };
 };
 export type CheiroColorSource = {

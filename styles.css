@@ -2178,6 +2178,281 @@ footer p { margin: 0; }
   }
 }
 
+/*
+ * v13 short-desktop analyzer repair.
+ * The hidden mode artwork must not leave its legacy 28px grid track behind;
+ * otherwise the only visible controls are auto-placed into that track and
+ * overflow. Keep the full workbench height for 44px inputs and touch targets.
+ */
+@media (min-width: 1181px) and (max-height: 800px) {
+  .dashboard-home-screen.reference-v10.reference-v11.reference-v12.reference-v13
+    .dashboard-lead
+    .mode-workbench {
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
+/*
+ * Reference v13 — dense instrument-board refinement.
+ * Dedicated AI-rendered instruments now identify each supporting function;
+ * a shared one-pixel lattice replaces eighteen competing card frames.
+ */
+.dashboard-home-screen.reference-v13 > .function-command-grid {
+  background: rgba(205, 160, 73, .30);
+  border: 1px solid rgba(226, 186, 98, .48);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, .24),
+    inset 0 0 0 1px rgba(2, 12, 11, .90);
+  counter-reset: command-module;
+  gap: 1px;
+  overflow: hidden;
+  padding: 1px;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a {
+  background: #03100f;
+  border: 0;
+  box-shadow:
+    inset 0 1px rgba(244, 213, 139, .07),
+    inset 0 -18px 30px rgba(0, 0, 0, .22);
+  counter-increment: command-module;
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+  transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a::before {
+  background: linear-gradient(180deg, rgba(1, 9, 8, .02), rgba(1, 9, 8, .15) 48%, rgba(1, 7, 7, .94) 91%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a::after {
+  color: rgba(236, 203, 126, .72);
+  content: counter(command-module, decimal-leading-zero);
+  font-family: var(--sans);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .08em;
+  line-height: 1;
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  z-index: 3;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a > img {
+  filter: brightness(1.08) saturate(1.04) contrast(1.03);
+  inset: 0;
+  object-fit: cover;
+  opacity: .76;
+  position: absolute;
+  transform: scale(1.01);
+  transition: filter .22s ease, opacity .22s ease, transform .35s ease;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a > span {
+  align-self: end;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  position: relative;
+  text-shadow: 0 1px 9px rgba(0, 0, 0, .96);
+  z-index: 2;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid strong {
+  color: #f5d98d;
+  font-weight: 650;
+  letter-spacing: .035em;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid small {
+  color: #d7ddd5;
+  font-family: var(--sans);
+  letter-spacing: .02em;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a:hover,
+.dashboard-home-screen.reference-v13 > .function-command-grid > a:focus-visible {
+  background: #08201c;
+  box-shadow: inset 0 0 0 1px rgba(246, 210, 123, .72), inset 0 -24px 34px rgba(0, 0, 0, .18);
+  outline: 2px solid #f0cc72;
+  outline-offset: -3px;
+  z-index: 4;
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a:hover > img,
+.dashboard-home-screen.reference-v13 > .function-command-grid > a:focus-visible > img {
+  filter: brightness(1.18) saturate(1.08) contrast(1.04);
+  opacity: .88;
+  transform: scale(1.055);
+}
+
+.dashboard-home-screen.reference-v13 > .function-command-grid > a:active {
+  transform: scale(.985);
+}
+
+.results,
+.iching-results,
+.result-hero,
+.iching-result-heading {
+  position: relative;
+}
+
+.result-actions.result-actions-top {
+  margin: 0;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: auto;
+  z-index: 5;
+}
+
+.result-actions.result-actions-top .secondary-button {
+  backdrop-filter: blur(8px);
+  background: rgba(2, 15, 14, .88);
+  min-height: 44px;
+  padding: 8px 15px;
+}
+
+.data-source a,
+.iching-source-list a,
+.color-guide-source-links a {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-home-screen.reference-v13 > .function-command-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a {
+    min-height: 0;
+    padding: 8px 10px;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid strong {
+    font-size: clamp(15px, 1vw, 17px);
+    line-height: 1.08;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid small {
+    display: block;
+    font-size: 13px;
+    line-height: 1.15;
+  }
+}
+
+@media (min-width: 1181px) {
+  .dashboard-home-screen.reference-v13 .desktop-result-preview {
+    min-height: 62px;
+  }
+
+  .dashboard-home-screen.reference-v13 .desktop-result-preview article {
+    gap: 2px;
+    min-height: 0;
+    padding: 2px 5px;
+  }
+
+  .dashboard-home-screen.reference-v13 .desktop-result-preview small {
+    font-size: 13px;
+    line-height: 1.15;
+  }
+
+  .dashboard-home-screen.reference-v13 .desktop-result-preview article strong {
+    line-height: 1;
+  }
+}
+
+@media (min-width: 1181px) and (max-height: 800px) {
+  .dashboard-home-screen.reference-v13 .dashboard-lead .mode-art {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v13 .dashboard-lead .mode-workbench {
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .dashboard-home-screen.reference-v13 .desktop-result-preview {
+    grid-template-rows: 20px minmax(0, 1fr);
+    overflow: hidden;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a {
+    padding: 5px 8px;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid small {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-home-screen.reference-v13 > .function-command-grid {
+    grid-auto-rows: minmax(50px, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    min-height: 254px;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a {
+    min-height: 50px;
+    padding: 3px 4px;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a > img {
+    opacity: .60;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a::after {
+    font-size: 8px;
+    right: 4px;
+    top: 4px;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid strong {
+    font-size: 14px;
+    line-height: 1.12;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid small {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a:nth-child(17) {
+    grid-column: 2;
+  }
+
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a:nth-child(18) {
+    grid-column: 3;
+  }
+
+  .result-actions.result-actions-top {
+    right: 8px;
+    top: 8px;
+  }
+
+  .result-actions.result-actions-top .secondary-button {
+    font-size: 14px;
+    min-height: 44px;
+    padding-inline: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a,
+  .dashboard-home-screen.reference-v13 > .function-command-grid > a > img {
+    transition: none;
+  }
+}
+
 .iching-source-notice {
   color: var(--muted);
   font-family: var(--sans);

@@ -15,7 +15,7 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
-} from "./site-services.js?v=20260802-reference-v12";
+} from "./site-services.js?v=20260802-reference-v13";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
 import {
@@ -64,9 +64,10 @@ function dashboardAnalytics(result, mode = "birthday") {
   const modeLabel = modeContent[mode]?.label ?? "生日命碼";
   const emptyCounts = Array.from({ length: 9 }, () => 0);
   const emptyPreview = {
-    labels: ["生命路徑數", "生日數", "態度數", "個人流年"],
-    values: ["－", "－", "－", "－"],
-  };
+    birthday: ["生命路徑數", "生日數", "態度數", "個人流年"],
+    code: ["號碼歸一數", "數字總和", "輸入位數", "最常出現"],
+    iching: ["本卦", "互卦", "變卦", "動爻"],
+  }[mode] ?? ["主要結果", "次要結果", "分析項目", "狀態"];
   if (!result) {
     return {
       status: "待分析",
@@ -80,7 +81,7 @@ function dashboardAnalytics(result, mode = "birthday") {
       annual: "－",
       annualTitle: "等待生日",
       annualNote: "個人流年只在生日模式計算。",
-      preview: emptyPreview,
+      preview: { labels: emptyPreview, values: ["－", "－", "－", "－"] },
     };
   }
 
@@ -323,10 +324,10 @@ function createBirthdayColorGuide(result) {
   const title = element("h3", "brush-fixed-heading");
   title.id = "color-guide-title";
   title.append(fixedBrushTitleElement("個人色彩指引", "brush-color-guide", { lazy: true }));
-  headingCopy.append(element("p", "", "色彩參考"), title);
+  headingCopy.append(element("p", "", "文化色彩參考"), title);
   header.append(
     headingCopy,
-    element("p", "color-guide-basis", `生日數 ${guide.traditional.number}・原書色群 ${palette.sourceFamilies.join("、")}`),
+    element("p", "color-guide-basis", `生日數 ${guide.traditional.number}・原書色名 ${palette.historicalColorFamilies.join("、")}・HEX 為本站轉譯`),
   );
 
   const roleList = element("ol", "color-role-list");
@@ -445,8 +446,8 @@ function createInsightLedger(profile) {
   return section;
 }
 
-function createResetButton(label, onReset) {
-  const wrapper = element("div", "result-actions");
+function createResetButton(label, onReset, placement = "bottom") {
+  const wrapper = element("div", `result-actions${placement === "top" ? " result-actions-top" : ""}`);
   const button = element("button", "secondary-button", label);
   button.type = "button";
   button.addEventListener("click", onReset);
@@ -472,9 +473,9 @@ function createNumerologyResult(result, onReset) {
   const art = element("figure", "result-art");
   art.append(
     imageElement(result.kind === "birthday" ? "public/visuals/numerology-result-panel-b-v3.webp" : "public/visuals/digit-spectrum-panel-b-v3.webp", "古金數理節點分析模組背景"),
-    element("figcaption", "", `核心數 ${result.headlineValue}`),
+    element("figcaption", "", `${result.kind === "birthday" ? "生命路徑數" : "號碼歸一數"} ${result.headlineValue}`),
   );
-  hero.append(copy, art);
+  hero.append(copy, art, createResetButton(result.kind === "birthday" ? "修改生日" : "修改數字", onReset, "top"));
   section.append(hero);
 
   const metrics = result.kind === "birthday"
@@ -489,7 +490,7 @@ function createNumerologyResult(result, onReset) {
     : [
         ["數字位數", String(result.length), "只計入實際數字"],
         ["逐位總和", String(result.sum), "尚未收斂的總和"],
-        ["核心數", String(result.core), "逐位加總至 1 到 9"],
+        ["號碼歸一數", String(result.core), "逐位加總至 1 到 9"],
         ["最常出現", result.strongest.join("、"), result.strongest.length > 1 ? "並列最高次數" : "出現次數最高"],
       ];
   const metricGrid = element("div", "metric-grid");
@@ -681,7 +682,8 @@ function createIChingResult(result, onReset) {
   summary.append(document.createTextNode("動爻為"), element("strong", "", result.moving.name), document.createTextNode(`，${result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。`));
   const meta = element("div", "iching-result-meta");
   meta.append(summary, createYaoLegend());
-  heading.append(titleCopy, meta);
+  heading.append(titleCopy, meta, createResetButton("修改三數", onReset, "top"));
+  section.append(heading);
 
   const grid = element("div", "hexagram-grid");
   grid.append(createHexagramCard("本卦", result.original, result.moving.index, "動"), createHexagramCard("互卦", result.mutual), createHexagramCard("變卦", result.transformed, result.moving.index, "變"));
@@ -735,7 +737,6 @@ function createIChingResult(result, onReset) {
   audit.append(auditSummary, auditBody);
 
   section.append(
-    heading,
     grid,
     trace,
     roleLedger,
@@ -811,7 +812,7 @@ function initializeAnalyzer() {
       return;
     }
     if (result.kind === "code") {
-      cockpitCore.textContent = `核心數 ${result.core}`;
+      cockpitCore.textContent = `號碼歸一數 ${result.core}`;
       cockpitCoreNote.textContent = `${result.length} 位數・總和 ${result.sum}`;
       return;
     }

@@ -8,9 +8,44 @@ export const TAIWAN_ID_LETTER_VALUES = Object.freeze({
   Y: 31, Z: 33,
 });
 
+export const TAIWAN_ID_VALIDATION_SCOPE = "format_checksum_only";
+
+export const TAIWAN_ID_DOCUMENT_TYPES = Object.freeze({
+  nationalId: "national_id",
+  foreignUiNew: "foreign_ui_new",
+  foreignUiLegacy: "foreign_ui_legacy",
+  unsupported: "unsupported",
+});
+
+const SUPPORTED_DOCUMENT_RULES = Object.freeze({
+  [TAIWAN_ID_DOCUMENT_TYPES.nationalId]: Object.freeze({
+    pattern: /^[A-Z][12]\d{8}$/,
+    label: "台灣國民身分證統一編號",
+    formatMessage: "格式應為 1 位大寫英文字母、1 或 2、再接 8 位數字。",
+    validationRule: "taiwan-national-id-checksum-v1",
+    sourceIds: Object.freeze([
+      "TW-GOV-SCHEMA-167",
+      "TW-GAZETTE-NATIONAL-ID-CHECKSUM",
+    ]),
+  }),
+  [TAIWAN_ID_DOCUMENT_TYPES.foreignUiNew]: Object.freeze({
+    pattern: /^[A-Z][89]\d{8}$/,
+    label: "新式外來人口統一證號",
+    formatMessage: "新式外來人口統一證號格式應為 1 位大寫英文字母、8 或 9、再接 8 位數字。",
+    validationRule: "taiwan-foreign-ui-new-checksum-v1",
+    sourceIds: Object.freeze([
+      "TW-GOV-SCHEMA-167",
+      "TW-NIA-FOREIGN-UI",
+      "TW-MOF-FOREIGN-UI-FORMAT",
+    ]),
+  }),
+});
+
 export function normalizeTaiwanNationalId(rawValue) {
   return String(rawValue ?? "").replace(/\s+/g, "").toUpperCase();
 }
+
+export const normalizeTaiwanIdentityDocument = normalizeTaiwanNationalId;
 
 export function maskTaiwanNationalId(rawValue) {
   const normalized = normalizeTaiwanNationalId(rawValue);
@@ -18,38 +53,132 @@ export function maskTaiwanNationalId(rawValue) {
   return `${normalized.slice(0, 3)}${"*".repeat(normalized.length - 5)}${normalized.slice(-2)}`;
 }
 
-export function validateTaiwanNationalId(rawValue) {
-  const normalized = normalizeTaiwanNationalId(rawValue);
-  const formatValid = /^[A-Z][12]\d{8}$/.test(normalized);
-  if (!formatValid) {
-    return Object.freeze({
-      normalized,
-      valid: false,
-      formatValid: false,
-      checksumValid: false,
-      officialDigits: null,
-      checksumRemainder: null,
-      message: "格式應為 1 位大寫英文字母、1 或 2、再接 8 位數字。",
-      sourceProfile: "taiwan-national-id-official",
-    });
-  }
+export const maskTaiwanIdentityDocument = maskTaiwanNationalId;
 
+export function inferTaiwanIdentityDocumentType(rawValue) {
+  const normalized = normalizeTaiwanIdentityDocument(rawValue);
+  if (/^[A-Z][12]\d{8}$/.test(normalized)) return TAIWAN_ID_DOCUMENT_TYPES.nationalId;
+  if (/^[A-Z][89]\d{8}$/.test(normalized)) return TAIWAN_ID_DOCUMENT_TYPES.foreignUiNew;
+  if (/^[A-Z][A-D]\d{8}$/.test(normalized)) return TAIWAN_ID_DOCUMENT_TYPES.foreignUiLegacy;
+  return TAIWAN_ID_DOCUMENT_TYPES.unsupported;
+}
+
+function officialChecksum(normalized) {
   const letterValue = TAIWAN_ID_LETTER_VALUES[normalized[0]];
   const officialDigits = `${letterValue}${normalized.slice(1)}`.split("").map(Number);
   const weights = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1];
   const weightedSum = officialDigits.reduce((sum, digit, index) => sum + digit * weights[index], 0);
   const checksumRemainder = weightedSum % 10;
-  const checksumValid = checksumRemainder === 0;
-
   return Object.freeze({
-    normalized,
-    valid: checksumValid,
-    formatValid: true,
-    checksumValid,
     officialDigits: Object.freeze(officialDigits),
     checksumRemainder,
-    message: checksumValid ? "格式與檢查碼通過邏輯檢查。" : "格式正確，但檢查碼未通過。",
-    sourceProfile: "taiwan-national-id-official",
+    checksumValid: checksumRemainder === 0,
+  });
+}
+
+function baseValidation(normalized, documentType, detectedDocumentType, details = {}) {
+  return {
+    normalized,
+    documentType,
+    detectedDocumentType,
+    validationScope: TAIWAN_ID_VALIDATION_SCOPE,
+    issuanceVerified: false,
+    ...details,
+  };
+}
+
+export function validateTaiwanIdentityDocument(rawValue, options = {}) {
+  const normalized = normalizeTaiwanIdentityDocument(rawValue);
+  const requestedDocumentType = options.documentType ?? "auto";
+  const allowedDocumentTypes = new Set([
+    "auto",
+    TAIWAN_ID_DOCUMENT_TYPES.nationalId,
+    TAIWAN_ID_DOCUMENT_TYPES.foreignUiNew,
+    TAIWAN_ID_DOCUMENT_TYPES.foreignUiLegacy,
+  ]);
+  if (!allowedDocumentTypes.has(requestedDocumentType)) {
+    throw new Error("不支援的台灣證號類型。");
+  }
+
+  const detectedDocumentType = inferTaiwanIdentityDocumentType(normalized);
+  const documentType = requestedDocumentType === "auto"
+    ? detectedDocumentType
+    : requestedDocumentType;
+
+  if (documentType === TAIWAN_ID_DOCUMENT_TYPES.foreignUiLegacy) {
+    const recognizedFormat = /^[A-Z][A-D]\d{8}$/.test(normalized);
+    return Object.freeze(baseValidation(normalized, documentType, detectedDocumentType, {
+      valid: false,
+      supported: false,
+      recognizedFormat,
+      formatValid: recognizedFormat,
+      checksumValid: null,
+      officialDigits: null,
+      checksumRemainder: null,
+      message: recognizedFormat
+        ? "已辨識為舊式外來人口統一證號；本工具未實作其官方檢查規則，因此不執行證號命格分析。"
+        : "舊式外來人口統一證號格式應為 1 位大寫英文字母、第 2 碼 A、B、C 或 D、再接 8 位數字；本工具目前不支援其檢查規則。",
+      sourceProfile: "taiwan-identity-document-official",
+      validationRule: null,
+      sourceIds: Object.freeze(["TW-NIA-FOREIGN-UI", "TW-MOF-FOREIGN-UI-FORMAT"]),
+    }));
+  }
+
+  const rule = SUPPORTED_DOCUMENT_RULES[documentType];
+  if (!rule) {
+    return Object.freeze(baseValidation(normalized, TAIWAN_ID_DOCUMENT_TYPES.unsupported, detectedDocumentType, {
+      valid: false,
+      supported: false,
+      recognizedFormat: false,
+      formatValid: false,
+      checksumValid: null,
+      officialDigits: null,
+      checksumRemainder: null,
+      message: "無法辨識證號格式；請選擇國民身分證、新式外來人口統一證號，或改用自訂英數序列。",
+      sourceProfile: "taiwan-identity-document-official",
+      validationRule: null,
+      sourceIds: Object.freeze(["TW-GOV-SCHEMA-167"]),
+    }));
+  }
+
+  const formatValid = rule.pattern.test(normalized);
+  if (!formatValid) {
+    return Object.freeze(baseValidation(normalized, documentType, detectedDocumentType, {
+      valid: false,
+      supported: true,
+      recognizedFormat: false,
+      formatValid: false,
+      checksumValid: false,
+      officialDigits: null,
+      checksumRemainder: null,
+      message: rule.formatMessage,
+      sourceProfile: "taiwan-identity-document-official",
+      validationRule: rule.validationRule,
+      sourceIds: rule.sourceIds,
+    }));
+  }
+
+  const checksum = officialChecksum(normalized);
+  return Object.freeze(baseValidation(normalized, documentType, detectedDocumentType, {
+    valid: checksum.checksumValid,
+    supported: true,
+    recognizedFormat: true,
+    formatValid: true,
+    checksumValid: checksum.checksumValid,
+    officialDigits: checksum.officialDigits,
+    checksumRemainder: checksum.checksumRemainder,
+    message: checksum.checksumValid
+      ? `${rule.label}格式與檢查碼通過邏輯檢查。`
+      : `${rule.label}格式正確，但檢查碼未通過。`,
+    sourceProfile: "taiwan-identity-document-official",
+    validationRule: rule.validationRule,
+    sourceIds: rule.sourceIds,
+  }));
+}
+
+export function validateTaiwanNationalId(rawValue) {
+  return validateTaiwanIdentityDocument(rawValue, {
+    documentType: TAIWAN_ID_DOCUMENT_TYPES.nationalId,
   });
 }
 
@@ -86,7 +215,7 @@ function buildShiftedConversion(conversion, startIndex) {
     ...conversion,
     digits,
     sourceMap,
-    rule: "身分證命格數列：字母依 A=01 至 Z=26 轉換；只有 01 至 09 的字母碼移除最前方 0。",
+    rule: "證號命格數列：字母依 A=01 至 Z=26 轉換；只有 01 至 09 的字母碼移除最前方 0。",
   });
 }
 
@@ -113,7 +242,7 @@ export function buildIdentityDestinyProfile(conversion, options = {}) {
   return Object.freeze({
     status: "resolved",
     mode: "drop_leading_letter_zero",
-    label: "身分證命格數列",
+    label: "證號命格數列",
     sourceProfile: "identity-destiny-common-practice-v1",
     letterSequentialValue,
     droppedLeadingZero,
@@ -243,12 +372,17 @@ export function buildIdentityTimeline(pairRecords, timelineProfileId, options = 
 
 export function analyzeIdentityNumber(rawValue, options = {}) {
   const ruleSet = resolveRuleSet(options.ruleSet ?? options.ruleSetId ?? DEFAULT_RULE_SET.id, options.ruleOverrides);
-  const validation = validateTaiwanNationalId(rawValue);
+  const validation = validateTaiwanIdentityDocument(rawValue, {
+    documentType: options.documentType ?? "auto",
+  });
+  if (!validation.supported) {
+    throw new Error(validation.message);
+  }
   if (!validation.formatValid) {
     throw new Error(`${validation.message} 若要分析其他英數序列，請改用自訂數字分析。`);
   }
   if (!validation.checksumValid && !options.allowInvalidChecksum) {
-    throw new Error("身分證檢查碼未通過；如確認只作自訂民俗序列分析，請勾選「仍要分析」。");
+    throw new Error("證號檢查碼未通過；如確認只作自訂民俗序列分析，請勾選「仍要分析」。");
   }
 
   const conversion = alphabetToSequentialDigits(validation.normalized);
@@ -257,16 +391,25 @@ export function analyzeIdentityNumber(rawValue, options = {}) {
   const timelineProfileId = options.timelineProfile ?? ruleSet.timelineProfile;
   const timeline = buildIdentityTimeline(encounterMagnetic.pairs, timelineProfileId, options.timelineOptions);
   const warnings = [];
-  if (!validation.checksumValid) warnings.push("檢查碼未通過；以下只把輸入視為自訂序列，不代表有效身分證。");
+  if (!validation.checksumValid) warnings.push("檢查碼未通過；以下只把輸入視為自訂序列，不代表有效或已配發的證號。");
   warnings.push(...new Set([
     ...destiny.magnetic.warnings,
     ...encounterMagnetic.warnings,
     ...timeline.warnings.map((warning) => typeof warning === "string" ? warning : warning.message),
   ]));
 
+  const inputType = validation.checksumValid
+    ? validation.documentType === TAIWAN_ID_DOCUMENT_TYPES.foreignUiNew
+      ? "taiwan_foreign_ui_new"
+      : "taiwan_national_id"
+    : "unverified_taiwan_identity_sequence";
+
   return Object.freeze({
     kind: "identity",
-    inputType: "taiwan_national_id",
+    inputType,
+    documentType: validation.documentType,
+    validationScope: validation.validationScope,
+    issuanceVerified: validation.issuanceVerified,
     maskedInput: maskTaiwanNationalId(validation.normalized),
     normalizedInput: validation.normalized,
     validation,

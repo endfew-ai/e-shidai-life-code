@@ -2,9 +2,9 @@
 
 ## 自動模式
 
-瀏覽器使用 `Intl.DateTimeFormat("zh-TW-u-ca-chinese")` 取得農曆年、月、日，時區使用 IANA 名稱。預設為 `Asia/Taipei`。若瀏覽器不支援 Chinese Calendar，程式停止自動換算並要求人工輸入。
+瀏覽器使用 `Intl.DateTimeFormat("zh-TW-u-ca-chinese")` 取得農曆年、月、日，時區使用 IANA 名稱。預設為 `Asia/Taipei`。此 runtime provider 標為 `computedBy = ECMA402-Intl-Chinese`；若瀏覽器不支援 Chinese Calendar，程式停止自動換算並要求人工輸入。
 
-中央氣象署 A-A0087-001 只用作固定邊界測試與節氣核對，不在 runtime 呼叫外部 API。
+中央氣象署 A-A0087-001 只用作固定邊界測試與節氣核對，不在 runtime 呼叫外部 API。結果另列 `crossCheckedBy` 與 `oracleCoverage`：只有命中固定測試點且欄位一致時才標為 `verified`；一般日期標為 `not_sampled`，不得顯示成「已逐日官方核對」。
 
 官方資料能支持國農曆日期、閏月與節氣核對，不能證明「立春換年」或任一子時換日規則是術數唯一正法；這些差異由 profile 明確記錄。
 
@@ -39,6 +39,8 @@
 人工輸入優先於自動轉換。結果會標示：
 
 - `mode = manual`
+- `computedBy = manual-input`
+- `oracleCoverage.status = not_applicable`
 - 所選時區
 - 年界
 - 閏月規則

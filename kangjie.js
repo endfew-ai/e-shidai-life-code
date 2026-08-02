@@ -76,7 +76,20 @@ function initializeAccessGate() {
     gate.hidden = true;
     content.inert = false;
     content.removeAttribute("aria-hidden");
-    if (focus) content.querySelector("a, button")?.focus();
+    const hasMethodDeepLink = [
+      "#method-calendar",
+      "#method-object",
+      "#method-sound",
+      "#method-text",
+      "#method-supplement",
+      "#method-huangji",
+      "#name-strokes",
+    ].includes(location.hash);
+    if (hasMethodDeepLink) {
+      window.requestAnimationFrame(() => initializeMethodDeepLink());
+    } else if (focus) {
+      content.querySelector("a, button")?.focus({ preventScroll: true });
+    }
   }
 
   try {
@@ -224,7 +237,16 @@ function initializeMethodDeepLink() {
   } else {
     return;
   }
-  document.querySelector("#workspace")?.scrollIntoView({ behavior: "auto", block: "start" });
+  const targetSelector = location.hash === "#name-strokes"
+    ? "#form-text"
+    : location.hash === "#method-huangji"
+      ? "#panel-huangji"
+      : method
+        ? `#form-${method}`
+        : "#workspace";
+  const target = document.querySelector(targetSelector) || document.querySelector("#workspace");
+  target?.scrollIntoView({ behavior: "auto", block: "start" });
+  window.requestAnimationFrame(() => target?.querySelector("input, select, textarea, button")?.focus({ preventScroll: true }));
 }
 
 function createHexagramLines(lines, texts, movingIndex = -1, mark = "") {
@@ -494,12 +516,16 @@ function initializeCurrentTimeDetection() {
       lunar.textContent = detected.lunarLabel;
       timeZone.textContent = detected.timeZoneLabel;
       status.dataset.state = "ready";
+      status.dataset.oracleCoverage = detected.oracleCoverage?.status || "not_sampled";
       if (applyValues) applyFields(detected);
+      const sourceNote = detected.oracleCoverage?.status === "verified"
+        ? "這一筆已通過中央氣象署固定測試點核對。"
+        : "這一筆由瀏覽器 Intl 農曆換算，未宣稱逐日官方核對。";
       note.textContent = manualOverride
-        ? `你已手動修正，欄位不會被時鐘覆蓋；按「重新套用現在」可恢復自動值。${detected.isLeapMonth ? "目前為閏月，月份取值仍需核對。" : "子初換日與年界仍需依採用曆法核對。"}`
+        ? `你已手動修正，欄位不會被時鐘覆蓋；按「重新套用現在」可恢復自動值。${detected.isLeapMonth ? "目前為閏月，月份取值仍需核對。" : "子初換日與年界仍需依採用曆法核對。"}${sourceNote}`
         : detected.isLeapMonth
-          ? `已自動填入同名月份 ${detected.lunarMonth}。目前為閏月，月份取值、子初換日與年界仍需依採用曆法核對。`
-          : "已依裝置時間自動填入。子初換日與年界仍需依採用曆法另行核對，也可手動修正。";
+          ? `已自動填入同名月份 ${detected.lunarMonth}。目前為閏月，月份取值、子初換日與年界仍需依採用曆法核對。${sourceNote}`
+          : `已依裝置時間自動填入。子初換日與年界仍需依採用曆法另行核對，也可手動修正。${sourceNote}`;
     } catch (error) {
       status.dataset.state = "error";
       currentCalendarState = null;

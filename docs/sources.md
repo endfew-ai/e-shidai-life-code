@@ -14,9 +14,14 @@
 | `HUANGJI-NCL-1936-01` | 臺灣國家圖書館藏 1936 黃粵洲註《皇極經世書》影像 | 後出註本尺度影像校勘；不提供唯一西元錨點 |
 | `CWA-CALENDAR-01` | 中央氣象署 A-A0087-001 | 國曆、農曆資料欄位與固定測試基準 |
 | `CWA-SOLAR-TERMS-01` | 中央氣象署 A-A0087-003 | 二十四節氣與立春交節時刻 |
+| `ECMA402-INTL-CHINESE-01` | ECMA-402 `Intl.DateTimeFormat` | 瀏覽器自動農曆換算的實際 runtime provider；與氣象署固定核對點分開標示 |
 | `UNICODE-UNIHAN-17.0.0` | Unicode 17.0 Unihan | `kTotalStrokes` 自動筆畫 |
 | `MOE-CONCISED-DICT-01` | 教育部《國語辭典簡編本》公眾授權資料 | 簡編本總筆畫 provider 與人工核對；不等於康熙筆畫 |
 | `NUMEROLOGY-MODERN-CYCLES-01` | Hans Decoz／World Numerology 公開計算說明 | 個人年、個人月與個人日的現代流傳公式；不作古籍或科學權威 |
+| `TW-GOV-SCHEMA-167` | 政府資料標準平臺「人屬性基本資料」 | 國民身分證與新式外來人口統一證號格式、性別碼及檢查碼欄位 |
+| `TW-GAZETTE-NATIONAL-ID-CHECKSUM` | 行政院公報國民身分證檢查方法 | 國民身分證字母區碼與檢查碼邏輯 |
+| `TW-NIA-FOREIGN-UI` | 內政部移民署外來人口統一證號資料 | 新式 1 英文＋9 數字、8／9 性別碼、舊式 2 英文＋8 數字及編碼原則 |
+| `TW-MOF-FOREIGN-UI-FORMAT` | 財政部新舊式外來人口統一證號格式說明 | 舊式第 2 碼 A～D 與新式第 2 碼 8／9 的格式界線 |
 
 ## 直接連結
 
@@ -36,12 +41,25 @@
 - [中央氣象署 2026 年日曆 PDF](https://www.cwa.gov.tw/Data/astronomy/2026cal.pdf)
 - [中央氣象署 2027 年日曆 PDF](https://www.cwa.gov.tw/Data/astronomy/2027cal.pdf)
 - [中央氣象署 2028 年日曆 PDF](https://www.cwa.gov.tw/Data/astronomy/2028cal.pdf)
+- [ECMA-402 DateTimeFormat 規格](https://tc39.es/ecma402/#datetimeformat-objects)
 - [UAX #38 Unihan](https://www.unicode.org/reports/tr38/)
 - [Unicode 17.0.0 Unihan.zip](https://www.unicode.org/Public/17.0.0/ucd/Unihan.zip)
 - [教育部《國語辭典簡編本》資料下載](https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_concised_download.html)
 - [World Numerology：個人年／月／日公開計算說明](https://www.worldnumerology.com/do-your-own-reading/)
+- [政府資料標準平臺：身分證與外來人口統一證號欄位](https://schema.gov.tw/lists/167)
+- [行政院公報：國民身分證統一編號檢查方法](https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg011228/ch04/type2/gov30/num2/OEg.pdf)
+- [內政部移民署：外來人口統一證號](https://www.immigration.gov.tw/5385/12162/238449//CP_QA?alias=QAClass&type=%E5%85%A7%E6%94%BF%E9%83%A8%E7%A7%BB%E6%B0%91%E7%BD%B2)
+- [財政部：新舊式外來人口統一證號格式差異](https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/alien-tax-question/other/781zJ3Y)
 
-重要公式先用可檢索轉錄定位，再以古籍影本交叉核對。五行多位置關係與旺衰以《梅花易數》卷二文字及影像核對。中央氣象署資料支持臺灣國農曆日期、節氣與閏月核對；立春換年、正月初一換年及子時換日屬本工具的可切換術數規約，不宣稱為氣象署規則。
+重要公式先用可檢索轉錄定位，再以古籍影本交叉核對。五行多位置關係與旺衰以《梅花易數》卷二文字及影像核對。自動農曆由 ECMA-402 `Intl` provider 計算；中央氣象署資料只支持固定國農曆、節氣與閏月核對點。立春換年、正月初一換年及子時換日屬本工具的可切換術數規約，不宣稱為氣象署規則。
+
+## 生日色彩資料界線
+
+Cheiro《Cheiro's Book of Numbers》第 23、27 章只支撐出生日數 1 至 9 的歷史色名家族；原書沒有現代 HEX。程式將資料拆成 `historicalColorFamilies` 與 `editorialDigitalSwatches`，後者一律標為本站數位轉譯，不得冒充原書色碼，也不代表科學個人色彩鑑定。
+
+- [Cheiro 原書第 23 章](https://archive.org/details/in.ernet.dli.2015.70770/page/n125/mode/2up)
+- [Cheiro 原書第 27 章](https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up)
+- [WCAG 2.2 色彩與對比標準](https://www.w3.org/TR/WCAG22/)
 
 現代三數的「三個輸入依序取上卦、下卦、動爻」公式本身沒有古籍來源依據；共用結果所列《梅花易數》來源只支持卦序、體用、五行等共用結構，不替現代三數公式背書。方法結果固定保存「本次核對未見於古籍主法」警告；`modern-current-v1` 使用現代資料 provider 也不等於取得古籍權威。
 

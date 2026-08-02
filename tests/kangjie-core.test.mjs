@@ -23,6 +23,10 @@ test("自動偵測將台北當下時間換成農曆年月日時", () => {
   assert.equal(detected.hourBranchName, "巳");
   assert.equal(detected.lunarLabel, "農曆六月初六・午年・巳時");
   assert.match(detected.timeZoneLabel, /^Asia\/Taipei・GMT\+8$/);
+  assert.equal(detected.computedBy, "ECMA402-Intl-Chinese");
+  assert.equal(detected.oracleCoverage.status, "not_sampled");
+  assert.deepEqual(detected.crossCheckedBy, []);
+  assert.deepEqual(detected.sourceIds, ["ECMA402-INTL-CHINESE-01"]);
 });
 
 test("自動偵測保留閏月提示並正確處理子時", () => {
@@ -31,6 +35,9 @@ test("自動偵測保留閏月提示並正確處理子時", () => {
   assert.equal(leap.isLeapMonth, true);
   assert.equal(leap.lunarMonth, 2);
   assert.match(leap.lunarLabel, /^農曆閏二月初一/);
+  assert.equal(leap.oracleCoverage.status, "verified");
+  assert.deepEqual(leap.crossCheckedBy, ["CWA-CALENDAR-01"]);
+  assert.deepEqual(leap.sourceIds, ["ECMA402-INTL-CHINESE-01", "CWA-CALENDAR-01"]);
   assert.equal(late.hour24, 23);
   assert.equal(late.hourBranch, 1);
   assert.equal(late.hourBranchName, "子");

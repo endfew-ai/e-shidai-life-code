@@ -39,6 +39,14 @@ test("人工覆寫只覆蓋本次候選，官方筆畫仍保留為證據", () =>
   assert.equal(result.candidates.some((candidate) => candidate.sourceId === "unicode-unihan" && candidate.strokes === 4), true);
 });
 
+test("所有 provider 都查無時明確標成 unresolved 並要求人工輸入", () => {
+  const result = lookupStroke("王");
+  assert.equal(result.status, "unresolved");
+  assert.equal(result.selected, null);
+  assert.equal(result.requiresManualInput, true);
+  assert.equal(result.selectedBy, null);
+});
+
 test("康熙 provider 沒有授權資料時拒絕冒充", () => {
   const result = kangxiStrokeStatus("康");
   assert.equal(result.status, "unavailable");

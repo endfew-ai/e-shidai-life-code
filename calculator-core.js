@@ -18,7 +18,7 @@ export const profiles = {
     traits: "具備強烈的開創力與帶動力，重視自主與決策空間。當目標明確時，往往能率先行動並帶領他人前進。",
     shadow: "壓力下容易固守自己的判斷，把不同意見解讀成阻礙。若能先聽完再決定，會更容易保有影響力與人際連結。",
     wellbeing: "緊繃時可先照顧規律進食、休息與放鬆，並觀察哪些安排能幫助自己恢復。持續不適仍應交由合格醫療專業評估。",
-    color: "赤紅", hex: "#ef5350", marker: "先照我的方法做",
+    editorialUiColor: { name: "赤紅", hex: "#ef5350" }, marker: "先照我的方法做",
     markerDesc: "以快速決策維持掌控感，也可能讓別人來不及表達。",
     advice: "把接納建議視為擴充選項，而不是失去主導權。先定方向，再邀請一個不同觀點，決策會更完整。",
   },
@@ -27,7 +27,7 @@ export const profiles = {
     traits: "擅長察言觀色、協調關係與照顧氣氛。對合作品質敏感，常能看見別人的需要與未說出口的訊息。",
     shadow: "為了維持和諧，可能壓下真實感受或過度迎合。長期下來容易累積委屈，也讓他人難以理解你的界線。",
     wellbeing: "情緒壓力增加時，可練習深呼吸、散步與說出需要，並觀察哪些方式最適合自己。持續不適請尋求專業協助。",
-    color: "暖橙", hex: "#ff8a3d", marker: "好，都聽你的",
+    editorialUiColor: { name: "暖橙", hex: "#ff8a3d" }, marker: "好，都聽你的",
     markerDesc: "用配合換取安全感，有時會把自己的意見藏起來。",
     advice: "先從低風險的小事表達偏好，例如「我比較希望……」。溫和但清楚的界線，反而能讓關係更穩定。",
   },
@@ -36,7 +36,7 @@ export const profiles = {
     traits: "感受力與創意豐富，擅長把抽象想法轉成有感染力的表達。安全自在時，幽默、直接且充滿活力。",
     shadow: "遇到批評時可能迅速防禦、轉移話題或封閉自己。情緒來得快，也容易讓原本有價值的回饋被擋在門外。",
     wellbeing: "用腦過度或情緒起伏大時，可先補充休息、飲水並暫離螢幕。持續疼痛或不適請諮詢醫療專業。",
-    color: "明黃", hex: "#f5c451", marker: "我知道",
+    editorialUiColor: { name: "明黃", hex: "#f5c451" }, marker: "我知道",
     markerDesc: "快速結束回饋，保護內在敏感與自尊。",
     advice: "先把回饋記下來，不急著同意或反駁。隔一段時間再挑出一個可試驗的部分，創意會更容易落地。",
   },
@@ -45,7 +45,7 @@ export const profiles = {
     traits: "重視可驗證的經驗、流程與穩定性，擅長整理資源、建立秩序並守住品質，是值得信賴的執行者。",
     shadow: "面對未知變動時容易過度評估風險，甚至因害怕重來而停在原地。太早否定改變，可能錯過更好的做法。",
     wellbeing: "高警覺時可建立固定的休息與睡前流程，觀察是否有助放鬆。若長期失眠或不適，請尋求專業協助。",
-    color: "青綠", hex: "#48c78e", marker: "真的要做嗎？",
+    editorialUiColor: { name: "青綠", hex: "#48c78e" }, marker: "真的要做嗎？",
     markerDesc: "透過反覆確認延緩不可控的變動。",
     advice: "把改變切成可回復的小步驟，先試一次、保留退路再評估。可控的實驗，比一次全面改動更適合你。",
   },
@@ -54,7 +54,7 @@ export const profiles = {
     traits: "喜歡自由、多樣與新鮮感，對人事物反應快，通常具備良好口才與說服力，能為環境帶來動能。",
     shadow: "害怕承諾縮小可能性，容易延後決定或保留過多退路。當選項太多時，反而可能焦慮與分心。",
     wellbeing: "忙碌時可安排短暫停頓、補水與安靜時間，觀察是否有助恢復。反覆不適請諮詢合格醫療專業。",
-    color: "澄藍", hex: "#4f9cf9", marker: "再看看吧",
+    editorialUiColor: { name: "澄藍", hex: "#4f9cf9" }, marker: "再看看吧",
     markerDesc: "保留彈性與撤退空間，避免太快被承諾綁住。",
     advice: "給選擇加上期限，只承諾下一個具體步驟。自由不必等於無限延後，清楚的邊界也能保留彈性。",
   },
@@ -63,7 +63,7 @@ export const profiles = {
     traits: "同理心強，願意照顧他人並承擔責任。常是團隊中的穩定力量，能讓人感受到支持與被理解。",
     shadow: "容易把別人的問題變成自己的責任，也可能因難以拒絕而過度消耗。照顧若沒有界線，會逐漸變成負擔。",
     wellbeing: "承擔過多時，可安排伸展、休息與獨處時間，留意自己是否也被照顧。持續不適請尋求醫療協助。",
-    color: "靛青", hex: "#7477e8", marker: "沒關係，我來就好",
+    editorialUiColor: { name: "靛青", hex: "#7477e8" }, marker: "沒關係，我來就好",
     markerDesc: "以代勞確認自己的價值，也可能讓責任分配失衡。",
     advice: "在答應前先停十秒，確認「這真的是我的責任嗎？」。適度拒絕不是冷漠，而是讓關懷得以長久。",
   },
@@ -72,7 +72,7 @@ export const profiles = {
     traits: "分析力強、對細節與資料敏感，喜歡追根究柢。能從線索中發現規律，也常有精準的直覺判斷。",
     shadow: "過度懷疑時容易反覆查證、難以信任，最後因想得太多而延遲行動。完美資訊往往不存在。",
     wellbeing: "思緒停不下來時，可透過規律運動與書寫讓注意力回到當下。若焦慮影響生活，請尋求專業協助。",
-    color: "暮紫", hex: "#a675e5", marker: "真的嗎？",
+    editorialUiColor: { name: "暮紫", hex: "#a675e5" }, marker: "真的嗎？",
     markerDesc: "以質疑確認可靠性，也可能讓交流變成持續考驗。",
     advice: "先定義「足夠的證據」與決策期限。把小型行動當成新的資料來源，能讓分析與實踐形成循環。",
   },
@@ -81,7 +81,7 @@ export const profiles = {
     traits: "對數字、資源與成果敏銳，具備強烈執行力與商業判斷。能把抽象目標轉成可衡量的進度。",
     shadow: "壓力下容易用投入產出衡量所有關係，讓人感到距離或功利。只看效率時，可能忽略長期信任。",
     wellbeing: "長期高速運轉時，可主動安排休息並留意身心壓力訊號。任何持續或急性不適都應由醫療專業評估。",
-    color: "玫紅", hex: "#e85b9c", marker: "這能帶來什麼成果？",
+    editorialUiColor: { name: "玫紅", hex: "#e85b9c" }, marker: "這能帶來什麼成果？",
     markerDesc: "以效益過濾資訊，快速保護時間與資源。",
     advice: "在成果指標之外，加上一項關係或永續指標。真正穩固的影響力，來自效率與信任同時累積。",
   },
@@ -90,7 +90,7 @@ export const profiles = {
     traits: "視野宏觀、富使命感，容易看見更大的可能性。願意服務群體，也能以願景鼓舞身邊的人。",
     shadow: "理想過大時，可能低估執行細節或先答應再評估。若願景沒有下一步，就容易停留在想像。",
     wellbeing: "投入理想時也要保留規律飲食、睡眠與休息。身體狀況若有異常，請以合格醫療專業意見為準。",
-    color: "鎏金", hex: "#e6b74e", marker: "沒問題",
+    editorialUiColor: { name: "鎏金", hex: "#e6b74e" }, marker: "沒問題",
     markerDesc: "先用承諾回應期待，之後才處理可行性。",
     advice: "把願景縮成七天內能完成的一件事，並寫下負責人與期限。每一個落地步驟，都在替理想增加可信度。",
   },
@@ -117,12 +117,12 @@ export const CHEIRO_COLOR_SOURCE = Object.freeze({
 export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   1: {
     number: 1,
-    sourceFamilies: ["棕色", "黃色", "金色"],
+    historicalColorFamilies: ["棕色", "黃色", "金色"],
     avoidNote: "原書未另列較少使用色。",
-    swatches: [
-      { role: "primary", name: "古金", hex: "#C6A15B", sourceRelation: "原書色群" },
-      { role: "support", name: "暖黃", hex: "#E3BC59", sourceRelation: "原書色群" },
-      { role: "accent", name: "金棕", hex: "#8A633B", sourceRelation: "原書色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "古金", hex: "#C6A15B", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "暖黃", hex: "#E3BC59", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "金棕", hex: "#8A633B", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
     ],
     uses: {
       wear: "以棕色為底，古金或暖黃用於配件。",
@@ -132,12 +132,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   2: {
     number: 2,
-    sourceFamilies: ["綠色", "乳白", "白色"],
+    historicalColorFamilies: ["綠色", "乳白", "白色"],
     avoidNote: "原書建議較少使用厚重暗色，尤其黑、紫與暗紅。",
-    swatches: [
-      { role: "primary", name: "森綠", hex: "#3F7255", sourceRelation: "原書色群" },
-      { role: "support", name: "奶油白", hex: "#EFE1BE", sourceRelation: "原書色群" },
-      { role: "accent", name: "月白", hex: "#F5F3EA", sourceRelation: "原書色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "森綠", hex: "#3F7255", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "奶油白", hex: "#EFE1BE", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "月白", hex: "#F5F3EA", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
     ],
     uses: {
       wear: "綠色搭配奶油白，可先從上衣或配件試用。",
@@ -147,12 +147,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   3: {
     number: 3,
-    sourceFamilies: ["淡紫紅", "紫羅蘭", "丁香紫"],
+    historicalColorFamilies: ["淡紫紅", "紫羅蘭", "丁香紫"],
     avoidNote: "原書未另列較少使用色。",
-    swatches: [
-      { role: "primary", name: "木槿紫", hex: "#A46A96", sourceRelation: "原書色群" },
-      { role: "support", name: "紫羅蘭", hex: "#7954A5", sourceRelation: "原書色群" },
-      { role: "accent", name: "淡丁香", hex: "#C7ADD8", sourceRelation: "原書色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "木槿紫", hex: "#A46A96", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "紫羅蘭", hex: "#7954A5", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "淡丁香", hex: "#C7ADD8", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
     ],
     uses: {
       wear: "木槿紫作主體，淡丁香適合內搭或配件。",
@@ -162,12 +162,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   4: {
     number: 4,
-    sourceFamilies: ["藍色", "灰色", "電光藍", "半色調"],
+    historicalColorFamilies: ["藍色", "灰色", "電光藍", "半色調"],
     avoidNote: "原書建議較少使用強烈、高彩度的純色。",
-    swatches: [
-      { role: "primary", name: "電光藍", hex: "#397BD7", sourceRelation: "原書色群" },
-      { role: "support", name: "霧灰", hex: "#8B929C", sourceRelation: "原書色群" },
-      { role: "accent", name: "半調灰藍", hex: "#7389A3", sourceRelation: "原書語意轉譯" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "電光藍", hex: "#397BD7", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "霧灰", hex: "#8B929C", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "半調灰藍", hex: "#7389A3", authority: "site-editorial", sourceRelation: "本站數位色票・依原書語意轉譯" },
     ],
     uses: {
       wear: "灰色為底，以電光藍作小面積焦點。",
@@ -177,12 +177,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   5: {
     number: 5,
-    sourceFamilies: ["各種淺色", "淺灰", "白色與亮澤材質"],
+    historicalColorFamilies: ["各種淺色", "淺灰", "白色與亮澤材質"],
     avoidNote: "原書建議較少使用深色。",
-    swatches: [
-      { role: "primary", name: "亮銀灰", hex: "#CBD0D6", sourceRelation: "原書色群" },
-      { role: "support", name: "珠光白", hex: "#F2F1EC", sourceRelation: "原書色群" },
-      { role: "accent", name: "冰霧藍", hex: "#D9EAF0", sourceRelation: "網站淺色轉譯" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "亮銀灰", hex: "#CBD0D6", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "珠光白", hex: "#F2F1EC", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "冰霧藍", hex: "#D9EAF0", authority: "site-editorial", sourceRelation: "本站數位色票・依原書淺色語意轉譯" },
     ],
     uses: {
       wear: "淺灰白搭配微光材質，維持明亮感。",
@@ -192,12 +192,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   6: {
     number: 6,
-    sourceFamilies: ["淺藍至海軍藍", "玫瑰色", "粉紅色"],
+    historicalColorFamilies: ["淺藍至海軍藍", "玫瑰色", "粉紅色"],
     avoidNote: "原書一般建議少用紅、猩紅與緋紅，但另列出生時段例外。",
-    swatches: [
-      { role: "primary", name: "皇家藍", hex: "#2F5FA7", sourceRelation: "原書主色群" },
-      { role: "support", name: "海軍藍", hex: "#1E3559", sourceRelation: "原書主色群" },
-      { role: "accent", name: "玫瑰粉", hex: "#D88C9B", sourceRelation: "原書次色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "皇家藍", hex: "#2F5FA7", authority: "site-editorial", sourceRelation: "本站數位色票・依原書主色名轉譯" },
+      { role: "support", name: "海軍藍", hex: "#1E3559", authority: "site-editorial", sourceRelation: "本站數位色票・依原書主色名轉譯" },
+      { role: "accent", name: "玫瑰粉", hex: "#D88C9B", authority: "site-editorial", sourceRelation: "本站數位色票・依原書次色名轉譯" },
     ],
     uses: {
       wear: "藍色作主體，玫瑰粉用於配件或局部。",
@@ -207,12 +207,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   7: {
     number: 7,
-    sourceFamilies: ["淡綠", "白色", "淡黃與金色"],
+    historicalColorFamilies: ["淡綠", "白色", "淡黃與金色"],
     avoidNote: "原書表示最淡的粉彩色最適合。",
-    swatches: [
-      { role: "primary", name: "粉彩綠", hex: "#C6D8B4", sourceRelation: "原書色群" },
-      { role: "support", name: "象牙白", hex: "#F3EFDF", sourceRelation: "原書色群" },
-      { role: "accent", name: "淡金黃", hex: "#E5CE83", sourceRelation: "原書色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "粉彩綠", hex: "#C6D8B4", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "象牙白", hex: "#F3EFDF", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "淡金黃", hex: "#E5CE83", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
     ],
     uses: {
       wear: "以極淡綠白為主，淡金用於配件。",
@@ -222,12 +222,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   8: {
     number: 8,
-    sourceFamilies: ["深灰", "深藍", "紫色與黑色"],
+    historicalColorFamilies: ["深灰", "深藍", "紫色與黑色"],
     avoidNote: "原書建議較少使用明亮、花俏的顏色。",
-    swatches: [
-      { role: "primary", name: "炭灰", hex: "#41454D", sourceRelation: "原書色群" },
-      { role: "support", name: "深靛藍", hex: "#243A5A", sourceRelation: "原書色群" },
-      { role: "accent", name: "墨紫", hex: "#4C365A", sourceRelation: "原書色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "炭灰", hex: "#41454D", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "深靛藍", hex: "#243A5A", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "墨紫", hex: "#4C365A", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
     ],
     uses: {
       wear: "炭灰與深藍為主，墨紫適合配件。",
@@ -237,12 +237,12 @@ export const CHEIRO_BIRTH_COLOR_PALETTES = Object.freeze({
   },
   9: {
     number: 9,
-    sourceFamilies: ["紅色", "玫瑰紅", "緋紅", "粉紅", "紅紫"],
+    historicalColorFamilies: ["紅色", "玫瑰紅", "緋紅", "粉紅", "紅紫"],
     avoidNote: "原書未另列較少使用色，並偏好較深、濃郁色調。",
-    swatches: [
-      { role: "primary", name: "緋紅", hex: "#B0263E", sourceRelation: "原書色群" },
-      { role: "support", name: "深玫瑰", hex: "#8D3851", sourceRelation: "原書色群" },
-      { role: "accent", name: "紅紫", hex: "#732B57", sourceRelation: "原書色群" },
+    editorialDigitalSwatches: [
+      { role: "primary", name: "緋紅", hex: "#B0263E", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "support", name: "深玫瑰", hex: "#8D3851", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
+      { role: "accent", name: "紅紫", hex: "#732B57", authority: "site-editorial", sourceRelation: "本站數位色票・依原書色名轉譯" },
     ],
     uses: {
       wear: "深紅作主體，玫瑰或紅紫用於配件。",
@@ -346,7 +346,7 @@ export function buildBirthdayColorGuide({ day, lifePathValue, attitudeValue }) {
 
   const composition = inputs.map((assignment) => ({
     ...assignment,
-    swatch: CHEIRO_BIRTH_COLOR_PALETTES[assignment.mappedNumber].swatches[assignment.selectedSwatchIndex],
+    swatch: CHEIRO_BIRTH_COLOR_PALETTES[assignment.mappedNumber].editorialDigitalSwatches[assignment.selectedSwatchIndex],
   }));
 
   return {

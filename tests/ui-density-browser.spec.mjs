@@ -1,7 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-const UI_DENSITY_BASE_URL = process.env.UI_DENSITY_BASE_URL || "http://127.0.0.1:4197";
-
 const VIEWPORTS = [
   { label: "大型桌機", width: 1920, height: 1080 },
   { label: "附圖桌機", width: 1672, height: 941 },
@@ -15,7 +13,6 @@ const VIEWPORTS = [
 ];
 
 test.use({
-  baseURL: UI_DENSITY_BASE_URL.endsWith("/") ? UI_DENSITY_BASE_URL : `${UI_DENSITY_BASE_URL}/`,
   reducedMotion: "reduce",
   timezoneId: "Asia/Taipei",
 });
@@ -221,7 +218,7 @@ async function expectCompactMobileDashboard(page) {
   expect(report.cockpitHeight, "手機即時摘要不得退化成過長四列").toBeLessThanOrEqual(92);
   expect(report.desktopAnalyticsDisplay, "手機不得重複顯示桌機四模塊總覽").toBe("none");
   expect(report.atlasColumns, "手機十八個輔助入口應採四欄密集排列").toBe(4);
-  expect(report.atlasCount, "DOM 必須保留二十二個唯一功能入口").toBe(22);
+  expect(report.atlasCount, "DOM 必須保留十八個唯一延伸功能入口").toBe(18);
   expect(report.atlasVisibleCount, "四個主要模式置頂後，功能總覽不得再重複顯示").toBe(18);
   expect(report.atlasBottom, "手機首屏必須完整顯示十八個輔助入口").toBeLessThanOrEqual(report.viewportHeight - 4);
   expect(report.workspaceTabColumns, "手機工作台分頁應採三欄兩列").toBe(3);
@@ -245,7 +242,7 @@ async function expectReferenceMobileDashboard(page) {
   await expect(page.locator(".cockpit-live-rail")).toBeHidden();
   await expect(page.locator(".cockpit-status > article")).toHaveCount(4);
   await expect(page.locator(".mobile-function-atlas")).toBeVisible();
-  await expect(page.locator(".mobile-function-atlas > a")).toHaveCount(22);
+  await expect(page.locator(".mobile-function-atlas > a")).toHaveCount(18);
   await expect(page.locator(".visual-module-rail")).toBeHidden();
   await expectImageAssetLoads(
     page,
@@ -329,7 +326,7 @@ async function expectReferenceMobileDashboard(page) {
   expect(report.atlas.top - report.cockpit.bottom, "摘要與十八格輔助總覽不可出現大空白").toBeLessThanOrEqual(12);
   expect(report.methodSource.top, "規則來源必須接在十八格輔助總覽後方").toBeGreaterThanOrEqual(report.atlas.bottom);
   expect(report.methodSource.top - report.atlas.bottom, "十八格輔助總覽與規則來源不可出現大空白").toBeLessThanOrEqual(16);
-  expect(report.atlasCount, "DOM 必須保留二十二個唯一功能入口").toBe(22);
+  expect(report.atlasCount, "DOM 必須保留十八個唯一延伸功能入口").toBe(18);
   expect(report.atlasVisibleCount, "四個主要模式置頂後只顯示十八個不重複輔助入口").toBe(18);
   expect(report.atlasColumns, "手機十八個輔助入口必須排成四欄").toBe(4);
   expect(report.atlasWidthSpread, "手機十八格入口寬度必須一致").toBeLessThanOrEqual(2);
@@ -352,7 +349,9 @@ async function expectReferenceMobileDashboard(page) {
 }
 
 async function verifyHomepage(page) {
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  const response = await page.goto("/index.html", { waitUntil: "networkidle" });
+  expect(response?.ok(), "首頁伺服器必須正常回應").toBe(true);
+  await expect(page, "瀏覽器測試不可誤連到其他專案的 HTTP server").toHaveTitle("生命靈數分析儀");
 
   const form = page.locator("#analyzer-form");
   const birthdayInput = page.locator("#birthday-input");
@@ -476,7 +475,7 @@ async function verifyHomepage(page) {
 
 async function expectDenseDesktopFirstFold(page, width, height) {
   await page.setViewportSize({ width, height });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   const analytics = page.locator("[data-ui-region='desktop-analytics']");
   await expect(analytics).toBeVisible();
@@ -491,25 +490,32 @@ async function expectDenseDesktopFirstFold(page, width, height) {
   }
   await expect(page.locator("[data-ui-region='cockpit']")).toBeHidden();
   await expect(page.locator(".topbar-actions > a")).toHaveCount(8);
-  await expect(page.locator(".function-command-grid > a")).toHaveCount(22);
+  await expect(page.locator(".function-command-grid > a")).toHaveCount(18);
   await expect(page.locator(".function-command-grid > a:visible")).toHaveCount(18);
   await expect(page.locator(".function-command-grid")).toBeVisible();
   await expect(page.locator(".visual-module-rail")).toBeHidden();
   await expect(page.locator(".dashboard-home-screen .hero-art"))
     .toHaveAttribute("src", /reference-v10\/hero-celestial-command-v10\.webp/);
   await expect(page.locator(".dashboard-home-screen .hero-title img"))
-    .toHaveAttribute("src", /reference-v4\/hero-title-calligraphy-v4\.png/);
+    .toHaveAttribute("src", /reference-v13\/hero-title-calligraphy-v13\.webp/);
   await expectImageAssetLoads(
     page,
     "public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp",
     "桌機主視覺圖",
   );
   for (const [path, label] of [
-    ["public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png", "黃金毛筆主標"],
+    ["public/visuals/ai-dashboard/reference-v13/hero-title-calligraphy-v13.webp", "黃金毛筆主標"],
     ["public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp", "新版分析儀表"],
     ["public/visuals/ai-dashboard/reference-v10/sidebar-three-step-rail-v10.webp", "側欄三步流程"],
-    ["public/visuals/ai-dashboard/reference-v10/name-stroke-workbench-v10.webp", "姓名筆畫工作台"],
-    ["public/visuals/ai-dashboard/reference-v10/local-history-vault-v10.webp", "本機紀錄與隱私庫"],
+    ["public/visuals/ai-dashboard/reference-v13/name-strokes-v13.webp", "姓名筆畫模組"],
+    ["public/visuals/ai-dashboard/reference-v13/color-compass-v13.webp", "適合色彩模組"],
+    ["public/visuals/ai-dashboard/reference-v13/identity-verification-v13.webp", "身分驗證模組"],
+    ["public/visuals/ai-dashboard/reference-v13/phone-resonance-v13.webp", "手機磁場模組"],
+    ["public/visuals/ai-dashboard/reference-v13/vehicle-address-map-v13.webp", "車牌門牌模組"],
+    ["public/visuals/ai-dashboard/reference-v13/custom-sequence-v13.webp", "自訂序列模組"],
+    ["public/visuals/ai-dashboard/reference-v13/local-history-v13.webp", "本機紀錄模組"],
+    ["public/visuals/ai-dashboard/reference-v13/rule-profiles-v13.webp", "規則設定模組"],
+    ["public/visuals/ai-dashboard/reference-v13/source-provenance-v13.webp", "規則來源模組"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp", "生日物件徽章"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp", "生命路徑物件徽章"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp", "數字頻譜物件徽章"],
@@ -608,7 +614,7 @@ async function unlockKangjie(page) {
 }
 
 async function verifyKangjie(page) {
-  await page.goto("kangjie.html#meihua", { waitUntil: "networkidle" });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
   await unlockKangjie(page);
 
   const tabs = page.locator("[data-kangjie-tab]");
@@ -659,7 +665,7 @@ async function verifyKangjie(page) {
 
 test("桌機未分析只顯示占位，1990-07-12 顯示可核對的真實結果", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   const analytics = page.locator("[data-ui-region='desktop-analytics']");
   await expect(analytics).toBeVisible();
@@ -699,7 +705,7 @@ test("桌機未分析只顯示占位，1990-07-12 顯示可核對的真實結果
 
 test("桌機側欄生日 CTA 空白時選完日期自動分析，已有日期時直接送出", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   const sidebarCta = page.locator(".sidebar-primary");
   const birthdayInput = page.locator("#birthday-input");
@@ -729,7 +735,7 @@ test("桌機側欄生日 CTA 空白時選完日期自動分析，已有日期時
 
 test("生命路徑、流年、九宮與工作台入口各自直達真實內容並可返回", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   const topbarEntries = page.locator(".topbar-actions > a");
   await expect(topbarEntries).toHaveCount(8);
@@ -789,7 +795,7 @@ test("生命路徑、流年、九宮與工作台入口各自直達真實內容�
 
 test("三數取卦總覽只稱輸入次數，不冒充能量分布", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   await page.locator(".sidebar-quick a[data-quick-mode='iching']").click();
   const accessDialog = page.locator("#iching-access-dialog");
@@ -830,7 +836,7 @@ for (const viewport of VIEWPORTS) {
 
 test("平板摘要完整可讀、來源區緊接模塊且三數輸入至少 44px", async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   const tabletLayout = await page.evaluate(() => {
     const cockpit = document.querySelector(".cockpit-status");
@@ -860,7 +866,7 @@ test("平板摘要完整可讀、來源區緊接模塊且三數輸入至少 44px
   }
 
   await page.setViewportSize({ width: 1024, height: 768 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
   await page.locator('[data-mode-label="iching"]').click();
   const accessDialog = page.locator("#iching-access-dialog");
   await expect(accessDialog).toBeVisible();
@@ -879,7 +885,7 @@ test("平板摘要完整可讀、來源區緊接模塊且三數輸入至少 44px
 
 test("短高桌機三數取卦維持橫排標籤、完整提示與 44px 操作區", async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 790 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   const proofFontSizes = await page.locator(".hero-proof li > span, .hero-proof small").evaluateAll(
     (elements) => elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)),
@@ -950,7 +956,7 @@ test("短高桌機三數取卦維持橫排標籤、完整提示與 44px 操作�
 
 test("桌機 AI 模塊清楚可辨、短畫面去除重複側欄且高畫面填滿工具區", async ({ page }) => {
   await page.setViewportSize({ width: 1536, height: 790 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
 
   await expect(page.locator(".sidebar-links")).toBeHidden();
   await expect(page.locator(".sidebar-start-guide")).toBeVisible();
@@ -986,7 +992,7 @@ test("桌機 AI 模塊清楚可辨、短畫面去除重複側欄且高畫面填�
   expect(compactFinish.versionBottom).toBeLessThanOrEqual(compactFinish.viewportHeight + 1);
 
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
   const tallSidebar = await page.evaluate(() => {
     const sidebar = document.querySelector(".dashboard-sidebar");
     const quickGrid = document.querySelector(".sidebar-quick > div");
@@ -1037,7 +1043,7 @@ for (const viewport of [
 ]) {
   test(`手機首屏 ${viewport.width}×${viewport.height} 完整顯示四模式、表單、四結果與十八個不重複輔助功能`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.goto("index.html", { waitUntil: "networkidle" });
+    await page.goto("/index.html", { waitUntil: "networkidle" });
     await expectReferenceMobileDashboard(page);
     await expectNoHorizontalOverflow(page);
     await page.screenshot({

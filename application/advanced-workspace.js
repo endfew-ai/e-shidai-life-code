@@ -19,7 +19,7 @@ import {
 
 const VIEW_META = Object.freeze({
   home: Object.freeze({ label: "功能總覽", title: "生命靈數工作台" }),
-  identity: Object.freeze({ label: "身分證命格", title: "身分證命格與人生階段" }),
+  identity: Object.freeze({ label: "台灣證號", title: "台灣證號命格與人生階段" }),
   sequence: Object.freeze({ label: "號碼磁場", title: "手機、車牌、門牌與自訂序列" }),
   settings: Object.freeze({ label: "規則設定", title: "版本化演算設定" }),
   history: Object.freeze({ label: "本機紀錄", title: "最近分析紀錄" }),
@@ -46,6 +46,44 @@ const SEQUENCE_META = Object.freeze({
     inputMode: "text",
   }),
 });
+
+const IDENTITY_DOCUMENT_META = Object.freeze({
+  national_id: Object.freeze({
+    label: "台灣國民身分證統一編號",
+    shortLabel: "國民身分證",
+    help: "第二碼須為 1 或 2；只檢查格式與邏輯檢查碼，不查證是否已配發。",
+    placeholder: "例如：A123456789",
+    submitLabel: "開始國民身分證分析",
+  }),
+  foreign_ui_new: Object.freeze({
+    label: "新式外來人口統一證號",
+    shortLabel: "新式外來證號",
+    help: "第二碼須為 8 或 9；依官方新式統一證號規則檢查格式與檢查碼。",
+    placeholder: "例如：A800000014",
+    submitLabel: "開始新式外來證號分析",
+  }),
+  foreign_ui_legacy: Object.freeze({
+    label: "舊式外來人口統一證號",
+    shortLabel: "舊式外來證號",
+    help: "第 2 碼須為 A、B、C 或 D；可辨識舊式格式，但本工具不實作其官方檢查規則，也不執行命格分析。",
+    placeholder: "例如：AC00000014",
+    submitLabel: "檢查舊式證號支援狀態",
+  }),
+});
+
+function isIdentityAnalysis(analysis) {
+  return Boolean(analysis?.identityValidation);
+}
+
+function identityDocumentMeta(documentType) {
+  return IDENTITY_DOCUMENT_META[documentType] ?? Object.freeze({
+    label: "未驗證台灣證號樣式",
+    shortLabel: "未驗證證號序列",
+    help: "只作自訂民俗序列分析。",
+    placeholder: "輸入 10 位證號樣式",
+    submitLabel: "開始自訂序列分析",
+  });
+}
 
 const FIELD_TONES = Object.freeze({
   伏位: "stable",
@@ -142,7 +180,7 @@ function createWorkspaceMarkup(root, assetRoot) {
         </div>
         <div class="workspace-entry-grid">
           <button type="button" data-entry="birthday"><img class="workspace-entry-art" src="${assetRoot}/life-path-instrument-aaa-v1.webp" width="1774" height="887" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>01</span><strong>生日生命靈數</strong><small>全部生日數字加總、生日數、九宮連線與個人流年</small></button>
-          <button type="button" data-entry="identity"><img class="workspace-entry-art" src="${assetRoot}/numerology-result-panel-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>02</span><strong>身分證命格</strong><small>命格數列與人生階段分流計算，輸入預設遮罩</small></button>
+          <button type="button" data-entry="identity"><img class="workspace-entry-art" src="${assetRoot}/numerology-result-panel-b-v3.webp" width="1586" height="992" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>02</span><strong>台灣證號命格</strong><small>國民身分證與新式外來證號分流，輸入預設遮罩</small></button>
           <button type="button" data-entry="phone_number"><img class="workspace-entry-art" src="${assetRoot}/digit-spectrum-panel-b-v3.webp" width="1823" height="863" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>03</span><strong>手機號碼磁場</strong><small>相鄰滑動配對、0／5 修飾與八大磁場</small></button>
           <button type="button" data-entry="vehicle_address"><img class="workspace-entry-art" src="${assetRoot}/birth-orbit-b-v2.webp" width="1536" height="1024" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>04</span><strong>車牌／門牌</strong><small>英數轉換與來源字元追溯</small></button>
           <button type="button" data-entry="custom_sequence"><img class="workspace-entry-art" src="${assetRoot}/digit-wave-b-v2.webp" width="1600" height="954" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>05</span><strong>自訂英數序列</strong><small>適合其他非敏感編號；不當作身分證檢查</small></button>
@@ -150,19 +188,24 @@ function createWorkspaceMarkup(root, assetRoot) {
         </div>
         <div class="workspace-boundary">
           <strong>資料界線</strong>
-          <p>所有分析只在本機瀏覽器執行。身分證完整字號、轉換序列與配對不寫入歷史；民俗內容不作醫療、財務、法律或命運保證。</p>
+           <p>所有分析只在本機瀏覽器執行。完整證號、轉換序列與配對不寫入歷史；民俗內容不作醫療、財務、法律或命運保證。</p>
         </div>
       </section>
       <section id="workspace-panel-identity" role="tabpanel" aria-labelledby="workspace-tab-identity" data-workspace-view="identity" hidden>
         <header class="workspace-panel-heading">
-          <div><p>輸入檢查 × 民俗規則</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">身分證命格與人生階段</p></div>
+          <div><p>輸入檢查 × 民俗規則</p><p class="workspace-panel-title" role="heading" aria-level="3" tabindex="-1">台灣證號命格與人生階段</p></div>
           <span data-active-timeline></span>
         </header>
         <form data-identity-form novalidate>
+          <div class="sequence-type-switch" role="radiogroup" aria-label="台灣證號類型">
+            ${Object.entries(IDENTITY_DOCUMENT_META).map(([id, meta]) =>
+              `<label><input type="radio" name="identity-document-type" value="${id}" ${id === "national_id" ? "checked" : ""} /><span>${meta.shortLabel}</span></label>`).join("")}
+          </div>
           <label class="workspace-field">
-            <span>台灣國民身分證統一編號</span>
-            <input data-identity-input type="password" maxlength="10" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="輸入 1 個英文字母與 9 位數字" aria-describedby="identity-privacy identity-status" />
+            <span data-identity-label>台灣國民身分證統一編號</span>
+            <input data-identity-input type="password" maxlength="10" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="例如：A123456789" aria-describedby="identity-document-help identity-privacy identity-status" />
           </label>
+          <p id="identity-document-help" class="workspace-help" data-identity-document-help>第二碼須為 1 或 2；只檢查格式與邏輯檢查碼，不查證是否已配發。</p>
           <label class="workspace-check">
             <input data-identity-override type="checkbox" />
             <span>檢查碼未通過時，仍視為「自訂民俗序列」分析</span>
@@ -170,7 +213,7 @@ function createWorkspaceMarkup(root, assetRoot) {
           <p id="identity-privacy" class="workspace-help">完整字號不寫入網址、造訪計數、console 或本機歷史。結果預設顯示遮罩。</p>
           <p id="identity-status" class="workspace-status" data-identity-status role="alert" aria-live="polite"></p>
           <div class="workspace-form-actions">
-            <button type="submit" class="primary-button">開始身分證分析 <span aria-hidden="true">↘</span></button>
+            <button type="submit" class="primary-button" data-identity-submit>開始國民身分證分析 <span aria-hidden="true">↘</span></button>
             <button type="reset" class="secondary-button">清除</button>
           </div>
         </form>
@@ -353,13 +396,13 @@ function renderPairCards(container, magnetic, options = {}) {
   container.append(wrapper);
 }
 
-function renderIdentityDestiny(container, destiny) {
+function renderIdentityDestiny(container, destiny, documentMeta) {
   const block = el("section", "identity-destiny-block");
   const header = el("header");
   const copy = el("div");
   copy.append(
     el("p", "", "規則已設定"),
-    headingText("身分證命格數列", "identity-destiny-title", 4),
+    headingText(`${documentMeta.shortLabel}命格數列`, "identity-destiny-title", 4),
   );
   header.append(copy, el("code", "", destiny.maskedSequence));
   const rule = el("p", "identity-destiny-rule", destiny.droppedLeadingZero
@@ -526,22 +569,29 @@ function renderTimeline(container, timeline, options = {}) {
 
 function renderAnalysisResult(container, analysis, options = {}) {
   container.replaceChildren();
+  const identityAnalysis = isIdentityAnalysis(analysis);
+  const documentMeta = identityDocumentMeta(analysis.documentType);
   const sensitiveValues = [];
   const section = el("section", "advanced-analysis-result");
   section.setAttribute("aria-live", "polite");
   const heading = el("header", "advanced-result-heading");
   const headingCopy = el("div");
   headingCopy.append(
-    el("p", "", analysis.inputType === "taiwan_national_id" ? "身分證分析結果" : "數字磁場分析結果"),
+    el("p", "", identityAnalysis ? `${documentMeta.shortLabel}分析結果` : "數字磁場分析結果"),
     headingText(analysis.maskedInput, "advanced-result-value", 3),
     el("small", "", `${analysis.ruleSet.name} ${analysis.ruleSet.version}`),
   );
   const sensitiveHeading = headingCopy.querySelector(".advanced-result-value");
   sensitiveHeading.dataset.sensitiveResult = "";
-  if (analysis.inputType === "taiwan_national_id") {
-    setSensitiveText(sensitiveHeading, analysis.normalizedInput, analysis.maskedInput, sensitiveValues);
+  if (identityAnalysis) {
+    setSensitiveText(
+      sensitiveHeading,
+      analysis.sensitiveNormalizedInput ?? analysis.normalizedInput,
+      analysis.maskedInput,
+      sensitiveValues,
+    );
   }
-  const activeDominant = analysis.inputType === "taiwan_national_id"
+  const activeDominant = identityAnalysis
     ? analysis.destinyDominantField
     : analysis.dominantField;
   const dominant = el("div", "dominant-result");
@@ -549,29 +599,31 @@ function renderAnalysisResult(container, analysis, options = {}) {
   heading.append(headingCopy, dominant);
   section.append(heading);
 
-  if (analysis.inputType === "taiwan_national_id") {
+  if (identityAnalysis) {
     const validation = el("div", `identity-validation ${analysis.identityValidation.checksumValid ? "is-valid" : "is-warning"}`);
     validation.append(
-      el("strong", "", analysis.identityValidation.checksumValid ? "格式與檢查碼通過" : "以自訂序列繼續"),
+      el("strong", "", analysis.identityValidation.checksumValid
+        ? `${documentMeta.shortLabel}格式與檢查碼通過`
+        : "檢查碼未通過；以自訂序列繼續"),
       el("p", "", analysis.identityValidation.message),
-      el("small", "", "邏輯檢查通過不等於證明號碼已配發或持有人身分。"),
+      el("small", "", "驗證範圍：只檢查格式與檢查碼；不查證號碼是否已配發或持有人身分。"),
     );
     section.append(validation);
-    renderIdentityDestiny(section, analysis.identityDestiny);
+    renderIdentityDestiny(section, analysis.identityDestiny, documentMeta);
   }
 
   renderPairCards(
     section,
-    analysis.inputType === "taiwan_national_id"
+    identityAnalysis
       ? analysis.destinyMagneticFieldResult
       : analysis.magneticFieldResult,
-    analysis.inputType === "taiwan_national_id"
+    identityAnalysis
       ? { eyebrow: "命格主要出現磁場", maskSensitive: true, sensitiveValues }
       : {},
   );
   if (analysis.timelineResult) {
     renderTimeline(section, analysis.timelineResult, {
-      maskSensitive: analysis.inputType === "taiwan_national_id",
+      maskSensitive: identityAnalysis,
       sensitiveValues,
       magnetic: analysis.lifeEncounterMagnetic,
     });
@@ -584,7 +636,7 @@ function renderAnalysisResult(container, analysis, options = {}) {
   for (const step of analysis.calculationSteps) {
     const item = el("li");
     const stepCode = el("code");
-    if (analysis.inputType === "taiwan_national_id" && step.id.startsWith("pair-")) {
+    if (identityAnalysis && step.id.startsWith("pair-")) {
       setSensitiveText(stepCode, step.text, "完整命格相鄰數字預設遮罩", sensitiveValues);
     } else {
       stepCode.textContent = step.text;
@@ -649,7 +701,7 @@ function renderAnalysisResult(container, analysis, options = {}) {
   });
   actions.append(copyReport, printReport);
 
-  if (analysis.inputType === "taiwan_national_id" && options.allowReveal) {
+  if (identityAnalysis && options.allowReveal) {
     const reveal = button("顯示完整字號 10 秒", "text-button sensitive-reveal");
     revealButton = reveal;
     reveal.addEventListener("click", () => {
@@ -678,8 +730,12 @@ function renderHistory(container, status) {
     const item = el("li");
     const heading = el("header");
     const typeLabel = record.inputType === "taiwan_national_id"
-      ? "身分證命格"
-      : record.inputType === "phone_number"
+      ? "國民身分證命格"
+      : record.inputType === "taiwan_foreign_ui_new"
+        ? "新式外來證號命格"
+        : record.inputType === "unverified_taiwan_identity_sequence"
+          ? "未驗證證號序列"
+          : record.inputType === "phone_number"
         ? "手機號碼"
         : record.inputType === "vehicle_address"
           ? "車牌／門牌"
@@ -736,6 +792,10 @@ export function mountNumerologyWorkspace(root, options = {}) {
   const settingsStatus = root.querySelector("[data-settings-status]");
   const identityForm = root.querySelector("[data-identity-form]");
   const identityInput = root.querySelector("[data-identity-input]");
+  const identityLabel = root.querySelector("[data-identity-label]");
+  const identityDocumentHelp = root.querySelector("[data-identity-document-help]");
+  const identitySubmit = root.querySelector("[data-identity-submit]");
+  const identityDocumentRadios = [...root.querySelectorAll('input[name="identity-document-type"]')];
   const identityStatus = root.querySelector("[data-identity-status]");
   const identityResult = root.querySelector("[data-identity-result]");
   const sequenceForm = root.querySelector("[data-sequence-form]");
@@ -746,6 +806,7 @@ export function mountNumerologyWorkspace(root, options = {}) {
   const historyStatus = root.querySelector("[data-history-status]");
   let activeView = "home";
   let activeSequenceType = "phone_number";
+  let activeIdentityDocumentType = "national_id";
 
   function updateClock() {
     const now = new Date();
@@ -803,6 +864,20 @@ export function mountNumerologyWorkspace(root, options = {}) {
     statusMessage(sequenceStatus, "");
   }
 
+  function updateIdentityDocumentType(type) {
+    if (!IDENTITY_DOCUMENT_META[type]) return;
+    activeIdentityDocumentType = type;
+    const meta = identityDocumentMeta(type);
+    identityLabel.textContent = meta.label;
+    identityDocumentHelp.textContent = meta.help;
+    identityInput.placeholder = meta.placeholder;
+    identitySubmit.firstChild.textContent = `${meta.submitLabel} `;
+    identityInput.value = "";
+    identityInput.setAttribute("aria-invalid", "false");
+    identityResult.replaceChildren();
+    statusMessage(identityStatus, "");
+  }
+
   for (const [index, tab] of tabs.entries()) {
     tab.addEventListener("click", () => showView(tab.dataset.workspaceTab));
     tab.addEventListener("keydown", (event) => {
@@ -839,6 +914,9 @@ export function mountNumerologyWorkspace(root, options = {}) {
 
   for (const radio of root.querySelectorAll('input[name="sequence-type"]')) {
     radio.addEventListener("change", () => updateSequenceType(radio.value));
+  }
+  for (const radio of identityDocumentRadios) {
+    radio.addEventListener("change", () => updateIdentityDocumentType(radio.value));
   }
 
   settingsForm.elements.masterNumberMode.addEventListener("change", () => {
@@ -881,6 +959,8 @@ export function mountNumerologyWorkspace(root, options = {}) {
   });
   identityForm.addEventListener("reset", () => {
     window.setTimeout(() => {
+      const selectedDocumentType = identityDocumentRadios.find((radio) => radio.checked)?.value ?? "national_id";
+      updateIdentityDocumentType(selectedDocumentType);
       identityResult.replaceChildren();
       statusMessage(identityStatus, "");
       identityInput.focus();
@@ -892,6 +972,7 @@ export function mountNumerologyWorkspace(root, options = {}) {
       const settings = loadNumerologySettings();
       const analysis = analyzeIdentityV2({
         value: identityInput.value,
+        documentType: activeIdentityDocumentType,
         allowInvalidChecksum: root.querySelector("[data-identity-override]").checked,
         timelineProfile: settings.timelineProfile,
         ruleSet: resolveSettingsRuleSet(settings),
@@ -899,14 +980,14 @@ export function mountNumerologyWorkspace(root, options = {}) {
       });
       identityInput.value = "";
       identityInput.setAttribute("aria-invalid", "false");
-      statusMessage(identityStatus, "分析完成；完整字號已從輸入框清除。", "success");
+      statusMessage(identityStatus, `${identityDocumentMeta(analysis.documentType).shortLabel}分析完成；完整字號已從輸入框清除。`, "success");
       renderAnalysisResult(identityResult, analysis, { allowReveal: true });
       saveAnalysisHistory(analysis);
       renderHistory(historyList, historyStatus);
     } catch (error) {
       identityResult.replaceChildren();
       identityInput.setAttribute("aria-invalid", "true");
-      statusMessage(identityStatus, error instanceof Error ? error.message : "身分證資料無法分析。", "error");
+      statusMessage(identityStatus, error instanceof Error ? error.message : "證號資料無法分析。", "error");
       identityInput.focus();
     }
   });
@@ -955,6 +1036,9 @@ export function mountNumerologyWorkspace(root, options = {}) {
     }
   });
 
+  updateIdentityDocumentType(
+    identityDocumentRadios.find((radio) => radio.checked)?.value ?? "national_id",
+  );
   updateClock();
   refreshSettingsLabels();
   renderHistory(historyList, historyStatus);

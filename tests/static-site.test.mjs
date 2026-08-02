@@ -87,6 +87,19 @@ const referenceV10DashboardAssets = [
   "local-history-vault-v10.webp",
 ];
 
+const referenceV13DashboardAssets = [
+  "color-compass-v13.webp",
+  "custom-sequence-v13.webp",
+  "hero-title-calligraphy-v13.webp",
+  "identity-verification-v13.webp",
+  "local-history-v13.webp",
+  "name-strokes-v13.webp",
+  "phone-resonance-v13.webp",
+  "rule-profiles-v13.webp",
+  "source-provenance-v13.webp",
+  "vehicle-address-map-v13.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -114,10 +127,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /不會由生日或身分證自動起卦/);
   assert.match(html, /https:\/\/endfew-ai\.github\.io\/e-shidai-life-code\/og-life-numerology-v10\.png/);
   assert.match(html, /ai-dashboard\/reference-v10\/hero-celestial-command-v10\.webp/);
-  assert.match(html, /ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png/);
-  assert.match(html, /ai-dashboard\/reference-v10\/analytics-instrument-triad-v10\.webp/);
+  assert.match(html, /ai-dashboard\/reference-v13\/hero-title-calligraphy-v13\.webp/);
   assert.match(reactSource, /ai-dashboard\/reference-v10\/hero-celestial-command-v10\.webp/);
-  assert.match(reactSource, /ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png/);
+  assert.match(reactSource, /ai-dashboard\/reference-v13\/hero-title-calligraphy-v13\.webp/);
   assert.match(styles, /ai-dashboard\/reference-v10\/analytics-instrument-triad-v10\.webp/);
   assert.match(styles, /ai-dashboard\/reference-v10\/sidebar-three-step-rail-v10\.webp/);
   assert.doesNotMatch(html, /hero-brush-title-b-v3\.webp/);
@@ -125,7 +137,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13"/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
@@ -183,10 +195,10 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/brand-crest-v2\.webp/);
   assert.match(html, /data-cockpit-result-label="primary">生命路徑數/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/analyze-dragon-seal-v2\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/annual-cycle-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v13\/color-compass-v13\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v10\/name-stroke-workbench-v10\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/sources-library-v1\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v10\/local-history-vault-v10\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v13\/source-provenance-v13\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v13\/local-history-v13\.webp/);
   assert.match(html, /title-workspace-web-v1\.webp" width="640" height="122"/);
   for (const moduleId of ["birthday", "life-path", "spectrum", "lo-shu", "annual-cycle", "workbench", "sources", "privacy"]) {
     assert.match(html, new RegExp(`data-module="${moduleId}"`));
@@ -196,8 +208,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(reactSource, /className="support-module-grid"/);
   assert.match(html, /class="mobile-function-atlas function-command-grid"/);
   assert.match(reactSource, /className="mobile-function-atlas function-command-grid"/);
-  assert.equal((html.match(/data-command-module=/g) ?? []).length, 22);
-  assert.equal((reactSource.match(/data-command-module=/g) ?? []).length, 22);
+  assert.equal((html.match(/data-command-module=/g) ?? []).length, 18);
+  assert.equal((reactSource.match(/data-command-module=/g) ?? []).length, 18);
   for (const moduleId of [
     "kangjie-calendar", "kangjie-object", "kangjie-sound",
     "kangjie-text", "kangjie-supplement", "kangjie-huangji",
@@ -262,7 +274,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     assert.ok(appSource.includes(asset), `${asset} must be referenced by the static application`);
     assert.ok(reactSource.includes(asset), `${asset} must be referenced by the React application`);
   }
-  assert.match(html, /<span class="sr-only">解碼生命・掌握命運<\/span><img class="brush-title-image" src="public\/visuals\/ai-dashboard\/reference-v4\/hero-title-calligraphy-v4\.png"/);
+  assert.match(html, /<span class="sr-only">解碼生命・掌握命運<\/span><img class="brush-title-image" src="public\/visuals\/ai-dashboard\/reference-v13\/hero-title-calligraphy-v13\.webp"/);
   assert.match(html, /<span class="sr-only">方法與本文來源<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-source-web-v1\.webp"/);
   assert.match(html, /<span class="sr-only">使用提醒<\/span><img class="brush-title-image" src="public\/visuals\/brush\/title-disclaimer-web-v1\.webp"/);
   assert.match(appSource, /brushTitleElement\("public\/visuals\/brush\/title-insight-v5\.webp", "把結果變成可觀察的問題"/);
@@ -270,7 +282,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /data-personal-color-guide/);
   assert.match(reactSource, /function BirthdayColorGuide/);
   assert.match(reactSource, /data-personal-color-guide/);
-  assert.match(appSource, /from "\.\/site-services\.js\?v=20260802-reference-v12"/);
+  assert.match(appSource, /from "\.\/site-services\.js\?v=20260802-reference-v13"/);
   assert.match(reactSource, /from "\.\.\/site-services\.js"/);
   assert.match(appSource, /isIChingAccessCode/);
   assert.match(reactSource, /isIChingAccessCode/);
@@ -351,6 +363,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV5DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v5/${asset}`, import.meta.url))),
     ...referenceV6DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v6/${asset}`, import.meta.url))),
     ...referenceV10DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v10/${asset}`, import.meta.url))),
+    ...referenceV13DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v13/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),
@@ -399,6 +412,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     access(new URL("../docs/reference-v6-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v10-visual-assets.md", import.meta.url)),
     access(new URL("../docs/reference-v11-compact-command-layout.md", import.meta.url)),
+    access(new URL("../docs/reference-v13-visual-assets.md", import.meta.url)),
   ]);
 });
 

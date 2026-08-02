@@ -260,7 +260,10 @@ export function buildBirthdayReportSections(analysis) {
 }
 
 export function buildMagneticReportSections(analysis) {
-  const isIdentity = analysis.inputType === "taiwan_national_id";
+  const isIdentity = analysis.kind === "identity" || Boolean(analysis.identityValidation);
+  const identitySubject = analysis.documentType === "foreign_ui_new"
+    ? "新式外來證號"
+    : "國民身分證";
   const magnetic = isIdentity
     ? (analysis.destinyMagneticFieldResult ?? analysis.identityDestiny?.magnetic ?? analysis.magneticFieldResult)
     : (analysis.magneticFieldResult ?? analysis.magnetic ?? analysis);
@@ -286,7 +289,7 @@ export function buildMagneticReportSections(analysis) {
   if (isIdentity && destiny) {
     sections.push(section(
       "identity-destiny-sequence",
-      "身分證命格數列",
+      `${identitySubject}命格數列`,
       destiny.droppedLeadingZero
         ? "字母碼的補位 0 已依命格規則移除"
         : "字母碼不以補位 0 開頭，完整保留",
@@ -361,8 +364,11 @@ export function buildMagneticReportSections(analysis) {
 
 export function generatePlainTextReport(analysis, options = {}) {
   const showSensitive = options.showSensitive === true;
-  const displayInput = analysis.inputType === "taiwan_national_id" && !showSensitive
-    ? analysis.maskedInput
+  const isIdentity = analysis.kind === "identity" || Boolean(analysis.identityValidation);
+  const displayInput = isIdentity
+    ? (showSensitive
+      ? (analysis.sensitiveNormalizedInput ?? analysis.normalizedInput ?? analysis.maskedInput)
+      : analysis.maskedInput)
     : (analysis.normalizedInput ?? analysis.maskedInput);
   const lines = [
     "生命靈數分析報告",
@@ -384,6 +390,7 @@ export function generatePlainTextReport(analysis, options = {}) {
 }
 
 export function createHistoryRecord(analysis) {
+  const isIdentity = analysis.kind === "identity" || Boolean(analysis.identityValidation);
   const common = {
     schemaVersion: 1,
     id: analysis.id,
@@ -398,11 +405,11 @@ export function createHistoryRecord(analysis) {
   return Object.freeze({
     ...common,
     sensitiveDataStored: false,
-    dominantFields: [...(analysis.inputType === "taiwan_national_id"
+    dominantFields: [...(isIdentity
       ? (analysis.destinyDominantField?.fields ?? analysis.dominantField?.fields ?? [])
       : (analysis.dominantField?.fields ?? []))],
-    note: analysis.inputType === "taiwan_national_id"
-      ? "完整身分證、轉換序列、配對與時間軸未寫入歷史，避免由本機紀錄反推出原號。"
+    note: isIdentity
+      ? "完整證號、轉換序列、配對與時間軸未寫入歷史，避免由本機紀錄反推出原號。"
       : "歷史只保存遮罩輸入、規則版本與摘要；完整原始序列不寫入本機紀錄。",
   });
 }

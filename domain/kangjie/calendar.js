@@ -63,6 +63,37 @@ function branch(value) {
   return earthlyBranches[value - 1];
 }
 
+function compareOfficialCalendarFixture(instantIso, timeZone, actual) {
+  const fixture = cwaCalendarOracle.testCases.find((item) => (
+    item.instantIso === instantIso && item.timeZone === timeZone
+  ));
+  if (!fixture) {
+    return Object.freeze({
+      status: "not_sampled",
+      sourceId: cwaCalendarOracle.sourceId,
+      oracleVersion: cwaCalendarOracle.version,
+      matchedFixture: null,
+      differences: Object.freeze([]),
+      note: "此時刻未列入中央氣象署固定測試點；結果由瀏覽器 Intl Chinese Calendar 換算，未宣稱逐日官方核對。",
+    });
+  }
+
+  const comparedFields = ["relatedYear", "lunarMonth", "lunarDay", "isLeapMonth"];
+  const differences = comparedFields
+    .filter((field) => actual[field] !== fixture[field])
+    .map((field) => Object.freeze({ field, expected: fixture[field], actual: actual[field] }));
+  return Object.freeze({
+    status: differences.length === 0 ? "verified" : "mismatch",
+    sourceId: cwaCalendarOracle.sourceId,
+    oracleVersion: cwaCalendarOracle.version,
+    matchedFixture: fixture.instantIso,
+    differences: Object.freeze(differences),
+    note: differences.length === 0
+      ? "此時刻的農曆年、月、日與閏月狀態已通過中央氣象署固定測試點核對。"
+      : "瀏覽器換算結果與中央氣象署固定測試點不一致，請改用人工輸入並核對。",
+  });
+}
+
 function resolveLichunYear(date, timeZone, manualLichunInstantIso) {
   const civilYear = localNumericPart(date, timeZone, "year");
   const rawInstant = manualLichunInstantIso || cwaCalendarOracle.lichunInstants[civilYear];
@@ -138,10 +169,22 @@ export function detectCalendarParts(rawDate = new Date(), options = {}) {
     second: "2-digit",
     hourCycle: "h23",
   }).format(date);
+  const instantIso = date.toISOString();
+  const oracleCoverage = compareOfficialCalendarFixture(instantIso, timeZone, {
+    relatedYear,
+    lunarMonth: originalLunarMonth,
+    lunarDay,
+    isLeapMonth,
+  });
+  const usesOfficialLichun = profile.yearBoundary === "lichun" && !options.lichunInstantIso;
+  const crossCheckedBy = [
+    ...(["verified", "mismatch"].includes(oracleCoverage.status) ? [cwaCalendarOracle.sourceId] : []),
+    ...(usesOfficialLichun ? ["CWA-SOLAR-TERMS-01"] : []),
+  ];
 
   return {
     mode: "automatic",
-    instantIso: date.toISOString(),
+    instantIso,
     timeZone,
     timeZoneLabel: offset ? `${timeZone}・${offset}` : timeZone,
     gregorianLabel,
@@ -164,10 +207,13 @@ export function detectCalendarParts(rawDate = new Date(), options = {}) {
     ziHourDayBoundary: profile.ziHourDayBoundary,
     shiftedForLateZi,
     lichunInstantIso: yearResolution.lichunInstantIso,
-    calendarDataVersion: cwaCalendarOracle.version,
-    sourceIds: ["CWA-CALENDAR-01"],
+    computedBy: "ECMA402-Intl-Chinese",
+    crossCheckedBy,
+    oracleCoverage,
+    calendarDataVersion: crossCheckedBy.length > 0 ? cwaCalendarOracle.version : null,
+    sourceIds: ["ECMA402-INTL-CHINESE-01", ...crossCheckedBy],
     warnings: [
-      "自動農曆日期由瀏覽器 Intl Chinese Calendar 轉換；中央氣象署固定資料只作邊界測試與節氣核對。",
+      oracleCoverage.note,
       ...(shiftedForLateZi ? ["依目前 profile，23 時的農曆日期已換作次日。"] : []),
     ],
   };
@@ -201,6 +247,16 @@ export function normalizeManualCalendarParts(input, options = {}) {
     ziHourDayBoundary: profile.ziHourDayBoundary,
     shiftedForLateZi: false,
     lichunInstantIso: input.lichunInstantIso || null,
+    computedBy: "manual-input",
+    crossCheckedBy: [],
+    oracleCoverage: Object.freeze({
+      status: "not_applicable",
+      sourceId: cwaCalendarOracle.sourceId,
+      oracleVersion: cwaCalendarOracle.version,
+      matchedFixture: null,
+      differences: Object.freeze([]),
+      note: "人工輸入未執行官方固定測試點核對。",
+    }),
     calendarDataVersion: null,
     sourceIds: [],
     warnings: [

@@ -163,7 +163,21 @@ export type CurrentCalendarParts = {
   ziHourDayBoundary: string;
   shiftedForLateZi: boolean;
   lichunInstantIso: string | null;
-  calendarDataVersion: string;
+  computedBy: "ECMA402-Intl-Chinese";
+  crossCheckedBy: string[];
+  oracleCoverage: {
+    status: "verified" | "mismatch" | "not_sampled";
+    sourceId: string;
+    oracleVersion: string;
+    matchedFixture: string | null;
+    differences: readonly {
+      field: string;
+      expected: unknown;
+      actual: unknown;
+    }[];
+    note: string;
+  };
+  calendarDataVersion: string | null;
   sourceIds: string[];
   warnings: string[];
 };

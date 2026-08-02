@@ -32,9 +32,9 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /分析生日命碼/);
   assert.match(html, /分析資料只在本機處理/);
   assert.match(html, /解碼生命・掌握命運/);
-  assert.match(html, /reference-v4\/hero-title-calligraphy-v4\.png/);
+  assert.match(html, /reference-v13\/hero-title-calligraphy-v13\.webp/);
   assert.match(html, /class="mobile-function-atlas function-command-grid"/);
-  assert.equal((html.match(/data-command-module=/g) ?? []).length, 22);
+  assert.equal((html.match(/data-command-module=/g) ?? []).length, 18);
   assert.match(html, /年月日時/);
   assert.match(html, /物數起卦/);
   assert.match(html, /聲音起卦/);

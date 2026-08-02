@@ -21,13 +21,13 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const viewport of viewports) {
-  test(`v11 ${viewport.label} 首屏顯示全部功能且無遮蔽`, async ({ page }) => {
+  test(`v13 ${viewport.label} 首屏顯示全部功能且無遮蔽`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("index.html", { waitUntil: "networkidle" });
 
     const atlas = page.locator(".function-command-grid");
     await expect(atlas).toBeVisible();
-    await expect(atlas.locator(":scope > a")).toHaveCount(22);
+    await expect(atlas.locator(":scope > a")).toHaveCount(18);
     await expect(atlas.locator(":scope > a:visible")).toHaveCount(18);
     await expect(page.locator("#analyzer-form .mode-switch > label, #analyzer-form .mode-switch > a")).toHaveCount(4);
 
@@ -67,20 +67,20 @@ for (const viewport of viewports) {
     expect(report.atlasBottom).toBeLessThanOrEqual(report.viewportHeight + 1);
 
     await page.screenshot({
-      path: `output/playwright/v11-${viewport.label}.png`,
+      path: `output/playwright/v13-${viewport.label}.png`,
       fullPage: false,
     });
   });
 }
 
-test("v12 二十二個模組名稱唯一，全部既有工具都有直達入口", async ({ page }) => {
+test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入口", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
   await page.goto("index.html", { waitUntil: "networkidle" });
 
   const expectedModules = [
-    "birthday", "life-path", "spectrum", "lo-shu", "annual", "color", "iching", "name-strokes",
-    "kangjie", "kangjie-calendar", "kangjie-object", "kangjie-sound", "kangjie-text",
-    "kangjie-supplement", "kangjie-huangji", "identity", "phone", "vehicle", "sequence",
+    "life-path", "lo-shu", "annual", "color", "name-strokes", "identity",
+    "kangjie-calendar", "kangjie-object", "kangjie-sound", "kangjie-text",
+    "kangjie-supplement", "kangjie-huangji", "phone", "vehicle", "sequence",
     "history", "settings", "sources",
   ];
   await expect(page.locator("[data-command-module]")).toHaveCount(expectedModules.length);
@@ -147,7 +147,7 @@ test("v12 二十二個模組名稱唯一，全部既有工具都有直達入口"
   await expect(page.locator('[data-kangjie-tab="huangji"]')).toHaveAttribute("aria-selected", "true");
 });
 
-test("v12 適合色彩模組會使用生日分析並直達色彩結果", async ({ page }) => {
+test("v13 適合色彩模組會使用生日分析並直達色彩結果", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("index.html", { waitUntil: "networkidle" });
   await page.locator("#birthday-input").fill("1990-07-12");
@@ -157,7 +157,7 @@ test("v12 適合色彩模組會使用生日分析並直達色彩結果", async (
   await expect(page.locator("[data-personal-color-guide]")).toContainText("生日數 3");
 });
 
-test("v12 長造訪數在 1280 桌機不會和第八個導覽入口重疊", async ({ page }) => {
+test("v13 長造訪數在 1280 桌機不會和第八個導覽入口重疊", async ({ page }) => {
   await page.unroute("https://api.counterapi.dev/**");
   await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
     status: 200,

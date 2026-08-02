@@ -6,6 +6,37 @@ export const SOURCE_TYPES = Object.freeze({
   official: "official",
 });
 
+export const IDENTITY_SOURCE_REFS = Object.freeze({
+  "TW-GOV-SCHEMA-167": Object.freeze({
+    id: "TW-GOV-SCHEMA-167",
+    title: "人屬性基本資料標準",
+    organization: "數位發展部政府資料標準平臺",
+    url: "https://schema.gov.tw/lists/167",
+    scope: "國民身分證與新式外來人口統一證號的資料格式及檢查碼欄位。",
+  }),
+  "TW-GAZETTE-NATIONAL-ID-CHECKSUM": Object.freeze({
+    id: "TW-GAZETTE-NATIONAL-ID-CHECKSUM",
+    title: "國民身分證統一編號檢查方法",
+    organization: "行政院公報資訊網",
+    url: "https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg011228/ch04/type2/gov30/num2/OEg.pdf",
+    scope: "國民身分證字母區碼、權重與邏輯檢查碼。",
+  }),
+  "TW-NIA-FOREIGN-UI": Object.freeze({
+    id: "TW-NIA-FOREIGN-UI",
+    title: "外來人口統一證號格式說明",
+    organization: "內政部移民署",
+    url: "https://www.immigration.gov.tw/5385/12162/238449//CP_QA?alias=QAClass&type=%E5%85%A7%E6%94%BF%E9%83%A8%E7%A7%BB%E6%B0%91%E7%BD%B2",
+    scope: "新式一碼英文加九碼數字與舊式二碼英文加八碼數字的格式界線。",
+  }),
+  "TW-MOF-FOREIGN-UI-FORMAT": Object.freeze({
+    id: "TW-MOF-FOREIGN-UI-FORMAT",
+    title: "新舊式外來人口統一證號格式差異",
+    organization: "財政部財政資訊中心",
+    url: "https://www.etax.nat.gov.tw/etwmain/tax-info/understanding/tax-q-and-a/national/individual-income-tax/alien-tax-question/other/781zJ3Y",
+    scope: "舊式第二碼 A 至 D，以及新式第二碼 8 或 9 的格式說明。",
+  }),
+});
+
 export const RULE_SOURCE_PROFILES = Object.freeze({
   uploadedNumerologyV2: Object.freeze({
     id: "uploaded-numerology-v2",
@@ -30,6 +61,19 @@ export const RULE_SOURCE_PROFILES = Object.freeze({
     urls: Object.freeze([
       "https://gazette.nat.gov.tw/EG_FileManager/eguploadpub/eg011228/ch04/type2/gov30/num2/OEg.pdf",
       "https://schema.gov.tw/lists/167",
+    ]),
+  }),
+  taiwanIdentityDocumentOfficial: Object.freeze({
+    id: "taiwan-identity-document-official",
+    sourceType: SOURCE_TYPES.official,
+    title: "台灣證號格式與邏輯檢查",
+    certainty: "official",
+    note: "只涵蓋可公開驗證的格式與邏輯檢查碼；不能證明號碼已配發，也不能查證持有人身分。",
+    urls: Object.freeze([
+      IDENTITY_SOURCE_REFS["TW-GOV-SCHEMA-167"].url,
+      IDENTITY_SOURCE_REFS["TW-GAZETTE-NATIONAL-ID-CHECKSUM"].url,
+      IDENTITY_SOURCE_REFS["TW-NIA-FOREIGN-UI"].url,
+      IDENTITY_SOURCE_REFS["TW-MOF-FOREIGN-UI-FORMAT"].url,
     ]),
   }),
   timelineCommonPractice: Object.freeze({

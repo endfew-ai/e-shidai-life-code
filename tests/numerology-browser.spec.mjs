@@ -195,6 +195,46 @@ test("identity result is masked and local history never stores the full identifi
   expect(errors).toEqual([]);
 });
 
+test("new and legacy foreign identity document choices keep their validation boundaries", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+
+  await openWorkspaceView(page, "identity");
+  const panel = page.locator("[data-workspace-view='identity']");
+  const input = panel.locator("[data-identity-input]");
+  const status = panel.locator("[data-identity-status]");
+
+  await panel.getByText("新式外來證號", { exact: true }).click();
+  await expect(panel.locator('input[value="foreign_ui_new"]')).toBeChecked();
+  await expect(panel.locator("[data-identity-label]")).toHaveText("新式外來人口統一證號");
+  await expect(panel.locator("[data-identity-document-help]")).toContainText("第二碼須為 8 或 9");
+  await expect(input).toHaveAttribute("placeholder", "例如：A800000014");
+  await input.fill("A800000014");
+  await panel.locator("[data-identity-form]").evaluate((node) => node.requestSubmit());
+
+  const result = panel.locator("[data-identity-result]");
+  await expect(result.locator(".advanced-result-value")).toHaveText("A80*****14");
+  await expect(result).toContainText("新式外來證號格式與檢查碼通過");
+  await expect(result).toContainText("新式外來證號命格數列");
+  await expect(result).toContainText("不查證號碼是否已配發或持有人身分");
+  await expectNoHorizontalOverflow(page);
+  await panel.screenshot({ path: "output/playwright/foreign-ui-mobile-390.png" });
+
+  await panel.getByText("舊式外來證號", { exact: true }).click();
+  await expect(panel.locator('input[value="foreign_ui_legacy"]')).toBeChecked();
+  await expect(result).toBeEmpty();
+  await expect(panel.locator("[data-identity-label]")).toHaveText("舊式外來人口統一證號");
+  await expect(input).toHaveAttribute("placeholder", "例如：AC00000014");
+  await input.fill("AC00000014");
+  await panel.locator("[data-identity-form]").evaluate((node) => node.requestSubmit());
+  await expect(status).toContainText("未實作其官方檢查規則");
+  await expect(status).toContainText("不執行證號命格分析");
+  await expect(result).toBeEmpty();
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
 test("mobile identity destiny result stays readable without horizontal overflow", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });

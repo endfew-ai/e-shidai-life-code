@@ -10,6 +10,7 @@ export type SourceProfileId =
   | "uploaded-numerology-v2"
   | "legacy-project-v1"
   | "taiwan-national-id-official"
+  | "taiwan-identity-document-official"
   | "timeline-common-practice-v1"
   | "identity-destiny-common-practice-v1"
   | "modern-common-practice-v1";
@@ -21,6 +22,14 @@ export interface RuleSourceProfile {
   readonly certainty: SourceCertainty;
   readonly note: string;
   readonly urls?: readonly string[];
+}
+
+export interface OfficialSourceRef {
+  readonly id: string;
+  readonly title: string;
+  readonly organization: string;
+  readonly url: string;
+  readonly scope: string;
 }
 
 export type LifePathMode = "full_birth_digits" | "legacy_segmented";
@@ -160,6 +169,7 @@ export const SOURCE_TYPES: Readonly<{
   official: "official";
 }>;
 export const RULE_SOURCE_PROFILES: Readonly<Record<string, RuleSourceProfile>>;
+export const IDENTITY_SOURCE_REFS: Readonly<Record<string, OfficialSourceRef>>;
 export const FOLKLORE_HEALTH_DISCLAIMER: string;
 export const PERSONALITY_PROFILES: Readonly<Record<number, PersonalityProfile>>;
 export const BIRTH_GRID_LINE_RULES: readonly BirthGridLineRule[];
@@ -464,7 +474,9 @@ export type MagneticInputType =
   | "phone_number"
   | "vehicle_address"
   | "custom_sequence"
-  | "taiwan_national_id";
+  | "taiwan_national_id"
+  | "taiwan_foreign_ui_new"
+  | "unverified_taiwan_identity_sequence";
 
 export interface MagneticFieldSummary {
   readonly fieldType: MagneticFieldType;
@@ -509,27 +521,43 @@ export function analyzeMagneticSequence(
 
 export type TaiwanIdLetter = keyof typeof TAIWAN_ID_LETTER_VALUES;
 
-export type TaiwanIdValidation =
-  | Readonly<{
-      normalized: string;
-      valid: false;
-      formatValid: false;
-      checksumValid: false;
-      officialDigits: null;
-      checksumRemainder: null;
-      message: string;
-      sourceProfile: "taiwan-national-id-official";
-    }>
-  | Readonly<{
-      normalized: string;
-      valid: boolean;
-      formatValid: true;
-      checksumValid: boolean;
-      officialDigits: readonly number[];
-      checksumRemainder: number;
-      message: string;
-      sourceProfile: "taiwan-national-id-official";
-    }>;
+export type TaiwanIdentityDocumentType =
+  | "national_id"
+  | "foreign_ui_new"
+  | "foreign_ui_legacy"
+  | "unsupported";
+
+export type TaiwanIdentityDocumentSelection =
+  | "auto"
+  | Exclude<TaiwanIdentityDocumentType, "unsupported">;
+
+export type TaiwanIdentityAnalysisInputType =
+  | "taiwan_national_id"
+  | "taiwan_foreign_ui_new"
+  | "unverified_taiwan_identity_sequence";
+
+export interface TaiwanIdValidation {
+  readonly normalized: string;
+  readonly documentType: TaiwanIdentityDocumentType;
+  readonly detectedDocumentType: TaiwanIdentityDocumentType;
+  readonly validationScope: "format_checksum_only";
+  readonly issuanceVerified: false;
+  readonly valid: boolean;
+  readonly supported: boolean;
+  readonly recognizedFormat: boolean;
+  readonly formatValid: boolean;
+  readonly checksumValid: boolean | null;
+  readonly officialDigits: readonly number[] | null;
+  readonly checksumRemainder: number | null;
+  readonly message: string;
+  readonly sourceProfile: "taiwan-identity-document-official";
+  readonly validationRule: "taiwan-national-id-checksum-v1" | "taiwan-foreign-ui-new-checksum-v1" | null;
+  readonly sourceIds: readonly string[];
+}
+
+export interface TaiwanIdentityValidationOptions {
+  readonly documentType?: TaiwanIdentityDocumentSelection;
+}
 
 export interface TimelineStage {
   readonly stageIndex: number;
@@ -624,7 +652,7 @@ export interface IdentityConversion {
 export interface IdentityDestinyProfile {
   readonly status: "resolved";
   readonly mode: "drop_leading_letter_zero";
-  readonly label: "身分證命格數列";
+  readonly label: "證號命格數列";
   readonly sourceProfile: "identity-destiny-common-practice-v1";
   readonly letterSequentialValue: string;
   readonly droppedLeadingZero: boolean;
@@ -638,7 +666,10 @@ export interface IdentityDestinyProfile {
 
 export interface IdentityAnalysis {
   readonly kind: "identity";
-  readonly inputType: "taiwan_national_id";
+  readonly inputType: TaiwanIdentityAnalysisInputType;
+  readonly documentType: "national_id" | "foreign_ui_new";
+  readonly validationScope: "format_checksum_only";
+  readonly issuanceVerified: false;
   readonly maskedInput: string;
   readonly normalizedInput: string;
   readonly validation: TaiwanIdValidation;
@@ -658,6 +689,7 @@ export interface IdentityAnalysis {
 }
 
 export interface IdentityAnalysisOptions extends RuleSelectionOptions {
+  readonly documentType?: TaiwanIdentityDocumentSelection;
   readonly allowInvalidChecksum?: boolean;
   readonly timelineProfile?: TimelineProfileId;
   readonly timelineOptions?: TimelineOptions;
@@ -668,8 +700,22 @@ export const TAIWAN_ID_LETTER_VALUES: Readonly<Record<
   "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z",
   number
 >>;
+export const TAIWAN_ID_VALIDATION_SCOPE: "format_checksum_only";
+export const TAIWAN_ID_DOCUMENT_TYPES: Readonly<{
+  nationalId: "national_id";
+  foreignUiNew: "foreign_ui_new";
+  foreignUiLegacy: "foreign_ui_legacy";
+  unsupported: "unsupported";
+}>;
 export function normalizeTaiwanNationalId(rawValue: unknown): string;
+export function normalizeTaiwanIdentityDocument(rawValue: unknown): string;
 export function maskTaiwanNationalId(rawValue: unknown): string;
+export function maskTaiwanIdentityDocument(rawValue: unknown): string;
+export function inferTaiwanIdentityDocumentType(rawValue: unknown): TaiwanIdentityDocumentType;
+export function validateTaiwanIdentityDocument(
+  rawValue: unknown,
+  options?: TaiwanIdentityValidationOptions,
+): TaiwanIdValidation;
 export function validateTaiwanNationalId(rawValue: unknown): TaiwanIdValidation;
 export function buildIdentityDestinyProfile(
   conversion: AlphabetConversion,

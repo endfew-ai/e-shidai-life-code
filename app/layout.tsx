@@ -49,8 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preload" as="image" href="/visuals/brush/brand-life-numerology-aaa-web-v1.webp" type="image/webp" fetchPriority="high" />
         <link rel="preload" as="image" href="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" type="image/webp" fetchPriority="high" />
-        <link rel="preload" as="image" href="/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png" type="image/png" fetchPriority="high" />
-        <link rel="preload" as="image" href="/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp" type="image/webp" fetchPriority="high" media="(min-width: 861px)" />
+        <link rel="preload" as="image" href="/visuals/ai-dashboard/reference-v13/hero-title-calligraphy-v13.webp" type="image/webp" fetchPriority="high" />
       </head>
       <body>{children}</body>
     </html>

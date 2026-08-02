@@ -8,6 +8,7 @@ import {
   MAGNETIC_FIELD_GROUPS,
   MAGNETIC_FIELD_INTERPRETATIONS,
   MAGNETIC_FIELD_MAP,
+  IDENTITY_SOURCE_REFS,
   TAIWAN_ID_LETTER_VALUES,
   alphabetToSequentialDigits,
   analyzeBirthGrid,
@@ -20,7 +21,10 @@ import {
   calculatePersonalMonth,
   evaluateBirthGridLines,
   generatePlainTextReport,
+  inferTaiwanIdentityDocumentType,
   maskTaiwanNationalId,
+  sourceProfileFor,
+  validateTaiwanIdentityDocument,
   validateTaiwanNationalId,
 } from "../domain/numerology/index.js";
 import {
@@ -354,6 +358,9 @@ test("A=01 民俗轉換與台灣身分證官方字母值保持分離", () => {
 test("台灣身分證格式、檢查碼、遮罩與民俗序列結果可分別檢查", () => {
   const valid = validateTaiwanNationalId(" a123456789 ");
   assert.equal(valid.normalized, "A123456789");
+  assert.equal(valid.documentType, "national_id");
+  assert.equal(valid.validationScope, "format_checksum_only");
+  assert.equal(valid.issuanceVerified, false);
   assert.equal(valid.formatValid, true);
   assert.equal(valid.checksumValid, true);
   assert.equal(valid.valid, true);
@@ -366,6 +373,10 @@ test("台灣身分證格式、檢查碼、遮罩與民俗序列結果可分別�
   assert.throws(() => analyzeIdentityNumber("A123456788"), /檢查碼未通過/);
 
   const analyzed = analyzeIdentityNumber("A123456789");
+  assert.equal(analyzed.inputType, "taiwan_national_id");
+  assert.equal(analyzed.documentType, "national_id");
+  assert.equal(analyzed.validationScope, "format_checksum_only");
+  assert.equal(analyzed.issuanceVerified, false);
   assert.equal(analyzed.conversion.letter, "A");
   assert.equal(analyzed.conversion.sequentialValue, "01");
   assert.equal(analyzed.conversion.fullSequence, "01123456789");
@@ -379,6 +390,105 @@ test("台灣身分證格式、檢查碼、遮罩與民俗序列結果可分別�
   assert.equal(analyzed.encounterMagnetic.pairs.length, 10);
   assert.equal(analyzed.timeline.stages[0].pair.rawPair, "01");
   assert.equal(analyzed.destiny.magnetic.pairs[0].rawPair, "11");
+});
+
+test("新式外來人口統一證號依官方 8／9 格式分流，舊式格式明確標示不支援", () => {
+  for (const value of ["A800000014", "A900000016"]) {
+    const validation = validateTaiwanIdentityDocument(value);
+    assert.equal(validation.documentType, "foreign_ui_new", value);
+    assert.equal(validation.supported, true, value);
+    assert.equal(validation.formatValid, true, value);
+    assert.equal(validation.checksumValid, true, value);
+    assert.equal(validation.valid, true, value);
+    assert.equal(validation.validationRule, "taiwan-foreign-ui-new-checksum-v1", value);
+    assert.equal(validation.validationScope, "format_checksum_only", value);
+    assert.equal(validation.issuanceVerified, false, value);
+  }
+
+  const analyzed = analyzeIdentityNumber("A800000014");
+  assert.equal(analyzed.inputType, "taiwan_foreign_ui_new");
+  assert.equal(analyzed.documentType, "foreign_ui_new");
+  assert.equal(analyzed.validation.checksumValid, true);
+
+  const badChecksum = validateTaiwanIdentityDocument("A800000013");
+  assert.equal(badChecksum.documentType, "foreign_ui_new");
+  assert.equal(badChecksum.formatValid, true);
+  assert.equal(badChecksum.checksumValid, false);
+  assert.throws(() => analyzeIdentityNumber("A800000013"), /檢查碼未通過/);
+  const unverified = analyzeIdentityNumber("A800000013", { allowInvalidChecksum: true });
+  assert.equal(unverified.inputType, "unverified_taiwan_identity_sequence");
+  assert.equal(unverified.documentType, "foreign_ui_new");
+  assert.match(unverified.warnings.join("、"), /自訂序列/);
+
+  const legacy = validateTaiwanIdentityDocument("AC00000014");
+  assert.equal(legacy.documentType, "foreign_ui_legacy");
+  assert.equal(legacy.recognizedFormat, true);
+  assert.equal(legacy.supported, false);
+  assert.equal(legacy.checksumValid, null);
+  assert.match(legacy.message, /未實作其官方檢查規則/);
+  assert.throws(() => analyzeIdentityNumber("AC00000014"), /舊式外來人口統一證號/);
+
+  assert.equal(inferTaiwanIdentityDocumentType("AZ12345678"), "unsupported");
+  const invalidLegacy = validateTaiwanIdentityDocument("AZ12345678", {
+    documentType: "foreign_ui_legacy",
+  });
+  assert.equal(invalidLegacy.documentType, "foreign_ui_legacy");
+  assert.equal(invalidLegacy.recognizedFormat, false);
+  assert.match(invalidLegacy.message, /第 2 碼 A、B、C 或 D/);
+});
+
+test("台灣證號每個執行期來源 ID 都可解析，且官方 profile 不冒充配發查證", () => {
+  const samples = [
+    validateTaiwanIdentityDocument("A123456789"),
+    validateTaiwanIdentityDocument("A800000014"),
+    validateTaiwanIdentityDocument("AC00000014"),
+    validateTaiwanIdentityDocument("AZ12345678"),
+  ];
+  for (const validation of samples) {
+    assert.equal(validation.sourceProfile, "taiwan-identity-document-official");
+    for (const sourceId of validation.sourceIds) {
+      assert.ok(IDENTITY_SOURCE_REFS[sourceId], `缺少證號來源登錄：${sourceId}`);
+    }
+  }
+  const profile = sourceProfileFor("taiwan-identity-document-official");
+  assert.equal(profile.certainty, "official");
+  assert.match(profile.note, /不能證明號碼已配發/);
+});
+
+test("應用層保留證號類型與驗證邊界，未通過檢查碼時不冒充有效身分證", () => {
+  const foreign = analyzeIdentityV2({
+    value: "A800000014",
+    documentType: "foreign_ui_new",
+    todayValue: TODAY,
+    currentYear: 2026,
+    createdAt: CREATED_AT,
+  });
+  assert.equal(foreign.inputType, "taiwan_foreign_ui_new");
+  assert.equal(foreign.documentType, "foreign_ui_new");
+  assert.equal(foreign.validationScope, "format_checksum_only");
+  assert.equal(foreign.issuanceVerified, false);
+  assert.equal(foreign.normalizedInput, "A80*****14");
+  assert.equal(foreign.sensitiveNormalizedInput, "A800000014");
+  assert.ok(foreign.reportSections.some(({ id }) => id === "identity-destiny-sequence"));
+  const foreignReport = generatePlainTextReport(foreign);
+  assert.match(foreignReport, /新式外來證號命格數列/);
+  assert.doesNotMatch(foreignReport, /國民身分證命格數列/);
+  assert.doesNotMatch(foreignReport, /A800000014/);
+  assert.match(generatePlainTextReport(foreign, { showSensitive: true }), /A800000014/);
+
+  const unverified = analyzeIdentityV2({
+    value: "A123456788",
+    documentType: "national_id",
+    allowInvalidChecksum: true,
+    todayValue: TODAY,
+    currentYear: 2026,
+    createdAt: CREATED_AT,
+  });
+  assert.equal(unverified.inputType, "unverified_taiwan_identity_sequence");
+  assert.equal(unverified.documentType, "national_id");
+  assert.equal(unverified.identityValidation.valid, false);
+  assert.notEqual(unverified.inputType, "taiwan_national_id");
+  assert.doesNotMatch(generatePlainTextReport(unverified), /A123456788/);
 });
 
 test("命格數列只移除 A 至 I 字母碼的補位零，人生階段完整保留 11 位", () => {

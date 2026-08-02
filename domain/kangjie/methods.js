@@ -81,10 +81,7 @@ export function calculateCalendarMethod(input, options = {}) {
     ],
     profile,
     formulaSourceIds: ["MYS-WIKI-01", "MYS-CTEXT-01"],
-    dataSourceIds: [
-      ...(calendar.sourceIds?.length ? ["CWA-CALENDAR-01"] : []),
-      ...(calendar.sourceIds?.length && calendar.yearBoundary === "lichun" ? ["CWA-SOLAR-TERMS-01"] : []),
-    ],
+    dataSourceIds: [...new Set(calendar.sourceIds ?? [])],
     assumptions: [
       `曆法模式：${calendar.mode === "automatic" ? "自動換算" : "人工輸入"}。`,
       `年界 ${calendar.yearBoundary || "lunar-new-year"}・閏月 ${calendar.leapMonthRule || "same-month-number"}・子時換日 ${calendar.ziHourDayBoundary || "civil-midnight"}。`,

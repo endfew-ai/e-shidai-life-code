@@ -176,16 +176,22 @@ export function analyzeIdentityV2(input) {
   const ruleSet = resolveRuleSet(input.ruleSet ?? input.ruleSetId ?? DEFAULT_RULE_SET.id, input.ruleOverrides);
   const identity = analyzeIdentityNumber(input.value, {
     ruleSet,
+    documentType: input.documentType ?? "auto",
     allowInvalidChecksum: input.allowInvalidChecksum,
     timelineProfile: input.timelineProfile ?? ruleSet.timelineProfile,
     timelineOptions: input.timelineOptions,
   });
   const base = {
     schemaVersion: 1,
-    id: createAnalysisId("taiwan_national_id", clock.createdAt, input.id),
-    inputType: "taiwan_national_id",
+    id: createAnalysisId(identity.inputType, clock.createdAt, input.id),
+    kind: "identity",
+    inputType: identity.inputType,
+    documentType: identity.documentType,
+    validationScope: identity.validationScope,
+    issuanceVerified: identity.issuanceVerified,
     maskedInput: identity.maskedInput,
-    normalizedInput: identity.normalizedInput,
+    normalizedInput: identity.maskedInput,
+    sensitiveNormalizedInput: identity.normalizedInput,
     ruleSetId: ruleSet.id,
     ruleSet,
     calculationSteps: Object.freeze([
@@ -218,7 +224,7 @@ export function analyzeIdentityV2(input) {
     lifeEncounterMagnetic: identity.encounterMagnetic,
     timelineResult: identity.timeline,
     timeline: identity.timeline,
-    dominantField: identity.dominantField,
+    dominantField: identity.destiny.magnetic.dominantField,
     destinyDominantField: identity.destiny.magnetic.dominantField,
     lifeEncounterDominantField: identity.encounterMagnetic.dominantField,
     identityValidation: identity.validation,
