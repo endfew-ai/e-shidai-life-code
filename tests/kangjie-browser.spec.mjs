@@ -256,6 +256,59 @@ async function openAllDetails(page) {
   await page.locator("details").evaluateAll((details) => details.forEach((detail) => { detail.open = true; }));
 }
 
+async function readAuditInputs(audit) {
+  const inputs = audit.locator("pre");
+  await expect(inputs).toHaveCount(2);
+  const [originalInput, normalizedInput] = (await inputs.allTextContents()).map((value) => JSON.parse(value));
+  return { originalInput, normalizedInput };
+}
+
+async function expectSafeExternalLinks(container, minimum = 1) {
+  const links = container.locator('a[href^="https://"]');
+  const report = await links.evaluateAll((items) => items.map((item) => ({
+    href: item.href,
+    target: item.target,
+    rel: item.rel,
+  })));
+  expect(report.length).toBeGreaterThanOrEqual(minimum);
+  for (const item of report) {
+    expect(item.href).toMatch(/^https:\/\//);
+    expect(item.target).toBe("_blank");
+    expect(item.rel.split(/\s+/)).toContain("noreferrer");
+  }
+  return report;
+}
+
+async function expectThreeNumberBodyUseAudit(page, expectedNumbers) {
+  const result = page.locator("#result-anchor .iching-results");
+  const ledger = result.locator(".iching-role-ledger");
+  const cards = ledger.locator("article");
+  await expect(cards).toHaveCount(3);
+  const roleReport = await cards.evaluateAll((items) => items.map((item) => ({
+    label: item.querySelector("span")?.textContent?.trim() ?? "",
+    value: item.querySelector("strong")?.textContent?.trim() ?? "",
+    note: item.querySelector("small")?.textContent?.trim() ?? "",
+  })));
+  expect(roleReport.map(({ label }) => label)).toEqual(["體卦", "用卦", "五行關係"]);
+  expect(roleReport.every(({ value, note }) => value.length > 0 && note.length > 0)).toBe(true);
+  await expect(ledger.locator(":scope > p")).not.toHaveText("");
+
+  const audit = result.locator("details.iching-audit");
+  await expect(audit).toHaveCount(1);
+  await expect(audit.locator("summary > span")).not.toHaveText("");
+  await audit.locator("summary").click();
+  await expect(audit).toHaveAttribute("open", "");
+  const { originalInput, normalizedInput } = await readAuditInputs(audit);
+  expect(originalInput.values).toEqual(expectedNumbers.map(String));
+  expect(normalizedInput).toEqual({
+    upperNumber: String(expectedNumbers[0]),
+    lowerNumber: String(expectedNumbers[1]),
+    movingNumber: String(expectedNumbers[2]),
+  });
+  await expect(audit.locator(".iching-relation-list > li")).toHaveCount(4);
+  await expectSafeExternalLinks(audit.locator(".iching-source-list"), 3);
+}
+
 async function expectVisibleBrushTitlesUnclipped(page) {
   const report = await page.evaluate(async () => {
     const visible = (element) => {
@@ -408,6 +461,166 @@ test("fixed Taipei time fills the exact lunar date and branches", async ({ page 
   await calendar.locator("[data-detect-current-time]").click();
   await expect(calendar.locator('[name="yearBranch"]')).toHaveValue("7");
   await expect(calendar.locator("[data-current-time-note]")).toContainText("已依裝置時間自動填入");
+});
+
+test("年月日時可操作閏月並在稽核保留曆法 metadata", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.addInitScript(({ fixedTime }) => {
+    const NativeDate = Date;
+    class FixedDate extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : [fixedTime])); }
+      static now() { return fixedTime; }
+    }
+    Object.defineProperty(window, "Date", { configurable: true, value: FixedDate });
+  }, { fixedTime: Date.parse("2023-03-22T04:00:00.000Z") });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+
+  const calendar = page.locator("#form-calendar");
+  const leapMonth = calendar.locator('[name="isLeapMonth"]');
+  await expect(calendar.locator("[data-current-time-detect]")).toHaveAttribute("data-state", "ready");
+  await expect(calendar.locator("[data-current-lunar]")).toContainText("閏");
+  await expect(leapMonth).toBeChecked();
+  await calendar.locator('button[type="submit"]').click();
+
+  const result = page.locator("#kangjie-result");
+  const audit = result.locator("details.calculation-audit");
+  let inputs = await readAuditInputs(audit);
+  expect([true, "on"]).toContain(inputs.originalInput.isLeapMonth);
+  expect(inputs.originalInput.calendarDataVersion).toMatch(/^cwa-/);
+  expect(inputs.originalInput.sourceIds).toContain("CWA-CALENDAR-01");
+  expect(inputs.normalizedInput).toMatchObject({
+    mode: "automatic",
+    timeZone: "Asia/Taipei",
+    lunarMonth: 2,
+    originalLunarMonth: 2,
+    lunarDay: 1,
+    isLeapMonth: true,
+    calendarProfileId: "taipei-lunar-new-year-v1",
+    yearBoundary: "lunar-new-year",
+    leapMonthRule: "same-month-number",
+    ziHourDayBoundary: "civil-midnight",
+    instantIso: "2023-03-22T04:00:00.000Z",
+  });
+  const automaticSources = await expectSafeExternalLinks(audit.locator(".calculation-source-list"), 3);
+  expect(automaticSources.some(({ href }) => href.includes("opendata.cwa.gov.tw"))).toBe(true);
+
+  await leapMonth.uncheck();
+  await expect(leapMonth).not.toBeChecked();
+  await calendar.locator('button[type="submit"]').click();
+  inputs = await readAuditInputs(audit);
+  expect(inputs.normalizedInput.mode).toBe("manual");
+  expect(inputs.normalizedInput.isLeapMonth).toBe(false);
+
+  await leapMonth.check();
+  await expect(leapMonth).toBeChecked();
+  await calendar.locator('button[type="submit"]').click();
+  inputs = await readAuditInputs(audit);
+  expect(inputs.normalizedInput.mode).toBe("manual");
+  expect(inputs.normalizedInput.isLeapMonth).toBe(true);
+  expect(inputs.normalizedInput.originalLunarMonth).toBe(2);
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("後天端法物象候選必須由使用者點選確認並寫入稽核", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1180, height: 900 });
+  await page.goto("/kangjie.html#meihua", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+  await page.locator('[data-method-tab="supplement"]').click();
+
+  const form = page.locator("#form-supplement");
+  await form.locator('[name="supplementType"]').selectOption("posterior");
+  const description = form.locator("[data-object-description]");
+  const candidates = form.locator("[data-object-candidates] button");
+  const selectedTrigram = form.locator("[data-object-trigram]");
+  const confirmed = form.locator("[data-object-confirmed]");
+  await description.fill("紅花");
+  await expect(candidates).toHaveCount(1);
+  await expect(candidates.first().locator("strong")).toHaveText("離3");
+  await expect(confirmed).toHaveValue("false");
+  await candidates.first().click();
+  await expect(selectedTrigram).toHaveValue("3");
+  await expect(confirmed).toHaveValue("true");
+  await expect(candidates.first()).toHaveClass(/is-selected/);
+
+  await description.fill("圓鏡");
+  await expect(confirmed).toHaveValue("false");
+  await expect(candidates).toHaveCount(1);
+  await expect(candidates.first().locator("strong")).toHaveText("乾1");
+  await candidates.first().click();
+  await expect(selectedTrigram).toHaveValue("1");
+  await expect(confirmed).toHaveValue("true");
+  await form.locator('[name="directionTrigram"]').selectOption("4");
+  await form.locator('[name="hourBranch"]').selectOption("6");
+  await form.locator('button[type="submit"]').click();
+
+  const audit = page.locator("#kangjie-result details.calculation-audit");
+  const { normalizedInput } = await readAuditInputs(audit);
+  expect(normalizedInput).toMatchObject({
+    scenario: "posterior",
+    objectTrigram: 1,
+    directionTrigram: 4,
+    hourBranch: 6,
+    objectDescription: "圓鏡",
+    objectCandidateConfirmed: true,
+  });
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("皇極歷史定位保留跨紀元 trace 與兩個原典來源", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto("/kangjie.html#huangji", { waitUntil: "networkidle" });
+  await unlockKangjie(page);
+
+  const form = page.locator("#huangji-form");
+  await form.locator("[data-huangji-mode]").selectOption("position");
+  await expect(form.locator("[data-huangji-duration]")).toBeHidden();
+  await expect(form.locator("[data-huangji-position]")).toBeVisible();
+  await form.locator('[name="targetCivilYear"]').fill("-1");
+  await form.locator('[name="epochCivilYear"]').fill("1");
+  await form.locator('[name="epochOffsetYears"]').fill("0");
+  await form.locator('[name="epochLabel"]').fill("跨紀元測試錨點");
+  await form.locator('button[type="submit"]').click();
+
+  const result = page.locator("#huangji-result .huangji-calculation-result");
+  await expect(result).toBeVisible();
+  await expect(result.locator(".huangji-output-grid > article")).toHaveCount(5);
+  const audit = result.locator("details.huangji-audit");
+  const summaryMetadata = await audit.locator("summary > span").textContent();
+  expect(summaryMetadata).toContain("huangji-epoch-position-v1");
+  expect(summaryMetadata).toContain("user-custom-v1");
+  const { originalInput, normalizedInput } = await readAuditInputs(audit);
+  expect(originalInput).toMatchObject({
+    mode: "position",
+    targetCivilYear: "-1",
+    epochCivilYear: "1",
+    epochOffsetYears: "0",
+    epochProfileId: "user-custom-v1",
+    epochLabel: "跨紀元測試錨點",
+  });
+  expect(normalizedInput).toEqual({
+    targetCivilYear: "-1",
+    targetAstronomical: "0",
+    epochCivilYear: "1",
+    epochAstronomical: "1",
+    epochOffsetYears: "0",
+  });
+  const steps = await audit.locator(".huangji-step-list > li").evaluateAll((items) => items.map((item) => JSON.parse(item.textContent)));
+  expect(steps).toHaveLength(7);
+  expect(steps.map(({ order }) => order)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+  expect(steps.slice(0, 2).every(({ equation }) => typeof equation === "string" && equation.length > 0)).toBe(true);
+  expect(steps.slice(2, 6).every(({ divisor }) => /^\d+$/.test(divisor))).toBe(true);
+  const sourceIds = await audit.locator(".calculation-source-list a span").allTextContents();
+  expect(sourceIds.some((value) => value.includes("HUANGJI-KANRIPO-01"))).toBe(true);
+  expect(sourceIds.some((value) => value.includes("HUANGJI-NCL-1936-01"))).toBe(true);
+  await expectSafeExternalLinks(audit.locator(".calculation-source-list"), 2);
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
 });
 
 test("姓名會逐字自動計算筆畫、標示來源並完成姓名加數起卦", async ({ page }) => {
@@ -688,6 +901,7 @@ for (const viewport of [
     await expect(result.locator(".line-text")).toHaveCount(18);
     expect(await result.locator(".line-text").evaluateAll((nodes) =>
       nodes.every((node) => node.textContent?.trim()))).toBe(true);
+    await expectThreeNumberBodyUseAudit(page, [9, 13, 20]);
 
     const visual = await result.evaluate((root) => {
       const colors = (selector) => [...root.querySelectorAll(selector)]

@@ -16,12 +16,15 @@ import {
   countHanCharacters,
   decomposeHuangjiYears,
   detectCurrentCalendarParts,
+  findObjectTrigramCandidates,
   loadStrokeDataset,
   resolveStrokeText,
 } from "./kangjie-core.js";
 
 let strokeDatasetPromise;
 const strokeState = new WeakMap();
+let currentCalendarState = null;
+let currentCalendarIsManual = false;
 
 function calculationProfile() {
   const id = document.querySelector("[data-calculation-profile]")?.value || "classic-primary-v1";
@@ -353,6 +356,33 @@ function createKangjieResult(result) {
   relation.append(element("span", "", "五行關係"), element("strong", "", result.fiveElements.label), element("small", "", result.fiveElements.explanation));
   roles.append(body, use, relation, element("p", "", result.roles.note));
 
+  const influences = element("div", "influence-ledger");
+  const influenceHeader = element("header");
+  influenceHeader.append(element("strong", "", "本・互・變對體"), element("span", "", result.partyBalance.note));
+  influences.append(influenceHeader);
+  for (const entry of result.influenceRelations) {
+    const card = element("article");
+    card.append(element("span", "", entry.stage), element("strong", "", `${entry.trigram.symbol} ${entry.trigram.name}・${entry.relation.label}`), element("small", "", entry.relation.explanation));
+    influences.append(card);
+  }
+
+  const seasonal = result.seasonalStrength ? element("div", "seasonal-ledger") : null;
+  if (seasonal) {
+    const header = element("header");
+    header.append(element("strong", "", "月令旺衰"), element("span", "", `農曆 ${result.seasonalStrength.lunarMonth} 月；只標旺、衰、平`));
+    seasonal.append(header);
+    for (const [label, strength] of [
+      ["體卦", result.seasonalStrength.body], ["用卦", result.seasonalStrength.use],
+      ["下互", result.seasonalStrength.mutualLower], ["上互", result.seasonalStrength.mutualUpper],
+      ["變卦用方", result.seasonalStrength.transformedUse],
+    ]) {
+      const card = element("article");
+      card.append(element("span", "", label), element("strong", "", `${strength.trigramName}・${strength.status}`), element("small", "", `${strength.season}・${strength.monthBranch}月`));
+      seasonal.append(card);
+    }
+    seasonal.append(element("p", "", result.seasonalStrength.note));
+  }
+
   const audit = element("details", "calculation-audit");
   const auditSummary = element("summary");
   auditSummary.append(element("strong", "", "完整演算明細"), element("span", "", `${result.profileLabel}・${result.algorithmVersion}`));
@@ -381,7 +411,9 @@ function createKangjieResult(result) {
   audit.append(auditSummary, auditBody);
 
   const boundary = element("p", "iching-boundary", "此處只依固定規則呈現卦象結構、體用位置與原文節錄，不產生事件預測或決策建議。除以 6 整除時歸上爻，是為完整表示六爻範圍採用的實作判定。");
-  section.append(heading, grid, trace, roles, audit, boundary, createClassicExcerpt(result));
+  section.append(heading, grid, trace, roles, influences);
+  if (seasonal) section.append(seasonal);
+  section.append(audit, boundary, createClassicExcerpt(result));
   return section;
 }
 
@@ -403,7 +435,7 @@ function initializeCurrentTimeDetection() {
   const timeZone = status?.querySelector("[data-current-timezone]");
   const note = document.querySelector("[data-current-time-note]");
   const applyButton = status?.querySelector("[data-detect-current-time]");
-  const trackedFields = [...document.querySelectorAll('.kangjie-form [name="yearBranch"], .kangjie-form [name="lunarMonth"], .kangjie-form [name="lunarDay"], .kangjie-form [name="hourBranch"]')];
+  const trackedFields = [...document.querySelectorAll('.kangjie-form [name="yearBranch"], .kangjie-form [name="lunarMonth"], .kangjie-form [name="lunarDay"], .kangjie-form [name="hourBranch"], #form-calendar [name="isLeapMonth"]')];
   if (!status || !clock || !lunar || !timeZone || !note || !applyButton) return;
 
   let manualOverride = false;
@@ -422,6 +454,8 @@ function initializeCurrentTimeDetection() {
     for (const field of document.querySelectorAll('.kangjie-form [name="hourBranch"]')) {
       field.value = String(detected.hourBranch);
     }
+    const leapField = document.querySelector('#form-calendar [name="isLeapMonth"]');
+    if (leapField instanceof HTMLInputElement) leapField.checked = detected.isLeapMonth;
   }
 
   function refresh({ applyValues = false } = {}) {
@@ -431,6 +465,7 @@ function initializeCurrentTimeDetection() {
         profile: calendarForm?.querySelector('[name="calendarProfile"]')?.value || "taipei-lunar-new-year-v1",
         timeZone: calendarForm?.querySelector('[name="timeZone"]')?.value || "Asia/Taipei",
       });
+      currentCalendarState = detected;
       clock.textContent = detected.gregorianLabel;
       lunar.textContent = detected.lunarLabel;
       timeZone.textContent = detected.timeZoneLabel;
@@ -443,6 +478,7 @@ function initializeCurrentTimeDetection() {
           : "已依裝置時間自動填入。子初換日與年界仍需依採用曆法另行核對，也可手動修正。";
     } catch (error) {
       status.dataset.state = "error";
+      currentCalendarState = null;
       clock.textContent = "無法自動偵測";
       lunar.textContent = error instanceof Error ? error.message : "請手動輸入年月日時。";
       timeZone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "本機時區";
@@ -453,6 +489,7 @@ function initializeCurrentTimeDetection() {
   for (const field of trackedFields) {
     const markManual = () => {
       manualOverride = true;
+      if (field.closest("#form-calendar")) currentCalendarIsManual = true;
       refresh();
     };
     field.addEventListener("input", markManual);
@@ -460,10 +497,12 @@ function initializeCurrentTimeDetection() {
   }
   applyButton.addEventListener("click", () => {
     manualOverride = false;
+    currentCalendarIsManual = false;
     refresh({ applyValues: true });
   });
   document.querySelector('#form-calendar [name="calendarProfile"]')?.addEventListener("change", () => {
     manualOverride = false;
+    currentCalendarIsManual = false;
     refresh({ applyValues: true });
   });
   document.addEventListener("visibilitychange", () => {
@@ -525,12 +564,35 @@ function updateSupplementFields() {
   const form = document.querySelector("#form-supplement");
   if (!form) return;
   const type = form.querySelector("[data-supplement-type]")?.value || "zhang-chi";
-  const posterior = ["posterior", "person", "animal", "static", "direction"].includes(type);
+  const posterior = ["posterior", "person", "self", "animal", "static", "direction"].includes(type);
   setHidden(form.querySelector("[data-length-fields]"), posterior);
   setHidden(form.querySelector("[data-posterior-fields]"), !posterior);
   setHidden(form.querySelector("[data-trigger-field]"), !(type === "animal" || type === "static"));
   setHidden(form.querySelector("[data-size-version]"), type !== "chi-cun");
   setHidden(form.querySelector("[data-zhang-field]"), type !== "zhang-chi");
+}
+
+function updateObjectCandidates() {
+  const form = document.querySelector("#form-supplement");
+  const description = form?.querySelector("[data-object-description]");
+  const container = form?.querySelector("[data-object-candidates]");
+  const select = form?.querySelector("[data-object-trigram]");
+  const confirmed = form?.querySelector("[data-object-confirmed]");
+  if (!description || !container || !select || !confirmed) return;
+  container.replaceChildren();
+  const candidates = findObjectTrigramCandidates(description.value);
+  for (const candidate of candidates) {
+    const button = element("button");
+    button.type = "button";
+    if (select.value === String(candidate.trigramId)) button.classList.add("is-selected");
+    button.append(element("strong", "", `${candidate.trigram}${candidate.trigramId}`), element("small", "", candidate.matches.join("、")));
+    button.addEventListener("click", () => {
+      select.value = String(candidate.trigramId);
+      confirmed.value = "true";
+      updateObjectCandidates();
+    });
+    container.append(button);
+  }
 }
 
 function renderStrokeEvidence(form, resolution) {
@@ -622,6 +684,18 @@ function initializeAdvancedFormControls() {
   updateText();
 
   document.querySelector("[data-supplement-type]")?.addEventListener("change", updateSupplementFields);
+  const objectDescription = document.querySelector("[data-object-description]");
+  objectDescription?.addEventListener("input", () => {
+    const confirmed = document.querySelector("[data-object-confirmed]");
+    if (confirmed) confirmed.value = "false";
+    updateObjectCandidates();
+  });
+  document.querySelector("[data-object-trigram]")?.addEventListener("change", () => {
+    const confirmed = document.querySelector("[data-object-confirmed]");
+    if (confirmed) confirmed.value = "true";
+    updateObjectCandidates();
+  });
+  updateObjectCandidates();
   updateSupplementFields();
 }
 
@@ -630,7 +704,10 @@ async function calculateMeihuaForm(form) {
   const profile = calculationProfile();
   values.profile = profile;
   if (form.id === "form-calendar") {
-    return calculateCalendarHexagram({ ...values, calendarTrace: `${values.calendarProfile || "手動"}・${values.timeZone || "本機時區"}` }, { profile });
+    const calendarInput = !currentCalendarIsManual && currentCalendarState
+      ? { ...currentCalendarState, ...values, mode: "automatic", calendarProfile: values.calendarProfile }
+      : { ...values, mode: "manual" };
+    return calculateCalendarHexagram(calendarInput, { profile });
   }
   if (form.id === "form-object") return calculateObjectHexagram(values, { profile });
   if (form.id === "form-sound") {
@@ -712,11 +789,37 @@ function createHuangjiResult(result) {
   const boundaryText = isPosition
     ? `${result.epoch.notice} 本結果依可設定錨點作數學定位，不主張唯一傳統紀元。`
     : "這是時間長度的單位換算，不是西元紀年定位、天文週期證明或事件預言。";
+  const audit = element("details", "calculation-audit huangji-audit");
+  const auditSummary = element("summary");
+  auditSummary.append(element("strong", "", "完整演算明細"), element("span", "", `${result.algorithmVersion}・${result.profileId}`));
+  const auditBody = element("div", "calculation-audit-body");
+  const inputGrid = element("div", "calculation-input-grid");
+  const originalCard = element("article");
+  originalCard.append(element("span", "", "原始輸入"), element("pre", "", JSON.stringify(result.calculationTrace.originalInput, null, 2)));
+  const normalizedCard = element("article");
+  normalizedCard.append(element("span", "", "正規化輸入"), element("pre", "", JSON.stringify(result.calculationTrace.normalizedInput, null, 2)));
+  inputGrid.append(originalCard, normalizedCard);
+  const steps = element("ol", "huangji-step-list");
+  for (const step of result.calculationTrace.steps || []) steps.append(element("li", "", JSON.stringify(step)));
+  const warnings = element("ul", "calculation-warning-list");
+  for (const warning of result.calculationTrace.warnings || []) warnings.append(element("li", "", warning));
+  const sources = element("div", "calculation-source-list");
+  for (const sourceItem of result.sourceRefs) {
+    const link = element("a");
+    link.href = sourceItem.url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.append(element("strong", "", sourceItem.title), element("span", "", `${sourceItem.organization}・${sourceItem.id}`));
+    sources.append(link);
+  }
+  auditBody.append(inputGrid, steps, warnings, sources);
+  audit.append(auditSummary, auditBody);
   section.append(
     element("p", "section-index", isPosition ? `${result.targetLabel}・${result.profileLabel}` : `時間長度 ${result.totalYears} 年`),
     title,
     grid,
     element("code", "huangji-equation", result.equation),
+    audit,
     element("p", "iching-boundary", boundaryText),
   );
   return section;

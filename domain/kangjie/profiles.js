@@ -3,7 +3,15 @@ const baseProfile = {
   pureHexagramMutual: "original",
   textFourToTen: "tone",
   strokeFallback: "manual-required",
+  supportedMethods: null,
 };
+
+const legacyExistingMethods = Object.freeze([
+  "calendar",
+  "object",
+  "sound-segmented",
+  "text-count",
+]);
 
 export const calculationProfiles = Object.freeze({
   "classic-primary-v1": Object.freeze({
@@ -31,6 +39,7 @@ export const calculationProfiles = Object.freeze({
     id: "legacy-existing-v1",
     label: "原程式舊版",
     pureHexagramMutual: "transformed",
+    supportedMethods: legacyExistingMethods,
     description: "封存原程式既有年月日時、物數、雙段聲數、11 字以上字數法與乾坤互變卦行為。",
   }),
 });
@@ -51,6 +60,15 @@ export function resolveCalculationProfile(profileOrId = DEFAULT_CALCULATION_PROF
     label: String(profileOrId.label || "使用者自訂"),
     description: String(profileOrId.description || "使用者自行設定的公式參數。"),
   });
+}
+
+export function assertProfileSupportsMethod(profileOrId, methodId) {
+  const profile = resolveCalculationProfile(profileOrId);
+  if (String(methodId).startsWith("domain-")) return profile;
+  if (Array.isArray(profile.supportedMethods) && !profile.supportedMethods.includes(methodId)) {
+    throw new Error(`${profile.label}不包含「${methodId}」；請改選古籍主法、今本或使用者自訂算法。`);
+  }
+  return profile;
 }
 
 export const calendarProfiles = Object.freeze({

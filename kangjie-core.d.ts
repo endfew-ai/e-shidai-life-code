@@ -26,6 +26,21 @@ export type ElementRelation = {
   useElement: "金" | "木" | "水" | "火" | "土";
   explanation: string;
 };
+export type InfluenceRelation = {
+  stage: string;
+  trigram: Trigram & { element: string };
+  relation: ElementRelation;
+};
+export type SeasonalStrength = {
+  lunarMonth: number;
+  monthBranch: string;
+  season: string;
+  status: "旺" | "衰" | "平";
+  trigramId: number;
+  trigramName: string;
+  element: string;
+  explanation: string;
+};
 export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
   kind: "kangjie";
   method: string;
@@ -35,11 +50,23 @@ export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
   profileLabel: string;
   mutualSource: "original" | "transformed";
   roles: {
-    body: Trigram & { element: string };
-    use: Trigram & { element: string };
+    body: Trigram & { element: string; position: "upper" | "lower" };
+    use: Trigram & { element: string; position: "upper" | "lower" };
+    transformedUse: Trigram & { element: string; position: "upper" | "lower" };
     note: string;
   };
   fiveElements: ElementRelation;
+  influenceRelations: InfluenceRelation[];
+  partyBalance: { bodyElement: string; useElement: string; bodyPartyCount: number; usePartyCount: number | null; note: string };
+  seasonalStrength: null | {
+    lunarMonth: number;
+    body: SeasonalStrength;
+    use: SeasonalStrength;
+    mutualLower: SeasonalStrength;
+    mutualUpper: SeasonalStrength;
+    transformedUse: SeasonalStrength;
+    note: string;
+  };
   trace: KangjieTrace[];
   inputSummary: string;
   sourceRefs: SourceRef[];
@@ -51,13 +78,18 @@ export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
     originalInput: Record<string, unknown>;
     normalizedInput: Record<string, unknown>;
     totals: { upper: string; lower: string; moving: string };
-    modulo: Record<string, { total: string; divisor: number; result: number }>;
+    modulo: Record<string, { total: string; divisor: number; quotient: string; remainder: string; result: number; exactMultipleRule: string }>;
     lineOrder: string;
     primaryLines: number[];
     mutualLowerSourceLines: number[];
     mutualUpperSourceLines: number[];
     changedLines: number[];
     movingLine: number;
+    bodyUse: KangjieAnalysis["roles"];
+    fiveElements: ElementRelation;
+    influenceRelations: InfluenceRelation[];
+    partyBalance: KangjieAnalysis["partyBalance"];
+    seasonalStrength: KangjieAnalysis["seasonalStrength"];
     assumptions: string[];
     warnings: string[];
     ignoredInput: string[];
@@ -110,6 +142,7 @@ export type CurrentCalendarParts = {
   yearBranch: number;
   yearBranchName: string;
   lunarMonth: number;
+  originalLunarMonth: number;
   lunarDay: number;
   isLeapMonth: boolean;
   hour24: number;
@@ -122,6 +155,7 @@ export type CurrentCalendarParts = {
   ziHourDayBoundary: string;
   shiftedForLateZi: boolean;
   lichunInstantIso: string | null;
+  calendarDataVersion: string;
   sourceIds: string[];
   warnings: string[];
 };
@@ -131,6 +165,13 @@ export const huangjiUnits: { readonly yuan: bigint; readonly hui: bigint; readon
 export const calculationProfiles: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
 export const calendarProfiles: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
 export const SOURCE_REFS: Readonly<Record<string, SourceRef>>;
+export function findObjectTrigramCandidates(description: unknown): Array<{
+  trigramId: number;
+  trigram: string;
+  keywords: readonly string[];
+  matches: string[];
+  score: number;
+}>;
 
 export function detectCurrentCalendarParts(
   date?: Date | string | number,
@@ -138,6 +179,7 @@ export function detectCurrentCalendarParts(
 ): CurrentCalendarParts;
 export function calculateCalendarHexagram(values: { yearBranch?: InputValue; lunarMonth?: InputValue; lunarDay?: InputValue; hourBranch?: InputValue; calendarProfile?: string; timeZone?: string; calendarTrace?: string; profile?: string }, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
 export function calculateObjectHexagram(values: { count?: InputValue; hourBranch?: InputValue; profile?: string }, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
+export function calculateModernThreeNumberHexagram(values: InputValue[] | Record<string, unknown>, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
 export function calculateSingleSoundHexagram(values: { count?: InputValue; hourBranch?: InputValue; profile?: string }, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
 export function calculateDoubleSoundHexagram(values: { firstCount?: InputValue; secondCount?: InputValue; hourBranch?: InputValue; profile?: string }, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
 export function calculateTextHexagram(values: Record<string, unknown>, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
@@ -153,6 +195,7 @@ export function calculateSurnameAdditionHexagram(values: Record<string, unknown>
 export function decomposeHuangjiYears(years: unknown): HuangjiAnalysis;
 export function calculateHuangjiPosition(values: Record<string, unknown>): HuangjiPositionAnalysis;
 export function calculateHuangji(values: Record<string, unknown> | unknown): HuangjiAnalysis | HuangjiPositionAnalysis;
+export function normalizeManualCalendarParts(values: Record<string, unknown>, options?: { profile?: string | Record<string, unknown> }): Record<string, unknown>;
 
 export type StrokeDataset = {
   schemaVersion: string;

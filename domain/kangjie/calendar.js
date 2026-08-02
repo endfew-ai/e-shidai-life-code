@@ -103,7 +103,8 @@ export function detectCalendarParts(rawDate = new Date(), options = {}) {
   const relatedYear = Number(lunarParts.find((part) => part.type === "relatedYear" || part.type === "year")?.value);
   const monthText = lunarParts.find((part) => part.type === "month")?.value ?? "";
   const dayText = lunarParts.find((part) => part.type === "day")?.value ?? "";
-  let lunarMonth = parseLunarMonth(monthText);
+  const originalLunarMonth = parseLunarMonth(monthText);
+  let lunarMonth = originalLunarMonth;
   const lunarDay = parseLunarDay(dayText);
   const isLeapMonth = /^[閏闰]/.test(monthText);
   if (isLeapMonth && profile.leapMonthRule === "next-month-number") lunarMonth = lunarMonth % 12 + 1;
@@ -150,6 +151,7 @@ export function detectCalendarParts(rawDate = new Date(), options = {}) {
     yearBranch,
     yearBranchName: branch(yearBranch).name,
     lunarMonth,
+    originalLunarMonth,
     lunarDay,
     isLeapMonth,
     hour24: originalHour,
@@ -162,6 +164,7 @@ export function detectCalendarParts(rawDate = new Date(), options = {}) {
     ziHourDayBoundary: profile.ziHourDayBoundary,
     shiftedForLateZi,
     lichunInstantIso: yearResolution.lichunInstantIso,
+    calendarDataVersion: cwaCalendarOracle.version,
     sourceIds: ["CWA-CALENDAR-01"],
     warnings: [
       "自動農曆日期由瀏覽器 Intl Chinese Calendar 轉換；中央氣象署固定資料只作邊界測試與節氣核對。",
@@ -173,17 +176,22 @@ export function detectCalendarParts(rawDate = new Date(), options = {}) {
 export function normalizeManualCalendarParts(input, options = {}) {
   const profile = resolveCalendarProfile(options.profile ?? input.calendarProfile);
   const yearBranch = toSafeInteger(input.yearBranch, "年支", 1, 12);
-  const lunarMonth = toSafeInteger(input.lunarMonth, "農曆月", 1, 12);
+  const originalLunarMonth = toSafeInteger(input.lunarMonth, "農曆月", 1, 12);
   const lunarDay = toSafeInteger(input.lunarDay, "農曆日", 1, 30);
   const hourBranch = toSafeInteger(input.hourBranch, "時支", 1, 12);
+  const isLeapMonth = input.isLeapMonth === true || input.isLeapMonth === "true" || input.isLeapMonth === "on" || input.isLeapMonth === "1";
+  const lunarMonth = isLeapMonth && profile.leapMonthRule === "next-month-number"
+    ? originalLunarMonth % 12 + 1
+    : originalLunarMonth;
   return {
     mode: "manual",
     timeZone: input.timeZone || profile.timeZone,
     yearBranch,
     yearBranchName: branch(yearBranch).name,
     lunarMonth,
+    originalLunarMonth,
     lunarDay,
-    isLeapMonth: Boolean(input.isLeapMonth),
+    isLeapMonth,
     hourBranch,
     hourBranchName: branch(hourBranch).name,
     calendarProfileId: profile.id,
@@ -191,7 +199,15 @@ export function normalizeManualCalendarParts(input, options = {}) {
     yearBoundary: profile.yearBoundary,
     leapMonthRule: profile.leapMonthRule,
     ziHourDayBoundary: profile.ziHourDayBoundary,
+    shiftedForLateZi: false,
+    lichunInstantIso: input.lichunInstantIso || null,
+    calendarDataVersion: null,
     sourceIds: [],
-    warnings: ["此筆資料使用人工輸入，請依所選曆法與時區自行核對。"],
+    warnings: [
+      "此筆資料使用人工輸入，請依所選曆法與時區自行核對。",
+      ...(isLeapMonth ? [profile.leapMonthRule === "next-month-number"
+        ? `閏${originalLunarMonth}月依設定順推為卦數月份 ${lunarMonth}。`
+        : `閏${originalLunarMonth}月依設定沿用同名月份數 ${lunarMonth}。`] : []),
+    ],
   };
 }

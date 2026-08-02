@@ -1,7 +1,8 @@
 import { earthlyBranches } from "./shared-data.js";
 import { buildMeihuaResult, trigramById } from "./engine.js";
-import { toIntegerBigInt, toSafeInteger } from "./math.js";
+import { mod1, toIntegerBigInt, toSafeInteger } from "./math.js";
 import { resolveCalculationProfile } from "./profiles.js";
+import { normalizeManualCalendarParts } from "./calendar.js";
 
 function positive(rawValue, label) {
   return toIntegerBigInt(rawValue, label, { minimum: 1 });
@@ -12,15 +13,38 @@ function branch(value) {
 }
 
 function commonTrace(label, total, divisor, detail = "") {
-  return { label, equation: `${detail}${total}；除以 ${divisor}，整除時取 ${divisor}` };
+  const value = BigInt(total);
+  const base = BigInt(divisor);
+  const quotient = value / base;
+  const remainder = value % base;
+  const result = mod1(value, divisor);
+  return {
+    label,
+    equation: `${detail}${value}；${value} ÷ ${divisor} = ${quotient} 餘 ${remainder}；${remainder === 0n ? `整除依設定取 ${divisor}` : `取餘數 ${result}`}`,
+    dividend: value.toString(),
+    divisor,
+    quotient: quotient.toString(),
+    remainder: remainder.toString(),
+    result,
+  };
+}
+
+function strokeSourceIds(entries) {
+  const ids = [];
+  if (entries.some((entry) => entry.sourceId === "unicode-unihan")) ids.push("UNICODE-UNIHAN-17.0.0");
+  if (entries.some((entry) => entry.sourceId === "moe-concised")) ids.push("MOE-CONCISED-DICT-01");
+  return ids;
 }
 
 export function calculateCalendarMethod(input, options = {}) {
   const originalInput = { ...input };
-  const year = toSafeInteger(input.yearBranch, "年支", 1, 12);
-  const month = toSafeInteger(input.lunarMonth, "農曆月", 1, 12);
-  const day = toSafeInteger(input.lunarDay, "農曆日", 1, 30);
-  const hour = toSafeInteger(input.hourBranch, "時支", 1, 12);
+  const calendar = input.mode === "automatic"
+    ? { ...input }
+    : normalizeManualCalendarParts(input, { profile: input.calendarProfile ?? input.calendarProfileId });
+  const year = toSafeInteger(calendar.yearBranch, "年支", 1, 12);
+  const month = toSafeInteger(calendar.lunarMonth, "農曆月", 1, 12);
+  const day = toSafeInteger(calendar.lunarDay, "農曆日", 1, 30);
+  const hour = toSafeInteger(calendar.hourBranch, "時支", 1, 12);
   const upperTotal = BigInt(year + month + day);
   const lowerTotal = upperTotal + BigInt(hour);
   const profile = resolveCalculationProfile(options.profile ?? input.profile);
@@ -31,16 +55,43 @@ export function calculateCalendarMethod(input, options = {}) {
     lowerTotal,
     movingTotal: lowerTotal,
     originalInput,
-    normalizedInput: { yearBranch: year, lunarMonth: month, lunarDay: day, hourBranch: hour },
-    inputSummary: `${branch(year).name}年・農曆${month}月${day}日・${branch(hour).name}時`,
+    normalizedInput: {
+      mode: calendar.mode,
+      yearBranch: year,
+      lunarMonth: month,
+      originalLunarMonth: calendar.originalLunarMonth ?? month,
+      lunarDay: day,
+      isLeapMonth: Boolean(calendar.isLeapMonth),
+      hourBranch: hour,
+      timeZone: calendar.timeZone,
+      calendarProfileId: calendar.calendarProfileId,
+      calendarProfileLabel: calendar.calendarProfileLabel,
+      yearBoundary: calendar.yearBoundary,
+      leapMonthRule: calendar.leapMonthRule,
+      ziHourDayBoundary: calendar.ziHourDayBoundary,
+      shiftedForLateZi: Boolean(calendar.shiftedForLateZi),
+      lichunInstantIso: calendar.lichunInstantIso ?? null,
+      instantIso: calendar.instantIso ?? null,
+    },
+    inputSummary: `${branch(year).name}年・農曆${calendar.isLeapMonth ? "閏" : ""}${calendar.originalLunarMonth ?? month}月${day}日・${branch(hour).name}時`,
     trace: [
       commonTrace("上卦", upperTotal, 8, `${year} + ${month} + ${day} = `),
       commonTrace("下卦", lowerTotal, 8, `${upperTotal} + ${hour} = `),
       commonTrace("動爻", lowerTotal, 6),
     ],
     profile,
-    sourceIds: ["MYS-WIKI-01", "MYS-CTEXT-01", "CWA-CALENDAR-01"],
-    assumptions: input.calendarTrace ? [`曆法輸入由 ${input.calendarTrace} 提供。`] : [],
+    sourceIds: [
+      "MYS-CTEXT-01",
+      ...(calendar.sourceIds?.length ? ["CWA-CALENDAR-01"] : []),
+      ...(calendar.sourceIds?.length && calendar.yearBoundary === "lichun" ? ["CWA-SOLAR-TERMS-01"] : []),
+    ],
+    assumptions: [
+      `曆法模式：${calendar.mode === "automatic" ? "自動換算" : "人工輸入"}。`,
+      `年界 ${calendar.yearBoundary || "lunar-new-year"}・閏月 ${calendar.leapMonthRule || "same-month-number"}・子時換日 ${calendar.ziHourDayBoundary || "civil-midnight"}。`,
+    ],
+    warnings: [...(calendar.warnings || [])],
+    dataVersions: calendar.calendarDataVersion ? { calendar: calendar.calendarDataVersion } : {},
+    seasonalLunarMonth: month,
   });
 }
 
@@ -64,6 +115,37 @@ export function calculateObjectMethod(input, options = {}) {
       commonTrace("動爻", movingTotal, 6, `${count} + ${hour} = `),
     ],
     profile: options.profile ?? input.profile,
+  });
+}
+
+export function calculateModernThreeNumberMethod(rawInput, options = {}) {
+  const values = Array.isArray(rawInput)
+    ? { upperNumber: rawInput[0], lowerNumber: rawInput[1], movingNumber: rawInput[2] }
+    : rawInput;
+  const upper = positive(values.upperNumber ?? values.first, "第一數");
+  const lower = positive(values.lowerNumber ?? values.second, "第二數");
+  const moving = positive(values.movingNumber ?? values.third, "第三數");
+  return buildMeihuaResult({
+    method: "modern-three-number",
+    methodLabel: "三數取卦",
+    upperTotal: upper,
+    lowerTotal: lower,
+    movingTotal: moving,
+    originalInput: Array.isArray(rawInput) ? { values: [...rawInput] } : { ...rawInput },
+    normalizedInput: {
+      upperNumber: upper.toString(),
+      lowerNumber: lower.toString(),
+      movingNumber: moving.toString(),
+    },
+    inputSummary: `第一數 ${upper}・第二數 ${lower}・第三數 ${moving}`,
+    trace: [
+      commonTrace("第一數取上卦", upper, 8),
+      commonTrace("第二數取下卦", lower, 8),
+      commonTrace("第三數取動爻", moving, 6),
+    ],
+    profile: options.profile ?? values.profile ?? "modern-current-v1",
+    warnings: ["固定三個現代數字依序取上卦、下卦與動爻，未見於本次核對的《梅花易數》古籍主法；算法明確標為現代三數法。"],
+    assumptions: ["三個輸入彼此獨立，不把生日、身分證或其他個資自動代入。"],
   });
 }
 
@@ -184,7 +266,7 @@ export function calculateStrokeTextMethod(input, options = {}) {
       commonTrace("動爻", movingTotal, 6, `${upperTotal} + ${lowerTotal} = `),
     ],
     profile: options.profile ?? input.profile,
-    sourceIds: ["MYS-WIKI-01", "MYS-CTEXT-01", "UNICODE-UNIHAN-17.0.0", "MOE-STANDARD-FONT-01"],
+    sourceIds: ["MYS-CTEXT-01", ...strokeSourceIds(entries)],
     dataVersions: {
       strokes: [...new Set(entries.map((entry) => `${entry.sourceId}:${entry.dataVersion || "unspecified"}`))],
     },
@@ -355,8 +437,17 @@ export function calculatePosteriorMethod(input, options = {}) {
   const hour = toSafeInteger(input.hourBranch, "時支", 1, 12);
   const movingTotal = BigInt(object.id + direction.id + hour);
   const warnings = [];
-  if ((scenario === "static" || scenario === "animal") && !String(input.trigger || "").trim()) {
-    warnings.push("古籍強調不動不占、無故不占；請自行確認本次觸發事件。");
+  if (scenario === "static" && !String(input.trigger || "").trim()) {
+    warnings.push("不動不占、無故不占：靜物占的原文要求有初創、置成或異常觸發；目前未填觸發事件，請自行核對是否具備起占條件。");
+  }
+  if (scenario === "animal" && !String(input.trigger || "").trim()) {
+    warnings.push("不動不占：請記錄單一動物、所來方位及當時觸發情境，以便重播本次輸入。");
+  }
+  if (scenario === "animal" && Number(input.subjectCount || 1) !== 1) {
+    throw new Error("動物後天端法只接受單一所見之物；群物之動原文不作此法起卦。");
+  }
+  if (scenario === "direction") {
+    warnings.push("方位在後天端法中只提供下卦，仍須先由所見物象確認上卦；本工具不以單一方向冒充完整重卦。");
   }
   return buildMeihuaResult({
     method: `posterior-${scenario}`,
@@ -371,6 +462,9 @@ export function calculatePosteriorMethod(input, options = {}) {
       directionTrigram: direction.id,
       hourBranch: hour,
       trigger: String(input.trigger || "").trim(),
+      objectDescription: String(input.objectDescription || "").trim(),
+      objectCandidateConfirmed: input.objectCandidateConfirmed === true || input.objectCandidateConfirmed === "true" || input.objectCandidateConfirmed === "on",
+      subjectCount: scenario === "animal" ? 1 : null,
     },
     inputSummary: `${object.name}為物象・${direction.name}為方位・${branch(hour).name}時`,
     trace: [
@@ -379,7 +473,11 @@ export function calculatePosteriorMethod(input, options = {}) {
       commonTrace("動爻", movingTotal, 6, `${object.id} + ${direction.id} + ${hour} = `),
     ],
     profile: options.profile ?? input.profile,
-    warnings,
+    warnings: [
+      ...warnings,
+      ...(String(input.objectDescription || "").trim() && !(input.objectCandidateConfirmed === true || input.objectCandidateConfirmed === "true" || input.objectCandidateConfirmed === "on")
+        ? ["已記錄物象描述，但候選只供比對；請以所選物象卦作為使用者最終確認。"] : []),
+    ],
   });
 }
 
@@ -418,10 +516,11 @@ export function calculateSurnameAdditionMethod(input, options = {}) {
       commonTrace("動爻", lowerTotal, 6),
     ],
     profile: options.profile ?? input.profile,
-    sourceIds: ["UNICODE-UNIHAN-17.0.0", "MOE-STANDARD-FONT-01"],
+    sourceIds: strokeSourceIds(entries),
     dataVersions: {
       strokes: [...new Set(entries.map((entry) => `${entry.sourceId}:${entry.dataVersion || "unspecified"}`))],
     },
     warnings: ["本次核對《梅花易數》卷一未找到姓名或姓氏加數法的單一固定原文；此結果屬流傳／使用者指定規約，不冒充古籍主法。"],
+    seasonalLunarMonth: month,
   });
 }

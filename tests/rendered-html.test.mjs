@@ -93,7 +93,7 @@ test("removes all disposable starter markers", async () => {
   assert.match(page, /inputMode="numeric"/);
   assert.match(page, /type="date"/);
   assert.match(page, /生日命碼完全分開/);
-  assert.match(page, /calculateIChing/);
+  assert.match(page, /calculateModernThreeNumberHexagram/);
   assert.match(page, /getIChingText/);
   assert.match(page, /只列原文，不解卦/);
 });

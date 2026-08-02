@@ -386,6 +386,7 @@ function joinedReduction(prefix, initial, preserveMaster) {
 }
 
 export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(), todayValue = localDateString(), options = {}) {
+  const originalInput = String(dateValue ?? "");
   const { year, month, day, date } = validateBirthday(dateValue, todayValue);
   if (!Number.isInteger(currentYear) || currentYear < 1 || currentYear > 9999) {
     throw new Error("流年年份必須是有效西元年。");
@@ -423,6 +424,28 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
       ? `${birthdayResult.birthdayNumber}／${birthdayResult.baseNumber}`
       : `${day} → ${birthdayResult.birthdayNumber}／${birthdayResult.baseNumber}`)
     : (day === birthdayResult.birthdayNumber ? String(day) : `${day} → ${birthdayResult.birthdayNumber}`);
+  const calculations = [
+    { label: "生日原始數字", text: lifeResult.originalDigits.join("、") },
+    { label: "第一次加總", text: String(lifeResult.firstSum) },
+    { label: "生命靈數", text: lifeResult.calculationText },
+    { label: "生日數", text: birthdayResult.calculationText },
+    { label: "態度數", text: joinedReduction(`${month} + ${day}`, attitudeInitial, false) },
+    {
+      label: `${currentYear} 個人流年`,
+      text: personalYear.calculationText,
+    },
+  ];
+  const audit = Object.freeze({
+    originalInput,
+    normalizedInput: date,
+    algorithmId: ruleSet.id,
+    algorithmName: ruleSet.name,
+    algorithmVersion: ruleSet.version,
+    normalizationRule: "移除輸入前後空白，並依 YYYY-MM-DD 驗證為有效西元日期。",
+    context: `個人流年基準 ${currentYear}；日期驗證基準 ${String(todayValue).trim()}`,
+    ruleSummary: `生命路徑 ${ruleSet.lifePathMode}；生日九宮 ${ruleSet.birthGridMode}；主數 ${ruleSet.masterNumberMode}`,
+    steps: Object.freeze(calculations.map((item) => Object.freeze({ ...item }))),
+  });
 
   return {
     kind: "birthday",
@@ -463,17 +486,8 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
     zeroCount: counts[0],
     missing: birthGrid.missingNumbers,
     birthGrid,
-    calculations: [
-      { label: "生日原始數字", text: lifeResult.originalDigits.join("、") },
-      { label: "第一次加總", text: String(lifeResult.firstSum) },
-      { label: "生命靈數", text: lifeResult.calculationText },
-      { label: "生日數", text: birthdayResult.calculationText },
-      { label: "態度數", text: joinedReduction(`${month} + ${day}`, attitudeInitial, false) },
-      {
-        label: `${currentYear} 個人流年`,
-        text: personalYear.calculationText,
-      },
-    ],
+    audit,
+    calculations,
   };
 }
 
@@ -486,7 +500,8 @@ function normalizeFullWidthDigits(value) {
 }
 
 export function analyzeDigitCode(rawValue) {
-  const normalized = normalizeFullWidthDigits(String(rawValue).trim());
+  const originalInput = String(rawValue ?? "");
+  const normalized = normalizeFullWidthDigits(originalInput.trim());
   if (!normalized) throw new Error("請輸入至少一個數字。");
   if (!/^[0-9\s\-]+$/.test(normalized)) {
     throw new Error("僅接受 0 到 9、全形數字、空白與半形連字號。");
@@ -505,6 +520,24 @@ export function analyzeDigitCode(rawValue) {
   const strongest = nonZeroCounts.filter(({ count }) => count === maxCount && count > 0).map(({ digit }) => digit);
   const missing = nonZeroCounts.filter(({ count }) => count === 0).map(({ digit }) => digit);
   const digitEquation = `${digits.join(" + ")} = ${sum}`;
+  const calculations = [
+    { label: "逐位加總", text: digitEquation },
+    {
+      label: "收斂核心",
+      text: reduction.equations.length ? `${sum} → ${reduction.equations.join(" → ")}` : String(sum),
+    },
+  ];
+  const audit = Object.freeze({
+    originalInput,
+    normalizedInput: digits.join(""),
+    algorithmId: "digit-code-sum-reduction-v1",
+    algorithmName: "逐位加總與 1～9 化簡",
+    algorithmVersion: "1.0.0",
+    normalizationRule: "移除前後空白、全形數字轉半形；空白與半形連字號不參與計算。",
+    context: "只做既有逐位加總、1～9 化簡與數字次數統計；不新增吉凶或神秘公式。",
+    ruleSummary: "逐位加總後反覆加總各位數，直到得到 1～9；0 仍納入出現次數。",
+    steps: Object.freeze(calculations.map((item) => Object.freeze({ ...item }))),
+  });
 
   return {
     kind: "code",
@@ -518,13 +551,8 @@ export function analyzeDigitCode(rawValue) {
     zeroCount: counts[0],
     strongest,
     missing,
-    calculations: [
-      { label: "逐位加總", text: digitEquation },
-      {
-        label: "收斂核心",
-        text: reduction.equations.length ? `${sum} → ${reduction.equations.join(" → ")}` : String(sum),
-      },
-    ],
+    audit,
+    calculations,
   };
 }
 

@@ -3,6 +3,7 @@ import {
   calculateCalendarMethod,
   calculateChiCunMethod,
   calculateLongTextMethod,
+  calculateModernThreeNumberMethod,
   calculateObjectMethod,
   calculatePosteriorMethod,
   calculateSegmentedSoundMethod,
@@ -70,6 +71,10 @@ export function calculateCalendarHexagram(values, options = {}) {
 
 export function calculateObjectHexagram(values, options = {}) {
   return calculateObjectMethod(values, options);
+}
+
+export function calculateModernThreeNumberHexagram(values, options = {}) {
+  return calculateModernThreeNumberMethod(values, options);
 }
 
 export function calculateSingleSoundHexagram(values, options = {}) {

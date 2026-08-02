@@ -2153,6 +2153,88 @@
 }
 .kangjie-panel[hidden] { content-visibility: hidden; }
 
+.calendar-leap-toggle {
+  align-items: center;
+  border: 1px solid var(--line-soft);
+  color: var(--paper);
+  display: flex;
+  font-family: var(--sans);
+  gap: 10px;
+  min-height: 42px;
+  padding: 7px 10px;
+}
+.calendar-leap-toggle input { accent-color: var(--gold); height: 18px; width: 18px; }
+.calendar-leap-toggle span, .calendar-leap-toggle small { display: block; }
+.calendar-leap-toggle span { font-size: 13px; }
+.calendar-leap-toggle small { color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+.object-candidate-list {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 7px 0;
+}
+.object-candidate-list:empty { display: none; }
+.object-candidate-list button {
+  background: rgba(2, 15, 13, .78);
+  border: 1px solid var(--line-soft);
+  color: var(--paper);
+  cursor: pointer;
+  min-height: 42px;
+  padding: 6px 8px;
+  text-align: left;
+}
+.object-candidate-list button.is-selected { border-color: var(--gold); box-shadow: inset 0 0 0 1px rgba(216, 174, 86, .35); }
+.object-candidate-list strong, .object-candidate-list small { display: block; }
+.object-candidate-list strong { color: var(--gold); font-size: 13px; }
+.object-candidate-list small { color: var(--muted); font-family: var(--sans); font-size: 10px; margin-top: 2px; overflow-wrap: anywhere; }
+
+.influence-ledger,
+.seasonal-ledger {
+  border: 1px solid var(--line-soft);
+  display: grid;
+  margin-top: 8px;
+}
+.influence-ledger { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.seasonal-ledger { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.influence-ledger > header,
+.seasonal-ledger > header {
+  align-items: center;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  gap: 12px;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  padding: 7px 10px;
+}
+.influence-ledger > header strong,
+.seasonal-ledger > header strong { color: var(--gold); font-size: 14px; }
+.influence-ledger > header span,
+.seasonal-ledger > header span { color: var(--muted); font-family: var(--sans); font-size: 11px; text-align: right; }
+.influence-ledger article,
+.seasonal-ledger article {
+  border-right: 1px solid var(--line-soft);
+  min-width: 0;
+  padding: 8px 10px;
+}
+.influence-ledger article:last-of-type,
+.seasonal-ledger article:last-of-type { border-right: 0; }
+.influence-ledger article span,
+.influence-ledger article strong,
+.influence-ledger article small,
+.seasonal-ledger article span,
+.seasonal-ledger article strong,
+.seasonal-ledger article small { display: block; }
+.influence-ledger article span,
+.seasonal-ledger article span { color: var(--muted); font-family: var(--sans); font-size: 10px; }
+.influence-ledger article strong,
+.seasonal-ledger article strong { color: var(--paper); font-size: 14px; margin-top: 2px; }
+.influence-ledger article small,
+.seasonal-ledger article small { color: var(--paper-soft); font-family: var(--sans); font-size: 11px; line-height: 1.45; margin-top: 2px; }
+.seasonal-ledger > p { border-top: 1px solid var(--line-soft); color: var(--muted); font-family: var(--sans); font-size: 11px; grid-column: 1 / -1; margin: 0; padding: 7px 10px; }
+.huangji-step-list { color: var(--paper-soft); display: grid; font-family: var(--sans); font-size: 11px; gap: 5px; margin: 10px 0; padding-left: 22px; }
+.huangji-step-list code { overflow-wrap: anywhere; white-space: normal; }
+
 @media (max-width: 650px) {
   .access-gate-card button { min-height: 46px; }
   .kangjie-wordmark,
@@ -2172,6 +2254,12 @@
     position: static;
     top: auto;
   }
+  .object-candidate-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .influence-ledger, .seasonal-ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .influence-ledger article:nth-of-type(2n), .seasonal-ledger article:nth-of-type(2n) { border-right: 0; }
+  .influence-ledger article, .seasonal-ledger article { border-bottom: 1px solid var(--line-soft); }
+  .influence-ledger > header, .seasonal-ledger > header { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .influence-ledger > header span, .seasonal-ledger > header span { text-align: left; }
 }
 
 /* 320–360px：爻辭已含初九、六二、上六等爻位，隱藏重複欄位以放大正文寬度。 */

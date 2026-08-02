@@ -2,12 +2,12 @@ import {
   LO_SHU_ORDER,
   analyzeBirthday,
   analyzeDigitCode,
-  calculateIChing,
   lineNames,
   localDateString,
   masterThemes,
   profiles,
 } from "./calculator-core.js";
+import { calculateModernThreeNumberHexagram } from "./kangjie-core.js";
 import { getIChingText } from "./iching-text.js";
 import {
   hasIChingAccess,
@@ -221,13 +221,26 @@ function createMetricCard(label, value, note) {
 }
 
 function createCalculationCard(result) {
+  const audit = result.audit;
   const card = element("details", "result-disclosure calculation-card");
   const summary = element("summary");
   const summaryCopy = element("span");
   summaryCopy.append(element("small", "", "計算軌跡"), element("strong", "", "查看完整算式"));
-  summary.append(summaryCopy, element("em", "", `${result.calculations.length} 步可逐項核對`));
+  summary.append(summaryCopy, element("em", "", `${result.calculations.length} 步・規則 ${audit.algorithmVersion}`));
   const body = element("div", "disclosure-body");
   body.append(panelHeading("計算軌跡", "這個結果怎麼算", "可逐步核對"));
+  const auditLedger = element("div", "numerology-audit-ledger");
+  for (const [label, value, note] of [
+    ["原始輸入", audit.originalInput, "使用者送入分析器的內容"],
+    ["正規化輸入", audit.normalizedInput, audit.normalizationRule],
+    ["演算法版本", `${audit.algorithmId}@${audit.algorithmVersion}`, audit.algorithmName],
+  ]) {
+    const item = element("article");
+    item.append(element("span", "", label), element("code", "", value), element("small", "", note));
+    auditLedger.append(item);
+  }
+  auditLedger.append(element("p", "numerology-audit-context", `${audit.context}；${audit.ruleSummary}`));
+  body.append(auditLedger);
   const list = element("ol", "calculation-list");
   for (const item of result.calculations) {
     const row = element("li");
@@ -671,21 +684,54 @@ function createIChingResult(result, onReset) {
   grid.append(createHexagramCard("本卦", result.original, result.moving.index, "動"), createHexagramCard("互卦", result.mutual), createHexagramCard("變卦", result.transformed, result.moving.index, "變"));
 
   const trace = element("div", "iching-trace");
-  const traces = [
-    ["第一數取上卦", `${result.inputs[0]} ÷ 8 → 餘 ${result.remainders[0]}（${result.original.upper.name}）`],
-    ["第二數取下卦", `${result.inputs[1]} ÷ 8 → 餘 ${result.remainders[1]}（${result.original.lower.name}）`],
-    ["第三數取動爻", `${result.inputs[2]} ÷ 6 → 餘 ${result.remainders[2]}（${result.moving.name}）`],
-  ];
-  for (const [label, value] of traces) {
-    const item = element("div");
-    item.append(element("span", "", label), element("strong", "", value));
-    trace.append(item);
+  for (const traceItem of result.trace) {
+    const traceRow = element("div");
+    traceRow.append(element("span", "", traceItem.label), element("strong", "", traceItem.equation));
+    trace.append(traceRow);
   }
+
+  const roleLedger = element("div", "iching-role-ledger");
+  for (const [label, value, note] of [
+    ["體卦", `${result.roles.body.symbol} ${result.roles.body.name}`, `${result.roles.body.nature}・${result.roles.body.element}`],
+    ["用卦", `${result.roles.use.symbol} ${result.roles.use.name}`, `${result.roles.use.nature}・${result.roles.use.element}`],
+    ["五行關係", result.fiveElements.label, result.fiveElements.explanation],
+  ]) {
+    const card = element("article");
+    card.append(element("span", "", label), element("strong", "", value), element("small", "", note));
+    roleLedger.append(card);
+  }
+  roleLedger.append(element("p", "", result.roles.note));
+
+  const audit = element("details", "iching-audit");
+  const auditSummary = element("summary");
+  auditSummary.append(element("strong", "", "完整演算與來源"), element("span", "", `${result.profileLabel}・${result.algorithmVersion}`));
+  const auditBody = element("div", "iching-audit-body");
+  const inputs = element("div", "iching-audit-inputs");
+  const originalInput = element("article");
+  originalInput.append(element("span", "", "原始輸入"), element("pre", "", JSON.stringify(result.calculationTrace.originalInput, null, 2)));
+  const normalizedInput = element("article");
+  normalizedInput.append(element("span", "", "正規化輸入"), element("pre", "", JSON.stringify(result.calculationTrace.normalizedInput, null, 2)));
+  inputs.append(originalInput, normalizedInput);
+  const relations = element("ul", "iching-relation-list");
+  for (const entry of result.influenceRelations) relations.append(element("li", "", `${entry.stage}：${entry.trigram.name}${entry.trigram.element}・${entry.relation.label}`));
+  const sourceList = element("div", "iching-source-list");
+  for (const source of result.sourceRefs) {
+    const link = element("a");
+    link.href = source.url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.append(element("strong", "", source.title), element("small", "", source.organization));
+    sourceList.append(link);
+  }
+  auditBody.append(inputs, relations, sourceList);
+  audit.append(auditSummary, auditBody);
 
   section.append(
     heading,
     grid,
     trace,
+    roleLedger,
+    audit,
     element("p", "iching-boundary", "本模式採現代三數先天數法，與生日命碼完全分開。只做固定卦象計算，不提供吉凶、預測或決策建議。"),
     createOriginalTextPanel(result),
     createResetButton("重新輸入三個數字", onReset),
@@ -985,7 +1031,7 @@ function initializeAnalyzer() {
       const currentYear = new Date().getFullYear();
       const result = mode === "birthday"
         ? analyzeBirthday(birthdayInput.value, currentYear, todayValue, { ruleSet })
-        : mode === "code" ? analyzeDigitCode(codeInput.value) : calculateIChing(ichingInputs.map((input) => input.value));
+        : mode === "code" ? analyzeDigitCode(codeInput.value) : calculateModernThreeNumberHexagram(ichingInputs.map((input) => input.value));
       if (mode === "birthday") {
         saveAnalysisHistory(analyzeBirthdayV2({
           date: birthdayInput.value,
@@ -1000,7 +1046,7 @@ function initializeAnalyzer() {
       birthdayAutoSubmitArmed = false;
       help.textContent = modeContent[mode].help;
       setInvalid(false);
-      resultAnchor.replaceChildren(result.kind === "iching" ? createIChingResult(result, resetCurrent) : createNumerologyResult(result, resetCurrent));
+      resultAnchor.replaceChildren(result.kind === "kangjie" ? createIChingResult(result, resetCurrent) : createNumerologyResult(result, resetCurrent));
       updateCockpitResult(result);
       updateDashboardAnalytics(result);
       focusResult(mode === "birthday" ? birthdayResultTarget : "overview");

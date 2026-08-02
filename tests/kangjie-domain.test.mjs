@@ -3,14 +3,18 @@ import test from "node:test";
 
 import {
   analyzeFiveElementRelation,
+  analyzeSeasonalStrength,
   buildMeihuaResult,
+  calculateCalendarMethod,
   calculateChiCunMethod,
   calculatePosteriorMethod,
+  calculateModernThreeNumberMethod,
   calculateSegmentedSoundMethod,
   calculateSingleSoundMethod,
   calculateSurnameAdditionMethod,
   calculateTextMethod,
   calculateZhangChiMethod,
+  cwaCalendarOracle,
   detectCalendarParts,
   findObjectTrigramCandidates,
   mod1,
@@ -186,6 +190,37 @@ test("五行關係完整區分比和、體生用、用生體、體克用、用�
     assert.equal(relation.useElement, useElement);
     assert.ok(relation.explanation);
   }
+});
+
+test("月令旺衰只依原文標示旺、衰、平，並把本互變逐一對體", () => {
+  assert.equal(analyzeSeasonalStrength(trigrams[4], 1).status, "旺");
+  assert.equal(analyzeSeasonalStrength(trigrams[8], 1).status, "衰");
+  assert.equal(analyzeSeasonalStrength(trigrams[1], 1).status, "平");
+  assert.equal(analyzeSeasonalStrength(trigrams[7], 3).status, "旺");
+  assert.equal(analyzeSeasonalStrength(trigrams[6], 3).status, "衰");
+
+  const result = calculateCalendarMethod({ yearBranch: 5, lunarMonth: 1, lunarDay: 17, hourBranch: 9 });
+  assert.equal(result.influenceRelations.length, 4);
+  assert.deepEqual(result.influenceRelations.map((entry) => entry.stage), ["本卦用卦", "互卦下互", "互卦上互", "變卦用方"]);
+  assert.equal(result.seasonalStrength.lunarMonth, 1);
+  assert.equal(result.seasonalStrength.body.status, "衰");
+  assert.match(result.seasonalStrength.note, /不自動推成吉凶/);
+  assert.equal(result.calculationTrace.schemaVersion, "kangjie-calculation-trace-v2");
+  assert.equal(result.calculationTrace.modulo.upper.quotient, "2");
+});
+
+test("現代三數入口使用統一引擎並明列版本與非古籍主法界線", () => {
+  const result = calculateModernThreeNumberMethod([10, 20, 30]);
+  assert.equal(result.method, "modern-three-number");
+  assert.equal(result.algorithmVersion, "modern-current-v1");
+  assert.equal(result.original.name, "澤雷隨");
+  assert.equal(result.influenceRelations.length, 4);
+  assert.deepEqual(result.calculationTrace.normalizedInput, {
+    upperNumber: "10",
+    lowerNumber: "20",
+    movingNumber: "30",
+  });
+  assert.match(result.calculationTrace.warnings.join(""), /現代三數法/);
 });
 
 test("古籍主法與 legacy-existing-v1 明確保留乾坤互卦差異", () => {
@@ -551,6 +586,47 @@ test("Calendar profiles 分離正月初一年界、閏月規則、晚子時換�
   assert.equal(manual.mode, "manual");
   assert.equal(manual.isLeapMonth, true);
   assert.equal(manual.calendarProfileId, "taipei-lunar-new-year-v1");
+
+  const manualNextMonth = normalizeManualCalendarParts({
+    yearBranch: 4,
+    lunarMonth: 2,
+    lunarDay: 1,
+    isLeapMonth: "on",
+    hourBranch: 7,
+    calendarProfile: {
+      id: "test-next-leap-v1",
+      label: "測試閏月順推",
+      leapMonthRule: "next-month-number",
+    },
+  });
+  assert.equal(manualNextMonth.originalLunarMonth, 2);
+  assert.equal(manualNextMonth.lunarMonth, 3);
+  assert.match(manualNextMonth.warnings.join(""), /順推為卦數月份 3/);
+});
+
+test("中央氣象署 2023 至 2028 立春固定時刻可逐年跨界重播", () => {
+  const expected = {
+    2023: "2023-02-04T02:43:00.000Z",
+    2024: "2024-02-04T08:27:00.000Z",
+    2025: "2025-02-03T14:10:00.000Z",
+    2026: "2026-02-03T20:02:00.000Z",
+    2027: "2027-02-04T01:46:00.000Z",
+    2028: "2028-02-04T07:31:00.000Z",
+  };
+  assert.deepEqual(cwaCalendarOracle.lichunInstants, expected);
+  for (const [yearText, instantIso] of Object.entries(expected)) {
+    const year = Number(yearText);
+    const instant = new Date(instantIso).getTime();
+    const before = detectCalendarParts(new Date(instant - 60_000), { profile: "taipei-lichun-v1" });
+    const after = detectCalendarParts(new Date(instant + 60_000), { profile: "taipei-lichun-v1" });
+    assert.equal(before.branchYear, year - 1);
+    assert.equal(after.branchYear, year);
+  }
+});
+
+test("算法能力限制由 domain 強制，舊版不能冒充新增方法", () => {
+  assert.throws(() => calculateSingleSoundMethod({ count: 3, hourBranch: 4, profile: "legacy-existing-v1" }), /原程式舊版不包含/);
+  assert.doesNotThrow(() => calculateSegmentedSoundMethod({ firstCount: 1, secondCount: 5, hourBranch: 10, profile: "legacy-existing-v1" }));
 });
 
 test("皇極時間長度在 30、360、10800、129600 年邊界正確進位", () => {
@@ -565,6 +641,8 @@ test("皇極時間長度在 30、360、10800、129600 年邊界正確進位", ()
     const result = decomposeHuangjiYears(years);
     assert.deepEqual(result.units, expected);
     assert.equal(result.calculationTrace.normalizedInput.years, String(years));
+    assert.equal(result.calculationTrace.steps.length, 4);
+    assert.deepEqual(result.calculationTrace.sourceIds, ["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]);
   }
 });
 
@@ -595,4 +673,5 @@ test("BCE 跨 CE 內部連續且所有顯示均不產生西元 0 年", () => {
   assert.doesNotMatch(`${ce.targetLabel}\n${ce.epoch.label}`, /西元 0 年/);
   assert.equal(bce.calculationTrace.normalizedInput.targetAstronomical, "0");
   assert.equal(ce.calculationTrace.normalizedInput.targetAstronomical, "1");
+  assert.equal(ce.calculationTrace.steps.length, 7);
 });

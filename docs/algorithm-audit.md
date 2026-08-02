@@ -153,18 +153,28 @@ reduce(月) + reduce(日) + reduce(年) → 再化簡
 ## 修正與隔離
 
 - 原程式遇到純乾、純坤時改取變卦互卦。此行為只保留在 `legacy-existing-v1` 與明確選擇該異文的 profile；古籍主法依本次需求固定由本卦取互卦。
-- 原結果只有簡短算式，無法完整重播。新結果增加原始輸入、正規化輸入、總數、除數、餘數、爻序、體用、五行、算法版本、資料版本、來源、假設及警告。
+- 原結果只有簡短算式，無法完整重播。新 `kangjie-calculation-trace-v2` 增加原始輸入、正規化輸入、總數、商、餘數、整除規則、爻序、體用、五行多位置關係、月令旺衰、算法版本、資料版本、來源、假設及警告。
 - 元會運世原程式沒有歷史錨點。舊版只保留 duration-only，不虛構 legacy 錨點。
 - 原內嵌《周易》本文實際來自維基文庫，不再把中國哲學書電子化計劃標成內嵌本文的唯一來源。
+
+## 2026-08-02 本輪補強
+
+- 中央氣象署立春邊界固定為 2023 至 2028 年可重播快照；六個年度均以官方年度日曆或其次年節氣附表核對。缺少年份不推估，須人工更新或手動提供立春時刻。
+- `classic-primary-v1`、`modern-current-v1` 與 `calculateModernThreeNumberMethod` 分開記錄。三數取卦只作現代三輸入算法，不冒充《梅花易數》古籍主法。
+- `legacy-existing-v1` 的 Method ID 白名單已移入 domain 層執行；UI、façade 或其他呼叫端都不能把新增方法標為舊版。
+- 五行由單一本卦體用關係擴充為本卦用卦、互卦下互、互卦上互、變卦用方四個位置，另記體黨／用黨數量。具有農曆月時才加入旺、衰、平標記，不推導吉凶。
+- 元會運世升級為 `huangji-calculation-trace-v2`：時間長度保存四級除法步驟，歷史定位保存紀年正規化、錨點差、元週期及會運世年序；西元 0 在輸入、錨點與顯示三層均拒絕。
 
 ## 模組邊界
 
 - `domain/kangjie/math.js`：唯一的整數、floor modulo 與 `mod1`。
-- `domain/kangjie/engine.js`：本卦、互卦、變卦、體用及五行。
+- `domain/kangjie/engine.js`：本卦、互卦、變卦、體用、五行多位置關係及月令旺衰。
 - `domain/kangjie/methods.js`：各起卦方法的純函式。
 - `domain/kangjie/calendar.js`：曆法供應器與 profile。
+- `domain/kangjie/calendar-oracle.js`：中央氣象署 2023 至 2028 立春固定快照與年度來源清單。
+- `domain/kangjie/profiles.js`：算法設定與可執行 Method ID 能力限制。
 - `domain/kangjie/stroke-provider.js`：筆畫候選、來源及人工覆寫。
-- `domain/huangji/index.js`：獨立元會運世引擎。
+- `domain/huangji/index.js`：獨立元會運世引擎與 `huangji-calculation-trace-v2`。
 - `kangjie-core.js`：向後相容 façade，不放公式。
 
 ## 尚需使用者決定的異文

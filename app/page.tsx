@@ -6,12 +6,12 @@ import {
   LO_SHU_ORDER,
   analyzeBirthday,
   analyzeDigitCode,
-  calculateIChing,
   lineNames,
   localDateString,
   masterThemes,
   profiles,
 } from "../calculator-core.js";
+import { calculateModernThreeNumberHexagram, type KangjieAnalysis } from "../kangjie-core.js";
 import { getIChingText } from "../iching-text.js";
 import {
   hasIChingAccess,
@@ -32,8 +32,19 @@ type AnalysisMode = "birthday" | "code" | "iching";
 type BirthdayResultTarget = "overview" | "life-path" | "annual" | "grid" | "color";
 type BirthdayResult = ReturnType<typeof analyzeBirthday>;
 type CodeResult = ReturnType<typeof analyzeDigitCode>;
-type IChingResult = ReturnType<typeof calculateIChing>;
+type IChingResult = KangjieAnalysis;
 type NumerologyResult = BirthdayResult | CodeResult;
+type NumerologyAudit = Readonly<{
+  originalInput: string;
+  normalizedInput: string;
+  algorithmId: string;
+  algorithmName: string;
+  algorithmVersion: string;
+  normalizationRule: string;
+  context: string;
+  ruleSummary: string;
+}>;
+type AuditableNumerologyResult = NumerologyResult & { readonly audit: NumerologyAudit };
 
 const modeContent = {
   birthday: {
@@ -289,11 +300,18 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
 }
 
 function CalculationDetails({ result }: { result: NumerologyResult }) {
+  const audit = (result as AuditableNumerologyResult).audit;
   return (
     <details className="result-disclosure calculation-card">
-      <summary><span><small>計算軌跡</small><strong>查看完整算式</strong></span><em>{result.calculations.length} 步可逐項核對</em></summary>
+      <summary><span><small>計算軌跡</small><strong>查看完整算式</strong></span><em>{result.calculations.length} 步・規則 {audit.algorithmVersion}</em></summary>
       <div className="disclosure-body">
         <header className="panel-heading"><div><p>計算軌跡</p><h3 className="brush-fixed-heading"><FixedBrushTitle text="這個結果怎麼算" className="brush-panel-title" /></h3></div><span>可逐步核對</span></header>
+        <div className="numerology-audit-ledger">
+          <article><span>原始輸入</span><code>{audit.originalInput}</code><small>使用者送入分析器的內容</small></article>
+          <article><span>正規化輸入</span><code>{audit.normalizedInput}</code><small>{audit.normalizationRule}</small></article>
+          <article><span>演算法版本</span><code>{audit.algorithmId}@{audit.algorithmVersion}</code><small>{audit.algorithmName}</small></article>
+          <p className="numerology-audit-context">{audit.context}；{audit.ruleSummary}</p>
+        </div>
         <ol className="calculation-list">
           {result.calculations.map((item) => <li key={item.label}><span>{item.label}</span><code>{item.text}</code></li>)}
         </ol>
@@ -514,10 +532,15 @@ function IChingResults({ result, onReset }: { result: IChingResult; onReset: () 
         <HexagramCard label="變卦" value={result.transformed} movingIndex={result.moving.index} mark="變" />
       </div>
       <div className="iching-trace">
-        <div><span>第一數取上卦</span><strong>{result.inputs[0]} ÷ 8 → 餘 {result.remainders[0]}（{result.original.upper.name}）</strong></div>
-        <div><span>第二數取下卦</span><strong>{result.inputs[1]} ÷ 8 → 餘 {result.remainders[1]}（{result.original.lower.name}）</strong></div>
-        <div><span>第三數取動爻</span><strong>{result.inputs[2]} ÷ 6 → 餘 {result.remainders[2]}（{result.moving.name}）</strong></div>
+        {result.trace.map((item) => <div key={item.label}><span>{item.label}</span><strong>{item.equation}</strong></div>)}
       </div>
+      <div className="iching-role-ledger">
+        <article><span>體卦</span><strong>{result.roles.body.symbol} {result.roles.body.name}</strong><small>{result.roles.body.nature}・{result.roles.body.element}</small></article>
+        <article><span>用卦</span><strong>{result.roles.use.symbol} {result.roles.use.name}</strong><small>{result.roles.use.nature}・{result.roles.use.element}</small></article>
+        <article><span>五行關係</span><strong>{result.fiveElements.label}</strong><small>{result.fiveElements.explanation}</small></article>
+        <p>{result.roles.note}</p>
+      </div>
+      <details className="iching-audit"><summary><strong>完整演算與來源</strong><span>{result.profileLabel}・{result.algorithmVersion}</span></summary><div className="iching-audit-body"><div className="iching-audit-inputs"><article><span>原始輸入</span><pre>{JSON.stringify(result.calculationTrace.originalInput, null, 2)}</pre></article><article><span>正規化輸入</span><pre>{JSON.stringify(result.calculationTrace.normalizedInput, null, 2)}</pre></article></div><ul className="iching-relation-list">{result.influenceRelations.map((entry) => <li key={entry.stage}>{entry.stage}：{entry.trigram.name}{entry.trigram.element}・{entry.relation.label}</li>)}</ul><div className="iching-source-list">{result.sourceRefs.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><strong>{source.title}</strong><small>{source.organization}</small></a>)}</div></div></details>
       <p className="iching-boundary">本模式採現代三數先天數法，與生日命碼完全分開。只做固定卦象計算，不提供吉凶、預測或決策建議。</p>
       <OriginalTextPanel result={result} />
       <div className="result-actions"><button type="button" className="secondary-button" onClick={onReset}>重新輸入三個數字</button></div>
@@ -692,7 +715,7 @@ export default function Home() {
       const currentYear = new Date().getFullYear();
       const nextResult = mode === "birthday"
         ? analyzeBirthday(birthday, currentYear, todayValue, { ruleSet })
-        : mode === "code" ? analyzeDigitCode(numberCode) : calculateIChing(ichingValues);
+        : mode === "code" ? analyzeDigitCode(numberCode) : calculateModernThreeNumberHexagram(ichingValues);
       if (mode === "birthday") {
         saveAnalysisHistory(analyzeBirthdayV2({
           date: birthday,
@@ -925,7 +948,7 @@ export default function Home() {
       </section>
       </div>
 
-      <div ref={resultRef} className="result-anchor">{result?.kind === "iching" ? <IChingResults result={result} onReset={handleReset} /> : result && <NumerologyResults result={result} onReset={handleReset} />}</div>
+      <div ref={resultRef} className="result-anchor">{result?.kind === "kangjie" ? <IChingResults result={result} onReset={handleReset} /> : result && <NumerologyResults result={result} onReset={handleReset} />}</div>
 
       <section className="method-source" id="method-source" aria-labelledby="method-source-title">
         <details>

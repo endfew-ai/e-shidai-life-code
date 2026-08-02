@@ -50,6 +50,20 @@ test("birthday validation rejects nonexistent and future dates but accepts leap 
   assert.throws(() => analyzeBirthday("", 2026, TODAY), /完整的西元出生日期/);
 });
 
+test("birthday analysis exposes original input, normalized input, rule version and reproducible steps", () => {
+  const result = analyzeBirthday(" 1990-08-12 ", 2026, TODAY);
+  assert.equal(result.audit.originalInput, " 1990-08-12 ");
+  assert.equal(result.audit.normalizedInput, "1990-08-12");
+  assert.equal(result.audit.algorithmId, result.ruleSet.id);
+  assert.equal(result.audit.algorithmName, result.ruleSet.name);
+  assert.equal(result.audit.algorithmVersion, result.ruleSet.version);
+  assert.match(result.audit.context, /個人流年基準 2026/);
+  assert.match(result.audit.context, /日期驗證基準 2026-07-18/);
+  assert.deepEqual(result.audit.steps, result.calculations);
+  assert.ok(Object.isFrozen(result.audit));
+  assert.ok(Object.isFrozen(result.audit.steps));
+});
+
 test("personal years always reduce to 1-9 and are deterministic for a supplied year", () => {
   const result = analyzeBirthday("1990-08-12", 2026, TODAY);
   assert.deepEqual(result.cycles.map(({ year, value }) => [year, value]), [[2025, 2], [2026, 3], [2027, 4]]);
@@ -182,6 +196,12 @@ test("custom number analysis normalizes full-width digits without silently ignor
   assert.equal(result.sum, 10);
   assert.equal(result.core, 1);
   assert.equal(result.counts[1], 1);
+  assert.equal(result.audit.originalInput, "１２ 3-4");
+  assert.equal(result.audit.normalizedInput, "1234");
+  assert.equal(result.audit.algorithmId, "digit-code-sum-reduction-v1");
+  assert.equal(result.audit.algorithmVersion, "1.0.0");
+  assert.match(result.audit.context, /不新增吉凶或神秘公式/);
+  assert.deepEqual(result.audit.steps, result.calculations);
   assert.deepEqual(LO_SHU_ORDER, [4, 9, 2, 3, 5, 7, 8, 1, 6]);
   assert.throws(() => analyzeDigitCode("abc 29 xyz"), /僅接受/);
   assert.throws(() => analyzeDigitCode("0000"), /總和為 0/);

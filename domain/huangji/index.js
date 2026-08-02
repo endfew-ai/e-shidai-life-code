@@ -55,15 +55,20 @@ export function decomposeHuangjiYears(rawYears, { allowZero = false } = {}) {
     }
     throw error;
   }
-  let remainder = totalYears;
-  const yuan = remainder / huangjiUnits.yuan;
-  remainder %= huangjiUnits.yuan;
-  const hui = remainder / huangjiUnits.hui;
-  remainder %= huangjiUnits.hui;
-  const yun = remainder / huangjiUnits.yun;
-  remainder %= huangjiUnits.yun;
-  const shi = remainder / huangjiUnits.shi;
-  const years = remainder % huangjiUnits.shi;
+  const yuan = totalYears / huangjiUnits.yuan;
+  const afterYuan = totalYears % huangjiUnits.yuan;
+  const hui = afterYuan / huangjiUnits.hui;
+  const afterHui = afterYuan % huangjiUnits.hui;
+  const yun = afterHui / huangjiUnits.yun;
+  const afterYun = afterHui % huangjiUnits.yun;
+  const shi = afterYun / huangjiUnits.shi;
+  const years = afterYun % huangjiUnits.shi;
+  const steps = [
+    { order: 1, unit: "元", dividend: totalYears.toString(), divisor: huangjiUnits.yuan.toString(), quotient: yuan.toString(), remainder: afterYuan.toString() },
+    { order: 2, unit: "會", dividend: afterYuan.toString(), divisor: huangjiUnits.hui.toString(), quotient: hui.toString(), remainder: afterHui.toString() },
+    { order: 3, unit: "運", dividend: afterHui.toString(), divisor: huangjiUnits.yun.toString(), quotient: yun.toString(), remainder: afterYun.toString() },
+    { order: 4, unit: "世", dividend: afterYun.toString(), divisor: huangjiUnits.shi.toString(), quotient: shi.toString(), remainder: years.toString() },
+  ];
   return {
     kind: "huangji",
     mode: "duration",
@@ -79,12 +84,16 @@ export function decomposeHuangjiYears(rawYears, { allowZero = false } = {}) {
       years: years.toString(),
     },
     equation: `${totalYears} 年 = ${yuan} 元・${hui} 會・${yun} 運・${shi} 世・${years} 年`,
-    sourceRefs: resolveSources(["HUANGJI-KANRIPO-01"]),
+    sourceRefs: resolveSources(["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]),
     calculationTrace: {
-      schemaVersion: "huangji-calculation-trace-v1",
+      schemaVersion: "huangji-calculation-trace-v2",
+      algorithmVersion: "huangji-duration-v1",
+      profileId: "legacy-existing-v1",
       ratios: { shi: "30", yun: "360", hui: "10800", yuan: "129600" },
       originalInput: { years: String(rawYears ?? "") },
       normalizedInput: { years: totalYears.toString() },
+      steps,
+      sourceIds: ["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"],
       warnings: ["這是時間單位換算，不是西元歷史定位或事件預測。"],
     },
   };
@@ -132,6 +141,15 @@ export function calculateHuangjiPosition(input) {
   remainder %= huangjiUnits.yun;
   const shiZero = remainder / huangjiUnits.shi;
   const yearZero = remainder % huangjiUnits.shi;
+  const steps = [
+    { order: 1, label: "紀年正規化", equation: `${formatCivilYear(targetCivilYear)} → 天文年份 ${targetAstronomical}；${formatCivilYear(epoch.epochCivilYear)} → 天文年份 ${epochAstronomical}` },
+    { order: 2, label: "距錨點年數", equation: `${targetAstronomical} − ${epochAstronomical} + ${epoch.epochOffsetYears} = ${elapsedYears}` },
+    { order: 3, label: "元週期", dividend: elapsedYears.toString(), divisor: huangjiUnits.yuan.toString(), quotient: cycleNumber.toString(), remainder: cycleOffset.toString() },
+    { order: 4, label: "會序", dividend: cycleOffset.toString(), divisor: huangjiUnits.hui.toString(), quotient: huiZero.toString(), displayIndex: (huiZero + 1n).toString(), remainder: (cycleOffset % huangjiUnits.hui).toString() },
+    { order: 5, label: "運序", dividend: (cycleOffset % huangjiUnits.hui).toString(), divisor: huangjiUnits.yun.toString(), quotient: yunZero.toString(), displayIndex: (yunZero + 1n).toString(), remainder: (cycleOffset % huangjiUnits.yun).toString() },
+    { order: 6, label: "世序", dividend: (cycleOffset % huangjiUnits.yun).toString(), divisor: huangjiUnits.shi.toString(), quotient: shiZero.toString(), displayIndex: (shiZero + 1n).toString(), remainder: yearZero.toString() },
+    { order: 7, label: "年序", zeroBased: yearZero.toString(), displayIndex: (yearZero + 1n).toString() },
+  ];
 
   return {
     kind: "huangji",
@@ -164,9 +182,11 @@ export function calculateHuangjiPosition(input) {
       yuan: yearsToNext(cycleOffset, huangjiUnits.yuan),
     },
     equation: `${formatCivilYear(targetCivilYear)} − ${formatCivilYear(epoch.epochCivilYear)} + ${epoch.epochOffsetYears} = ${elapsedYears} 年；落在週期內第 ${cycleOffset + 1n} 年`,
-    sourceRefs: resolveSources(["HUANGJI-KANRIPO-01"]),
+    sourceRefs: resolveSources(["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]),
     calculationTrace: {
-      schemaVersion: "huangji-calculation-trace-v1",
+      schemaVersion: "huangji-calculation-trace-v2",
+      algorithmVersion: "huangji-epoch-position-v1",
+      profileId: epoch.id,
       originalInput: { ...input },
       normalizedInput: {
         targetCivilYear: targetCivilYear.toString(),
@@ -176,6 +196,13 @@ export function calculateHuangjiPosition(input) {
         epochOffsetYears: epoch.epochOffsetYears.toString(),
       },
       ratios: { shi: "30", yun: "360", hui: "10800", yuan: "129600" },
+      epoch: {
+        label: epoch.label,
+        authority: epoch.authority,
+        notice: epoch.notice,
+      },
+      steps,
+      sourceIds: ["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"],
       warnings: [epoch.notice, "序位採一基數顯示；底層位移採零基數計算。"],
     },
   };

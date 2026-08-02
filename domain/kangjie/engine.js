@@ -1,6 +1,6 @@
 import { calculateIChing, trigrams } from "../../calculator-core.js";
 import { mod1, stringifyForTrace } from "./math.js";
-import { resolveCalculationProfile } from "./profiles.js";
+import { assertProfileSupportsMethod } from "./profiles.js";
 import { resolveSources } from "./sources.js";
 
 export const trigramElements = Object.freeze({
@@ -16,6 +16,7 @@ export const trigramElements = Object.freeze({
 
 const GENERATES = Object.freeze({ 木: "火", 火: "土", 土: "金", 金: "水", 水: "木" });
 const CONTROLS = Object.freeze({ 木: "土", 土: "水", 水: "火", 火: "金", 金: "木" });
+const LUNAR_MONTH_BRANCHES = Object.freeze(["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"]);
 
 export function analyzeFiveElementRelation(bodyTrigram, useTrigram) {
   const bodyElement = trigramElements[bodyTrigram.id];
@@ -41,6 +42,60 @@ export function analyzeFiveElementRelation(bodyTrigram, useTrigram) {
     explanation = `用卦${useElement}克體卦${bodyElement}。`;
   }
   return { code, label, bodyElement, useElement, explanation };
+}
+
+export function analyzeSeasonalStrength(trigram, rawLunarMonth) {
+  const lunarMonth = Number(rawLunarMonth);
+  if (!Number.isInteger(lunarMonth) || lunarMonth < 1 || lunarMonth > 12) {
+    throw new Error("月令旺衰需要 1 至 12 的農曆月數。");
+  }
+  const earthMonth = [3, 6, 9, 12].includes(lunarMonth);
+  const season = earthMonth
+    ? "四季土月"
+    : lunarMonth <= 2 ? "春"
+      : lunarMonth <= 5 ? "夏"
+        : lunarMonth <= 8 ? "秋" : "冬";
+  const strongIds = earthMonth ? [7, 8]
+    : season === "春" ? [4, 5]
+      : season === "夏" ? [3]
+        : season === "秋" ? [1, 2] : [6];
+  const weakIds = earthMonth ? [6]
+    : season === "春" ? [7, 8]
+      : season === "夏" ? [1, 2]
+        : season === "秋" ? [4, 5] : [3];
+  const status = strongIds.includes(trigram.id) ? "旺" : weakIds.includes(trigram.id) ? "衰" : "平";
+  return {
+    lunarMonth,
+    monthBranch: LUNAR_MONTH_BRANCHES[lunarMonth - 1],
+    season,
+    status,
+    trigramId: trigram.id,
+    trigramName: trigram.name,
+    element: trigramElements[trigram.id],
+    explanation: `農曆${lunarMonth}月（${LUNAR_MONTH_BRANCHES[lunarMonth - 1]}月・${season}），${trigram.name}卦依原文列為${status}。`,
+  };
+}
+
+function influenceEntry(stage, body, target) {
+  return {
+    stage,
+    trigram: { ...target, element: trigramElements[target.id] },
+    relation: analyzeFiveElementRelation(body, target),
+  };
+}
+
+function moduloEntry(total, divisor) {
+  const value = BigInt(total);
+  const base = BigInt(divisor);
+  const remainder = value % base;
+  return {
+    total: value.toString(),
+    divisor,
+    quotient: (value / base).toString(),
+    remainder: remainder.toString(),
+    result: mod1(value, divisor),
+    exactMultipleRule: remainder === 0n ? `整除時取 ${divisor}` : "取餘數",
+  };
 }
 
 function legacyPureMutual(baseResult, profile) {
@@ -76,8 +131,9 @@ export function buildMeihuaResult({
   warnings = [],
   ignoredInput = [],
   dataVersions = {},
+  seasonalLunarMonth = null,
 }) {
-  const profile = resolveCalculationProfile(profileOrId);
+  const profile = assertProfileSupportsMethod(profileOrId, method);
   const totals = {
     upper: BigInt(upperTotal),
     lower: BigInt(lowerTotal),
@@ -92,18 +148,50 @@ export function buildMeihuaResult({
   const lowerIsUse = baseResult.moving.index < 3;
   const body = lowerIsUse ? baseResult.original.upper : baseResult.original.lower;
   const use = lowerIsUse ? baseResult.original.lower : baseResult.original.upper;
+  const transformedUse = lowerIsUse ? baseResult.transformed.lower : baseResult.transformed.upper;
   const roles = {
-    body: { ...body, element: trigramElements[body.id] },
-    use: { ...use, element: trigramElements[use.id] },
+    body: { ...body, element: trigramElements[body.id], position: lowerIsUse ? "upper" : "lower" },
+    use: { ...use, element: trigramElements[use.id], position: lowerIsUse ? "lower" : "upper" },
+    transformedUse: { ...transformedUse, element: trigramElements[transformedUse.id], position: lowerIsUse ? "lower" : "upper" },
     note: lowerIsUse ? "動爻在下卦，下卦為用，上卦為體。" : "動爻在上卦，上卦為用，下卦為體。",
   };
   const fiveElements = analyzeFiveElementRelation(body, use);
-  const modulo = {
-    upper: { total: totals.upper.toString(), divisor: 8, result: mod1(totals.upper, 8) },
-    lower: { total: totals.lower.toString(), divisor: 8, result: mod1(totals.lower, 8) },
-    moving: { total: totals.moving.toString(), divisor: 6, result: mod1(totals.moving, 6) },
+  const influenceRelations = [
+    influenceEntry("本卦用卦", body, use),
+    influenceEntry("互卦下互", body, mutual.lower),
+    influenceEntry("互卦上互", body, mutual.upper),
+    influenceEntry("變卦用方", body, transformedUse),
+  ];
+  const bodyPartyCount = influenceRelations.filter((entry) => entry.trigram.element === roles.body.element).length;
+  const usePartyCount = roles.body.element === roles.use.element
+    ? null
+    : influenceRelations.filter((entry) => entry.trigram.element === roles.use.element).length;
+  const partyBalance = {
+    bodyElement: roles.body.element,
+    useElement: roles.use.element,
+    bodyPartyCount,
+    usePartyCount,
+    note: usePartyCount === null
+      ? "體用同五行，比和時不把同一卦重複分作體黨與用黨。"
+      : `互變四個觀察位置中，與體同五行 ${bodyPartyCount} 個，與用同五行 ${usePartyCount} 個。`,
   };
-  const sources = resolveSources(sourceIds);
+  const seasonalStrength = seasonalLunarMonth === null || seasonalLunarMonth === undefined || seasonalLunarMonth === ""
+    ? null
+    : {
+      lunarMonth: Number(seasonalLunarMonth),
+      body: analyzeSeasonalStrength(body, seasonalLunarMonth),
+      use: analyzeSeasonalStrength(use, seasonalLunarMonth),
+      mutualLower: analyzeSeasonalStrength(mutual.lower, seasonalLunarMonth),
+      mutualUpper: analyzeSeasonalStrength(mutual.upper, seasonalLunarMonth),
+      transformedUse: analyzeSeasonalStrength(transformedUse, seasonalLunarMonth),
+      note: "只依《梅花易數》所列旺、衰月份作結構標記；未列者標為平，不自動推成吉凶預測。",
+    };
+  const modulo = {
+    upper: moduloEntry(totals.upper, 8),
+    lower: moduloEntry(totals.lower, 8),
+    moving: moduloEntry(totals.moving, 6),
+  };
+  const sources = resolveSources([...new Set(["MYS-WIKI-01", "MYS-WIKI-02", "MYS-NLC-1925-01", ...sourceIds])]);
 
   return {
     ...baseResult,
@@ -117,11 +205,14 @@ export function buildMeihuaResult({
     mutualSource,
     roles,
     fiveElements,
+    influenceRelations,
+    partyBalance,
+    seasonalStrength,
     trace,
     inputSummary,
     sourceRefs: sources,
     calculationTrace: {
-      schemaVersion: "kangjie-calculation-trace-v1",
+      schemaVersion: "kangjie-calculation-trace-v2",
       methodId: method,
       algorithmVersion: profile.id,
       profile: stringifyForTrace(profile),
@@ -137,6 +228,9 @@ export function buildMeihuaResult({
       movingLine: baseResult.moving.index + 1,
       bodyUse: roles,
       fiveElements,
+      influenceRelations,
+      partyBalance,
+      seasonalStrength,
       steps: trace.map((item, index) => ({ order: index + 1, ...item })),
       assumptions: [...assumptions],
       warnings: [...warnings],

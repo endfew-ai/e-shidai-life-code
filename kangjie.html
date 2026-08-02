@@ -114,6 +114,7 @@
                 <label class="field-block"><span>曆法年界<small>預設農曆正月初一</small></span><select name="calendarProfile"><option value="taipei-lunar-new-year-v1">臺北・正月初一年界</option><option value="taipei-lichun-v1">臺北・立春年界</option><option value="taipei-late-zi-next-day-v1">臺北・晚子時換日</option></select></label>
                 <label class="field-block"><span>時區<small>IANA 名稱</small></span><input name="timeZone" type="text" value="Asia/Taipei" /></label>
               </div>
+              <label class="calendar-leap-toggle"><input name="isLeapMonth" type="checkbox" /><span>這筆是閏月<small>自動偵測會帶入；手動輸入時請自行確認</small></span></label>
               <p class="form-note" data-current-time-note>首次開啟會自動填入，仍可手動修正。閏月、子初換日與年界需要依採用曆法另行核對。</p>
               <p class="form-message" role="alert" aria-live="polite"></p>
               <button class="primary-button" type="submit">依年月日時衍算<span aria-hidden="true">↘</span></button>
@@ -172,17 +173,22 @@
 
             <form class="kangjie-form" id="form-supplement" role="tabpanel" aria-labelledby="method-supplement" data-method-panel="supplement" hidden novalidate>
               <div class="form-intro"><div><span>古例補充</span><h3 class="brush-fixed-heading"><span class="brush-title brush-kangjie-form-title brush-kangjie-form-long"><span class="sr-only">丈尺尺寸與後天端法</span><img loading="lazy" decoding="async" class="brush-title-image" src="public/visuals/brush/title-kangjie-origin-boundaries-v2.webp" alt="" aria-hidden="true" /></span></h3></div><p>丈尺、尺寸、方位及人與動靜物各守原典入口，物象候選由使用者確認。</p></div>
-              <label class="field-block"><span>補充方法<small>尺寸可切換古今版本</small></span><select name="supplementType" data-supplement-type><option value="zhang-chi">丈尺占</option><option value="chi-cun">尺寸占</option><option value="posterior">後天端法</option><option value="person">為人占</option><option value="animal">動物占</option><option value="static">靜物占</option><option value="direction">方位取卦</option></select></label>
+              <label class="field-block"><span>補充方法<small>尺寸可切換古今版本</small></span><select name="supplementType" data-supplement-type><option value="zhang-chi">丈尺占</option><option value="chi-cun">尺寸占</option><option value="posterior">後天端法</option><option value="person">為人占</option><option value="self">自己占</option><option value="animal">動物占</option><option value="static">靜物占</option><option value="direction">方位取卦</option></select></label>
               <div class="triple-input-grid" data-length-fields>
                 <label class="field-block" data-zhang-field><span>丈數<small>丈尺占作上卦</small></span><input name="zhang" type="number" min="1" value="1" /></label>
                 <label class="field-block"><span>尺數<small>依方法作上卦或下卦</small></span><input name="chi" type="number" min="1" value="1" /></label>
                 <label class="field-block"><span>寸數<small>丈尺占不採用</small></span><input name="cun" type="number" min="1" value="1" /></label>
               </div>
               <label class="field-block" data-size-version hidden><span>尺寸版本<small>可核傳本加時；另保留未證異法</small></span><select name="version"><option value="modern-with-hour">傳本主法：動爻加時辰</option><option value="old-without-hour">未證異法：動爻不加時辰</option></select></label>
-              <div class="triple-input-grid" data-posterior-fields hidden>
-                <label class="field-block"><span>物象卦<small>請依類象確認</small></span><select name="objectTrigram"><option value="1">乾1・天圓金馬</option><option value="2">兌2・澤口羊缺</option><option value="3">離3・火日目花</option><option value="4">震4・雷足木動</option><option value="5">巽5・風雞繩羽</option><option value="6">坎6・水雨魚酒</option><option value="7">艮7・山手門狗</option><option value="8">坤8・地母牛方</option></select></label>
+              <div data-posterior-fields hidden>
+                <label class="field-block"><span>所見物象描述<small>只列候選，必須由你確認</small></span><input name="objectDescription" data-object-description type="text" placeholder="例如：紅花、圓鏡、枯枝" /></label>
+                <div class="object-candidate-list" data-object-candidates aria-live="polite"></div>
+                <input name="objectCandidateConfirmed" data-object-confirmed type="hidden" value="false" />
+                <div class="triple-input-grid">
+                <label class="field-block"><span>物象卦<small>使用者最終確認</small></span><select name="objectTrigram" data-object-trigram><option value="1">乾1・天圓金馬</option><option value="2">兌2・澤口羊缺</option><option value="3">離3・火日目花</option><option value="4">震4・雷足木動</option><option value="5">巽5・風雞繩羽</option><option value="6">坎6・水雨魚酒</option><option value="7">艮7・山手門狗</option><option value="8">坤8・地母牛方</option></select></label>
                 <label class="field-block"><span>方位卦<small>西北乾至西南坤</small></span><select name="directionTrigram"><option value="1">西北・乾1</option><option value="2">西・兌2</option><option value="3">南・離3</option><option value="4">東・震4</option><option value="5">東南・巽5</option><option value="6">北・坎6</option><option value="7">東北・艮7</option><option value="8">西南・坤8</option></select></label>
                 <label class="field-block"><span>時支<small>自動偵測，可修改</small></span><select name="hourBranch"><option value="">請選時支</option><option value="1">子・1</option><option value="2">丑・2</option><option value="3">寅・3</option><option value="4">卯・4</option><option value="5">辰・5</option><option value="6">巳・6</option><option value="7">午・7</option><option value="8">未・8</option><option value="9">申・9</option><option value="10">酉・10</option><option value="11">戌・11</option><option value="12">亥・12</option></select></label>
+                </div>
               </div>
               <label class="field-block" data-trigger-field hidden><span>觸發事件<small>不動不占、無故不占</small></span><input name="trigger" type="text" placeholder="例如：枯枝無風自墜" /></label>
               <p class="form-message" role="alert" aria-live="polite"></p>
@@ -236,7 +242,7 @@
             <a href="https://commons.wikimedia.org/wiki/File:NLC416-12jh005426-44577_%E6%A2%85%E8%8A%B1%E6%98%93%E6%95%B8.pdf" target="_blank" rel="noreferrer"><span>1925 年影印本</span><strong>中國國家圖書館藏版本旁證</strong><small>Wikimedia Commons ↗</small></a>
             <a href="https://opendata.cwa.gov.tw/dataset/all/A-A0087-001" target="_blank" rel="noreferrer"><span>中央氣象署日曆資料</span><strong>國農曆與節氣的固定測試基準</strong><small>官方開放資料 ↗</small></a>
             <a href="https://www.unicode.org/reports/tr38/" target="_blank" rel="noreferrer"><span>Unicode Unihan 17.0</span><strong>姓名自動筆畫使用 kTotalStrokes 本機索引</strong><small>Unicode 官方規格 ↗</small></a>
-            <a href="https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/index.html" target="_blank" rel="noreferrer"><span>教育部辭典公眾授權網</span><strong>臺灣標準字體筆畫 provider 與授權界線</strong><small>教育部官方資料 ↗</small></a>
+            <a href="https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_concised_download.html" target="_blank" rel="noreferrer"><span>教育部《國語辭典簡編本》</span><strong>總筆畫 provider 與公眾授權界線</strong><small>教育部官方資料 ↗</small></a>
           </div>
           <aside class="kangjie-boundary" aria-labelledby="boundary-title"><span aria-hidden="true">※</span><div><h2 id="boundary-title"><span class="brush-title brush-kangjie-boundary"><span class="sr-only">推演界線</span><img loading="lazy" decoding="async" class="brush-title-image" src="public/visuals/brush/title-kangjie-boundary-v1.webp" alt="" aria-hidden="true" /></span></h2><p>本工具依現行傳本製作，供傳統文化研究、演算核對與娛樂。它不是科學預測，不主張唯一正統，也不作醫療、法律、投資、工作、人事或重大人生決策依據。原文未明、版本有異或屬程式必要判定之處，均應視為實作解讀。</p></div></aside>
         </section>
