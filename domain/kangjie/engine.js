@@ -125,7 +125,12 @@ export function buildMeihuaResult({
   normalizedInput,
   inputSummary,
   trace = [],
-  sourceIds = ["MYS-WIKI-01", "MYS-CTEXT-01"],
+  sourceIds,
+  formulaSourceIds,
+  dataSourceIds = [],
+  sharedCoreSourceIds = ["MYS-WIKI-01", "MYS-WIKI-02", "MYS-NLC-1925-01"],
+  formulaSourceStatus = "documented",
+  formulaSourceNotice = "本方法公式可由所列傳本文字核對。",
   profile: profileOrId,
   assumptions = [],
   warnings = [],
@@ -191,7 +196,21 @@ export function buildMeihuaResult({
     lower: moduloEntry(totals.lower, 8),
     moving: moduloEntry(totals.moving, 6),
   };
-  const sources = resolveSources([...new Set(["MYS-WIKI-01", "MYS-WIKI-02", "MYS-NLC-1925-01", ...sourceIds])]);
+  const effectiveFormulaSourceIds = formulaSourceIds ?? sourceIds ?? ["MYS-WIKI-01", "MYS-CTEXT-01"];
+  const formulaSourceRefs = resolveSources([...new Set(effectiveFormulaSourceIds)]);
+  const dataSourceRefs = resolveSources([...new Set(dataSourceIds)]);
+  const sharedCoreSourceRefs = resolveSources([...new Set(sharedCoreSourceIds)]);
+  const sourceRefs = [...formulaSourceRefs, ...dataSourceRefs].filter(
+    (source, index, values) => values.findIndex((candidate) => candidate.id === source.id) === index,
+  );
+  const allSourceIds = [...new Set([
+    ...formulaSourceRefs.map((source) => source.id),
+    ...dataSourceRefs.map((source) => source.id),
+    ...sharedCoreSourceRefs.map((source) => source.id),
+  ])];
+  const mutualSourceLines = mutualSource === "transformed"
+    ? baseResult.transformed.lines
+    : baseResult.original.lines;
 
   return {
     ...baseResult,
@@ -210,7 +229,15 @@ export function buildMeihuaResult({
     seasonalStrength,
     trace,
     inputSummary,
-    sourceRefs: sources,
+    sourceRefs,
+    formulaSourceRefs,
+    dataSourceRefs,
+    sharedCoreSourceRefs,
+    sourceScopes: {
+      formula: { status: formulaSourceStatus, notice: formulaSourceNotice, refs: formulaSourceRefs },
+      data: { status: dataSourceRefs.length ? "documented" : "not-required", refs: dataSourceRefs },
+      sharedCore: { status: "documented", notice: "只支持除八、除六、卦象、互變與體用共用核心，不替方法本身背書。", refs: sharedCoreSourceRefs },
+    },
     calculationTrace: {
       schemaVersion: "kangjie-calculation-trace-v2",
       methodId: method,
@@ -222,8 +249,9 @@ export function buildMeihuaResult({
       modulo,
       lineOrder: "初爻至上爻",
       primaryLines: [...baseResult.original.lines],
-      mutualLowerSourceLines: baseResult.original.lines.slice(1, 4),
-      mutualUpperSourceLines: baseResult.original.lines.slice(2, 5),
+      mutualSource,
+      mutualLowerSourceLines: mutualSourceLines.slice(1, 4),
+      mutualUpperSourceLines: mutualSourceLines.slice(2, 5),
       changedLines: [...baseResult.transformed.lines],
       movingLine: baseResult.moving.index + 1,
       bodyUse: roles,
@@ -235,7 +263,12 @@ export function buildMeihuaResult({
       assumptions: [...assumptions],
       warnings: [...warnings],
       ignoredInput: [...ignoredInput],
-      sourceIds: sources.map((source) => source.id),
+      sourceIds: allSourceIds,
+      sourceScopes: {
+        formula: { status: formulaSourceStatus, notice: formulaSourceNotice, sourceIds: formulaSourceRefs.map((source) => source.id) },
+        data: { status: dataSourceRefs.length ? "documented" : "not-required", sourceIds: dataSourceRefs.map((source) => source.id) },
+        sharedCore: { status: "documented", sourceIds: sharedCoreSourceRefs.map((source) => source.id) },
+      },
       dataVersions: { ...dataVersions },
     },
   };

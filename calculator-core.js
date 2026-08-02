@@ -4,6 +4,8 @@ import {
   analyzeBirthGrid,
   calculateBirthdayNumber,
   calculateLifePath,
+  calculatePersonalDay,
+  calculatePersonalMonth,
   calculatePersonalYear,
   parseBirthday,
   resolveRuleSet,
@@ -413,6 +415,25 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
   };
   const personalYear = personalYearFor(currentYear);
   const cycles = [currentYear - 1, currentYear, currentYear + 1].map(personalYearFor);
+  const personalMonthResult = calculatePersonalMonth(date, todayValue, { todayValue });
+  const personalDayResult = calculatePersonalDay(date, todayValue, { todayValue });
+  const personalMonth = {
+    targetDate: personalMonthResult.targetDate,
+    year: personalMonthResult.year,
+    month: personalMonthResult.month,
+    value: personalMonthResult.personalMonthNumber,
+    calculationText: personalMonthResult.calculationText,
+    ruleProfile: personalMonthResult.ruleProfile,
+  };
+  const personalDay = {
+    targetDate: personalDayResult.targetDate,
+    year: personalDayResult.year,
+    month: personalDayResult.month,
+    day: personalDayResult.day,
+    value: personalDayResult.personalDayNumber,
+    calculationText: personalDayResult.calculationText,
+    ruleProfile: personalDayResult.ruleProfile,
+  };
   const digits = date.replace(/\D/g, "").split("").map(Number);
   const counts = countDigits(digits);
   const birthGrid = analyzeBirthGrid(date, { ruleSet, todayValue, lifePathResult: lifeResult });
@@ -433,6 +454,14 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
     {
       label: `${currentYear} 個人流年`,
       text: personalYear.calculationText,
+    },
+    {
+      label: `${personalMonth.month} 月個人月`,
+      text: personalMonth.calculationText,
+    },
+    {
+      label: `${personalDay.month}/${personalDay.day} 個人日`,
+      text: personalDay.calculationText,
     },
   ];
   const audit = Object.freeze({
@@ -481,6 +510,8 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
     colorGuide,
     attitude: { value: attitude.value },
     personalYear,
+    personalMonth,
+    personalDay,
     cycles,
     counts,
     zeroCount: counts[0],

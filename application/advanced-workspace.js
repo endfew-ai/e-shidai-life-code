@@ -279,13 +279,13 @@ function renderPairCards(container, magnetic, options = {}) {
       setSensitiveText(explanation, pair.explanation, `${pair.fieldType ?? "未分類"}；完整相鄰數字預設遮罩。`, sensitiveValues);
       setSensitiveText(
         sourceNote,
-        `位置 ${pair.startIndex + 1}–${pair.endIndex + 1}・來源 ${source}`,
+        `位置 ${pair.startIndex + 1}-${pair.endIndex + 1}・來源 ${source}`,
         `第 ${index + 1} 個命格視窗・來源預設遮罩`,
         sensitiveValues,
       );
     } else {
       explanation.textContent = pair.explanation;
-      sourceNote.textContent = `位置 ${pair.startIndex + 1}–${pair.endIndex + 1}・來源 ${source}`;
+      sourceNote.textContent = `位置 ${pair.startIndex + 1}-${pair.endIndex + 1}・來源 ${source}`;
     }
     card.append(
       heading,

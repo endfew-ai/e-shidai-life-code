@@ -1435,6 +1435,39 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.calculation-source-list.source-scope-list {
+  align-items: start;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.calculation-source-scope {
+  border: 1px solid var(--line-soft);
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 9px;
+}
+
+.calculation-source-scope-title,
+.calculation-source-empty {
+  margin: 0;
+}
+
+.calculation-source-scope-title {
+  color: var(--gold-bright);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.calculation-source-scope > small,
+.calculation-source-empty {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .calculation-source-list a {
   border: 1px solid var(--line-soft);
   color: var(--paper);
@@ -1513,7 +1546,8 @@
 
   .profile-selector,
   .calculation-input-grid,
-  .calculation-source-list {
+  .calculation-source-list,
+  .calculation-source-list.source-scope-list {
     grid-template-columns: 1fr;
   }
 
@@ -2262,7 +2296,7 @@
   .influence-ledger > header span, .seasonal-ledger > header span { text-align: left; }
 }
 
-/* 320–360px：爻辭已含初九、六二、上六等爻位，隱藏重複欄位以放大正文寬度。 */
+/* 320-360px：爻辭已含初九、六二、上六等爻位，隱藏重複欄位以放大正文寬度。 */
 @media (max-width: 360px) {
   .kangjie-shell .line-row > .line-position {
     display: none;

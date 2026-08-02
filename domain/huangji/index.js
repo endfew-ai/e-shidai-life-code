@@ -84,7 +84,7 @@ export function decomposeHuangjiYears(rawYears, { allowZero = false } = {}) {
       years: years.toString(),
     },
     equation: `${totalYears} 年 = ${yuan} 元・${hui} 會・${yun} 運・${shi} 世・${years} 年`,
-    sourceRefs: resolveSources(["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]),
+    sourceRefs: resolveSources(["HUANGJI-KANRIPO-BOOK-01", "HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]),
     calculationTrace: {
       schemaVersion: "huangji-calculation-trace-v2",
       algorithmVersion: "huangji-duration-v1",
@@ -93,7 +93,7 @@ export function decomposeHuangjiYears(rawYears, { allowZero = false } = {}) {
       originalInput: { years: String(rawYears ?? "") },
       normalizedInput: { years: totalYears.toString() },
       steps,
-      sourceIds: ["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"],
+      sourceIds: ["HUANGJI-KANRIPO-BOOK-01", "HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"],
       warnings: ["這是時間單位換算，不是西元歷史定位或事件預測。"],
     },
   };
@@ -182,7 +182,7 @@ export function calculateHuangjiPosition(input) {
       yuan: yearsToNext(cycleOffset, huangjiUnits.yuan),
     },
     equation: `${formatCivilYear(targetCivilYear)} − ${formatCivilYear(epoch.epochCivilYear)} + ${epoch.epochOffsetYears} = ${elapsedYears} 年；落在週期內第 ${cycleOffset + 1n} 年`,
-    sourceRefs: resolveSources(["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]),
+    sourceRefs: resolveSources(["HUANGJI-KANRIPO-BOOK-01", "HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]),
     calculationTrace: {
       schemaVersion: "huangji-calculation-trace-v2",
       algorithmVersion: "huangji-epoch-position-v1",
@@ -202,7 +202,7 @@ export function calculateHuangjiPosition(input) {
         notice: epoch.notice,
       },
       steps,
-      sourceIds: ["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"],
+      sourceIds: ["HUANGJI-KANRIPO-BOOK-01", "HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"],
       warnings: [epoch.notice, "序位採一基數顯示；底層位移採零基數計算。"],
     },
   };

@@ -5,6 +5,8 @@ import {
 import {
   calculateBirthdayNumber,
   calculateLifePath,
+  calculatePersonalDay,
+  calculatePersonalMonth,
   calculatePersonalYear,
 } from "../domain/numerology/life-path.js";
 import { analyzeBirthGrid } from "../domain/numerology/birth-grid.js";
@@ -69,6 +71,12 @@ export function analyzeBirthdayV2(input) {
     [input.currentYear - 1, input.currentYear, input.currentYear + 1].map((year) =>
       calculatePersonalYear(input.date, year, { todayValue: input.todayValue })),
   );
+  const personalMonthResult = calculatePersonalMonth(input.date, input.todayValue, {
+    todayValue: input.todayValue,
+  });
+  const personalDayResult = calculatePersonalDay(input.date, input.todayValue, {
+    todayValue: input.todayValue,
+  });
   const warnings = [];
   if (ruleSet.id === "legacy-project-v1") {
     warnings.push("目前使用舊版分段主數規則；可在規則設定切換至教材可追溯規則。");
@@ -86,6 +94,8 @@ export function analyzeBirthdayV2(input) {
       Object.freeze({ id: "birthday-number", label: "生日數", text: birthdayNumberResult.calculationText }),
       Object.freeze({ id: "birth-grid", label: "生日九宮格", text: birthGridResult.calculationText }),
       Object.freeze({ id: "personal-year", label: "生日個人流年", text: personalYearResult.calculationText }),
+      Object.freeze({ id: "personal-month", label: "本月個人月", text: personalMonthResult.calculationText }),
+      Object.freeze({ id: "personal-day", label: "今日個人日", text: personalDayResult.calculationText }),
     ]),
     lifePathResult,
     birthdayNumberResult,
@@ -94,6 +104,8 @@ export function analyzeBirthdayV2(input) {
     timelineResult: null,
     personalYearResult,
     personalYearCycles,
+    personalMonthResult,
+    personalDayResult,
     personalityProfile: getPersonalityProfile(lifePathResult.baseNumber),
     warnings: Object.freeze(warnings),
     disclaimer: NUMEROLOGY_DISCLAIMER,

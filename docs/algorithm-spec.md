@@ -153,6 +153,17 @@ PersonalYear = reduce(月 + 日 + 指定西元年)
 
 個人流年固定化簡至 1～9。應用層需明確傳入 `currentYear`，並可顯示前一年、當年、下一年。
 
+### 6.3 個人月與個人日（現代流傳）
+
+本工具以 `personal-calendar-cycles-common-v1` 補充現代西方生命靈數常見的巢狀週期，來源類型標記為 `common_practice`：
+
+```text
+PersonalMonth = reduce(PersonalYear + 目標月份)
+PersonalDay   = reduce(PersonalMonth + 目標日期)
+```
+
+兩層都固定化簡至 1～9，不保留主數。目標日期由應用層明確傳入，因此測試與歷史結果不依執行當下時間漂移。此公式可由 [Hans Decoz／World Numerology 的公開計算說明](https://www.worldnumerology.com/do-your-own-reading/)交叉核對，但它屬現代民俗實務，不是科學預測，也不可宣稱為古代畢達哥拉斯原典。
+
 ## 七、生日九宮格
 
 ### 7.1 數字來源模式

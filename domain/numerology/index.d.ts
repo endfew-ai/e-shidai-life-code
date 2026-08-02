@@ -11,7 +11,8 @@ export type SourceProfileId =
   | "legacy-project-v1"
   | "taiwan-national-id-official"
   | "timeline-common-practice-v1"
-  | "identity-destiny-common-practice-v1";
+  | "identity-destiny-common-practice-v1"
+  | "modern-common-practice-v1";
 
 export interface RuleSourceProfile {
   readonly id: SourceProfileId;
@@ -265,6 +266,41 @@ export interface PersonalYearResult {
   }>;
 }
 
+export interface PersonalCalendarCycleRuleProfile {
+  readonly id: "personal-calendar-cycles-common-v1";
+  readonly sourceProfile: "modern-common-practice-v1";
+  readonly sourceType: "common_practice";
+  readonly masterNumberMode: "disabled";
+  readonly sourceUrl: "https://www.worldnumerology.com/do-your-own-reading/";
+  readonly notice: string;
+}
+
+export interface PersonalMonthResult {
+  readonly targetDate: string;
+  readonly year: number;
+  readonly month: number;
+  readonly personalYearNumber: number;
+  readonly initial: number;
+  readonly personalMonthNumber: number;
+  readonly reductionSteps: readonly number[];
+  readonly calculationText: string;
+  readonly ruleProfile: PersonalCalendarCycleRuleProfile;
+}
+
+export interface PersonalDayResult {
+  readonly targetDate: string;
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+  readonly personalYearNumber: number;
+  readonly personalMonthNumber: number;
+  readonly initial: number;
+  readonly personalDayNumber: number;
+  readonly reductionSteps: readonly number[];
+  readonly calculationText: string;
+  readonly ruleProfile: PersonalCalendarCycleRuleProfile;
+}
+
 export function parseBirthday(dateValue: unknown, todayValue?: unknown): ParsedBirthday;
 export function reduceNumerologyValue(
   initialValue: number,
@@ -283,6 +319,16 @@ export function calculatePersonalYear(
   targetYear: number,
   options?: Pick<BirthdayCalculationOptions, "todayValue">,
 ): PersonalYearResult;
+export function calculatePersonalMonth(
+  dateValue: unknown,
+  targetDateValue: unknown,
+  options?: Pick<BirthdayCalculationOptions, "todayValue">,
+): PersonalMonthResult;
+export function calculatePersonalDay(
+  dateValue: unknown,
+  targetDateValue: unknown,
+  options?: Pick<BirthdayCalculationOptions, "todayValue">,
+): PersonalDayResult;
 
 export type BirthGridCounts = Readonly<Record<number, number>>;
 
@@ -693,6 +739,9 @@ export interface BirthdayReportInput {
   readonly lifePathResult: LifePathResult;
   readonly birthdayNumberResult: BirthdayNumberResult;
   readonly birthGridResult: BirthGridAnalysis;
+  readonly personalYearResult: PersonalYearResult;
+  readonly personalMonthResult: PersonalMonthResult;
+  readonly personalDayResult: PersonalDayResult;
   readonly ruleSet: RuleSet;
 }
 

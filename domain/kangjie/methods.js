@@ -80,8 +80,8 @@ export function calculateCalendarMethod(input, options = {}) {
       commonTrace("動爻", lowerTotal, 6),
     ],
     profile,
-    sourceIds: [
-      "MYS-CTEXT-01",
+    formulaSourceIds: ["MYS-WIKI-01", "MYS-CTEXT-01"],
+    dataSourceIds: [
       ...(calendar.sourceIds?.length ? ["CWA-CALENDAR-01"] : []),
       ...(calendar.sourceIds?.length && calendar.yearBoundary === "lichun" ? ["CWA-SOLAR-TERMS-01"] : []),
     ],
@@ -144,6 +144,9 @@ export function calculateModernThreeNumberMethod(rawInput, options = {}) {
       commonTrace("第三數取動爻", moving, 6),
     ],
     profile: options.profile ?? values.profile ?? "modern-current-v1",
+    formulaSourceIds: [],
+    formulaSourceStatus: "not-found",
+    formulaSourceNotice: "本次核對《梅花易數》未見固定三個輸入依序取上卦、下卦、動爻的主法；公式只標為現代三數法。",
     warnings: ["固定三個現代數字依序取上卦、下卦與動爻，未見於本次核對的《梅花易數》古籍主法；算法明確標為現代三數法。"],
     assumptions: ["三個輸入彼此獨立，不把生日、身分證或其他個資自動代入。"],
   });
@@ -238,6 +241,10 @@ export function calculateStrokeTextMethod(input, options = {}) {
   if (characters.length < 2 || characters.length > 10) {
     throw new Error("筆畫分組法接受 2 至 10 個漢字；一字請用左右拆分，11 字以上請用字數法。");
   }
+  const profile = resolveCalculationProfile(options.profile ?? input.profile);
+  if (characters.length >= 4 && profile.textFourToTen !== "strokes") {
+    throw new Error(`${profile.label}的四至十字主法是平上去入；若要改用逐字筆畫，請選擇使用者自訂並明確設定「逐字筆畫分組」。`);
+  }
   const entries = normalizeStrokeEntries(characters, input.strokeEntries);
   const upperLength = Math.floor(characters.length / 2);
   const upperEntries = entries.slice(0, upperLength);
@@ -265,8 +272,9 @@ export function calculateStrokeTextMethod(input, options = {}) {
       commonTrace("下卦", lowerTotal, 8, `${lowerEntries.map((entry) => entry.strokes).join(" + ")} = `),
       commonTrace("動爻", movingTotal, 6, `${upperTotal} + ${lowerTotal} = `),
     ],
-    profile: options.profile ?? input.profile,
-    sourceIds: ["MYS-CTEXT-01", ...strokeSourceIds(entries)],
+    profile,
+    formulaSourceIds: ["MYS-WIKI-01", "MYS-CTEXT-01"],
+    dataSourceIds: strokeSourceIds(entries),
     dataVersions: {
       strokes: [...new Set(entries.map((entry) => `${entry.sourceId}:${entry.dataVersion || "unspecified"}`))],
     },
@@ -397,7 +405,11 @@ export function calculateChiCunMethod(input, options = {}) {
   const chi = positive(input.chi, "尺數");
   const cun = positive(input.cun, "寸數");
   const hour = toSafeInteger(input.hourBranch ?? 1, "時支", 1, 12);
-  const version = input.version || (profile.sizeMovingIncludesHour ? "modern-with-hour" : "old-without-hour");
+  const profileVersion = profile.sizeMovingIncludesHour ? "modern-with-hour" : "old-without-hour";
+  const version = input.version || profileVersion;
+  if (version !== profileVersion) {
+    throw new Error(`${profile.label}設定的尺寸版本為「${profileVersion}」，但輸入要求「${version}」；請改用相符 profile 或使用者自訂，不可在結果中混掛版本名稱。`);
+  }
   const includesHour = version === "modern-with-hour";
   const movingTotal = chi + cun + (includesHour ? BigInt(hour) : 0n);
   return buildMeihuaResult({
@@ -515,8 +527,11 @@ export function calculateSurnameAdditionMethod(input, options = {}) {
       commonTrace("下卦", lowerTotal, 8, `${upperTotal} + ${hour} = `),
       commonTrace("動爻", lowerTotal, 6),
     ],
-    profile: options.profile ?? input.profile,
-    sourceIds: strokeSourceIds(entries),
+    profile: options.profile ?? input.profile ?? "modern-current-v1",
+    formulaSourceIds: [],
+    dataSourceIds: strokeSourceIds(entries),
+    formulaSourceStatus: "not-found",
+    formulaSourceNotice: "本次核對《梅花易數》卷一未找到姓名或姓氏加數法的單一固定原文；這是流傳／使用者指定規約。",
     dataVersions: {
       strokes: [...new Set(entries.map((entry) => `${entry.sourceId}:${entry.dataVersion || "unspecified"}`))],
     },

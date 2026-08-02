@@ -210,6 +210,11 @@ function initializeMethodDeepLink() {
     openPageTab("meihua", { updateHash: false });
     activateTabs("[data-method-tab]", "[data-method-panel]", method || "text");
     if (location.hash === "#name-strokes") {
+      const profile = document.querySelector("[data-calculation-profile]");
+      if (profile && ["classic-primary-v1", "classic-variant-v1"].includes(profile.value)) {
+        profile.value = "modern-current-v1";
+        updateProfileFields();
+      }
       const textMode = document.querySelector("[data-text-mode]");
       if (textMode) {
         textMode.value = "surname";
@@ -398,14 +403,33 @@ function createKangjieResult(result) {
   const warnings = element("ul", "calculation-warning-list");
   for (const warning of result.calculationTrace.warnings) warnings.append(element("li", "", warning));
   for (const assumption of result.calculationTrace.assumptions) warnings.append(element("li", "", `採用設定：${assumption}`));
-  const sources = element("div", "calculation-source-list");
-  for (const sourceItem of result.sourceRefs) {
-    const sourceLink = element("a");
-    sourceLink.href = sourceItem.url;
-    sourceLink.target = "_blank";
-    sourceLink.rel = "noreferrer";
-    sourceLink.append(element("strong", "", sourceItem.title), element("span", "", `${sourceItem.organization}・${sourceItem.id}`));
-    sources.append(sourceLink);
+  const sources = element("div", "calculation-source-list source-scope-list");
+  for (const [label, scope, emptyText] of [
+    ["方法公式來源", result.sourceScopes?.formula, "沒有可核對的公式原文；本工具不以共用卦象來源替方法公式背書。"],
+    ["資料來源", result.sourceScopes?.data, "本方法不需要外部資料集。"],
+    ["共用卦象核心來源", result.sourceScopes?.sharedCore, "沒有列出共用卦象核心來源。"],
+  ]) {
+    if (!scope) continue;
+    const group = element("section", "calculation-source-scope");
+    const statusLabel = {
+      documented: "已核對",
+      "not-found": "未找到原文",
+      "not-required": "不需外部資料",
+    }[scope.status] || scope.status;
+    group.append(element("p", "calculation-source-scope-title", `${label}・${statusLabel}`));
+    if (scope.notice) group.append(element("small", "", scope.notice));
+    for (const sourceItem of scope.refs || []) {
+      const sourceLink = element("a");
+      sourceLink.href = sourceItem.url;
+      sourceLink.target = "_blank";
+      sourceLink.rel = "noreferrer";
+      sourceLink.append(element("strong", "", sourceItem.title), element("span", "", `${sourceItem.organization}・${sourceItem.id}`));
+      group.append(sourceLink);
+    }
+    if (!(scope.refs || []).length) {
+      group.append(element("p", "calculation-source-empty", emptyText));
+    }
+    sources.append(group);
   }
   auditBody.append(inputGrid, warnings, sources);
   audit.append(auditSummary, auditBody);
@@ -546,16 +570,15 @@ function updateTextFields() {
 }
 
 function updateProfileFields() {
-  const isCustom = document.querySelector("[data-calculation-profile]")?.value === "user-custom-v1";
+  const profileId = document.querySelector("[data-calculation-profile]")?.value || "classic-primary-v1";
+  const isCustom = profileId === "user-custom-v1";
   setHidden(document.querySelector("[data-custom-profile]"), !isCustom);
   const sizeVersion = document.querySelector('[data-size-version] select[name="version"]');
   if (sizeVersion) {
     sizeVersion.disabled = isCustom;
-    if (isCustom) {
-      sizeVersion.value = document.querySelector("[data-custom-size-hour]")?.value === "no"
-        ? "old-without-hour"
-        : "modern-with-hour";
-    }
+    sizeVersion.value = isCustom
+      ? (document.querySelector("[data-custom-size-hour]")?.value === "no" ? "old-without-hour" : "modern-with-hour")
+      : (profileId === "classic-variant-v1" ? "old-without-hour" : "modern-with-hour");
   }
   updateTextFields();
 }
@@ -671,7 +694,15 @@ function initializeAdvancedFormControls() {
     updateTextFields();
   };
   textarea?.addEventListener("input", updateText);
-  textForm?.querySelector("[data-text-mode]")?.addEventListener("change", updateText);
+    textForm?.querySelector("[data-text-mode]")?.addEventListener("change", () => {
+      const mode = textForm.querySelector("[data-text-mode]")?.value;
+      const profile = document.querySelector("[data-calculation-profile]");
+      if (mode === "surname" && profile && ["classic-primary-v1", "classic-variant-v1"].includes(profile.value)) {
+        profile.value = "modern-current-v1";
+        updateProfileFields();
+      }
+      updateText();
+    });
   textForm?.querySelector("[data-lookup-strokes]")?.addEventListener("click", async () => {
     const message = textForm.querySelector(".form-message");
     try {

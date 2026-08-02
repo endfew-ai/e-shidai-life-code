@@ -199,3 +199,61 @@ export function calculatePersonalYear(dateValue, targetYear, options = {}) {
     }),
   });
 }
+
+const MODERN_PERSONAL_CYCLE_PROFILE = Object.freeze({
+  id: "personal-calendar-cycles-common-v1",
+  sourceProfile: "modern-common-practice-v1",
+  sourceType: "common_practice",
+  masterNumberMode: "disabled",
+  sourceUrl: "https://www.worldnumerology.com/do-your-own-reading/",
+  notice: "個人月與個人日屬現代西方生命靈數流傳公式，不是科學預測，也不冒充古代畢達哥拉斯原典。",
+});
+
+function reducePersonalCycle(initialValue) {
+  return reduceNumerologyValue(initialValue, {
+    ...DEFAULT_RULE_SET,
+    id: MODERN_PERSONAL_CYCLE_PROFILE.id,
+    name: "現代個人年／月／日週期",
+    masterNumberMode: "disabled",
+  });
+}
+
+export function calculatePersonalMonth(dateValue, targetDateValue, options = {}) {
+  const target = parseBirthday(targetDateValue);
+  const personalYear = calculatePersonalYear(dateValue, target.year, {
+    todayValue: options.todayValue,
+  });
+  const initial = personalYear.personalYearNumber + target.month;
+  const reduction = reducePersonalCycle(initial);
+  return Object.freeze({
+    targetDate: target.normalized,
+    year: target.year,
+    month: target.month,
+    personalYearNumber: personalYear.personalYearNumber,
+    initial,
+    personalMonthNumber: reduction.value,
+    reductionSteps: reduction.steps,
+    calculationText: `${personalYear.personalYearNumber}（個人年） + ${target.month}（月份） = ${initial}${reduction.equations.length ? ` → ${reduction.equations.join(" → ")}` : ""}`,
+    ruleProfile: MODERN_PERSONAL_CYCLE_PROFILE,
+  });
+}
+
+export function calculatePersonalDay(dateValue, targetDateValue, options = {}) {
+  const target = parseBirthday(targetDateValue);
+  const personalMonth = calculatePersonalMonth(dateValue, target.normalized, options);
+  const initial = personalMonth.personalMonthNumber + target.day;
+  const reduction = reducePersonalCycle(initial);
+  return Object.freeze({
+    targetDate: target.normalized,
+    year: target.year,
+    month: target.month,
+    day: target.day,
+    personalYearNumber: personalMonth.personalYearNumber,
+    personalMonthNumber: personalMonth.personalMonthNumber,
+    initial,
+    personalDayNumber: reduction.value,
+    reductionSteps: reduction.steps,
+    calculationText: `${personalMonth.personalMonthNumber}（個人月） + ${target.day}（日期） = ${initial}${reduction.equations.length ? ` → ${reduction.equations.join(" → ")}` : ""}`,
+    ruleProfile: MODERN_PERSONAL_CYCLE_PROFILE,
+  });
+}

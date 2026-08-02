@@ -16,6 +16,8 @@ import {
   buildIdentityTimeline,
   buildTimelineStageInsight,
   calculateLifePath,
+  calculatePersonalDay,
+  calculatePersonalMonth,
   evaluateBirthGridLines,
   generatePlainTextReport,
   maskTaiwanNationalId,
@@ -85,6 +87,9 @@ test("生日應用層結果固定時鐘、規則版本、九宮格與三年流�
   assert.equal(result.ruleSet.version, "2.1.1");
   assert.equal(result.birthGridResult.layoutProfile, "standard_1_to_9");
   assert.deepEqual(result.personalYearCycles.map(({ year }) => year), [2025, 2026, 2027]);
+  assert.equal(result.personalMonthResult.personalMonthNumber, 8);
+  assert.equal(result.personalDayResult.personalDayNumber, 4);
+  assert.equal(result.personalDayResult.targetDate, TODAY);
   assert.equal(Object.hasOwn(result, "destinyNumber"), false);
   assert.ok(result.reportSections.some(({ id }) => id === "birth-grid"));
 
@@ -92,6 +97,21 @@ test("生日應用層結果固定時鐘、規則版本、九宮格與三年流�
     () => analyzeBirthdayV2({ date: "1950-05-22", currentYear: 2026 }),
     /todayValue/,
   );
+});
+
+test("個人月與個人日採可重播的現代巢狀週期且固定化簡至 1 到 9", () => {
+  const month = calculatePersonalMonth("1990-08-12", "2026-07-23", { todayValue: TODAY });
+  const day = calculatePersonalDay("1990-08-12", "2026-07-23", { todayValue: TODAY });
+
+  assert.equal(month.personalYearNumber, 3);
+  assert.equal(month.personalMonthNumber, 1);
+  assert.equal(day.personalMonthNumber, 1);
+  assert.equal(day.personalDayNumber, 6);
+  assert.match(month.calculationText, /3（個人年） \+ 7（月份） = 10/);
+  assert.match(day.calculationText, /1（個人月） \+ 23（日期） = 24/);
+  assert.equal(day.ruleProfile.sourceType, "common_practice");
+  assert.match(day.ruleProfile.notice, /現代西方生命靈數流傳公式/);
+  assert.ok([month.personalMonthNumber, day.personalDayNumber].every((value) => value >= 1 && value <= 9));
 });
 
 test("生日九宮格固定使用 1 至 9、排除 0，並完整評估 13 組線", () => {

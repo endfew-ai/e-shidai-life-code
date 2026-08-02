@@ -571,7 +571,7 @@ test("後天端法物象候選必須由使用者點選確認並寫入稽核", as
   expect(errors).toEqual([]);
 });
 
-test("皇極歷史定位保留跨紀元 trace 與兩個原典來源", async ({ page }) => {
+test("皇極歷史定位保留跨紀元 trace 與三層來源證據", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/kangjie.html#huangji", { waitUntil: "networkidle" });
@@ -616,9 +616,10 @@ test("皇極歷史定位保留跨紀元 trace 與兩個原典來源", async ({ p
   expect(steps.slice(0, 2).every(({ equation }) => typeof equation === "string" && equation.length > 0)).toBe(true);
   expect(steps.slice(2, 6).every(({ divisor }) => /^\d+$/.test(divisor))).toBe(true);
   const sourceIds = await audit.locator(".calculation-source-list a span").allTextContents();
+  expect(sourceIds.some((value) => value.includes("HUANGJI-KANRIPO-BOOK-01"))).toBe(true);
   expect(sourceIds.some((value) => value.includes("HUANGJI-KANRIPO-01"))).toBe(true);
   expect(sourceIds.some((value) => value.includes("HUANGJI-NCL-1936-01"))).toBe(true);
-  await expectSafeExternalLinks(audit.locator(".calculation-source-list"), 2);
+  await expectSafeExternalLinks(audit.locator(".calculation-source-list"), 3);
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });

@@ -9,6 +9,7 @@ const viewports = [
   { label: "tablet-1024", width: 1024, height: 768 },
   { label: "mobile-390", width: 390, height: 844 },
   { label: "mobile-320", width: 320, height: 720 },
+  { label: "mobile-320-short", width: 320, height: 568 },
 ];
 
 test.beforeEach(async ({ page }) => {
@@ -27,12 +28,16 @@ for (const viewport of viewports) {
     const atlas = page.locator(".function-command-grid");
     await expect(atlas).toBeVisible();
     await expect(atlas.locator(":scope > a")).toHaveCount(22);
+    await expect(atlas.locator(":scope > a:visible")).toHaveCount(18);
     await expect(page.locator("#analyzer-form .mode-switch > label, #analyzer-form .mode-switch > a")).toHaveCount(4);
 
     const report = await page.evaluate(() => {
       const atlasElement = document.querySelector(".function-command-grid");
       const atlasRect = atlasElement.getBoundingClientRect();
-      const cells = [...atlasElement.querySelectorAll(":scope > a")];
+      const cells = [...atlasElement.querySelectorAll(":scope > a")].filter((cell) => {
+        const rect = cell.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      });
       return {
         viewportHeight: innerHeight,
         documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
@@ -54,7 +59,7 @@ for (const viewport of viewports) {
     });
 
     expect(report.documentWidth).toBeLessThanOrEqual(report.clientWidth + 1);
-    expect(report.columns).toBe(viewport.width <= 767 ? 4 : 8);
+    expect(report.columns).toBe(viewport.width <= 767 ? 4 : 6);
     expect(report.cellMinimumHeight).toBeGreaterThanOrEqual(viewport.width <= 767 ? 48 : 78);
     expect(report.cellMinimumFont).toBeGreaterThanOrEqual(viewport.width <= 767 ? 13 : 14);
     expect(report.clippedLabels).toEqual([]);
@@ -140,4 +145,45 @@ test("v12 二十二個模組名稱唯一，全部既有工具都有直達入口"
   await expect(page).toHaveURL(/kangjie(?:\.html)?#method-huangji$/);
   await unlockIfNeeded();
   await expect(page.locator('[data-kangjie-tab="huangji"]')).toHaveAttribute("aria-selected", "true");
+});
+
+test("v12 適合色彩模組會使用生日分析並直達色彩結果", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+  await page.locator("#birthday-input").fill("1990-07-12");
+  await page.locator('[data-command-module="color"]').click();
+
+  await expect(page.locator("#color-guide-title")).toBeVisible();
+  await expect(page.locator("[data-personal-color-guide]")).toContainText("生日數 3");
+});
+
+test("v12 長造訪數在 1280 桌機不會和第八個導覽入口重疊", async ({ page }) => {
+  await page.unroute("https://api.counterapi.dev/**");
+  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+    status: 200,
+    contentType: "application/json",
+    body: JSON.stringify({ count: 1234567890 }),
+  }));
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+
+  const report = await page.evaluate(() => {
+    const actions = document.querySelector(".topbar-actions");
+    const lastLink = actions.querySelector(":scope > a:last-of-type");
+    const counter = actions.querySelector(".visit-counter");
+    const actionsRect = actions.getBoundingClientRect();
+    const linkRect = lastLink.getBoundingClientRect();
+    const counterRect = counter.getBoundingClientRect();
+    return {
+      gap: counterRect.left - linkRect.right,
+      counterInside: counterRect.right <= actionsRect.right + 1,
+      counterClipped: counter.scrollWidth > counter.clientWidth + 1,
+      pageOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  });
+
+  expect(report.gap).toBeGreaterThanOrEqual(0);
+  expect(report.counterInside).toBe(true);
+  expect(report.counterClipped).toBe(false);
+  expect(report.pageOverflow).toBe(false);
 });

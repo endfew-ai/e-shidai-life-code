@@ -51,6 +51,16 @@ export const RULE_SOURCE_PROFILES = Object.freeze({
       "https://star-artnlp.com/how-to-read-the-digital-i-ching-id-number-learn-fortune-telling-transit-time-and-numerology-online-in-one-step/",
     ]),
   }),
+  modernPersonalCycles: Object.freeze({
+    id: "modern-common-practice-v1",
+    sourceType: SOURCE_TYPES.commonPractice,
+    title: "個人年／月／日現代生命靈數週期",
+    certainty: "folklore",
+    note: "個人月由個人年加目標月份，個人日由個人月加目標日期；屬現代流傳公式，不是科學預測或古代畢達哥拉斯原典。",
+    urls: Object.freeze([
+      "https://www.worldnumerology.com/do-your-own-reading/",
+    ]),
+  }),
 });
 
 export const FOLKLORE_HEALTH_DISCLAIMER =

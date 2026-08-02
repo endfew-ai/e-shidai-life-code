@@ -15,7 +15,7 @@ import {
   loadCumulativeVisitCount,
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
-} from "./site-services.js?v=20260801-reference-v11";
+} from "./site-services.js?v=20260802-reference-v12";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
 import {
@@ -483,6 +483,8 @@ function createNumerologyResult(result, onReset) {
         ["生日數", result.birthday.display, result.ruleSet.masterNumberMode === "disabled" ? "主數化簡至 1～9" : "依設定保留主數"],
         ["態度數", String(result.attitude.value), "出生月加出生日"],
         [`${result.personalYear.year} 個人流年`, String(result.personalYear.value), "採 1 至 12 月曆年制"],
+        [`${result.personalMonth.month} 月個人月`, String(result.personalMonth.value), "個人年加當月；現代流傳"],
+        [`${result.personalDay.month}/${result.personalDay.day} 個人日`, String(result.personalDay.value), "個人月加當日；現代流傳"],
       ]
     : [
         ["數字位數", String(result.length), "只計入實際數字"],
@@ -491,6 +493,7 @@ function createNumerologyResult(result, onReset) {
         ["最常出現", result.strongest.join("、"), result.strongest.length > 1 ? "並列最高次數" : "出現次數最高"],
       ];
   const metricGrid = element("div", "metric-grid");
+  if (result.kind === "birthday") metricGrid.classList.add("is-six");
   for (const [index, metric] of metrics.entries()) {
     const metricCard = createMetricCard(...metric);
     if (result.kind === "birthday" && index === 3) {
@@ -715,7 +718,12 @@ function createIChingResult(result, onReset) {
   const relations = element("ul", "iching-relation-list");
   for (const entry of result.influenceRelations) relations.append(element("li", "", `${entry.stage}：${entry.trigram.name}${entry.trigram.element}・${entry.relation.label}`));
   const sourceList = element("div", "iching-source-list");
-  for (const source of result.sourceRefs) {
+  sourceList.append(element(
+    "p",
+    "iching-source-notice",
+    result.sourceScopes?.formula?.notice || "下列來源只支持除八、除六、卦象、互變與體用共用核心，不代表現代三數公式出自古籍。",
+  ));
+  for (const source of result.sharedCoreSourceRefs || result.sourceRefs) {
     const link = element("a");
     link.href = source.url;
     link.target = "_blank";

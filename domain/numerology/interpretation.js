@@ -218,6 +218,21 @@ export function buildBirthdayReportSections(analysis) {
       birthday.ruleProfile.sourceProfile,
     ),
     section(
+      "personal-calendar-cycles",
+      "個人年／月／日",
+      `${analysis.personalYearResult.year} 年 ${analysis.personalYearResult.personalYearNumber}；${analysis.personalMonthResult.month} 月 ${analysis.personalMonthResult.personalMonthNumber}；${analysis.personalDayResult.month}/${analysis.personalDayResult.day} ${analysis.personalDayResult.personalDayNumber}`,
+      [
+        "個人月與個人日採現代巢狀週期，只作民俗文化觀察。",
+        analysis.personalDayResult.ruleProfile.notice,
+      ],
+      [
+        analysis.personalYearResult.calculationText,
+        analysis.personalMonthResult.calculationText,
+        analysis.personalDayResult.calculationText,
+      ],
+      analysis.personalDayResult.ruleProfile.sourceProfile,
+    ),
+    section(
       "birth-grid",
       "生日九宮格",
       `出現 ${grid.presentNumbers.length} 種數字，成立 ${established.length} 條連線`,

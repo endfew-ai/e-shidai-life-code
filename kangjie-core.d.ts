@@ -70,6 +70,14 @@ export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
   trace: KangjieTrace[];
   inputSummary: string;
   sourceRefs: SourceRef[];
+  formulaSourceRefs: SourceRef[];
+  dataSourceRefs: SourceRef[];
+  sharedCoreSourceRefs: SourceRef[];
+  sourceScopes: {
+    formula: { status: string; notice?: string; refs: SourceRef[] };
+    data: { status: string; notice?: string; refs: SourceRef[] };
+    sharedCore: { status: string; notice?: string; refs: SourceRef[] };
+  };
   calculationTrace: {
     schemaVersion: string;
     methodId: string;

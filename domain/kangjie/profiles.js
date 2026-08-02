@@ -13,6 +13,11 @@ const legacyExistingMethods = Object.freeze([
   "text-count",
 ]);
 
+const modernOrCustomOnlyMethods = Object.freeze(new Set([
+  "modern-three-number",
+  "surname-addition",
+]));
+
 export const calculationProfiles = Object.freeze({
   "classic-primary-v1": Object.freeze({
     ...baseProfile,
@@ -59,6 +64,7 @@ export function resolveCalculationProfile(profileOrId = DEFAULT_CALCULATION_PROF
     id: String(profileOrId.id || "user-custom-v1"),
     label: String(profileOrId.label || "使用者自訂"),
     description: String(profileOrId.description || "使用者自行設定的公式參數。"),
+    isUserCustom: true,
   });
 }
 
@@ -67,6 +73,13 @@ export function assertProfileSupportsMethod(profileOrId, methodId) {
   if (String(methodId).startsWith("domain-")) return profile;
   if (Array.isArray(profile.supportedMethods) && !profile.supportedMethods.includes(methodId)) {
     throw new Error(`${profile.label}不包含「${methodId}」；請改選古籍主法、今本或使用者自訂算法。`);
+  }
+  if (
+    modernOrCustomOnlyMethods.has(methodId)
+    && profile.id !== "modern-current-v1"
+    && profile.isUserCustom !== true
+  ) {
+    throw new Error(`${profile.label}不能標示「${methodId}」；此方法只可使用今本或使用者自訂版本，不能冒充古籍主法。`);
   }
   return profile;
 }

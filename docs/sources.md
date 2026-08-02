@@ -9,12 +9,14 @@
 | `MYS-CTEXT-02` | 中國哲學書電子化計劃《梅花易數》卷二 | 體用與五行 |
 | `MYS-WIKI-02` | 維基文庫《梅花易數》卷二 | 體用、互變對體的生剋及月令旺衰 |
 | `MYS-NLC-1925-01` | 中國國家圖書館藏 1925 文明書局本影像 | 除八除六、字占、尺寸、後天端法影像校勘 |
-| `HUANGJI-KANRIPO-01` | 漢籍リポジトリ《皇極經世書》 | 元會運世結構 |
-| `HUANGJI-NCL-1936-01` | 臺灣國家圖書館藏 1936《皇極經世書》影像 | 元會運世尺度影像校勘；不提供唯一西元錨點 |
+| `HUANGJI-KANRIPO-BOOK-01` | 漢籍リポジトリ邵雍《皇極經世書》 | 原書書目、卷次與傳本文字入口 |
+| `HUANGJI-KANRIPO-01` | 漢籍リポジトリ張行成《皇極經世索隱》 | 明載一世 30 年、一運 12 世、一會 30 運、一元 12 會 |
+| `HUANGJI-NCL-1936-01` | 臺灣國家圖書館藏 1936 黃粵洲註《皇極經世書》影像 | 後出註本尺度影像校勘；不提供唯一西元錨點 |
 | `CWA-CALENDAR-01` | 中央氣象署 A-A0087-001 | 國曆、農曆資料欄位與固定測試基準 |
 | `CWA-SOLAR-TERMS-01` | 中央氣象署 A-A0087-003 | 二十四節氣與立春交節時刻 |
 | `UNICODE-UNIHAN-17.0.0` | Unicode 17.0 Unihan | `kTotalStrokes` 自動筆畫 |
 | `MOE-CONCISED-DICT-01` | 教育部《國語辭典簡編本》公眾授權資料 | 簡編本總筆畫 provider 與人工核對；不等於康熙筆畫 |
+| `NUMEROLOGY-MODERN-CYCLES-01` | Hans Decoz／World Numerology 公開計算說明 | 個人年、個人月與個人日的現代流傳公式；不作古籍或科學權威 |
 
 ## 直接連結
 
@@ -23,7 +25,8 @@
 - [中國哲學書電子化計劃《梅花易數》卷一](https://ctext.org/wiki.pl?chapter=867487&if=gb)
 - [中國哲學書電子化計劃《梅花易數》卷二](https://ctext.org/wiki.pl?chapter=475043&if=gb)
 - [維基文庫《梅花易數》卷二](https://zh.wikisource.org/wiki/%E6%A2%85%E8%8A%B1%E6%98%93%E6%95%B8/%E5%8D%B7%E4%BA%8C)
-- [漢籍リポジトリ《皇極經世書》](https://www.kanripo.org/text/KR3g0006/001)
+- [漢籍リポジトリ邵雍《皇極經世書》](https://www.kanripo.org/text/KR3g0005/000)
+- [漢籍リポジトリ張行成《皇極經世索隱》](https://www.kanripo.org/text/KR3g0006/001)
 - [臺灣國家圖書館藏 1936《皇極經世書》影像鏡像](https://commons.wikimedia.org/wiki/File:NCL-002452168_%E7%9A%87%E6%A5%B5%E7%B6%93%E4%B8%96%E6%9B%B8_%E4%B9%9D%E5%8D%B7%2C_%E9%A6%96%E4%B8%80%E5%8D%B7_v.2.pdf)
 - [中央氣象署日曆資料](https://opendata.cwa.gov.tw/dataset/all/A-A0087-001)
 - [中央氣象署二十四節氣資料](https://opendata.cwa.gov.tw/dataset/all/A-A0087-003)
@@ -36,6 +39,7 @@
 - [UAX #38 Unihan](https://www.unicode.org/reports/tr38/)
 - [Unicode 17.0.0 Unihan.zip](https://www.unicode.org/Public/17.0.0/ucd/Unihan.zip)
 - [教育部《國語辭典簡編本》資料下載](https://language.moe.gov.tw/001/Upload/Files/site_content/M0001/respub/dict_concised_download.html)
+- [World Numerology：個人年／月／日公開計算說明](https://www.worldnumerology.com/do-your-own-reading/)
 
 重要公式先用可檢索轉錄定位，再以古籍影本交叉核對。五行多位置關係與旺衰以《梅花易數》卷二文字及影像核對。中央氣象署資料支持臺灣國農曆日期、節氣與閏月核對；立春換年、正月初一換年及子時換日屬本工具的可切換術數規約，不宣稱為氣象署規則。
 

@@ -11,6 +11,7 @@ import {
   calculateModernThreeNumberMethod,
   calculateSegmentedSoundMethod,
   calculateSingleSoundMethod,
+  calculateStrokeTextMethod,
   calculateSurnameAdditionMethod,
   calculateTextMethod,
   calculateZhangChiMethod,
@@ -221,6 +222,52 @@ test("現代三數入口使用統一引擎並明列版本與非古籍主法界�
     movingNumber: "30",
   });
   assert.match(result.calculationTrace.warnings.join(""), /現代三數法/);
+  assert.equal(result.sourceScopes.formula.status, "not-found");
+  assert.deepEqual(result.formulaSourceRefs, []);
+  assert.deepEqual(result.sourceRefs, []);
+  assert.ok(result.sharedCoreSourceRefs.length >= 1);
+});
+
+test("未證現代方法不能由直接函式呼叫冒充古籍 profile", () => {
+  assert.throws(
+    () => calculateModernThreeNumberMethod([1, 2, 3], { profile: "classic-primary-v1" }),
+    /不能標示.*不能冒充古籍主法/,
+  );
+  assert.throws(
+    () => calculateSurnameAdditionMethod({
+      surname: "王",
+      strokeEntries: [manualStroke("王", 4)],
+      yearBranch: 3,
+      lunarMonth: 12,
+      lunarDay: 1,
+      hourBranch: 7,
+    }, { profile: "classic-primary-v1" }),
+    /不能標示.*不能冒充古籍主法/,
+  );
+});
+
+test("四至十字與尺寸版本不能繞過 profile 規則混掛名稱", () => {
+  assert.throws(
+    () => calculateStrokeTextMethod({
+      text: "天地玄黃",
+      strokeEntries: [
+        manualStroke("天", 4),
+        manualStroke("地", 6),
+        manualStroke("玄", 5),
+        manualStroke("黃", 12),
+      ],
+    }, { profile: "classic-primary-v1" }),
+    /四至十字主法是平上去入/,
+  );
+  assert.throws(
+    () => calculateChiCunMethod({
+      chi: 5,
+      cun: 4,
+      hourBranch: 7,
+      version: "old-without-hour",
+    }, { profile: "modern-current-v1" }),
+    /不可在結果中混掛版本名稱/,
+  );
 });
 
 test("古籍主法與 legacy-existing-v1 明確保留乾坤互卦差異", () => {
@@ -236,6 +283,8 @@ test("古籍主法與 legacy-existing-v1 明確保留乾坤互卦差異", () => 
   assert.equal(classicQian.mutualSource, "original");
   assert.equal(legacyQian.mutual.name, "天風姤");
   assert.equal(legacyQian.mutualSource, "transformed");
+  assert.deepEqual(legacyQian.calculationTrace.mutualLowerSourceLines, [0, 1, 1]);
+  assert.deepEqual(legacyQian.calculationTrace.mutualUpperSourceLines, [1, 1, 1]);
 
   const classicKun = probe({ upper: 8, lower: 8, moving: 3 });
   const legacyKun = probe({
@@ -642,7 +691,11 @@ test("皇極時間長度在 30、360、10800、129600 年邊界正確進位", ()
     assert.deepEqual(result.units, expected);
     assert.equal(result.calculationTrace.normalizedInput.years, String(years));
     assert.equal(result.calculationTrace.steps.length, 4);
-    assert.deepEqual(result.calculationTrace.sourceIds, ["HUANGJI-KANRIPO-01", "HUANGJI-NCL-1936-01"]);
+    assert.deepEqual(result.calculationTrace.sourceIds, [
+      "HUANGJI-KANRIPO-BOOK-01",
+      "HUANGJI-KANRIPO-01",
+      "HUANGJI-NCL-1936-01",
+    ]);
   }
 });
 

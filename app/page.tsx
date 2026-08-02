@@ -405,6 +405,8 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
         { label: "生日數", value: result.birthday.display, note: result.ruleSet.masterNumberMode === "disabled" ? "主數化簡至 1～9" : "依設定保留主數" },
         { label: "態度數", value: String(result.attitude.value), note: "出生月加出生日" },
         { label: `${result.personalYear.year} 個人流年`, value: String(result.personalYear.value), note: "採 1 至 12 月曆年制" },
+        { label: `${result.personalMonth.month} 月個人月`, value: String(result.personalMonth.value), note: "個人年加當月；現代流傳" },
+        { label: `${result.personalDay.month}/${result.personalDay.day} 個人日`, value: String(result.personalDay.value), note: "個人月加當日；現代流傳" },
       ]
     : [
         { label: "數字位數", value: String(result.length), note: "只計入實際數字" },
@@ -424,7 +426,7 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
         <figure className="result-art"><img src={resultArt} width={result.kind === "birthday" ? 1586 : 1823} height={result.kind === "birthday" ? 992 : 863} loading="lazy" decoding="async" alt="古金數字節點分析視覺" /><figcaption>核心數 {result.headlineValue}</figcaption></figure>
       </header>
 
-      <div className="metric-grid">{metrics.map((metric, index) => <MetricCard {...metric} id={result.kind === "birthday" && index === 3 ? "result-annual-cycle" : undefined} key={metric.label} />)}</div>
+      <div className={`metric-grid${result.kind === "birthday" ? " is-six" : ""}`}>{metrics.map((metric, index) => <MetricCard {...metric} id={result.kind === "birthday" && index === 3 ? "result-annual-cycle" : undefined} key={metric.label} />)}</div>
 
       {result.kind === "birthday" && result.lifePath.isMaster && (
         <div className="master-note" role="note"><strong>主數 {result.lifePath.value}／基底 {result.lifePath.base}</strong><p>{masterThemes[result.lifePath.value as 11 | 22 | 33] ?? "此為自訂保留主數；人格摘要仍依化簡後的 1～9 基底呈現。"}</p></div>
@@ -540,7 +542,7 @@ function IChingResults({ result, onReset }: { result: IChingResult; onReset: () 
         <article><span>五行關係</span><strong>{result.fiveElements.label}</strong><small>{result.fiveElements.explanation}</small></article>
         <p>{result.roles.note}</p>
       </div>
-      <details className="iching-audit"><summary><strong>完整演算與來源</strong><span>{result.profileLabel}・{result.algorithmVersion}</span></summary><div className="iching-audit-body"><div className="iching-audit-inputs"><article><span>原始輸入</span><pre>{JSON.stringify(result.calculationTrace.originalInput, null, 2)}</pre></article><article><span>正規化輸入</span><pre>{JSON.stringify(result.calculationTrace.normalizedInput, null, 2)}</pre></article></div><ul className="iching-relation-list">{result.influenceRelations.map((entry) => <li key={entry.stage}>{entry.stage}：{entry.trigram.name}{entry.trigram.element}・{entry.relation.label}</li>)}</ul><div className="iching-source-list">{result.sourceRefs.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><strong>{source.title}</strong><small>{source.organization}</small></a>)}</div></div></details>
+      <details className="iching-audit"><summary><strong>完整演算與來源</strong><span>{result.profileLabel}・{result.algorithmVersion}</span></summary><div className="iching-audit-body"><div className="iching-audit-inputs"><article><span>原始輸入</span><pre>{JSON.stringify(result.calculationTrace.originalInput, null, 2)}</pre></article><article><span>正規化輸入</span><pre>{JSON.stringify(result.calculationTrace.normalizedInput, null, 2)}</pre></article></div><ul className="iching-relation-list">{result.influenceRelations.map((entry) => <li key={entry.stage}>{entry.stage}：{entry.trigram.name}{entry.trigram.element}・{entry.relation.label}</li>)}</ul><div className="iching-source-list"><p className="iching-source-notice">{result.sourceScopes?.formula.notice || "下列來源只支持除八、除六、卦象、互變與體用共用核心，不代表現代三數公式出自古籍。"}</p>{(result.sharedCoreSourceRefs || result.sourceRefs).map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><strong>{source.title}</strong><small>{source.organization}</small></a>)}</div></div></details>
       <p className="iching-boundary">本模式採現代三數先天數法，與生日命碼完全分開。只做固定卦象計算，不提供吉凶、預測或決策建議。</p>
       <OriginalTextPanel result={result} />
       <div className="result-actions"><button type="button" className="secondary-button" onClick={onReset}>重新輸入三個數字</button></div>
@@ -827,7 +829,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -859,7 +861,7 @@ export default function Home() {
             <div className="mode-controls">
               <div className="input-panel" data-mode-panel={mode}>
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { const nextBirthday = event.target.value; setBirthday(nextBirthday); setMessage(""); setEntryHint(""); setResult(null); if (birthdayAutoSubmitRef.current && nextBirthday) { birthdayAutoSubmitRef.current = false; window.setTimeout(() => document.querySelector<HTMLFormElement>("#analyzer-form")?.requestSubmit(), 0); } }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={60} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); setResult(null); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
+                {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={40} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); setResult(null); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
                 {mode === "iching" && <div className="triple-input-grid">{ichingSensorInputs.map(({ label, help, placeholder, art }, index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><img className="iching-sensor-art" src={art} width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); setResult(null); }} placeholder={placeholder} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
               </div>
 
@@ -906,7 +908,7 @@ export default function Home() {
         {(["primary", "secondary", "tertiary", "annual"] as const).map((key, index) => <article key={key}><small data-cockpit-result-label={key}>{analyticsView.previewLabels[index]}</small><strong data-cockpit-result-value={key}>{analyticsView.previewValues[index]}</strong></article>)}
       </section>
 
-      <nav className="mobile-function-atlas function-command-grid" aria-label="全部功能">
+      <nav className="mobile-function-atlas function-command-grid" aria-label="其他十八項功能；四個主要模式在上方切換">
         <a data-command-module="birthday" href="#analyzer" onClick={startBirthdayAnalysis}><img src="/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>生日分析</strong><small>完整結果</small></span></a>
         <a data-command-module="life-path" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "life-path")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>生命路徑</strong><small>主要數字</small></span></a>
         <a data-command-module="spectrum" href="#analyzer" onClick={() => requestMode("code")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span><strong>數字頻譜</strong><small>號碼分布</small></span></a>
@@ -954,7 +956,7 @@ export default function Home() {
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-web-v1.webp" text="規則與來源" className="brush-rules" lazy width={640} height={171} /></strong><small>可展開核對</small></summary>
           <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-web-v1.webp" text="生日命碼" className="brush-method-card" lazy width={600} height={213} /><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-web-v1.webp" text="數字頻譜" className="brush-method-card" lazy width={600} height={174} /><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" className="brush-method-card" lazy width={600} height={176} /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-method-card" lazy width={600} height={154} /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
-          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-web-v1.webp" text="方法與本文來源" className="brush-source" lazy width={640} height={133} /></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie#sources">邵康節專頁來源</a></p></div></div>
+          <div className="data-source" id="data-source"><div><h2><BrushTitle src="/visuals/brush/title-source-web-v1.webp" text="方法與本文來源" className="brush-source" lazy width={640} height={133} /></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://www.worldnumerology.com/do-your-own-reading/" target="_blank" rel="noreferrer">個人年／月／日現代公式</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="/kangjie#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>
 

@@ -125,7 +125,9 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12"/);
+  assert.match(html, /id="number-code"[^>]*maxlength="40"/);
+  assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
   assert.match(html, /class="sidebar-primary"[^>]*data-start-birthday/);
   assert.match(html, /選生日・直接看完整結果/);
@@ -268,7 +270,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(appSource, /data-personal-color-guide/);
   assert.match(reactSource, /function BirthdayColorGuide/);
   assert.match(reactSource, /data-personal-color-guide/);
-  assert.match(appSource, /from "\.\/site-services\.js\?v=20260801-reference-v11"/);
+  assert.match(appSource, /from "\.\/site-services\.js\?v=20260802-reference-v12"/);
   assert.match(reactSource, /from "\.\.\/site-services\.js"/);
   assert.match(appSource, /isIChingAccessCode/);
   assert.match(reactSource, /isIChingAccessCode/);

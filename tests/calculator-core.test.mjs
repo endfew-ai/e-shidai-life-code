@@ -72,6 +72,16 @@ test("personal years always reduce to 1-9 and are deterministic for a supplied y
   assert.equal(reductionTrace(11, true).value, 11);
 });
 
+test("birthday result includes deterministic personal month and day with traceable modern source", () => {
+  const result = analyzeBirthday("1990-08-12", 2026, TODAY);
+  assert.equal(result.personalMonth.value, 1);
+  assert.equal(result.personalDay.value, 1);
+  assert.equal(result.personalDay.targetDate, TODAY);
+  assert.equal(result.personalDay.ruleProfile.sourceProfile, "modern-common-practice-v1");
+  assert.match(result.calculations.find(({ label }) => label.includes("個人月")).text, /個人年/);
+  assert.match(result.calculations.find(({ label }) => label.includes("個人日")).text, /個人月/);
+});
+
 test("Cheiro 1 to 9 palettes preserve the documented color families and valid digital swatches", () => {
   const expectedFamilies = {
     1: ["棕色", "黃色", "金色"],

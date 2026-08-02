@@ -24,8 +24,8 @@
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v4/hero-title-calligraphy-v4.png" type="image/png" fetchpriority="high" />
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v10/analytics-instrument-triad-v10.webp" type="image/webp" fetchpriority="high" media="(min-width: 861px)" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260801-reference-v11" />
-    <script type="module" src="app.js?v=20260801-reference-v11"></script>
+    <link rel="stylesheet" href="styles.css?v=20260802-reference-v12" />
+    <script type="module" src="app.js?v=20260802-reference-v12"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -83,7 +83,7 @@
         </div>
       </nav>
 
-      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11">
+      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12">
       <div class="dashboard-lead" data-ui-region="dashboard-lead">
       <header class="hero" id="top">
         <img class="hero-art" src="public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width="1774" height="887" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -110,7 +110,7 @@
             <figure class="mode-art"><img id="mode-art-image" src="public/visuals/ai-dashboard/life-path-v1.webp" width="960" height="640" loading="lazy" decoding="async" alt="九節點古金生命靈數分析儀" /><figcaption><p class="section-index">當前分析模式</p><h2 id="analyzer-title" class="brush-heading current-mode-heading"><span id="analyzer-title-text" class="sr-only">生日命碼</span><img id="analyzer-title-image" class="brush-title-image" src="public/visuals/brush/title-birthday-web-v1.webp" width="600" height="213" loading="lazy" decoding="async" alt="" aria-hidden="true" /></h2><span id="analyzer-description">生命路徑、生日數、個人流年與傳統對應色</span></figcaption></figure>
             <div class="mode-controls">
               <div class="input-panel" data-mode-panel="birthday"><label class="field-block" for="birthday-input"><span>出生日期（西元）</span><input id="birthday-input" type="date" autocomplete="bday" aria-describedby="input-help input-message" /></label></div>
-              <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="60" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
+              <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
               <div class="input-panel" data-mode-panel="iching" hidden>
                 <div class="triple-input-grid">
                   <label class="field-block"><span>第一數<small>上卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-upper-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label>
@@ -174,7 +174,7 @@
         <article><small data-cockpit-result-label="annual">個人流年</small><strong data-cockpit-result-value="annual">－</strong></article>
       </section>
 
-      <nav class="mobile-function-atlas function-command-grid" aria-label="全部功能">
+      <nav class="mobile-function-atlas function-command-grid" aria-label="其他十八項功能；四個主要模式在上方切換">
         <a data-command-module="birthday" href="#analyzer" data-start-birthday><img src="public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>生日分析</strong><small>完整結果</small></span></a>
         <a data-command-module="life-path" href="#analyzer" data-start-birthday data-result-target="life-path"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>生命路徑</strong><small>主要數字</small></span></a>
         <a data-command-module="spectrum" href="#analyzer" data-quick-mode="code"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp" width="384" height="384" alt="" aria-hidden="true" /><span><strong>數字頻譜</strong><small>號碼分布</small></span></a>
@@ -223,7 +223,7 @@
         <details>
           <summary><span>固定規則</span><strong id="method-source-title" class="brush-title brush-rules"><span class="sr-only">規則與來源</span><img class="brush-title-image" src="public/visuals/brush/title-rules-web-v1.webp" width="640" height="171" loading="lazy" decoding="async" alt="" aria-hidden="true" /></strong><small>可展開核對</small></summary>
           <div class="method-source-body"><div class="method-grid"><article><span class="brush-title brush-method-card"><span class="sr-only">生日命碼</span><img class="brush-title-image" src="public/visuals/brush/title-birthday-web-v1.webp" width="600" height="213" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><span class="brush-title brush-method-card"><span class="sr-only">數字頻譜</span><img class="brush-title-image" src="public/visuals/brush/title-spectrum-web-v1.webp" width="600" height="174" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><span class="brush-title brush-method-card"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-web-v1.webp" width="600" height="176" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><span class="brush-title brush-method-card"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-web-v1.webp" width="600" height="154" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>
-          <div class="data-source" id="data-source"><div><h2><span class="brush-title brush-source"><span class="sr-only">方法與本文來源</span><img class="brush-title-image" src="public/visuals/brush/title-source-web-v1.webp" width="640" height="133" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="kangjie.html#sources">邵康節專頁來源</a></p></div></div>
+          <div class="data-source" id="data-source"><div><h2><span class="brush-title brush-source"><span class="sr-only">方法與本文來源</span><img class="brush-title-image" src="public/visuals/brush/title-source-web-v1.webp" width="640" height="133" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span></h2><p>色名可查原書，HEX 為本站數位轉譯；色彩功能屬歷史命理文化參考，不是科學個人色彩診斷。</p></div><p><a href="https://www.worldnumerology.com/numerology-life-path/" target="_blank" rel="noreferrer">生命路徑計算</a><a href="https://www.worldnumerology.com/do-your-own-reading/" target="_blank" rel="noreferrer">個人年／月／日現代公式</a><a href="https://archive.org/details/in.ernet.dli.2015.70770/page/n137/mode/2up" target="_blank" rel="noreferrer">Cheiro 原書色彩章</a><a href="https://doi.org/10.1146/annurev-psych-010213-115035" target="_blank" rel="noreferrer">色彩心理研究界線</a><a href="https://zh.wikisource.org/zh/周易" target="_blank" rel="noreferrer">維基文庫《周易》</a><a href="https://ctext.org/wiki.pl?chapter=867487&amp;if=en&amp;remap=gb" target="_blank" rel="noreferrer">《梅花易數》卷一</a><a href="kangjie.html#sources">邵康節專頁來源</a></p></div></div>
         </details>
       </section>
 

@@ -10,6 +10,8 @@ import type {
   MagneticSequenceAnalysis,
   PersonalityProfile,
   PersonalYearResult,
+  PersonalMonthResult,
+  PersonalDayResult,
   ReportSection,
   RuleSet,
   RuleSetOverrides,
@@ -81,6 +83,8 @@ export interface BirthdayAnalysisResult extends AnalysisResultBase {
   readonly timelineResult: null;
   readonly personalYearResult: PersonalYearResult;
   readonly personalYearCycles: readonly PersonalYearResult[];
+  readonly personalMonthResult: PersonalMonthResult;
+  readonly personalDayResult: PersonalDayResult;
   readonly personalityProfile: PersonalityProfile;
 }
 

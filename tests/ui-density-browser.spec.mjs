@@ -199,6 +199,8 @@ async function expectCompactMobileDashboard(page) {
       cockpitHeight: rect(".cockpit-status").height,
       atlasColumns: columns(".mobile-function-atlas"),
       atlasCount: document.querySelectorAll(".mobile-function-atlas > a").length,
+      atlasVisibleCount: [...document.querySelectorAll(".mobile-function-atlas > a")]
+        .filter((element) => element.getBoundingClientRect().width > 0).length,
       atlasBottom: rect(".mobile-function-atlas").bottom,
       viewportHeight: window.innerHeight,
       workspaceTabColumns: columns(".workspace-tabs"),
@@ -218,17 +220,18 @@ async function expectCompactMobileDashboard(page) {
   expect(report.cockpitColumns, "手機四項結果應維持單列四欄").toBe(4);
   expect(report.cockpitHeight, "手機即時摘要不得退化成過長四列").toBeLessThanOrEqual(92);
   expect(report.desktopAnalyticsDisplay, "手機不得重複顯示桌機四模塊總覽").toBe("none");
-  expect(report.atlasColumns, "手機二十二功能入口應採四欄密集排列").toBe(4);
-  expect(report.atlasCount, "手機功能總覽必須正好二十二個入口").toBe(22);
-  expect(report.atlasBottom, "手機首屏必須完整顯示二十二個功能入口").toBeLessThanOrEqual(report.viewportHeight - 4);
+  expect(report.atlasColumns, "手機十八個輔助入口應採四欄密集排列").toBe(4);
+  expect(report.atlasCount, "DOM 必須保留二十二個唯一功能入口").toBe(22);
+  expect(report.atlasVisibleCount, "四個主要模式置頂後，功能總覽不得再重複顯示").toBe(18);
+  expect(report.atlasBottom, "手機首屏必須完整顯示十八個輔助入口").toBeLessThanOrEqual(report.viewportHeight - 4);
   expect(report.workspaceTabColumns, "手機工作台分頁應採三欄兩列").toBe(3);
   expect(report.workspaceEntryColumns, "手機工作台六入口應採兩欄三列").toBe(2);
   expect(Math.max(...report.workspaceEntryHeights), "手機工作台入口不得過度拉長").toBeLessThanOrEqual(180);
   expect(report.modeArtDisplay, "手機不重複顯示當前模式橫幅").toBe("none");
-  expect(report.moduleRailDisplay, "手機以二十二格總覽取代過長卡片牆").toBe("none");
+  expect(report.moduleRailDisplay, "手機以十八格輔助總覽取代過長卡片牆").toBe("none");
   await expectReadableSamples(
     page,
-    [".cockpit-status small", ".cockpit-live-rail span"],
+    [".cockpit-status small"],
     12,
     "手機結果與即時狀態標籤",
   );
@@ -239,7 +242,7 @@ async function expectReferenceMobileDashboard(page) {
   await expect(page.locator(".dashboard-home-screen .hero")).toBeHidden();
   await expect(page.locator("[data-ui-region='desktop-analytics']")).toBeHidden();
   await expect(page.locator("[data-ui-region='mode-deck']")).toBeVisible();
-  await expect(page.locator(".cockpit-live-rail")).toBeVisible();
+  await expect(page.locator(".cockpit-live-rail")).toBeHidden();
   await expect(page.locator(".cockpit-status > article")).toHaveCount(4);
   await expect(page.locator(".mobile-function-atlas")).toBeVisible();
   await expect(page.locator(".mobile-function-atlas > a")).toHaveCount(22);
@@ -269,7 +272,8 @@ async function expectReferenceMobileDashboard(page) {
     const liveRail = document.querySelector(".cockpit-live-rail");
     const portalImages = [...document.querySelectorAll(".mode-switch .mode-card-art")];
     const cockpitCells = [...document.querySelectorAll(".cockpit-status > article")];
-    const atlasLinks = [...document.querySelectorAll(".mobile-function-atlas > a")];
+    const atlasAllLinks = [...document.querySelectorAll(".mobile-function-atlas > a")];
+    const atlasLinks = atlasAllLinks.filter((card) => card.getBoundingClientRect().width > 0);
     const atlasRects = atlasLinks.map((card) => card.getBoundingClientRect());
     const centerOwnsPoint = (element) => {
       const box = element.getBoundingClientRect();
@@ -287,14 +291,15 @@ async function expectReferenceMobileDashboard(page) {
       cockpitCount: cockpitCells.length,
       cockpitColumns: getComputedStyle(document.querySelector(".cockpit-status"))
         .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
-      atlasCount: atlasLinks.length,
+      atlasCount: atlasAllLinks.length,
+      atlasVisibleCount: atlasLinks.length,
       atlasColumns: getComputedStyle(document.querySelector(".mobile-function-atlas"))
         .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
       atlasWidthSpread: atlasRects.length
         ? Math.max(...atlasRects.map((box) => box.width)) - Math.min(...atlasRects.map((box) => box.width))
         : null,
       atlasCentersAreClickable: atlasLinks.map(centerOwnsPoint),
-      atlasImageState: [...document.querySelectorAll(".mobile-function-atlas img")].map((image) => ({
+      atlasImageState: atlasLinks.map((card) => card.querySelector("img")).map((image) => ({
         complete: image.complete,
         naturalWidth: image.naturalWidth,
         naturalHeight: image.naturalHeight,
@@ -320,23 +325,24 @@ async function expectReferenceMobileDashboard(page) {
   expect(report.methodSource).not.toBeNull();
   expect(report.cockpit.top, "摘要區必須接在分析器後方").toBeGreaterThanOrEqual(report.analyzer.bottom);
   expect(report.cockpit.top - report.analyzer.bottom, "分析器與摘要區不可出現大空白").toBeLessThanOrEqual(12);
-  expect(report.atlas.top, "二十二格功能總覽必須接在摘要後方").toBeGreaterThanOrEqual(report.cockpit.bottom);
-  expect(report.atlas.top - report.cockpit.bottom, "摘要與二十二格功能總覽不可出現大空白").toBeLessThanOrEqual(12);
-  expect(report.methodSource.top, "規則來源必須接在二十二格功能總覽後方").toBeGreaterThanOrEqual(report.atlas.bottom);
-  expect(report.methodSource.top - report.atlas.bottom, "二十二格功能總覽與規則來源不可出現大空白").toBeLessThanOrEqual(16);
-  expect(report.atlasCount, "手機必須正好顯示二十二個功能入口").toBe(22);
-  expect(report.atlasColumns, "手機二十二功能入口必須排成四欄").toBe(4);
-  expect(report.atlasWidthSpread, "手機二十二格入口寬度必須一致").toBeLessThanOrEqual(2);
-  expect(report.atlas.bottom, "手機首屏必須完整顯示二十二個功能入口")
+  expect(report.atlas.top, "十八格輔助總覽必須接在摘要後方").toBeGreaterThanOrEqual(report.cockpit.bottom);
+  expect(report.atlas.top - report.cockpit.bottom, "摘要與十八格輔助總覽不可出現大空白").toBeLessThanOrEqual(12);
+  expect(report.methodSource.top, "規則來源必須接在十八格輔助總覽後方").toBeGreaterThanOrEqual(report.atlas.bottom);
+  expect(report.methodSource.top - report.atlas.bottom, "十八格輔助總覽與規則來源不可出現大空白").toBeLessThanOrEqual(16);
+  expect(report.atlasCount, "DOM 必須保留二十二個唯一功能入口").toBe(22);
+  expect(report.atlasVisibleCount, "四個主要模式置頂後只顯示十八個不重複輔助入口").toBe(18);
+  expect(report.atlasColumns, "手機十八個輔助入口必須排成四欄").toBe(4);
+  expect(report.atlasWidthSpread, "手機十八格入口寬度必須一致").toBeLessThanOrEqual(2);
+  expect(report.atlas.bottom, "手機首屏必須完整顯示十八個輔助入口")
     .toBeLessThanOrEqual(report.viewportHeight - 4);
   expect(report.modeCentersAreClickable.every(Boolean), "四個模式入口中央不得被裝飾圖遮住").toBe(true);
-  expect(report.atlasCentersAreClickable.every(Boolean), "二十二格功能入口中央不得被裝飾圖遮住").toBe(true);
-  expect(report.atlasImageState.length, "手機必須載入二十二張功能徽章").toBe(22);
+  expect(report.atlasCentersAreClickable.every(Boolean), "十八格輔助入口中央不得被裝飾圖遮住").toBe(true);
+  expect(report.atlasImageState.length, "手機必須載入十八張可見輔助功能徽章").toBe(18);
   expect(
     report.atlasImageState.every((image) => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0),
-    "手機二十二張 AI 功能徽章都必須完成載入",
+    "手機十八張可見 AI 功能徽章都必須完成載入",
   ).toBe(true);
-  expect(report.liveRailHeight, "即時狀態列必須保持緊湊").toBeLessThanOrEqual(26);
+  expect(report.liveRailHeight, "手機移除重複即時狀態列以節省高度").toBe(0);
   for (const image of report.portalImageState) {
     expect(image.complete).toBe(true);
     expect(image.naturalWidth, "四個 AI 圓盤圖必須載入").toBeGreaterThan(0);
@@ -455,14 +461,14 @@ async function verifyHomepage(page) {
     await expectCompactMobileDashboard(page);
   } else {
     const moduleGrid = await page.locator(".function-command-grid").evaluate((element) => {
-      const children = [...element.children];
+      const children = [...element.children].filter((child) => child.getBoundingClientRect().width > 0);
       return {
         viewportWidth: window.innerWidth,
         columnCount: getComputedStyle(element).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
         minimumCardWidth: Math.min(...children.map((child) => child.getBoundingClientRect().width)),
       };
     });
-    expect(moduleGrid.columnCount).toBe(8);
+    expect(moduleGrid.columnCount).toBe(6);
     expect(moduleGrid.minimumCardWidth).toBeGreaterThanOrEqual(moduleGrid.viewportWidth <= 1180 ? 80 : 120);
   }
   await expectNoHorizontalOverflow(page);
@@ -486,6 +492,7 @@ async function expectDenseDesktopFirstFold(page, width, height) {
   await expect(page.locator("[data-ui-region='cockpit']")).toBeHidden();
   await expect(page.locator(".topbar-actions > a")).toHaveCount(8);
   await expect(page.locator(".function-command-grid > a")).toHaveCount(22);
+  await expect(page.locator(".function-command-grid > a:visible")).toHaveCount(18);
   await expect(page.locator(".function-command-grid")).toBeVisible();
   await expect(page.locator(".visual-module-rail")).toBeHidden();
   await expect(page.locator(".dashboard-home-screen .hero-art"))
@@ -542,6 +549,7 @@ async function expectDenseDesktopFirstFold(page, width, height) {
       commandModuleColumns: getComputedStyle(document.querySelector(".function-command-grid"))
         .gridTemplateColumns.split(/\s+/).filter(Boolean).length,
       commandModuleHeights: [...document.querySelectorAll(".function-command-grid > a")]
+        .filter((element) => element.getBoundingClientRect().width > 0)
         .map((element) => element.getBoundingClientRect().height),
       topbarActions: [...document.querySelectorAll(".topbar-actions > a")].map((element) => rect(
         `.topbar-actions > a:nth-child(${[...element.parentElement.children].indexOf(element) + 1})`,
@@ -563,13 +571,13 @@ async function expectDenseDesktopFirstFold(page, width, height) {
   expect(layout.analytics.top, "四模塊總覽必須接在主分析區後方").toBeGreaterThanOrEqual(layout.lead.bottom);
   expect(layout.analytics.top - layout.lead.bottom, "主分析區與四模塊總覽不可有大空白").toBeLessThanOrEqual(12);
   expect(layout.commandModules.top).toBeGreaterThanOrEqual(layout.analytics.bottom);
-  expect(layout.commandModules.top - layout.analytics.bottom, "四模塊總覽與二十二功能入口不可有大空白").toBeLessThanOrEqual(12);
+  expect(layout.commandModules.top - layout.analytics.bottom, "四模塊總覽與十八個輔助入口不可有大空白").toBeLessThanOrEqual(12);
   expect(layout.commandModules.bottom).toBeLessThanOrEqual(layout.viewportHeight + 1);
   expect(
     layout.viewportHeight - layout.commandModules.bottom,
     "桌機首屏底部不得留下明顯空白",
   ).toBeLessThanOrEqual(Math.max(80, layout.viewportHeight * 0.1));
-  expect(layout.commandModuleColumns, "桌機二十二功能入口必須排成八欄三列").toBe(8);
+  expect(layout.commandModuleColumns, "桌機十八個輔助入口必須排成六欄三列").toBe(6);
   expect(Math.min(...layout.commandModuleHeights), "桌機功能模塊高度").toBeGreaterThanOrEqual(80);
   expect(layout.topbarActions.length, "桌機頂欄必須有八個真實功能入口").toBe(8);
   for (let index = 1; index < layout.topbarActions.length; index += 1) {
@@ -1027,7 +1035,7 @@ for (const viewport of [
   { width: 360, height: 800 },
   { width: 320, height: 720 },
 ]) {
-  test(`手機首屏 ${viewport.width}×${viewport.height} 完整顯示四模式、表單、四結果與二十二功能`, async ({ page }) => {
+  test(`手機首屏 ${viewport.width}×${viewport.height} 完整顯示四模式、表單、四結果與十八個不重複輔助功能`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("index.html", { waitUntil: "networkidle" });
     await expectReferenceMobileDashboard(page);
