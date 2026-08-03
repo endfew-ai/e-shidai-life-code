@@ -24,6 +24,42 @@ async function expectNoHorizontalOverflow(page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width + 1);
 }
 
+async function expectParallelHexagramRows(result) {
+  const report = await result.evaluate((root) => {
+    const cards = [...root.querySelectorAll(".hexagram-card")];
+    const bounds = (element) => {
+      const box = element.getBoundingClientRect();
+      return { top: box.top, bottom: box.bottom, height: box.height };
+    };
+    const alignedGroup = (selector) => cards.map((card) => bounds(card.querySelector(selector)));
+    return {
+      cards: cards.map(bounds),
+      headers: alignedGroup(":scope > header"),
+      structures: alignedGroup(":scope > .hexagram-structure"),
+      judgments: alignedGroup(":scope > .hexagram-judgment"),
+      lineRows: Array.from({ length: 6 }, (_, index) => cards.map((card) =>
+        bounds(card.querySelectorAll(".line-row")[index]))),
+      clippedText: [...root.querySelectorAll(".hexagram-judgment span, .line-text")]
+        .filter((element) => element.scrollHeight > element.clientHeight + 1 || element.scrollWidth > element.clientWidth + 1)
+        .map((element) => element.textContent.trim()),
+    };
+  });
+
+  const expectAligned = (items, label) => {
+    const topSpread = Math.max(...items.map((item) => item.top)) - Math.min(...items.map((item) => item.top));
+    const bottomSpread = Math.max(...items.map((item) => item.bottom)) - Math.min(...items.map((item) => item.bottom));
+    expect(topSpread, `${label}頂端必須水平對齊`).toBeLessThanOrEqual(1);
+    expect(bottomSpread, `${label}底端必須預留相同高度`).toBeLessThanOrEqual(1);
+  };
+
+  expectAligned(report.cards, "三張卦卡");
+  expectAligned(report.headers, "卦名區");
+  expectAligned(report.structures, "上下卦區");
+  expectAligned(report.judgments, "卦辭區");
+  report.lineRows.forEach((items, index) => expectAligned(items, `第 ${index + 1} 列爻辭`));
+  expect(report.clippedText).toEqual([]);
+}
+
 async function expectJingFangAtlas(page, { mobile = false, originalHexId = 44 } = {}) {
   const atlas = page.locator(".jingfang-palace-atlas");
   await expect(atlas).toBeVisible();
@@ -128,6 +164,7 @@ async function expectCompactSemanticKangjieResult(page, { desktop = false } = {}
     expect(report.maxCardHeight).toBeLessThanOrEqual(680);
     expect(report.overviewHeight).toBeLessThanOrEqual(980);
     expect(new Set(report.cardTops).size).toBe(1);
+    await expectParallelHexagramRows(result);
   } else {
     expect(report.cardTops[1]).toBeGreaterThanOrEqual(report.cardBottoms[0]);
     expect(report.cardTops[2]).toBeGreaterThanOrEqual(report.cardBottoms[1]);
@@ -1009,6 +1046,86 @@ for (const viewport of [
     expect(errors).toEqual([]);
   });
 }
+
+test("首頁三數取卦以最長文字預留共用列高，三卦逐列平行對齊", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1672, height: 941 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await unlockIChingMode(page);
+
+  const inputs = page.locator(".iching-input");
+  await inputs.nth(0).fill("4");
+  await inputs.nth(1).fill("4");
+  await inputs.nth(2).fill("6");
+  await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+
+  const result = page.locator("#result-anchor .iching-results");
+  await expect(result).toContainText("震為雷");
+  await expect(result).toContainText("水山蹇");
+  await expect(result).toContainText("火雷噬嗑");
+
+  for (const viewport of [{ width: 1672, height: 941 }, { width: 1024, height: 768 }]) {
+    await page.setViewportSize(viewport);
+    await expectParallelHexagramRows(result);
+    await expectNoHorizontalOverflow(page);
+    await result.locator(".hexagram-grid").screenshot({
+      path: `output/playwright/home-iching-parallel-${viewport.width}.png`,
+    });
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await result.evaluate((root) => {
+    const grid = root.querySelector(".hexagram-grid");
+    const cards = [...root.querySelectorAll(".hexagram-card")].map((card) => {
+      const box = card.getBoundingClientRect();
+      return { top: box.top, bottom: box.bottom, height: box.height, overflow: card.scrollWidth - card.clientWidth };
+    });
+    const textFits = [...root.querySelectorAll(".hexagram-judgment span, .line-text")].every((text) => {
+      const container = text.closest(".hexagram-judgment, .line-row");
+      const textBox = text.getBoundingClientRect();
+      const containerBox = container.getBoundingClientRect();
+      return textBox.top >= containerBox.top - 1
+        && textBox.bottom <= containerBox.bottom + 1
+        && textBox.left >= containerBox.left - 1
+        && textBox.right <= containerBox.right + 1;
+    });
+    return {
+      columns: getComputedStyle(grid).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
+      cards,
+      textFits,
+    };
+  });
+  expect(mobile.columns).toBe(1);
+  expect(mobile.cards[1].top).toBeGreaterThanOrEqual(mobile.cards[0].bottom);
+  expect(mobile.cards[2].top).toBeGreaterThanOrEqual(mobile.cards[1].bottom);
+  expect(new Set(mobile.cards.map((card) => Math.round(card.height))).size).toBeGreaterThan(1);
+  expect(mobile.cards.every((card) => card.overflow <= 1)).toBe(true);
+  expect(mobile.textFits).toBe(true);
+  await expectNoHorizontalOverflow(page);
+  await result.locator(".hexagram-grid").screenshot({ path: "output/playwright/home-iching-parallel-390.png" });
+  expect(errors).toEqual([]);
+});
+
+test("首頁三卦在 1024px 最長爻辭壓力案例仍逐列對齊且完整顯示", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await unlockIChingMode(page);
+
+  const inputs = page.locator(".iching-input");
+  await inputs.nth(0).fill("5");
+  await inputs.nth(1).fill("1");
+  await inputs.nth(2).fill("4");
+  await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+
+  const result = page.locator("#result-anchor .iching-results");
+  await expect(result).toContainText("風天小畜");
+  await expect(result).toContainText("火澤睽");
+  await expect(result).toContainText("乾為天");
+  await expectParallelHexagramRows(result);
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
 
 test("京房八宮完整表在寬螢幕、平板與 320 手機維持 64 卦清楚可讀", async ({ page }) => {
   const errors = collectBrowserErrors(page);

@@ -10933,3 +10933,40 @@ body:has([data-ui="xuanxing-aaa"]) {
   margin-top: 6px;
   padding-top: 0;
 }
+
+/* Reference v17: three hexagrams share the tallest title, judgment and each corresponding line row. */
+@media (min-width: 981px) {
+  :is(.iching-results, #kangjie-result) .hexagram-grid {
+    align-items: stretch;
+  }
+
+  @supports (grid-template-rows: subgrid) {
+    :is(.iching-results, #kangjie-result) .hexagram-grid {
+      column-gap: 6px;
+      grid-template-rows: repeat(9, auto);
+      row-gap: 0;
+    }
+
+    :is(.iching-results, #kangjie-result) .hexagram-card {
+      align-self: stretch;
+      display: grid;
+      grid-row: 1 / span 9;
+      grid-template-rows: subgrid;
+    }
+
+    :is(.iching-results, #kangjie-result) .hexagram-card:nth-child(1) { grid-column: 1; }
+    :is(.iching-results, #kangjie-result) .hexagram-card:nth-child(2) { grid-column: 2; }
+    :is(.iching-results, #kangjie-result) .hexagram-card:nth-child(3) { grid-column: 3; }
+    :is(.iching-results, #kangjie-result) .hexagram-card > header { grid-row: 1; }
+    :is(.iching-results, #kangjie-result) .hexagram-card > .hexagram-structure { grid-row: 2; }
+    :is(.iching-results, #kangjie-result) .hexagram-card > .hexagram-judgment { grid-row: 3; }
+
+    :is(.iching-results, #kangjie-result) .hexagram-card > .hexagram-lines {
+      display: grid;
+      gap: 0;
+      grid-row: 4 / span 6;
+      grid-template-rows: subgrid;
+      margin-top: 0;
+    }
+  }
+}

@@ -148,7 +148,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16 reference-v17"/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
@@ -256,8 +256,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.equal((html.match(/brush-feel-and-respond-v14\.webp/g) ?? []).length, 3);
   assert.match(appSource, /secureIChingNumber/);
   assert.match(reactSource, /secureIChingNumber/);
-  assert.match(appSource, /三鍵各自取 1–1000/);
-  assert.match(reactSource, /三鍵各自取 1–1000/);
+  assert.match(appSource, /三鍵各自取 1～1000/);
+  assert.match(reactSource, /三鍵各自取 1～1000/);
   assert.match(styles, /Reference v14: professional three-number divination controls/);
   assert.match(styles, /Reference v6: three distinct ImageGen instruments/);
   assert.match(styles, /開始三數取卦/);
@@ -366,6 +366,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(styles, /\.iching-results \.yao\.yang i/);
   assert.match(styles, /\.iching-results \.yao\.yin i/);
   assert.match(styles, /\.iching-results \.line-row > \.line-text/);
+  assert.match(styles, /grid-template-rows: subgrid/);
+  assert.match(styles, /\.hexagram-card > \.hexagram-lines/);
   assert.match(styles, /analyzer-card\[data-active-mode="iching"\]/);
   assert.doesNotMatch(appSource, /const profiles\s*=/);
   assert.match(styles, /@media \(max-width: 560px\)/);

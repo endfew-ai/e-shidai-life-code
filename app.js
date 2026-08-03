@@ -59,7 +59,7 @@ const modeContent = {
     label: "三數取卦",
     description: "一數定上卦、二數定下卦、三數定動爻",
     button: "開始三數取卦",
-    help: "三鍵各自取 1–1000，亦可手動輸入正整數。",
+    help: "三鍵各自取 1～1000，亦可手動輸入正整數。",
     art: "public/visuals/iching-instrument-b-v3.webp",
     artWidth: 1586,
     artHeight: 992,

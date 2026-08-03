@@ -91,7 +91,7 @@ const modeContent = {
     badge: "密碼",
     description: "一數定上卦、二數定下卦、三數定動爻",
     button: "開始三數取卦",
-    help: "三鍵各自取 1–1000，亦可手動輸入正整數。",
+    help: "三鍵各自取 1～1000，亦可手動輸入正整數。",
     art: "/visuals/iching-instrument-b-v3.webp",
     cardArt: "/visuals/iching-instrument-b-v3.webp",
     titleArt: "/visuals/brush/title-iching-web-v1.webp",
@@ -1002,7 +1002,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16 reference-v17">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
