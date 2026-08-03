@@ -25,7 +25,7 @@ import {
   VISIT_COUNTER_VERIFIED_MINIMUM,
 } from "./site-services.js?v=20260802-reference-v13";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
-import { mountNumerologyWorkspace } from "./application/advanced-workspace.js";
+import { mountNumerologyWorkspace } from "./application/advanced-workspace.js?v=20260803-reference-v18";
 import {
   loadNumerologySettings,
   resolveSettingsRuleSet,
@@ -480,7 +480,10 @@ function createNumerologyResult(result, onReset) {
   copy.append(title, value, element("p", "", `${profile.symbol}。以下內容只作文化娛樂與自我提問參考。`));
   const art = element("figure", "result-art");
   art.append(
-    imageElement(result.kind === "birthday" ? "public/visuals/numerology-result-panel-b-v3.webp" : "public/visuals/digit-spectrum-panel-b-v3.webp", "古金數理節點分析模組背景"),
+    imageElement(
+      result.kind === "birthday" ? "public/visuals/ai-dashboard/reference-v18/life-path-wayfinder-v18.webp" : "public/visuals/digit-spectrum-panel-b-v3.webp",
+      result.kind === "birthday" ? "生命路徑玉石軌道視覺" : "古金數理節點分析模組背景",
+    ),
     element("figcaption", "", `${result.kind === "birthday" ? "生命路徑數" : "號碼歸一數"} ${result.headlineValue}`),
   );
   hero.append(copy, art, createResetButton(result.kind === "birthday" ? "修改生日" : "修改數字", onReset, "top"));

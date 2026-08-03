@@ -109,6 +109,12 @@ const referenceV15DashboardAssets = [
   "brush-jingfang-eight-palaces-v15.webp",
 ];
 
+const referenceV18DashboardAssets = [
+  "annual-cycle-v18.webp",
+  "life-path-wayfinder-v18.webp",
+  "lo-shu-nine-grid-v18.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource, jingFangSource, jingFangTypes] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -148,7 +154,11 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16 reference-v17"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16 reference-v17 reference-v18"/);
+  assert.match(reactSource, /reference-v17 reference-v18/);
+  assert.match(html, /styles\.css\?v=20260803-reference-v18/);
+  assert.match(html, /app\.js\?v=20260803-reference-v18/);
+  assert.match(appSource, /application\/advanced-workspace\.js\?v=20260803-reference-v18/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
@@ -207,7 +217,16 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /data-cockpit-result-label="primary">生命路徑數/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v2\/analyze-dragon-seal-v2\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v13\/color-compass-v13\.webp/);
-  assert.match(html, /public\/visuals\/ai-dashboard\/reference-v10\/name-stroke-workbench-v10\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/workbench-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/sources-library-v1\.webp/);
+  assert.match(html, /public\/visuals\/ai-dashboard\/privacy-lock-v1\.webp/);
+  assert.match(reactSource, /\/visuals\/ai-dashboard\/workbench-v1\.webp/);
+  assert.match(reactSource, /\/visuals\/ai-dashboard\/sources-library-v1\.webp/);
+  assert.match(reactSource, /\/visuals\/ai-dashboard\/privacy-lock-v1\.webp/);
+  for (const asset of referenceV18DashboardAssets) {
+    assert.match(html, new RegExp(`public/visuals/ai-dashboard/reference-v18/${asset.replace(".", "\\.")}`));
+    assert.match(reactSource, new RegExp(`/visuals/ai-dashboard/reference-v18/${asset.replace(".", "\\.")}`));
+  }
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v13\/source-provenance-v13\.webp/);
   assert.match(html, /public\/visuals\/ai-dashboard\/reference-v13\/local-history-v13\.webp/);
   assert.match(html, /title-workspace-web-v1\.webp" width="640" height="122"/);
@@ -318,6 +337,20 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(serviceSource, /referrerPolicy: "no-referrer"/);
   assert.match(serviceTypes, /loadCumulativeVisitCount/);
   assert.match(advancedSource, /命格數列與人生階段分流/);
+  for (const asset of [
+    "identity-verification-v13.webp",
+    "phone-resonance-v13.webp",
+    "vehicle-address-map-v13.webp",
+    "custom-sequence-v13.webp",
+    "rule-profiles-v13.webp",
+  ]) {
+    assert.match(advancedSource, new RegExp(`ai-dashboard/reference-v13/${asset.replace(".", "\\.")}`));
+  }
+  assert.doesNotMatch(advancedSource, /data-entry="identity"[^\n]*numerology-result-panel-b-v3/);
+  assert.doesNotMatch(advancedSource, /data-entry="phone_number"[^\n]*digit-spectrum-panel-b-v3/);
+  assert.doesNotMatch(advancedSource, /data-entry="vehicle_address"[^\n]*birth-orbit-b-v2/);
+  assert.doesNotMatch(advancedSource, /data-entry="custom_sequence"[^\n]*digit-wave-b-v2/);
+  assert.doesNotMatch(advancedSource, /data-entry="settings"[^\n]*iching-instrument-b-v3/);
   assert.match(advancedSource, /命格分析只移除這個補位 0/);
   assert.match(advancedSource, /buildTimelineStageInsight/);
   assert.match(advancedSource, /全部展開/);
@@ -405,6 +438,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV13DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v13/${asset}`, import.meta.url))),
     ...referenceV14DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v14/${asset}`, import.meta.url))),
     ...referenceV15DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v15/${asset}`, import.meta.url))),
+    ...referenceV18DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v18/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),

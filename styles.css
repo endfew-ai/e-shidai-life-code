@@ -6897,6 +6897,20 @@ body:has([data-ui="xuanxing-aaa"]) {
   }
 }
 
+@media (min-width: 981px) and (max-width: 1180px) {
+  .dashboard-home-screen.reference-v18 .hero-proof li > span small {
+    display: none;
+  }
+
+  .dashboard-home-screen.reference-v18 .hero-proof li > span strong {
+    font-size: 13px;
+    line-height: 1.15;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+}
+
 @media (max-width: 767px) {
   [data-ui="xuanxing-aaa"] {
     max-width: none;
@@ -10968,5 +10982,112 @@ body:has([data-ui="xuanxing-aaa"]) {
       grid-template-rows: subgrid;
       margin-top: 0;
     }
+  }
+}
+
+/*
+ * Reference v18 visual-completeness pass.
+ * ImageGen supplies three text-free, function-specific instruments; all live
+ * labels and computed values remain semantic HTML so they stay readable and
+ * correct on every screen size.
+ */
+.dashboard-home-screen.reference-v18 .dashboard-analytics > article::before {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.dashboard-home-screen.reference-v18 .dashboard-analytics > .analytics-overview::before {
+  background-image:
+    linear-gradient(90deg, rgba(1, 9, 9, .48), rgba(1, 9, 9, .72)),
+    url("public/visuals/ai-dashboard/reference-v4/analytics-overview-instrument-v4.webp");
+}
+
+.dashboard-home-screen.reference-v18 .dashboard-analytics > .analytics-spectrum::before {
+  background-image:
+    linear-gradient(90deg, rgba(1, 9, 9, .48), rgba(1, 9, 9, .72)),
+    url("public/visuals/ai-dashboard/reference-v4/analytics-spectrum-instrument-v4.webp");
+}
+
+.dashboard-home-screen.reference-v18 .dashboard-analytics > .analytics-core-detail::before {
+  background-image:
+    linear-gradient(90deg, rgba(1, 9, 9, .48), rgba(1, 9, 9, .72)),
+    url("public/visuals/ai-dashboard/reference-v4/analytics-core-instrument-v4.webp");
+}
+
+.dashboard-home-screen.reference-v18 .dashboard-analytics > .analytics-annual::before {
+  background-image:
+    linear-gradient(90deg, rgba(1, 9, 9, .48), rgba(1, 9, 9, .72)),
+    url("public/visuals/ai-dashboard/reference-v4/analytics-annual-instrument-v4.webp");
+}
+
+[data-ui="xuanxing-aaa"] #result-annual-cycle {
+  background:
+    linear-gradient(90deg, rgba(6, 18, 28, .98) 0%, rgba(6, 18, 28, .92) 58%, rgba(6, 18, 28, .52) 100%),
+    url("public/visuals/ai-dashboard/reference-v18/annual-cycle-v18.webp") right center / 132px 132px no-repeat,
+    #06121c;
+}
+
+[data-ui="xuanxing-aaa"] #result-nine-grid > summary {
+  background:
+    linear-gradient(90deg, rgba(5, 16, 25, .98) 0%, rgba(5, 16, 25, .94) 62%, rgba(5, 16, 25, .58) 100%),
+    url("public/visuals/ai-dashboard/reference-v18/lo-shu-nine-grid-v18.webp") right center / 126px 126px no-repeat;
+}
+
+@media (min-width: 768px) and (max-width: 1180px) {
+  .dashboard-home-screen.reference-v18 .hero-proof {
+    align-items: stretch;
+    display: grid;
+    gap: 5px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    height: auto;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .dashboard-home-screen.reference-v18 .hero-proof li {
+    align-items: center;
+    display: grid;
+    gap: 5px;
+    grid-template-columns: 30px minmax(0, 1fr);
+    min-height: 44px;
+    min-width: 0;
+    padding: 4px 5px;
+  }
+
+  .dashboard-home-screen.reference-v18 .hero-proof li > img {
+    border-radius: 50%;
+    height: 30px;
+    max-height: 30px;
+    max-width: 30px;
+    min-height: 30px;
+    min-width: 30px;
+    object-fit: cover;
+    width: 30px;
+  }
+
+  .dashboard-home-screen.reference-v18 .hero-proof li > span {
+    display: grid;
+    min-width: 0;
+  }
+
+  .dashboard-home-screen.reference-v18 .hero-proof :is(strong, small) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-home-screen.reference-v18 > .function-command-grid > a > img {
+    opacity: .70;
+  }
+
+  [data-ui="xuanxing-aaa"] #result-annual-cycle {
+    background-size: auto, 104px 104px, auto;
+  }
+
+  [data-ui="xuanxing-aaa"] #result-nine-grid > summary {
+    background-size: auto, 104px 104px;
   }
 }

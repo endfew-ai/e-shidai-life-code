@@ -556,10 +556,10 @@ async function expectDenseDesktopFirstFold(page, width, height) {
     ["public/visuals/ai-dashboard/reference-v13/rule-profiles-v13.webp", "規則設定模組"],
     ["public/visuals/ai-dashboard/reference-v13/source-provenance-v13.webp", "規則來源模組"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-1-v5.webp", "生日物件徽章"],
-    ["public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp", "生命路徑物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v18/life-path-wayfinder-v18.webp", "生命路徑玉石軌道模塊"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-3-v5.webp", "數字頻譜物件徽章"],
-    ["public/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp", "九宮配置物件徽章"],
-    ["public/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp", "流年分析物件徽章"],
+    ["public/visuals/ai-dashboard/reference-v18/lo-shu-nine-grid-v18.webp", "九宮配置九格模塊"],
+    ["public/visuals/ai-dashboard/reference-v18/annual-cycle-v18.webp", "個人流年四季模塊"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp", "專業工作台物件徽章"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp", "規則來源物件徽章"],
     ["public/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp", "本機隱私物件徽章"],
@@ -738,6 +738,16 @@ test("桌機未分析只顯示占位，1990-07-12 顯示可核對的真實結果
   await page.locator("#analyze-button").click();
 
   await expect(page.locator("#result-anchor")).toContainText("生命路徑數");
+  await expect(page.locator("#result-anchor .result-art img")).toHaveAttribute(
+    "src",
+    /reference-v18\/life-path-wayfinder-v18\.webp/,
+  );
+  const resultModuleBackgrounds = await page.evaluate(() => ({
+    annual: getComputedStyle(document.querySelector("#result-annual-cycle")).backgroundImage,
+    grid: getComputedStyle(document.querySelector("#result-nine-grid > summary")).backgroundImage,
+  }));
+  expect(resultModuleBackgrounds.annual).toContain("annual-cycle-v18.webp");
+  expect(resultModuleBackgrounds.grid).toContain("lo-shu-nine-grid-v18.webp");
   await expect(page.locator("[data-analytics-status]")).toHaveText("生日分析完成");
   await expect(page.locator("[data-analytics-state]")).toHaveText("結果已更新");
   await expect(page.locator("[data-analytics-core]")).toHaveText("2");
@@ -918,6 +928,21 @@ test("平板摘要完整可讀、來源區緊接收合控制且三數輸入至�
 
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto("/index.html", { waitUntil: "networkidle" });
+  const tabletProof = await page.evaluate(() => {
+    const proof = document.querySelector(".dashboard-home-screen .hero-proof");
+    const proofRect = proof.getBoundingClientRect();
+    const images = [...proof.querySelectorAll(":scope > li > img")].map((image) => {
+      const rect = image.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+    return { height: proofRect.height, images };
+  });
+  expect(tabletProof.height, "1024px 平板證明列不得膨脹成黑塊").toBeLessThanOrEqual(72);
+  expect(tabletProof.images).toHaveLength(3);
+  for (const image of tabletProof.images) {
+    expect(image.width, "1024px 平板證明圖寬度固定 30px").toBeCloseTo(30, 0);
+    expect(image.height, "1024px 平板證明圖高度固定 30px").toBeCloseTo(30, 0);
+  }
   await page.locator('[data-mode-label="iching"]').click();
   const accessDialog = page.locator("#iching-access-dialog");
   await expect(accessDialog).toBeVisible();
