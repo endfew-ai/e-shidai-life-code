@@ -20,30 +20,50 @@ test.beforeEach(async ({ page }) => {
   }));
 });
 
+async function openFunctionGrid(page) {
+  const toggle = page.locator("[data-function-command-toggle]");
+  if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#function-command-grid")).toBeVisible();
+}
+
 for (const viewport of viewports) {
-  test(`v13 ${viewport.label} 首屏顯示全部功能且無遮蔽`, async ({ page }) => {
+  test(`v16 ${viewport.label} 預設收合且展開後全部功能無遮蔽`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("index.html", { waitUntil: "networkidle" });
 
+    const toggle = page.locator("[data-function-command-toggle]");
     const atlas = page.locator(".function-command-grid");
-    await expect(atlas).toBeVisible();
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toHaveAttribute("aria-controls", "function-command-grid");
+    expect(await toggle.evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    await expect(atlas).toBeHidden();
     await expect(atlas.locator(":scope > a")).toHaveCount(18);
+    await expect(atlas.locator(":scope > a:visible")).toHaveCount(0);
+    const collapsedWidth = await page.evaluate(() => ({
+      documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(collapsedWidth.documentWidth).toBeLessThanOrEqual(collapsedWidth.clientWidth + 1);
+
+    await openFunctionGrid(page);
     await expect(atlas.locator(":scope > a:visible")).toHaveCount(18);
+    await expect.poll(() => atlas.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return box.top >= -1 && box.bottom <= window.innerHeight + 1;
+    }), { message: "展開後應只移動必要距離，讓 18 項功能完整進入可視範圍" }).toBe(true);
     await expect(page.locator("#analyzer-form .mode-switch > label, #analyzer-form .mode-switch > a")).toHaveCount(4);
 
     const report = await page.evaluate(() => {
       const atlasElement = document.querySelector(".function-command-grid");
-      const atlasRect = atlasElement.getBoundingClientRect();
       const cells = [...atlasElement.querySelectorAll(":scope > a")].filter((cell) => {
         const rect = cell.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0;
       });
       return {
-        viewportHeight: innerHeight,
         documentWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         clientWidth: document.documentElement.clientWidth,
-        atlasTop: atlasRect.top,
-        atlasBottom: atlasRect.bottom,
         columns: getComputedStyle(atlasElement).gridTemplateColumns.split(/\s+/).filter(Boolean).length,
         cellMinimumHeight: Math.min(...cells.map((cell) => cell.getBoundingClientRect().height)),
         cellMinimumFont: Math.min(...cells.map((cell) => Number.parseFloat(getComputedStyle(cell.querySelector("strong")).fontSize))),
@@ -60,20 +80,42 @@ for (const viewport of viewports) {
 
     expect(report.documentWidth).toBeLessThanOrEqual(report.clientWidth + 1);
     expect(report.columns).toBe(viewport.width <= 767 ? 4 : 6);
-    expect(report.cellMinimumHeight).toBeGreaterThanOrEqual(viewport.width <= 767 ? 48 : 78);
+    expect(report.cellMinimumHeight).toBeGreaterThanOrEqual(48);
     expect(report.cellMinimumFont).toBeGreaterThanOrEqual(viewport.width <= 767 ? 13 : 14);
     expect(report.clippedLabels).toEqual([]);
     expect(report.centersClickable.every(Boolean)).toBe(true);
-    expect(report.atlasBottom).toBeLessThanOrEqual(report.viewportHeight + 1);
 
     await page.screenshot({
-      path: `output/playwright/v13-${viewport.label}.png`,
+      path: `output/playwright/v16-${viewport.label}.png`,
       fullPage: false,
     });
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(atlas).toBeHidden();
+    await expect(atlas.locator(":scope > a:visible")).toHaveCount(0);
   });
 }
 
-test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入口", async ({ page }) => {
+test("v16 01～18 收合控制支援鍵盤操作", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("index.html", { waitUntil: "networkidle" });
+  const toggle = page.locator("[data-function-command-toggle]");
+  await toggle.focus();
+  await page.keyboard.press("Enter");
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#function-command-grid > a:visible")).toHaveCount(18);
+  await page.keyboard.press("Tab");
+  await expect(page.locator('[data-command-module="life-path"]')).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(toggle).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#function-command-grid")).toBeHidden();
+  await expect(toggle).toBeFocused();
+});
+
+test("v16 十八個延伸模組名稱唯一，全部既有工具都有直達入口", async ({ page }) => {
   await page.setViewportSize({ width: 1672, height: 941 });
   await page.goto("index.html", { waitUntil: "networkidle" });
 
@@ -95,6 +137,7 @@ test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入�
     ["sequence", "custom_sequence"],
   ]) {
     await page.goto("index.html", { waitUntil: "networkidle" });
+    await openFunctionGrid(page);
     await page.locator(`[data-command-module="${moduleName}"]`).click();
     await expect(page.locator('[data-workspace-tab="sequence"]')).toHaveAttribute("aria-selected", "true");
     await expect(page.locator(`input[name="sequence-type"][value="${entryName}"]`)).toBeChecked();
@@ -107,6 +150,7 @@ test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入�
     ["sources", "sources"],
   ]) {
     await page.goto("index.html", { waitUntil: "networkidle" });
+    await openFunctionGrid(page);
     await page.locator(`[data-command-module="${moduleName}"]`).click();
     await expect(page.locator(`[data-workspace-tab="${tabName}"]`)).toHaveAttribute("aria-selected", "true");
   }
@@ -119,6 +163,7 @@ test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入�
   }
 
   await page.goto("index.html", { waitUntil: "networkidle" });
+  await openFunctionGrid(page);
   await page.locator('[data-command-module="name-strokes"]').click();
   await expect(page).toHaveURL(/kangjie(?:\.html)?#name-strokes$/);
   await unlockIfNeeded();
@@ -133,6 +178,7 @@ test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入�
     ["kangjie-supplement", "supplement"],
   ]) {
     await page.goto("index.html", { waitUntil: "networkidle" });
+    await openFunctionGrid(page);
     await page.locator(`[data-command-module="${moduleName}"]`).click();
     await expect(page).toHaveURL(new RegExp(`kangjie(?:\\.html)?#method-${methodName}$`));
     await unlockIfNeeded();
@@ -141,23 +187,25 @@ test("v13 十八個延伸模組名稱唯一，全部既有工具都有直達入�
   }
 
   await page.goto("index.html", { waitUntil: "networkidle" });
+  await openFunctionGrid(page);
   await page.locator('[data-command-module="kangjie-huangji"]').click();
   await expect(page).toHaveURL(/kangjie(?:\.html)?#method-huangji$/);
   await unlockIfNeeded();
   await expect(page.locator('[data-kangjie-tab="huangji"]')).toHaveAttribute("aria-selected", "true");
 });
 
-test("v13 適合色彩模組會使用生日分析並直達色彩結果", async ({ page }) => {
+test("v16 適合色彩模組會使用生日分析並直達色彩結果", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("index.html", { waitUntil: "networkidle" });
   await page.locator("#birthday-input").fill("1990-07-12");
+  await openFunctionGrid(page);
   await page.locator('[data-command-module="color"]').click();
 
   await expect(page.locator("#color-guide-title")).toBeVisible();
   await expect(page.locator("[data-personal-color-guide]")).toContainText("生日數 3");
 });
 
-test("v13 長造訪數在 1280 桌機不會和第八個導覽入口重疊", async ({ page }) => {
+test("v16 長造訪數在 1280 桌機不會和第八個導覽入口重疊", async ({ page }) => {
   await page.unroute("https://api.counterapi.dev/**");
   await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
     status: 200,

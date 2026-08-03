@@ -23,8 +23,8 @@
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" type="image/webp" fetchpriority="high" />
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v13/hero-title-calligraphy-v13.webp" type="image/webp" fetchpriority="high" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260803-reference-v15" />
-    <script type="module" src="app.js?v=20260803-reference-v15"></script>
+    <link rel="stylesheet" href="styles.css?v=20260803-reference-v16" />
+    <script type="module" src="app.js?v=20260803-reference-v16"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -82,7 +82,7 @@
         </div>
       </nav>
 
-      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15">
+      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16">
       <div class="dashboard-lead" data-ui-region="dashboard-lead">
       <header class="hero" id="top">
         <img class="hero-art" src="public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width="1774" height="887" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -174,7 +174,12 @@
         <article><small data-cockpit-result-label="annual">個人流年</small><strong data-cockpit-result-value="annual">－</strong></article>
       </section>
 
-      <nav class="mobile-function-atlas function-command-grid" aria-label="十八項延伸功能；四個主要模式在上方切換">
+      <button class="function-command-toggle" type="button" data-function-command-toggle aria-expanded="false" aria-controls="function-command-grid">
+        <span class="function-command-toggle-copy"><strong>01～18 延伸功能</strong><small>18 項工具完整保留，需要時再展開</small></span>
+        <span class="function-command-toggle-action"><b data-function-command-toggle-label>展開全部</b><i aria-hidden="true">＋</i></span>
+      </button>
+
+      <nav class="mobile-function-atlas function-command-grid" id="function-command-grid" aria-label="十八項延伸功能；四個主要模式在上方切換" hidden>
         <a data-command-module="life-path" href="#analyzer" data-start-birthday data-result-target="life-path"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width="384" height="384" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>生命路徑</strong><small>主要數字</small></span></a>
         <a data-command-module="lo-shu" href="#analyzer" data-start-birthday data-result-target="grid"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp" width="384" height="384" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>九宮配置</strong><small>連線缺數</small></span></a>
         <a data-command-module="annual" href="#analyzer" data-start-birthday data-result-target="annual"><img src="public/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp" width="384" height="384" loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>個人流年</strong><small>年度週期</small></span></a>
@@ -217,7 +222,7 @@
       <div class="result-anchor" id="result-anchor"></div>
       <noscript><p class="form-message">請啟用瀏覽器 JavaScript，才能在本機執行計算。</p></noscript>
 
-      <section class="method-source" id="method-source" aria-labelledby="method-source-title">
+      <section class="method-source compact-after-functions" id="method-source" aria-labelledby="method-source-title">
         <details>
           <summary><span>固定規則</span><strong id="method-source-title" class="brush-title brush-rules"><span class="sr-only">規則與來源</span><img class="brush-title-image" src="public/visuals/brush/title-rules-web-v1.webp" width="640" height="171" loading="lazy" decoding="async" alt="" aria-hidden="true" /></strong><small>可展開核對</small></summary>
           <div class="method-source-body"><div class="method-grid"><article><span class="brush-title brush-method-card"><span class="sr-only">生日命碼</span><img class="brush-title-image" src="public/visuals/brush/title-birthday-web-v1.webp" width="600" height="213" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><span class="brush-title brush-method-card"><span class="sr-only">數字頻譜</span><img class="brush-title-image" src="public/visuals/brush/title-spectrum-web-v1.webp" width="600" height="174" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><span class="brush-title brush-method-card"><span class="sr-only">三數取卦</span><img class="brush-title-image" src="public/visuals/brush/title-iching-web-v1.webp" width="600" height="176" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><span class="brush-title brush-method-card"><span class="sr-only">邵康節易學</span><img class="brush-title-image" src="public/visuals/brush/title-kangjie-entry-web-v1.webp" width="600" height="154" loading="lazy" decoding="async" alt="" aria-hidden="true" /></span><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>

@@ -663,7 +663,9 @@ export default function Home() {
   const [visitState, setVisitState] = useState<"loading" | "ready" | "unavailable">("loading");
   const [visitFallback, setVisitFallback] = useState(false);
   const [cockpitClock, setCockpitClock] = useState({ time: "--:--", date: "台北時間" });
+  const [functionGridOpen, setFunctionGridOpen] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
+  const functionGridRef = useRef<HTMLElement>(null);
   const workspaceRef = useRef<HTMLElement>(null);
   const birthdayRef = useRef<HTMLInputElement>(null);
   const birthdayAutoSubmitRef = useRef(false);
@@ -1000,7 +1002,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -1079,7 +1081,16 @@ export default function Home() {
         {(["primary", "secondary", "tertiary", "annual"] as const).map((key, index) => <article key={key}><small data-cockpit-result-label={key}>{analyticsView.previewLabels[index]}</small><strong data-cockpit-result-value={key}>{analyticsView.previewValues[index]}</strong></article>)}
       </section>
 
-      <nav className="mobile-function-atlas function-command-grid" aria-label="十八項延伸功能；四個主要模式在上方切換">
+      <button className="function-command-toggle" type="button" data-function-command-toggle aria-expanded={functionGridOpen} aria-controls="function-command-grid" onClick={() => {
+        const open = !functionGridOpen;
+        setFunctionGridOpen(open);
+        if (open) window.requestAnimationFrame(() => functionGridRef.current?.scrollIntoView({ block: "nearest" }));
+      }}>
+        <span className="function-command-toggle-copy"><strong>01～18 延伸功能</strong><small>18 項工具完整保留，需要時再展開</small></span>
+        <span className="function-command-toggle-action"><b>{functionGridOpen ? "收合全部" : "展開全部"}</b><i aria-hidden="true">＋</i></span>
+      </button>
+
+      <nav className="mobile-function-atlas function-command-grid" id="function-command-grid" ref={functionGridRef} aria-label="十八項延伸功能；四個主要模式在上方切換" hidden={!functionGridOpen}>
         <a data-command-module="life-path" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "life-path")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-2-v5.webp" width={384} height={384} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>生命路徑</strong><small>主要數字</small></span></a>
         <a data-command-module="lo-shu" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "grid")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-4-v5.webp" width={384} height={384} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>九宮配置</strong><small>連線缺數</small></span></a>
         <a data-command-module="annual" href="#analyzer" onClick={(event) => startBirthdayAnalysis(event, "annual")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-5-v5.webp" width={384} height={384} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span><strong>個人流年</strong><small>年度週期</small></span></a>
@@ -1119,7 +1130,7 @@ export default function Home() {
 
       <div ref={resultRef} className="result-anchor">{result?.kind === "kangjie" ? <IChingResults result={result} onReset={handleReset} /> : result && <NumerologyResults result={result} onReset={handleReset} />}</div>
 
-      <section className="method-source" id="method-source" aria-labelledby="method-source-title">
+      <section className="method-source compact-after-functions" id="method-source" aria-labelledby="method-source-title">
         <details>
           <summary><span>固定規則</span><strong id="method-source-title"><BrushTitle src="/visuals/brush/title-rules-web-v1.webp" text="規則與來源" className="brush-rules" lazy width={640} height={171} /></strong><small>可展開核對</small></summary>
           <div className="method-source-body"><div className="method-grid"><article><BrushTitle src="/visuals/brush/title-birthday-web-v1.webp" text="生日命碼" className="brush-method-card" lazy width={600} height={213} /><p>新版預設將 YYYYMMDD 全部數字相加，主數化簡至 1～9；舊版分段保留主數仍可在設定中切回。生日九宮與連線另有獨立規則版本；生命路徑色與態度色明列為本站延伸。</p></article><article><BrushTitle src="/visuals/brush/title-spectrum-web-v1.webp" text="數字頻譜" className="brush-method-card" lazy width={600} height={174} /><p>進階工作台以相鄰滑動配對處理八大磁場，保留原序列與 0／5 修飾軌跡；內容屬近代民俗，不宣稱為科學或古法定論。</p></article><article><BrushTitle src="/visuals/brush/title-iching-web-v1.webp" text="三數取卦" className="brush-method-card" lazy width={600} height={176} /><p>第一數取上卦、第二數取下卦、第三數取動爻。它是獨立補充工具，不會由生日或身分證自動起卦。</p></article><article><BrushTitle src="/visuals/brush/title-kangjie-entry-web-v1.webp" text="邵康節易學" className="brush-method-card" lazy width={600} height={154} /><p>獨立專頁分開處理年月日時、物數、雙段聲數、字數法與皇極時間尺度。</p></article></div>

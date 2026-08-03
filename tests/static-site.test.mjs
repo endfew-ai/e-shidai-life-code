@@ -148,7 +148,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16"/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
@@ -219,6 +219,11 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(reactSource, /className="support-module-grid"/);
   assert.match(html, /class="mobile-function-atlas function-command-grid"/);
   assert.match(reactSource, /className="mobile-function-atlas function-command-grid"/);
+  assert.match(html, /data-function-command-toggle aria-expanded="false" aria-controls="function-command-grid"/);
+  assert.match(reactSource, /data-function-command-toggle aria-expanded=\{functionGridOpen\} aria-controls="function-command-grid"/);
+  assert.match(html, /id="function-command-grid"[^>]* hidden/);
+  assert.match(reactSource, /hidden=\{!functionGridOpen\}/);
+  assert.match(reactSource, /useState\(false\)/);
   assert.equal((html.match(/data-command-module=/g) ?? []).length, 18);
   assert.equal((reactSource.match(/data-command-module=/g) ?? []).length, 18);
   for (const moduleId of [

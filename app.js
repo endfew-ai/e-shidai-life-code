@@ -1399,10 +1399,31 @@ function initializeWorkspaceLinks(workspaceRoot) {
   }
 }
 
+function initializeFunctionCommandToggle() {
+  const toggle = document.querySelector("[data-function-command-toggle]");
+  const grid = document.querySelector("#function-command-grid");
+  const label = toggle?.querySelector("[data-function-command-toggle-label]");
+  if (!(toggle instanceof HTMLButtonElement) || !(grid instanceof HTMLElement)) return;
+
+  const setOpen = (open) => {
+    toggle.setAttribute("aria-expanded", String(open));
+    grid.hidden = !open;
+    if (label) label.textContent = open ? "收合全部" : "展開全部";
+  };
+
+  setOpen(false);
+  toggle.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") !== "true";
+    setOpen(open);
+    if (open) window.requestAnimationFrame(() => grid.scrollIntoView({ block: "nearest" }));
+  });
+}
+
 if (typeof document !== "undefined") {
   initializeAnalyzer();
   initializeCockpitClock();
   initializeVisitCounter();
+  initializeFunctionCommandToggle();
   const workspaceRoot = document.querySelector("#numerology-workspace");
   mountNumerologyWorkspace(workspaceRoot, { assetRoot: "public/visuals" });
   initializeWorkspaceLinks(workspaceRoot);

@@ -34,6 +34,10 @@ test("server-renders the finished Traditional Chinese product", async () => {
   assert.match(html, /解碼生命・掌握命運/);
   assert.match(html, /reference-v13\/hero-title-calligraphy-v13\.webp/);
   assert.match(html, /class="mobile-function-atlas function-command-grid"/);
+  assert.match(html, /data-function-command-toggle="true"/);
+  assert.match(html, /aria-expanded="false"/);
+  assert.match(html, /aria-controls="function-command-grid"/);
+  assert.match(html, /id="function-command-grid"[^>]*hidden=""/);
   assert.equal((html.match(/data-command-module=/g) ?? []).length, 18);
   assert.match(html, /年月日時/);
   assert.match(html, /物數起卦/);
