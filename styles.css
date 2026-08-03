@@ -10440,3 +10440,300 @@ body:has([data-ui="xuanxing-aaa"]) {
 @media (prefers-reduced-motion: reduce) {
   #analyzer-form[data-active-mode="iching"] .iching-randomize.is-rolling::after { animation: none; }
 }
+
+/* Reference v15: 京房八宮六十四卦完整表 */
+.jingfang-palace-atlas {
+  --jingfang-border: rgba(207, 165, 77, 0.42);
+  --jingfang-border-strong: rgba(239, 200, 111, 0.78);
+  --jingfang-gold: #e7c26d;
+  --jingfang-ivory: #e8e1d0;
+  --jingfang-muted: #a9a393;
+  background:
+    radial-gradient(circle at 52% -35%, rgba(166, 117, 31, 0.2), transparent 48%),
+    linear-gradient(150deg, rgba(7, 23, 24, 0.98), rgba(4, 13, 18, 0.99));
+  border: 1px solid var(--jingfang-border-strong);
+  color: var(--jingfang-ivory);
+  margin-top: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.jingfang-palace-atlas::before {
+  border: 1px solid rgba(231, 194, 109, 0.38);
+  content: "";
+  inset: 6px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.jingfang-atlas-heading {
+  align-items: center;
+  border-bottom: 1px solid var(--jingfang-border);
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(260px, 520px) minmax(210px, 1fr);
+  min-height: 68px;
+  padding: 7px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.jingfang-atlas-heading h3 { line-height: 0; margin: 0; }
+.jingfang-atlas-heading h3 img {
+  display: block;
+  height: auto;
+  max-height: 62px;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: left center;
+  width: auto;
+}
+
+.jingfang-atlas-heading > p {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+  text-align: right;
+}
+
+.jingfang-atlas-heading > p strong { color: var(--jingfang-gold); font-size: clamp(15px, 1.25vw, 19px); }
+.jingfang-atlas-heading > p span { color: var(--jingfang-muted); font-size: 13px; }
+
+.jingfang-result-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  position: relative;
+  z-index: 1;
+}
+
+.jingfang-position {
+  align-items: baseline;
+  border-bottom: 1px solid var(--jingfang-border);
+  border-right: 1px solid var(--jingfang-border);
+  display: grid;
+  gap: 2px 8px;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  min-height: 45px;
+  padding: 7px 12px;
+}
+.jingfang-position:last-child { border-right: 0; }
+.jingfang-position small { color: var(--jingfang-gold); font-size: 12px; font-weight: 800; }
+.jingfang-position strong { color: #f3ead4; font-size: 15px; white-space: nowrap; }
+.jingfang-position em { color: var(--jingfang-muted); font-size: 12px; font-style: normal; min-width: 0; text-align: right; white-space: nowrap; }
+.jingfang-position.is-original { box-shadow: inset 0 3px 0 rgba(239, 200, 111, 0.9); }
+.jingfang-position.is-mutual { box-shadow: inset 0 3px 0 rgba(118, 174, 190, 0.76); }
+.jingfang-position.is-transformed { box-shadow: inset 0 3px 0 rgba(184, 105, 82, 0.78); }
+
+.jingfang-atlas-boundary {
+  align-items: center;
+  color: #c9c1ae;
+  display: flex;
+  font-size: 13px;
+  justify-content: center;
+  margin: 0;
+  min-height: 34px;
+  padding: 5px 12px;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+.jingfang-atlas-boundary::before { color: var(--jingfang-gold); content: "◆"; font-size: 8px; margin-right: 8px; }
+
+.jingfang-table-wrap {
+  border-top: 1px solid var(--jingfang-border-strong);
+  outline: none;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  position: relative;
+  scrollbar-color: rgba(213, 172, 84, 0.72) rgba(1, 10, 14, 0.92);
+  z-index: 1;
+}
+.jingfang-table-wrap:focus-visible { box-shadow: inset 0 0 0 2px #f2cd77; }
+
+.jingfang-palace-table {
+  border-collapse: collapse;
+  color: var(--jingfang-ivory);
+  font-variant-numeric: tabular-nums;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.jingfang-palace-table thead th {
+  background: linear-gradient(180deg, #d8b35e, #a87b2d);
+  border: 1px solid #f0d28a;
+  color: #071013;
+  font-family: "Noto Serif TC", "Microsoft JhengHei", serif;
+  font-size: clamp(12px, 0.95vw, 15px);
+  font-weight: 900;
+  height: 42px;
+  line-height: 1.15;
+  padding: 4px 3px;
+  text-align: center;
+  white-space: nowrap;
+}
+.jingfang-palace-table thead th:first-child { width: clamp(76px, 7.4vw, 112px); }
+
+.jingfang-palace-table tbody th {
+  background: rgba(14, 24, 25, 0.97);
+  border: 1px solid var(--jingfang-border-strong);
+  color: var(--jingfang-gold);
+  height: 57px;
+  padding: 5px 4px;
+  text-align: center;
+}
+.jingfang-palace-table tbody th strong { display: block; font-family: "Noto Serif TC", "Microsoft JhengHei", serif; font-size: clamp(15px, 1.05vw, 18px); line-height: 1.1; }
+.jingfang-palace-table tbody th span { color: #cab986; display: block; font-size: 11px; margin-top: 3px; }
+
+.jingfang-palace-table td {
+  background: rgba(3, 15, 20, 0.88);
+  border: 1px solid var(--jingfang-border);
+  height: 57px;
+  overflow: hidden;
+  padding: 4px 19px 4px 5px;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+}
+.jingfang-palace-table tbody tr:nth-child(even) td { background: rgba(7, 22, 26, 0.92); }
+.jingfang-palace-table td:hover { background: rgba(98, 76, 25, 0.22); }
+.jingfang-cell-stage { display: none; }
+.jingfang-cell-symbol { color: #d9b85f; display: inline-block; font-size: clamp(18px, 1.45vw, 24px); line-height: 1; margin-right: 4px; vertical-align: middle; }
+.jingfang-cell-copy { display: inline-flex; flex-direction: column; line-height: 1.15; max-width: calc(100% - 30px); text-align: left; vertical-align: middle; }
+.jingfang-cell-copy strong { color: #eee7d8; font-family: "Noto Serif TC", "Microsoft JhengHei", serif; font-size: clamp(12px, 0.93vw, 15px); font-weight: 800; white-space: nowrap; }
+.jingfang-cell-copy small { color: #8f948d; font-size: 10px; margin-top: 2px; white-space: nowrap; }
+
+.jingfang-palace-table td.is-original { background: rgba(133, 94, 22, 0.34); box-shadow: inset 0 0 0 2px #f1cb6d; }
+.jingfang-palace-table td.is-mutual { background: rgba(54, 105, 120, 0.27); box-shadow: inset 0 0 0 2px rgba(115, 183, 202, 0.9); }
+.jingfang-palace-table td.is-transformed { background: rgba(126, 62, 44, 0.3); box-shadow: inset 0 0 0 2px rgba(205, 112, 85, 0.92); }
+.jingfang-palace-table td.is-original.is-mutual,
+.jingfang-palace-table td.is-original.is-transformed,
+.jingfang-palace-table td.is-mutual.is-transformed { box-shadow: inset 0 0 0 2px #f1cb6d, inset 0 0 0 4px rgba(115, 183, 202, 0.76); }
+
+.jingfang-result-marks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: absolute;
+  right: 3px;
+  top: 3px;
+}
+.jingfang-result-marks b {
+  align-items: center;
+  background: #bb8b32;
+  border: 1px solid rgba(255, 228, 154, 0.84);
+  color: #071013;
+  display: flex;
+  font-size: 10px;
+  font-weight: 900;
+  height: 16px;
+  justify-content: center;
+  line-height: 1;
+  width: 16px;
+}
+.jingfang-result-marks b.is-mutual { background: #6eaabd; }
+.jingfang-result-marks b.is-transformed { background: #bd7059; }
+
+.jingfang-source-note {
+  border-top: 1px solid var(--jingfang-border);
+  color: var(--jingfang-muted);
+  font-size: 12px;
+  padding: 0 12px;
+  position: relative;
+  z-index: 1;
+}
+.jingfang-source-note summary { color: #cbb477; cursor: pointer; font-weight: 800; min-height: 38px; padding: 10px 2px; }
+.jingfang-source-note p { line-height: 1.55; margin: 0 0 8px; }
+.jingfang-source-note > div { display: grid; gap: 6px; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 12px; }
+.jingfang-source-note a { border: 1px solid rgba(196, 155, 69, 0.28); color: #dcc377; display: flex; flex-direction: column; min-width: 0; padding: 7px 8px; text-decoration: none; }
+.jingfang-source-note a:hover { border-color: #d9b85f; }
+.jingfang-source-note a strong { font-size: 12px; }
+.jingfang-source-note a small { color: #9da199; font-size: 10px; line-height: 1.35; margin-top: 3px; }
+
+@media (max-width: 1180px) {
+  .jingfang-atlas-heading { grid-template-columns: minmax(220px, 430px) minmax(180px, 1fr); }
+  .jingfang-cell-symbol { display: none; }
+  .jingfang-cell-copy { max-width: 100%; text-align: center; }
+  .jingfang-cell-copy strong { font-size: 14px; }
+  .jingfang-palace-table td { padding-left: 3px; padding-right: 3px; }
+  .jingfang-palace-table td:is(.is-original, .is-mutual, .is-transformed) { padding-right: 18px; }
+}
+
+@media (max-width: 767px) {
+  .jingfang-palace-atlas { margin-top: 8px; }
+  .jingfang-atlas-heading {
+    gap: 5px;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 8px 10px 6px;
+  }
+  .jingfang-atlas-heading h3 img { height: auto; max-height: 48px; max-width: min(100%, 430px); width: 100%; }
+  .jingfang-atlas-heading > p { align-items: flex-start; flex-direction: row; justify-content: space-between; text-align: left; }
+  .jingfang-atlas-heading > p strong { font-size: 14px; }
+  .jingfang-atlas-heading > p span { font-size: 11px; }
+  .jingfang-result-summary { grid-template-columns: minmax(0, 1fr); }
+  .jingfang-position { border-right: 0; grid-template-columns: 36px minmax(0, 1fr) auto; min-height: 38px; padding: 5px 9px; }
+  .jingfang-position small { font-size: 11px; }
+  .jingfang-position strong { font-size: 14px; }
+  .jingfang-position em { font-size: 11px; }
+  .jingfang-atlas-boundary { font-size: 12px; line-height: 1.4; min-height: 38px; }
+  .jingfang-table-wrap { overflow: visible; }
+  .jingfang-palace-table,
+  .jingfang-palace-table tbody { display: block; width: 100%; }
+  .jingfang-palace-table thead {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+  .jingfang-palace-table tbody tr {
+    border-bottom: 1px solid var(--jingfang-border-strong);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 5px;
+  }
+  .jingfang-palace-table tbody th {
+    align-items: center;
+    border: 0;
+    display: flex;
+    grid-column: 1 / -1;
+    height: 34px;
+    justify-content: flex-start;
+    padding: 3px 7px;
+  }
+  .jingfang-palace-table tbody th strong { font-size: 16px; }
+  .jingfang-palace-table tbody th span { font-size: 11px; margin: 0 0 0 7px; }
+  .jingfang-palace-table td,
+  .jingfang-palace-table tbody tr:nth-child(even) td {
+    align-content: center;
+    background: rgba(3, 15, 20, 0.88);
+    display: grid;
+    gap: 1px 5px;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    height: 58px;
+    padding: 4px 23px 4px 7px;
+    text-align: left;
+  }
+  .jingfang-cell-stage { color: #b9a872; display: block; font-size: 10px; grid-column: 1; grid-row: 1; line-height: 1; }
+  .jingfang-cell-symbol { color: #d9b85f; display: block; font-size: 20px; grid-column: 2; grid-row: 1 / span 2; margin: 0; }
+  .jingfang-cell-copy { display: flex; grid-column: 1; grid-row: 2; max-width: 100%; text-align: left; }
+  .jingfang-cell-copy strong { font-size: 14px; }
+  .jingfang-cell-copy small { font-size: 9px; }
+  .jingfang-result-marks { right: 3px; top: 4px; }
+  .jingfang-source-note > div { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 390px) {
+  .jingfang-atlas-heading > p span { max-width: 47%; text-align: right; }
+  .jingfang-position { grid-template-columns: 34px minmax(0, 1fr); }
+  .jingfang-position em { grid-column: 2; text-align: left; }
+  .jingfang-palace-table td,
+  .jingfang-palace-table tbody tr:nth-child(even) td { height: 61px; padding-left: 5px; }
+  .jingfang-cell-symbol { font-size: 18px; }
+  .jingfang-cell-copy strong { font-size: 14px; }
+}

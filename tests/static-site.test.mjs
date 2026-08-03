@@ -105,8 +105,12 @@ const referenceV14DashboardAssets = [
   "iching-resonance-button-v14.webp",
 ];
 
+const referenceV15DashboardAssets = [
+  "brush-jingfang-eight-palaces-v15.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
-  const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
+  const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource, jingFangSource, jingFangTypes] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
     readFile(new URL("../app.js", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -116,6 +120,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     readFile(new URL("../site-services.js", import.meta.url), "utf8"),
     readFile(new URL("../site-services.d.ts", import.meta.url), "utf8"),
     readFile(new URL("../application/advanced-workspace.js", import.meta.url), "utf8"),
+    readFile(new URL("../jingfang-palaces.js", import.meta.url), "utf8"),
+    readFile(new URL("../jingfang-palaces.d.ts", import.meta.url), "utf8"),
   ]);
   assert.match(html, /<html lang="zh-Hant-TW"[^>]*>/);
   assert.match(html, /生日命碼/);
@@ -142,7 +148,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15"/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
@@ -327,6 +333,17 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /<link rel="icon" href="public\/favicon\.svg"/);
   assert.match(appSource, /from "\.\/calculator-core\.js"/);
   assert.match(appSource, /from "\.\/iching-text\.js"/);
+  assert.match(appSource, /from "\.\/jingfang-palaces\.js\?v=20260803-reference-v15"/);
+  assert.match(reactSource, /from "\.\.\/jingfang-palaces\.js"/);
+  assert.match(appSource, /function createJingFangPalaceAtlas/);
+  assert.match(reactSource, /function JingFangPalaceAtlas/);
+  assert.match(appSource, /起卦仍採現代三數法/);
+  assert.match(reactSource, /起卦仍採現代三數法/);
+  assert.match(jingFangSource, /export const JINGFANG_EIGHT_PALACES/);
+  assert.match(jingFangSource, /export function findJingFangPalacePosition/);
+  assert.match(jingFangTypes, /JingFangPalaceEntry/);
+  assert.match(styles, /\.jingfang-palace-table/);
+  assert.match(styles, /\.jingfang-result-marks/);
   assert.match(appSource, /只列原文，不解卦/);
   assert.match(html, /data-active-mode="birthday"/);
   assert.match(appSource, /form\.dataset\.activeMode = mode/);
@@ -358,6 +375,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   await Promise.all([
     access(new URL("../app.js", import.meta.url)),
     access(new URL("../calculator-core.js", import.meta.url)),
+    access(new URL("../jingfang-palaces.js", import.meta.url)),
+    access(new URL("../jingfang-palaces.d.ts", import.meta.url)),
     access(new URL("../styles.css", import.meta.url)),
     access(new URL("../iching-text.js", import.meta.url)),
     access(new URL("../site-services.js", import.meta.url)),
@@ -378,6 +397,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV10DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v10/${asset}`, import.meta.url))),
     ...referenceV13DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v13/${asset}`, import.meta.url))),
     ...referenceV14DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v14/${asset}`, import.meta.url))),
+    ...referenceV15DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v15/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),

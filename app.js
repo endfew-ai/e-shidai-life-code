@@ -9,6 +9,12 @@ import {
 } from "./calculator-core.js";
 import { calculateModernThreeNumberHexagram } from "./kangjie-core.js";
 import { getIChingText } from "./iching-text.js";
+import {
+  JINGFANG_EIGHT_PALACES,
+  JINGFANG_SOURCES,
+  JINGFANG_STAGES,
+  findJingFangPalacePosition,
+} from "./jingfang-palaces.js?v=20260803-reference-v15";
 import { secureIChingNumber } from "./secure-random.js?v=20260803-reference-v14";
 import {
   hasIChingAccess,
@@ -740,6 +746,7 @@ function createIChingResult(result, onReset) {
 
   section.append(
     grid,
+    createJingFangPalaceAtlas(result),
     trace,
     roleLedger,
     audit,
@@ -748,6 +755,136 @@ function createIChingResult(result, onReset) {
     createResetButton("重新輸入三個數字", onReset),
   );
   return section;
+}
+
+function jingFangRolesFor(result, hexId) {
+  return [
+    result.original.hexId === hexId ? { key: "original", short: "本", label: "本卦" } : null,
+    result.mutual.hexId === hexId ? { key: "mutual", short: "互", label: "互卦" } : null,
+    result.transformed.hexId === hexId ? { key: "transformed", short: "變", label: "變卦" } : null,
+  ].filter(Boolean);
+}
+
+function createJingFangPositionSummary(label, entry, role) {
+  const summary = element("span", `jingfang-position is-${role}`);
+  summary.dataset.jingfangSummary = role;
+  summary.append(element("small", "", label), element("strong", "", entry.name), element("em", "", `${entry.palace}・${entry.element}・${entry.stage}`));
+  return summary;
+}
+
+function createJingFangPalaceAtlas(result) {
+  const atlas = element("section", "jingfang-palace-atlas");
+  atlas.setAttribute("aria-labelledby", "jingfang-atlas-title");
+  const heading = element("header", "jingfang-atlas-heading");
+  const title = element("h3");
+  title.id = "jingfang-atlas-title";
+  title.append(element("span", "sr-only", "京房八宮六十四卦"));
+  const titleImage = document.createElement("img");
+  titleImage.className = "brush-title-image";
+  titleImage.src = "public/visuals/ai-dashboard/reference-v15/brush-jingfang-eight-palaces-v15.webp";
+  titleImage.width = 1288;
+  titleImage.height = 276;
+  titleImage.loading = "eager";
+  titleImage.decoding = "async";
+  titleImage.alt = "";
+  titleImage.setAttribute("aria-hidden", "true");
+  title.append(titleImage);
+  const headingCopy = element("p");
+  headingCopy.append(element("strong", "", "完整八宮歸宮對照"), element("span", "", "八宮・八世・六十四卦一次看清"));
+  heading.append(title, headingCopy);
+
+  const original = findJingFangPalacePosition(result.original.hexId);
+  const mutual = findJingFangPalacePosition(result.mutual.hexId);
+  const transformed = findJingFangPalacePosition(result.transformed.hexId);
+  const resultSummary = element("div", "jingfang-result-summary");
+  resultSummary.setAttribute("aria-label", "本卦互卦變卦的八宮位置");
+  resultSummary.append(
+    createJingFangPositionSummary("本卦", original, "original"),
+    createJingFangPositionSummary("互卦", mutual, "mutual"),
+    createJingFangPositionSummary("變卦", transformed, "transformed"),
+  );
+
+  const wrap = element("div", "jingfang-table-wrap");
+  wrap.tabIndex = 0;
+  wrap.setAttribute("aria-label", "京房八宮六十四卦完整表；窄螢幕自動重排");
+  const table = element("table", "jingfang-palace-table");
+  const caption = element("caption", "sr-only", "京房八宮六十四卦完整對照表");
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  const palaceHeader = element("th", "", "宮別");
+  palaceHeader.scope = "col";
+  headerRow.append(palaceHeader);
+  for (const stage of JINGFANG_STAGES) {
+    const header = element("th", "", stage.heading);
+    header.scope = "col";
+    headerRow.append(header);
+  }
+  thead.append(headerRow);
+  const tbody = document.createElement("tbody");
+  for (const row of JINGFANG_EIGHT_PALACES) {
+    const tableRow = document.createElement("tr");
+    tableRow.dataset.jingfangPalaceRow = row.palace;
+    const rowHeader = document.createElement("th");
+    rowHeader.scope = "row";
+    rowHeader.append(element("strong", "", row.palace), element("span", "", row.element));
+    tableRow.append(rowHeader);
+    for (const entry of row.entries) {
+      const roles = jingFangRolesFor(result, entry.hexId);
+      const cell = document.createElement("td");
+      cell.className = roles.map(({ key }) => `is-${key}`).join(" ");
+      cell.dataset.stage = entry.stage;
+      cell.dataset.palace = entry.palace;
+      cell.dataset.hexagramId = String(entry.hexId);
+      cell.dataset.jingfangRoles = roles.map(({ key }) => key).join(" ");
+      if (roles.some(({ key }) => key === "original")) cell.setAttribute("aria-current", "true");
+      cell.append(
+        element("span", "jingfang-cell-stage", entry.stage),
+        element("span", "jingfang-cell-symbol", entry.symbol),
+      );
+      cell.querySelector(".jingfang-cell-stage").setAttribute("aria-hidden", "true");
+      cell.querySelector(".jingfang-cell-symbol").setAttribute("aria-hidden", "true");
+      const cellCopy = element("span", "jingfang-cell-copy");
+      cellCopy.append(element("strong", "", entry.name), element("small", "", `第 ${entry.hexId} 卦`));
+      cell.append(cellCopy);
+      if (roles.length > 0) {
+        const marks = element("span", "jingfang-result-marks");
+        marks.setAttribute("aria-label", roles.map(({ label }) => label).join("、"));
+        for (const role of roles) {
+          const mark = element("b", `is-${role.key}`, role.short);
+          mark.setAttribute("aria-hidden", "true");
+          marks.append(mark);
+        }
+        cell.append(marks);
+      }
+      tableRow.append(cell);
+    }
+    tbody.append(tableRow);
+  }
+  table.append(caption, thead, tbody);
+  wrap.append(table);
+
+  const sourceNote = element("details", "jingfang-source-note");
+  sourceNote.append(element("summary", "", "資料來源與編次說明"));
+  sourceNote.append(element("p", "", "畫面依參考表採「乾、坎、艮、震、巽、離、坤、兌」展示；典籍常見編次為「乾、震、坎、艮、坤、巽、離、兌」。兩者只差展示次序，不影響歸宮與世次。"));
+  const sourceLinks = element("div");
+  for (const source of JINGFANG_SOURCES) {
+    const link = document.createElement("a");
+    link.href = source.url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.append(element("strong", "", source.title), element("small", "", `${source.organization}・${source.scope}`));
+    sourceLinks.append(link);
+  }
+  sourceNote.append(sourceLinks);
+
+  atlas.append(
+    heading,
+    resultSummary,
+    element("p", "jingfang-atlas-boundary", "起卦仍採現代三數法；京房八宮表只用於標示宮別與世次，不改變起卦公式。"),
+    wrap,
+    sourceNote,
+  );
+  return atlas;
 }
 
 function initializeAnalyzer() {

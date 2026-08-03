@@ -24,6 +24,60 @@ async function expectNoHorizontalOverflow(page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width + 1);
 }
 
+async function expectJingFangAtlas(page, { mobile = false, originalHexId = 44 } = {}) {
+  const atlas = page.locator(".jingfang-palace-atlas");
+  await expect(atlas).toBeVisible();
+  await expect(atlas.locator(".jingfang-palace-table thead th")).toHaveCount(9);
+  await expect(atlas.locator("[data-jingfang-palace-row]")).toHaveCount(8);
+  await expect(atlas.locator(".jingfang-palace-table td")).toHaveCount(64);
+  await expect(atlas.locator('[aria-current="true"]')).toHaveCount(1);
+  const original = atlas.locator(`[data-hexagram-id="${originalHexId}"]`);
+  await expect(original).toHaveAttribute("aria-current", "true");
+  await expect(original).toHaveAttribute("data-jingfang-roles", /original/);
+  await expect(original.locator(".jingfang-result-marks")).toContainText("本");
+  await expect(atlas.locator('[data-jingfang-summary="original"]')).toContainText("乾宮・金・一世");
+  await expect(atlas.locator('[data-jingfang-summary="mutual"]')).toContainText("乾宮・金・本宮");
+  await expect(atlas.locator('[data-jingfang-summary="transformed"]')).toContainText("乾宮・金・二世");
+  await expect(atlas).toContainText("起卦仍採現代三數法");
+  const titleImage = atlas.locator(".jingfang-atlas-heading img");
+  expect(await titleImage.evaluate((image) => image.complete && image.naturalWidth === 1288 && image.naturalHeight === 276)).toBe(true);
+
+  const report = await atlas.evaluate((root, shouldBeMobile) => {
+    const tableWrap = root.querySelector(".jingfang-table-wrap");
+    const table = root.querySelector(".jingfang-palace-table");
+    const rows = [...root.querySelectorAll("[data-jingfang-palace-row]")];
+    const names = [...root.querySelectorAll(".jingfang-cell-copy strong")];
+    return {
+      atlasWidth: root.getBoundingClientRect().width,
+      atlasScrollWidth: root.scrollWidth,
+      wrapWidth: tableWrap.clientWidth,
+      wrapScrollWidth: tableWrap.scrollWidth,
+      tableDisplay: getComputedStyle(table).display,
+      rowDisplays: [...new Set(rows.map((row) => getComputedStyle(row).display))],
+      rowColumns: [...new Set(rows.map((row) => getComputedStyle(row).gridTemplateColumns.split(/\s+/).filter(Boolean).length))],
+      minNameSize: Math.min(...names.map((name) => Number.parseFloat(getComputedStyle(name).fontSize))),
+      allCellsHaveArea: [...root.querySelectorAll(".jingfang-palace-table td")].every((cell) => {
+        const rect = cell.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      }),
+      mobile: shouldBeMobile,
+    };
+  }, mobile);
+  expect(report.atlasScrollWidth).toBeLessThanOrEqual(report.atlasWidth + 1);
+  expect(report.allCellsHaveArea).toBe(true);
+  if (mobile) {
+    expect(report.tableDisplay).toBe("block");
+    expect(report.rowDisplays).toEqual(["grid"]);
+    expect(report.rowColumns).toEqual([2]);
+    expect(report.minNameSize).toBeGreaterThanOrEqual(14);
+    expect(report.wrapScrollWidth).toBeLessThanOrEqual(report.wrapWidth + 1);
+  } else {
+    expect(report.tableDisplay).toBe("table");
+    expect(report.wrapScrollWidth).toBeLessThanOrEqual(report.wrapWidth + 1);
+    expect(report.minNameSize).toBeGreaterThanOrEqual(12);
+  }
+}
+
 async function expectCompactSemanticKangjieResult(page, { desktop = false } = {}) {
   const result = page.locator("#kangjie-result");
   await expect(result.locator(".yao-legend")).toContainText("陽爻");
@@ -948,11 +1002,41 @@ for (const viewport of [
     expect(visual.yin.length).toBeGreaterThan(0);
     expect(new Set(visual.yang)).toEqual(new Set(["rgb(232, 103, 98)"]));
     expect(new Set(visual.yin)).toEqual(new Set(["rgb(90, 169, 223)"]));
+    await expectJingFangAtlas(page, { mobile: viewport.width <= 767, originalHexId: 44 });
     await expectNoHorizontalOverflow(page);
+    await result.locator(".jingfang-palace-atlas").screenshot({ path: `output/playwright/home-jingfang-eight-palaces-${viewport.width}.png` });
     await result.screenshot({ path: `output/playwright/home-iching-semantic-${viewport.width}.png` });
     expect(errors).toEqual([]);
   });
 }
+
+test("京房八宮完整表在寬螢幕、平板與 320 手機維持 64 卦清楚可讀", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1672, height: 941 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await unlockIChingMode(page);
+  const inputs = page.locator(".iching-input");
+  await inputs.nth(0).fill("9");
+  await inputs.nth(1).fill("13");
+  await inputs.nth(2).fill("20");
+  await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+  await expect(page.locator("#result-anchor .iching-results")).toBeVisible();
+
+  for (const viewport of [
+    { width: 1920, height: 1080 },
+    { width: 1536, height: 790 },
+    { width: 1024, height: 768 },
+    { width: 768, height: 1024 },
+    { width: 390, height: 844 },
+    { width: 320, height: 720 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await expectJingFangAtlas(page, { mobile: viewport.width <= 767, originalHexId: 44 });
+    await expectNoHorizontalOverflow(page);
+  }
+  await page.locator(".jingfang-palace-atlas").screenshot({ path: "output/playwright/home-jingfang-eight-palaces-320.png" });
+  expect(errors).toEqual([]);
+});
 
 test("三數取卦右上分析卡在短螢幕與平板寬度都不重疊", async ({ page }) => {
   const errors = collectBrowserErrors(page);

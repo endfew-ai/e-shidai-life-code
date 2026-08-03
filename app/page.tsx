@@ -13,6 +13,13 @@ import {
 } from "../calculator-core.js";
 import { calculateModernThreeNumberHexagram, type KangjieAnalysis } from "../kangjie-core.js";
 import { getIChingText } from "../iching-text.js";
+import {
+  JINGFANG_EIGHT_PALACES,
+  JINGFANG_SOURCES,
+  JINGFANG_STAGES,
+  findJingFangPalacePosition,
+  type JingFangPalaceEntry,
+} from "../jingfang-palaces.js";
 import { secureIChingNumber } from "../secure-random.js";
 import {
   hasIChingAccess,
@@ -541,6 +548,7 @@ function IChingResults({ result, onReset }: { result: IChingResult; onReset: () 
         <HexagramCard label="互卦" value={result.mutual} />
         <HexagramCard label="變卦" value={result.transformed} movingIndex={result.moving.index} mark="變" />
       </div>
+      <JingFangPalaceAtlas result={result} />
       <div className="iching-trace">
         {result.trace.map((item) => <div key={item.label}><span>{item.label}</span><strong>{item.equation}</strong></div>)}
       </div>
@@ -554,6 +562,85 @@ function IChingResults({ result, onReset }: { result: IChingResult; onReset: () 
       <p className="iching-boundary">本模式採現代三數先天數法，與生日命碼完全分開。只做固定卦象計算，不提供吉凶、預測或決策建議。</p>
       <OriginalTextPanel result={result} />
       <div className="result-actions"><button type="button" className="secondary-button" onClick={onReset}>重新輸入三個數字</button></div>
+    </section>
+  );
+}
+
+type JingFangResultRole = Readonly<{ key: "original" | "mutual" | "transformed"; short: string; label: string }>;
+
+function jingFangRolesFor(result: IChingResult, hexId: number): JingFangResultRole[] {
+  return [
+    result.original.hexId === hexId ? { key: "original", short: "本", label: "本卦" } as const : null,
+    result.mutual.hexId === hexId ? { key: "mutual", short: "互", label: "互卦" } as const : null,
+    result.transformed.hexId === hexId ? { key: "transformed", short: "變", label: "變卦" } as const : null,
+  ].filter((role): role is JingFangResultRole => role !== null);
+}
+
+function JingFangPositionSummary({ label, entry, role }: { label: string; entry: JingFangPalaceEntry; role: JingFangResultRole["key"] }) {
+  return (
+    <span className={`jingfang-position is-${role}`} data-jingfang-summary={role}>
+      <small>{label}</small>
+      <strong>{entry.name}</strong>
+      <em>{entry.palace}・{entry.element}・{entry.stage}</em>
+    </span>
+  );
+}
+
+function JingFangPalaceAtlas({ result }: { result: IChingResult }) {
+  const original = findJingFangPalacePosition(result.original.hexId);
+  const mutual = findJingFangPalacePosition(result.mutual.hexId);
+  const transformed = findJingFangPalacePosition(result.transformed.hexId);
+  return (
+    <section className="jingfang-palace-atlas" aria-labelledby="jingfang-atlas-title">
+      <header className="jingfang-atlas-heading">
+        <h3 id="jingfang-atlas-title">
+          <span className="sr-only">京房八宮六十四卦</span>
+          <img className="brush-title-image" src="/visuals/ai-dashboard/reference-v15/brush-jingfang-eight-palaces-v15.webp" width={1288} height={276} loading="eager" decoding="async" alt="" aria-hidden="true" />
+        </h3>
+        <p><strong>完整八宮歸宮對照</strong><span>八宮・八世・六十四卦一次看清</span></p>
+      </header>
+      <div className="jingfang-result-summary" aria-label="本卦互卦變卦的八宮位置">
+        <JingFangPositionSummary label="本卦" entry={original} role="original" />
+        <JingFangPositionSummary label="互卦" entry={mutual} role="mutual" />
+        <JingFangPositionSummary label="變卦" entry={transformed} role="transformed" />
+      </div>
+      <p className="jingfang-atlas-boundary">起卦仍採現代三數法；京房八宮表只用於標示宮別與世次，不改變起卦公式。</p>
+      <div className="jingfang-table-wrap" tabIndex={0} aria-label="京房八宮六十四卦完整表；窄螢幕自動重排">
+        <table className="jingfang-palace-table">
+          <caption className="sr-only">京房八宮六十四卦完整對照表</caption>
+          <thead><tr><th scope="col">宮別</th>{JINGFANG_STAGES.map((stage) => <th scope="col" key={stage.id}>{stage.heading}</th>)}</tr></thead>
+          <tbody>{JINGFANG_EIGHT_PALACES.map((row) => (
+            <tr key={row.palace} data-jingfang-palace-row={row.palace}>
+              <th scope="row"><strong>{row.palace}</strong><span>{row.element}</span></th>
+              {row.entries.map((entry) => {
+                const roles = jingFangRolesFor(result, entry.hexId);
+                const classNames = roles.map(({ key }) => `is-${key}`).join(" ");
+                return (
+                  <td
+                    key={entry.stageId}
+                    className={classNames}
+                    data-stage={entry.stage}
+                    data-palace={entry.palace}
+                    data-hexagram-id={entry.hexId}
+                    data-jingfang-roles={roles.map(({ key }) => key).join(" ")}
+                    aria-current={roles.some(({ key }) => key === "original") ? "true" : undefined}
+                  >
+                    <span className="jingfang-cell-stage" aria-hidden="true">{entry.stage}</span>
+                    <span className="jingfang-cell-symbol" aria-hidden="true">{entry.symbol}</span>
+                    <span className="jingfang-cell-copy"><strong>{entry.name}</strong><small>第 {entry.hexId} 卦</small></span>
+                    {roles.length > 0 && <span className="jingfang-result-marks" aria-label={roles.map(({ label }) => label).join("、")}>{roles.map((role) => <b key={role.key} className={`is-${role.key}`} aria-hidden="true">{role.short}</b>)}</span>}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+      <details className="jingfang-source-note">
+        <summary>資料來源與編次說明</summary>
+        <p>畫面依參考表採「乾、坎、艮、震、巽、離、坤、兌」展示；典籍常見編次為「乾、震、坎、艮、坤、巽、離、兌」。兩者只差展示次序，不影響歸宮與世次。</p>
+        <div>{JINGFANG_SOURCES.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.id}><strong>{source.title}</strong><small>{source.organization}・{source.scope}</small></a>)}</div>
+      </details>
     </section>
   );
 }
@@ -913,7 +1000,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
