@@ -8,6 +8,7 @@ import {
   profiles,
 } from "./calculator-core.js";
 import { calculateModernThreeNumberHexagram } from "./kangjie-core.js";
+import { createLineCorrespondencePanel } from "./line-correspondence-view.js?v=20260803-line-position-v19";
 import { getIChingText } from "./iching-text.js";
 import {
   JINGFANG_EIGHT_PALACES,
@@ -749,6 +750,7 @@ function createIChingResult(result, onReset) {
 
   section.append(
     grid,
+    createLineCorrespondencePanel(result.lineCorrespondences),
     createJingFangPalaceAtlas(result),
     trace,
     roleLedger,

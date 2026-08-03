@@ -1,5 +1,6 @@
 import { getIChingText } from "./iching-text.js";
 import { lineNames } from "./calculator-core.js";
+import { createLineCorrespondencePanel } from "./line-correspondence-view.js?v=20260803-line-position-v19";
 import {
   calculateCalendarHexagram,
   calculateChiCunHexagram,
@@ -457,7 +458,7 @@ function createKangjieResult(result) {
   audit.append(auditSummary, auditBody);
 
   const boundary = element("p", "iching-boundary", "此處只依固定規則呈現卦象結構、體用位置與原文節錄，不產生事件預測或決策建議。除以 6 整除時歸上爻，是為完整表示六爻範圍採用的實作判定。");
-  section.append(heading, grid, trace, roles, influences);
+  section.append(heading, grid, createLineCorrespondencePanel(result.lineCorrespondences), trace, roles, influences);
   if (seasonal) section.append(seasonal);
   section.append(audit, boundary, createClassicExcerpt(result));
   return section;

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">六爻時位標記</title>
+  <defs>
+    <linearGradient id="gold" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f7df91"/>
+      <stop offset="0.48" stop-color="#c99a45"/>
+      <stop offset="1" stop-color="#76501d"/>
+    </linearGradient>
+    <radialGradient id="jade" cx="0" cy="0" r="1" gradientTransform="translate(32 32) rotate(90) scale(25)">
+      <stop stop-color="#19483f" stop-opacity=".72"/>
+      <stop offset="1" stop-color="#061712" stop-opacity=".16"/>
+    </radialGradient>
+  </defs>
+  <circle cx="32" cy="32" r="29" fill="url(#jade)" stroke="url(#gold)" stroke-width="1.4"/>
+  <circle cx="32" cy="32" r="24" fill="none" stroke="#d8b461" stroke-opacity=".4"/>
+  <path d="M19 18h26M19 24h26M19 30h10m6 0h10M19 36h10m6 0h10M19 42h26M19 48h26" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-width="2.6"/>
+  <circle cx="32" cy="32" r="3" fill="#e8ca76" opacity=".78"/>
+</svg>

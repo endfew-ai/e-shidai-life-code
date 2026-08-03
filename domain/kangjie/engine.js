@@ -1,5 +1,6 @@
 import { calculateIChing, trigrams } from "../../calculator-core.js";
 import { mod1, stringifyForTrace } from "./math.js";
+import { buildLineCorrespondenceAnalysis } from "./line-correspondences.js";
 import { assertProfileSupportsMethod } from "./profiles.js";
 import { resolveSources } from "./sources.js";
 
@@ -203,15 +204,16 @@ export function buildMeihuaResult({
   const sourceRefs = [...formulaSourceRefs, ...dataSourceRefs].filter(
     (source, index, values) => values.findIndex((candidate) => candidate.id === source.id) === index,
   );
+  const lineCorrespondences = buildLineCorrespondenceAnalysis(baseResult.moving.index);
   const allSourceIds = [...new Set([
     ...formulaSourceRefs.map((source) => source.id),
     ...dataSourceRefs.map((source) => source.id),
     ...sharedCoreSourceRefs.map((source) => source.id),
+    ...lineCorrespondences.sources.map((source) => source.id),
   ])];
   const mutualSourceLines = mutualSource === "transformed"
     ? baseResult.transformed.lines
     : baseResult.original.lines;
-
   return {
     ...baseResult,
     kind: "kangjie",
@@ -227,6 +229,7 @@ export function buildMeihuaResult({
     influenceRelations,
     partyBalance,
     seasonalStrength,
+    lineCorrespondences,
     trace,
     inputSummary,
     sourceRefs,
@@ -237,6 +240,7 @@ export function buildMeihuaResult({
       formula: { status: formulaSourceStatus, notice: formulaSourceNotice, refs: formulaSourceRefs },
       data: { status: dataSourceRefs.length ? "documented" : "not-required", refs: dataSourceRefs },
       sharedCore: { status: "documented", notice: "只支持除八、除六、卦象、互變與體用共用核心，不替方法本身背書。", refs: sharedCoreSourceRefs },
+      correspondence: { status: "layered", notice: "古典爻位、後世類象與現代等分時間分層呈現。", refs: lineCorrespondences.sources },
     },
     calculationTrace: {
       schemaVersion: "kangjie-calculation-trace-v2",
@@ -259,6 +263,8 @@ export function buildMeihuaResult({
       influenceRelations,
       partyBalance,
       seasonalStrength,
+      lineCorrespondenceVersion: lineCorrespondences.version,
+      activeLineCorrespondence: lineCorrespondences.active,
       steps: trace.map((item, index) => ({ order: index + 1, ...item })),
       assumptions: [...assumptions],
       warnings: [...warnings],
@@ -268,6 +274,7 @@ export function buildMeihuaResult({
         formula: { status: formulaSourceStatus, notice: formulaSourceNotice, sourceIds: formulaSourceRefs.map((source) => source.id) },
         data: { status: dataSourceRefs.length ? "documented" : "not-required", sourceIds: dataSourceRefs.map((source) => source.id) },
         sharedCore: { status: "documented", sourceIds: sharedCoreSourceRefs.map((source) => source.id) },
+        correspondence: { status: "layered", sourceIds: lineCorrespondences.sources.map((source) => source.id) },
       },
       dataVersions: { ...dataVersions },
     },

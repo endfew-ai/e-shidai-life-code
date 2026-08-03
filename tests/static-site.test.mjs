@@ -156,8 +156,8 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /class="trust-rail cockpit-status"/);
   assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14 reference-v15 reference-v16 reference-v17 reference-v18"/);
   assert.match(reactSource, /reference-v17 reference-v18/);
-  assert.match(html, /styles\.css\?v=20260803-reference-v18/);
-  assert.match(html, /app\.js\?v=20260803-reference-v18/);
+  assert.match(html, /styles\.css\?v=20260803-line-position-v19/);
+  assert.match(html, /app\.js\?v=20260803-line-position-v19/);
   assert.match(appSource, /application\/advanced-workspace\.js\?v=20260803-reference-v18/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
@@ -524,8 +524,9 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
   assert.match(html, /data-current-time-detect/);
   assert.match(html, /重新套用現在/);
   assert.match(html, /自動偵測，可手動選/);
-  assert.match(html, /kangjie\.css\?v=20260728-mobile-v3/);
-  assert.match(html, /kangjie\.js\?v=20260728-yao-text-v2/);
+  assert.match(html, /kangjie\.css\?v=20260803-line-position-v19/);
+  assert.match(html, /styles\.css\?v=20260803-line-position-v19/);
+  assert.match(html, /kangjie\.js\?v=20260803-line-position-v19/);
   assert.match(scriptSource, /input\.value === "0000"/);
   assert.match(scriptSource, /initializeCurrentTimeDetection/);
   assert.match(appSource, /password === "0000"/);
@@ -580,4 +581,38 @@ test("Shao Kangjie static page keeps every primary title in an independent brush
     access(new URL("../public/visuals/brush/title-kangjie-boundary-v1.webp", import.meta.url)),
     ...kangjieFixedBrushAssets.map((asset) => access(new URL(`../public/visuals/brush/${asset}`, import.meta.url))),
   ]);
+});
+
+test("六爻時位模組同時接入靜態與 React 結果，且保留來源與安全界線", async () => {
+  const [domainSource, staticView, appSource, kangjieSource, reactHome, reactKangjie, reactPanel, styles] = await Promise.all([
+    readFile(new URL("../domain/kangjie/line-correspondences.js", import.meta.url), "utf8"),
+    readFile(new URL("../line-correspondence-view.js", import.meta.url), "utf8"),
+    readFile(new URL("../app.js", import.meta.url), "utf8"),
+    readFile(new URL("../kangjie.js", import.meta.url), "utf8"),
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/kangjie/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/components/line-correspondence-panel.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../styles.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(domainSource, /LINE_CORRESPONDENCE_VERSION = "line-correspondence-v1"/);
+  assert.match(domainSource, /ZHOUYI-XICI-CTEXT-01/);
+  assert.match(domainSource, /ZHOUYI-ZHENGYI-CTEXT-01/);
+  assert.match(domainSource, /YIYIN-CTEXT-V6-01/);
+  assert.match(domainSource, /YIYIN-CTEXT-V8-01/);
+  assert.match(domainSource, /BUSHIQUANSHU-CTEXT-V7-01/);
+  assert.match(domainSource, /總時間除以六是現代等分模型/);
+  assert.match(domainSource, /不是解剖學、醫療診斷或疾病預測/);
+  assert.match(staticView, /展開六爻完整對照/);
+  assert.match(staticView, /非古籍應期法/);
+  assert.match(staticView, /dataset\.evidenceTier/);
+  assert.match(staticView, /後世官祿古例/);
+  assert.match(appSource, /createLineCorrespondencePanel\(result\.lineCorrespondences\)/);
+  assert.match(kangjieSource, /createLineCorrespondencePanel\(result\.lineCorrespondences\)/);
+  assert.match(reactHome, /LineCorrespondencePanel analysis=\{result\.lineCorrespondences\}/);
+  assert.match(reactKangjie, /LineCorrespondencePanel analysis=\{result\.lineCorrespondences\}/);
+  assert.match(reactPanel, /data-line-correspondence/);
+  assert.match(reactPanel, /data-evidence-tier/);
+  assert.match(reactPanel, /aria-current=\{row\.isMoving/);
+  assert.match(styles, /\.line-correspondence-row\.is-active/);
+  assert.match(styles, /@media \(max-width: 767px\)[\s\S]*\.line-correspondence-active/);
 });

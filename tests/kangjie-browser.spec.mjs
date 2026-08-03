@@ -427,6 +427,94 @@ async function expectThreeNumberBodyUseAudit(page, expectedNumbers) {
   await expectSafeExternalLinks(audit.locator(".iching-source-list"), 3);
 }
 
+async function expectLineCorrespondencePanel(page, { mobile = false, expectedMoving, expectedRowColumns = mobile ? 1 : 5 }) {
+  const panel = page.locator(".line-correspondence-panel");
+  await expect(panel).toHaveCount(1);
+  await expect(panel).toBeVisible();
+  await expect(panel.locator(".line-correspondence-active > article")).toHaveCount(4);
+  await expect(panel.locator(".line-correspondence-active")).toContainText("時間");
+  await expect(panel.locator(".line-correspondence-active")).toContainText("身體類象");
+  await expect(panel.locator(".line-correspondence-active")).toContainText("職位");
+  await expect(panel.locator(".line-correspondence-active")).toContainText("家宅");
+  await expect(panel).toContainText("非古籍應期法");
+  await expect(panel).toContainText("非醫療診斷");
+  await expect(panel.locator(".line-correspondence-active > article[data-evidence-tier]")).toHaveCount(4);
+  await expect(panel.locator(".line-correspondence-active .line-evidence-badge")).toHaveCount(4);
+
+  const collapsedHeight = await panel.evaluate((element) => element.getBoundingClientRect().height);
+  expect(collapsedHeight).toBeLessThan(mobile ? 560 : 340);
+
+  const details = panel.locator("details.line-correspondence-details");
+  await expect(details).not.toHaveAttribute("open", "");
+  const summary = details.locator(":scope > summary");
+  const summaryHeight = await summary.evaluate((element) => element.getBoundingClientRect().height);
+  expect(summaryHeight).toBeGreaterThanOrEqual(44);
+  await summary.focus();
+  await expect(summary).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(details).toHaveAttribute("open", "");
+
+  const rows = panel.locator(".line-correspondence-row");
+  await expect(rows).toHaveCount(6);
+  const activeRows = panel.locator('.line-correspondence-row[aria-current="true"]');
+  await expect(activeRows).toHaveCount(1);
+  await expect(activeRows).toHaveAttribute("data-line-position", String(expectedMoving));
+  await expect(activeRows).toContainText("本次動爻");
+  await expect(panel.locator(".line-time-presets")).toHaveCount(6);
+  await expect(panel.locator('[role="cell"][data-evidence-tier]')).toHaveCount(30);
+  await expect(panel.locator('.line-correspondence-position[data-evidence-tier="classical-derived-summary"]')).toHaveCount(6);
+  await expect(panel.locator('.line-correspondence-cell.is-time[data-evidence-tier="modern-equal-division"]')).toHaveCount(6);
+  await expect(panel.locator('.line-correspondence-cell.is-body[data-evidence-tier="later-divination-analogy"]')).toHaveCount(6);
+  await expect(panel.locator('.line-correspondence-cell.is-occupation[data-evidence-tier*="modern-analogy"]')).toHaveCount(6);
+  await expect(panel.locator('.line-correspondence-cell.is-house[data-evidence-tier="later-divination-analogy"]')).toHaveCount(6);
+
+  const layout = await panel.evaluate((root) => {
+    const row = root.querySelector(".line-correspondence-row");
+    const rowColumns = getComputedStyle(row).gridTemplateColumns.split(/\s+/).filter(Boolean).length;
+    const copySizes = [...root.querySelectorAll(".line-correspondence-active small, .line-correspondence-position > small, .line-correspondence-cell > small, .line-correspondence-cell > div > small, .line-time-presets b")]
+      .map((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+    const rootRect = root.getBoundingClientRect();
+    const clipped = [...root.querySelectorAll(".line-correspondence-row > *, .line-time-presets li")]
+      .filter((element) => element.getClientRects().length > 0)
+      .map((element) => element.getBoundingClientRect())
+      .filter((rect) => rect.left < rootRect.left - 1 || rect.right > rootRect.right + 1)
+      .length;
+    return { rowColumns, copySizes, clipped };
+  });
+  expect(layout.rowColumns).toBe(expectedRowColumns);
+  expect(Math.min(...layout.copySizes)).toBeGreaterThanOrEqual(16);
+  expect(layout.clipped).toBe(0);
+
+  const sources = panel.locator("details.line-correspondence-sources");
+  const sourceBeforeTable = await panel.evaluate((root) => {
+    const sourcesElement = root.querySelector(".line-correspondence-sources");
+    const tableElement = root.querySelector(".line-correspondence-table");
+    return sourcesElement.getBoundingClientRect().top <= tableElement.getBoundingClientRect().top;
+  });
+  expect(sourceBeforeTable).toBe(true);
+  await sources.locator("summary").click();
+  await expect(sources).toHaveAttribute("open", "");
+  await expectSafeExternalLinks(sources, 6);
+  const sourceCopySizes = await sources.locator(".line-correspondence-source-links small").evaluateAll((elements) =>
+    elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)));
+  expect(Math.min(...sourceCopySizes)).toBeGreaterThanOrEqual(15);
+  await expectNoHorizontalOverflow(page);
+}
+
+async function expectKangjieTabsDoNotCoverLinePanel(page) {
+  const overlapCount = await page.evaluate(() => {
+    const tabs = document.querySelector(".kangjie-tabs");
+    if (!tabs) return 0;
+    const tabRect = tabs.getBoundingClientRect();
+    return [...document.querySelectorAll(".line-correspondence-row, .line-correspondence-sources a")]
+      .filter((element) => element.getClientRects().length > 0)
+      .map((element) => element.getBoundingClientRect())
+      .filter((rect) => tabRect.left < rect.right && tabRect.right > rect.left && tabRect.top < rect.bottom && tabRect.bottom > rect.top)
+      .length;
+  });
+  expect(overlapCount).toBe(0);
+}
+
 async function expectVisibleBrushTitlesUnclipped(page) {
   const report = await page.evaluate(async () => {
     const visible = (element) => {
@@ -978,7 +1066,11 @@ test("寬螢幕以附圖同組年月日時顯示緊湊紅陽藍陰結果", async
   await expect(result).toContainText("地雷復");
   await expect(result).toContainText("山水蒙");
   await expectCompactSemanticKangjieResult(page, { desktop: true });
+  await expectLineCorrespondencePanel(page, { expectedMoving: 6 });
+  await expect(page.locator(".kangjie-tabs")).toHaveCSS("position", "static");
+  await expectKangjieTabsDoNotCoverLinePanel(page);
   await expectNoHorizontalOverflow(page);
+  await result.locator(".line-correspondence-panel").screenshot({ path: "output/playwright/kangjie-line-correspondence-wide.png" });
   await result.screenshot({ path: "output/playwright/kangjie-compact-wide-result.png" });
   expect(errors).toEqual([]);
 });
@@ -1021,6 +1113,10 @@ for (const viewport of [
     expect(await result.locator(".line-text").evaluateAll((nodes) =>
       nodes.every((node) => node.textContent?.trim()))).toBe(true);
     await expectThreeNumberBodyUseAudit(page, [9, 13, 20]);
+    await expectLineCorrespondencePanel(page, {
+      mobile: viewport.width <= 767,
+      expectedMoving: 2,
+    });
 
     const visual = await result.evaluate((root) => {
       const colors = (selector) => [...root.querySelectorAll(selector)]
@@ -1041,11 +1137,60 @@ for (const viewport of [
     expect(new Set(visual.yin)).toEqual(new Set(["rgb(90, 169, 223)"]));
     await expectJingFangAtlas(page, { mobile: viewport.width <= 767, originalHexId: 44 });
     await expectNoHorizontalOverflow(page);
+    await result.locator(".line-correspondence-panel").screenshot({ path: `output/playwright/home-line-correspondence-${viewport.width}.png` });
     await result.locator(".jingfang-palace-atlas").screenshot({ path: `output/playwright/home-jingfang-eight-palaces-${viewport.width}.png` });
     await result.screenshot({ path: `output/playwright/home-iching-semantic-${viewport.width}.png` });
     expect(errors).toEqual([]);
   });
 }
+
+for (const viewport of [
+  { label: "平板", width: 1024, height: 768, rowColumns: 2 },
+  { label: "窄手機", width: 320, height: 720, rowColumns: 1 },
+]) {
+  test(`六爻時位模組 ${viewport.label}不裁字並自動切換欄數`, async ({ page }) => {
+    const errors = collectBrowserErrors(page);
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await page.goto("/index.html", { waitUntil: "networkidle" });
+    await unlockIChingMode(page);
+    const inputs = page.locator(".iching-input");
+    await inputs.nth(0).fill("9");
+    await inputs.nth(1).fill("13");
+    await inputs.nth(2).fill("20");
+    await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+    await expectLineCorrespondencePanel(page, {
+      mobile: viewport.width <= 767,
+      expectedMoving: 2,
+      expectedRowColumns: viewport.rowColumns,
+    });
+    await page.locator("#result-anchor .line-correspondence-panel").screenshot({ path: `output/playwright/home-line-correspondence-${viewport.width}.png` });
+    expect(errors).toEqual([]);
+  });
+}
+
+test("三數起卦六個動爻位置均會更新六爻時位摘要", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await unlockIChingMode(page);
+  const inputs = page.locator(".iching-input");
+  await inputs.nth(0).fill("1");
+  await inputs.nth(1).fill("1");
+
+  for (let moving = 1; moving <= 6; moving += 1) {
+    await inputs.nth(2).fill(String(moving));
+    await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+    const panel = page.locator("#result-anchor .line-correspondence-panel");
+    await expect(panel).toBeVisible();
+    await panel.locator("details.line-correspondence-details > summary").click();
+    const activeRows = panel.locator('.line-correspondence-row[aria-current="true"]');
+    await expect(activeRows).toHaveCount(1);
+    await expect(activeRows).toHaveAttribute("data-line-position", String(moving));
+  }
+
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
 
 test("首頁三數取卦以最長文字預留共用列高，三卦逐列平行對齊", async ({ page }) => {
   const errors = collectBrowserErrors(page);

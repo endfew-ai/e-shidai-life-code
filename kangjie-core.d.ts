@@ -11,6 +11,49 @@ export type SourceRef = {
   accessedOn?: string;
   version?: string;
 };
+export type LineCorrespondenceEvidence = {
+  tier: "classical-derived-summary" | "later-divination-analogy" | "modern-analogy" | "interpretive-caution";
+  sourceIds: readonly string[];
+};
+export type EqualTimePresetResult = {
+  id: string;
+  label: string;
+  span: string;
+};
+export type LineCorrespondenceRow = {
+  position: number;
+  lineName: string;
+  classicStage: string;
+  stageDetail: string;
+  body: { label: string; detail: string };
+  occupation: { laterDivination: string; modernAnalogy: string };
+  house: { label: string; zone: string };
+  isMoving: boolean;
+  time: {
+    relative: string;
+    percent: string;
+    presets: readonly EqualTimePresetResult[];
+    sourceTier: "modern-equal-division";
+  };
+  evidence: {
+    stage: LineCorrespondenceEvidence;
+    body: LineCorrespondenceEvidence;
+    occupationLater: LineCorrespondenceEvidence;
+    occupationModern: LineCorrespondenceEvidence;
+    houseMapping: LineCorrespondenceEvidence;
+    houseCaution: LineCorrespondenceEvidence;
+  };
+};
+export type LineCorrespondenceAnalysis = {
+  version: string;
+  storageOrder: "初爻至上爻";
+  displayOrder: "上爻至初爻";
+  activeLineNumber: number;
+  active: LineCorrespondenceRow;
+  rows: readonly LineCorrespondenceRow[];
+  sources: readonly SourceRef[];
+  notices: readonly string[];
+};
 export type StrokeEntry = {
   character: string;
   strokes: InputValue;
@@ -67,6 +110,7 @@ export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
     transformedUse: SeasonalStrength;
     note: string;
   };
+  lineCorrespondences: LineCorrespondenceAnalysis;
   trace: KangjieTrace[];
   inputSummary: string;
   sourceRefs: SourceRef[];
@@ -77,6 +121,7 @@ export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
     formula: { status: string; notice?: string; refs: SourceRef[] };
     data: { status: string; notice?: string; refs: SourceRef[] };
     sharedCore: { status: string; notice?: string; refs: SourceRef[] };
+    correspondence: { status: string; notice?: string; refs: readonly SourceRef[] };
   };
   calculationTrace: {
     schemaVersion: string;
@@ -98,10 +143,18 @@ export type KangjieAnalysis = Omit<IChingAnalysis, "kind"> & {
     influenceRelations: InfluenceRelation[];
     partyBalance: KangjieAnalysis["partyBalance"];
     seasonalStrength: KangjieAnalysis["seasonalStrength"];
+    lineCorrespondenceVersion: string;
+    activeLineCorrespondence: LineCorrespondenceRow;
     assumptions: string[];
     warnings: string[];
     ignoredInput: string[];
     sourceIds: string[];
+    sourceScopes: {
+      formula: { status: string; notice?: string; sourceIds: string[] };
+      data: { status: string; notice?: string; sourceIds: string[] };
+      sharedCore: { status: string; notice?: string; sourceIds: string[] };
+      correspondence: { status: string; notice?: string; sourceIds: string[] };
+    };
     dataVersions: Record<string, unknown>;
   };
 };
@@ -214,6 +267,21 @@ export function calculateZhangChiHexagram(values: Record<string, unknown>, optio
 export function calculateChiCunHexagram(values: Record<string, unknown>, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
 export function calculatePosteriorHexagram(values: Record<string, unknown>, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
 export function calculateSurnameAdditionHexagram(values: Record<string, unknown>, options?: { profile?: string | Record<string, unknown> }): KangjieAnalysis;
+export const LINE_CORRESPONDENCE_VERSION: string;
+export const LINE_CORRESPONDENCE_SOURCE_IDS: readonly string[];
+export const EQUAL_TIME_PRESETS: readonly { id: string; label: string; total: number; unit: string }[];
+export const LINE_CORRESPONDENCE_ROWS: readonly Omit<LineCorrespondenceRow, "isMoving" | "time" | "evidence">[];
+export function buildEqualTimeSegments(total: unknown, unit?: string): readonly {
+  position: number;
+  lineName: string;
+  start: number;
+  end: number;
+  startFraction: { numerator: number; denominator: 6 };
+  endFraction: { numerator: number; denominator: 6 };
+  unit: string;
+  intervalRule: "前閉後開" | "前閉後閉";
+}[];
+export function buildLineCorrespondenceAnalysis(movingIndex: unknown): LineCorrespondenceAnalysis;
 export function decomposeHuangjiYears(years: unknown): HuangjiAnalysis;
 export function calculateHuangjiPosition(values: Record<string, unknown>): HuangjiPositionAnalysis;
 export function calculateHuangji(values: Record<string, unknown> | unknown): HuangjiAnalysis | HuangjiPositionAnalysis;

@@ -1,6 +1,7 @@
 export * from "./calendar.js";
 export * from "./calendar-oracle.js";
 export * from "./engine.js";
+export * from "./line-correspondences.js";
 export * from "./math.js";
 export * from "./methods.js";
 export * from "./object-candidates.js";

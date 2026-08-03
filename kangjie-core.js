@@ -44,6 +44,12 @@ export {
   SOURCE_REFS,
   strokeProviderMetadata,
   trigramElements,
+  buildEqualTimeSegments,
+  buildLineCorrespondenceAnalysis,
+  EQUAL_TIME_PRESETS,
+  LINE_CORRESPONDENCE_ROWS,
+  LINE_CORRESPONDENCE_SOURCE_IDS,
+  LINE_CORRESPONDENCE_VERSION,
 } from "./domain/kangjie/index.js";
 export {
   addCivilYears,

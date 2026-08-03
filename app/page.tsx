@@ -12,6 +12,7 @@ import {
   profiles,
 } from "../calculator-core.js";
 import { calculateModernThreeNumberHexagram, type KangjieAnalysis } from "../kangjie-core.js";
+import { LineCorrespondencePanel } from "./components/line-correspondence-panel";
 import { getIChingText } from "../iching-text.js";
 import {
   JINGFANG_EIGHT_PALACES,
@@ -548,6 +549,7 @@ function IChingResults({ result, onReset }: { result: IChingResult; onReset: () 
         <HexagramCard label="互卦" value={result.mutual} />
         <HexagramCard label="變卦" value={result.transformed} movingIndex={result.moving.index} mark="變" />
       </div>
+      <LineCorrespondencePanel analysis={result.lineCorrespondences} />
       <JingFangPalaceAtlas result={result} />
       <div className="iching-trace">
         {result.trace.map((item) => <div key={item.label}><span>{item.label}</span><strong>{item.equation}</strong></div>)}

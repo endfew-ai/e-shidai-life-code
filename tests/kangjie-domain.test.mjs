@@ -5,6 +5,8 @@ import {
   analyzeFiveElementRelation,
   analyzeSeasonalStrength,
   buildMeihuaResult,
+  buildEqualTimeSegments,
+  buildLineCorrespondenceAnalysis,
   calculateCalendarMethod,
   calculateChiCunMethod,
   calculatePosteriorMethod,
@@ -89,6 +91,90 @@ test("mod1 將除 8、除 6 的整除結果保留為 8、6，並採 Euclidean �
   for (const [value, divisor, expected] of cases) {
     assert.equal(mod1(value, divisor), expected, `mod1(${value}, ${divisor})`);
   }
+});
+
+test("六爻層位資料固定由初至上儲存，四類對應與來源分層完整", () => {
+  const analysis = buildLineCorrespondenceAnalysis(2);
+  assert.equal(analysis.version, "line-correspondence-v1");
+  assert.equal(analysis.storageOrder, "初爻至上爻");
+  assert.equal(analysis.displayOrder, "上爻至初爻");
+  assert.deepEqual(analysis.rows.map((row) => row.position), [1, 2, 3, 4, 5, 6]);
+  assert.equal(new Set(analysis.rows.map((row) => row.lineName)).size, 6);
+  assert.equal(analysis.active.lineName, "三爻");
+  assert.deepEqual(analysis.rows.filter((row) => row.isMoving).map((row) => row.position), [3]);
+  for (const row of analysis.rows) {
+    assert.ok(row.classicStage);
+    assert.ok(row.time.relative);
+    assert.ok(row.body.label);
+    assert.ok(row.occupation.laterDivination);
+    assert.ok(row.occupation.modernAnalogy);
+    assert.ok(row.house.label);
+    for (const [key, evidence] of Object.entries(row.evidence)) {
+      assert.ok(evidence.tier);
+      if (key === "occupationModern") assert.deepEqual(evidence.sourceIds, []);
+      else assert.ok(evidence.sourceIds.length > 0);
+    }
+    assert.deepEqual(row.evidence.houseMapping.sourceIds, ["BUSHIQUANSHU-CTEXT-V7-01"]);
+    assert.deepEqual(row.evidence.houseCaution.sourceIds, ["BUSHIZHENGZONG-CTEXT-01"]);
+  }
+  assert.deepEqual(analysis.rows.map((row) => row.body.label), ["足部", "股、膝", "腹、小腹、腰、臀", "胸、胃、乳", "面、頸項、手", "頭、腦"]);
+  assert.deepEqual(analysis.rows.map((row) => row.occupation.laterDivination), ["吏人", "曹官", "長官", "監司", "朝仕", "執政"]);
+  assert.deepEqual(analysis.rows.map((row) => row.house.label), ["住宅根基、井位", "堂屋、灶", "門、門位", "戶、門戶", "道路", "棟梁、棟宇"]);
+  assert.match(analysis.notices.join("\n"), /非醫療診斷|不是解剖學/);
+  assert.match(analysis.notices.join("\n"), /現代等分模型/);
+  assert.deepEqual(analysis.sources.map((source) => source.id), [
+    "ZHOUYI-XICI-CTEXT-01",
+    "ZHOUYI-ZHENGYI-CTEXT-01",
+    "YIYIN-CTEXT-V6-01",
+    "YIYIN-CTEXT-V8-01",
+    "BUSHIQUANSHU-CTEXT-V7-01",
+    "BUSHIZHENGZONG-CTEXT-01",
+  ]);
+  const publishedSourceIds = new Set(analysis.sources.map((source) => source.id));
+  assert.equal(publishedSourceIds.size, analysis.sources.length);
+  assert.equal(new Set(analysis.sources.map((source) => source.url)).size, analysis.sources.length);
+  for (const row of analysis.rows) {
+    for (const evidence of Object.values(row.evidence)) {
+      assert.ok(evidence.sourceIds.every((sourceId) => publishedSourceIds.has(sourceId)));
+    }
+  }
+});
+
+test("六種動爻都只高亮對應爻位，並與統一引擎輸出一致", () => {
+  for (let moving = 1; moving <= 6; moving += 1) {
+    const direct = buildLineCorrespondenceAnalysis(moving - 1);
+    const result = probe({ upper: 1, lower: 1, moving });
+    assert.equal(direct.activeLineNumber, moving);
+    assert.equal(result.lineCorrespondences.activeLineNumber, moving);
+    assert.equal(result.calculationTrace.activeLineCorrespondence.position, moving);
+    assert.equal(result.calculationTrace.lineCorrespondenceVersion, "line-correspondence-v1");
+    assert.equal(result.lineCorrespondences.rows.filter((row) => row.isMoving).length, 1);
+  }
+});
+
+test("現代時間均分以總量直接算六段，無缺口、無重疊且尾端不累積誤差", () => {
+  for (const [total, unit, expectedWidth] of [[12, "時辰", 2], [30, "日", 5], [12, "月", 2], [6, "年", 1]]) {
+    const segments = buildEqualTimeSegments(total, unit);
+    assert.equal(segments.length, 6);
+    assert.equal(segments[0].start, 0);
+    assert.equal(segments.at(-1).end, total);
+    assert.ok(segments.every((segment) => segment.end - segment.start === expectedWidth));
+    for (let index = 1; index < segments.length; index += 1) {
+      assert.equal(segments[index - 1].end, segments[index].start);
+    }
+  }
+  const uneven = buildEqualTimeSegments(7, "日");
+  assert.equal(uneven.at(-1).end, 7);
+  assert.equal(uneven.at(-1).intervalRule, "前閉後閉");
+  assert.equal(uneven[0].intervalRule, "前閉後開");
+  assert.throws(() => buildEqualTimeSegments(0, "日"), /必須介於/);
+  assert.throws(() => buildEqualTimeSegments(Number.MIN_VALUE, "日"), /必須介於/);
+  assert.throws(() => buildEqualTimeSegments(Number.MAX_VALUE, "日"), /必須介於/);
+  const smallestSafe = buildEqualTimeSegments(Number.EPSILON, "日");
+  assert.ok(smallestSafe.every((segment) => Number.isFinite(segment.start) && Number.isFinite(segment.end) && segment.end > segment.start));
+  const largestSafe = buildEqualTimeSegments(Number.MAX_SAFE_INTEGER, "日");
+  assert.ok(largestSafe.every((segment) => Number.isFinite(segment.start) && Number.isFinite(segment.end) && segment.end > segment.start));
+  assert.throws(() => buildLineCorrespondenceAnalysis(6), /0 至 5/);
 });
 
 test("六十四卦資料完整覆蓋 8×8，且每個卦有唯一六爻組合", () => {

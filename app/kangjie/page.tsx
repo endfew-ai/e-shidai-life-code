@@ -3,6 +3,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { LineCorrespondencePanel } from "../components/line-correspondence-panel";
 import { getIChingText, type IChingLineText } from "../../iching-text.js";
 import { lineNames } from "../../calculator-core.js";
 import {
@@ -122,6 +123,7 @@ function KangjieResult({ result }: { result: KangjieAnalysis }) {
   return <section className="kangjie-calculation-result" aria-labelledby="react-kangjie-result-title">
     <header className="kangjie-result-heading"><div><p className="section-index">{result.methodLabel}</p><h2 id="react-kangjie-result-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-kangjie-result-v1.webp" text="衍算結果" className="brush-kangjie-result" /></h2><p className="result-input-summary">{result.inputSummary}</p></div><div className="result-heading-meta"><p className="moving-summary">動爻為<strong>{result.moving.name}</strong>，{result.moving.oldValue === 1 ? "陽爻變陰爻" : "陰爻變陽爻"}。</p><YaoLegend /></div></header>
     <div className="hexagram-grid"><HexagramCard label="本卦" value={result.original} movingIndex={result.moving.index} mark="動" /><HexagramCard label="互卦" value={result.mutual} note={result.mutualSource === "transformed" ? "取自變卦" : ""} /><HexagramCard label="變卦" value={result.transformed} movingIndex={result.moving.index} mark="變" /></div>
+    <LineCorrespondencePanel analysis={result.lineCorrespondences} />
     <div className="kangjie-trace">{result.trace.map((item) => <div key={item.label}><span>{item.label}</span><code>{item.equation}</code></div>)}</div>
     <div className="body-use-ledger"><article><span>體卦</span><strong>{result.roles.body.symbol} {result.roles.body.name}</strong><small>{result.roles.body.nature}・{result.roles.body.element}</small></article><article><span>用卦</span><strong>{result.roles.use.symbol} {result.roles.use.name}</strong><small>{result.roles.use.nature}・{result.roles.use.element}</small></article><article><span>五行關係</span><strong>{result.fiveElements.label}</strong><small>{result.fiveElements.explanation}</small></article><p>{result.roles.note}</p></div>
     <div className="influence-ledger" aria-label="本互變對體卦的五行關係"><header><strong>本・互・變對體</strong><span>{result.partyBalance.note}</span></header>{result.influenceRelations.map((entry) => <article key={entry.stage}><span>{entry.stage}</span><strong>{entry.trigram.symbol} {entry.trigram.name}・{entry.relation.label}</strong><small>{entry.relation.explanation}</small></article>)}</div>
