@@ -10172,3 +10172,271 @@ body:has([data-ui="xuanxing-aaa"]) {
     white-space: normal;
   }
 }
+
+/*
+ * Reference v14: professional three-number divination controls.
+ * The ID selector intentionally wins over earlier reference layouts without
+ * !important, keeping the final cascade compact and auditable.
+ */
+#analyzer-form[data-active-mode="iching"] .triple-input-grid {
+  align-items: stretch;
+  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-number-control {
+  display: grid;
+  gap: 4px;
+  grid-template-rows: minmax(0, 1fr) 40px;
+  min-width: 0;
+}
+
+#analyzer-form[data-active-mode="iching"] :is(.input-panel, .triple-input-grid, .field-block, .field-block > span) {
+  min-width: 0;
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-number-control :is(.field-block, .iching-input) {
+  min-width: 0;
+  width: 100%;
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-input {
+  font-variant-numeric: tabular-nums;
+  overflow-x: auto;
+  text-align: center;
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-randomize {
+  -webkit-tap-highlight-color: transparent;
+  align-items: center;
+  appearance: none;
+  background:
+    linear-gradient(180deg, rgba(221, 180, 87, .08), rgba(1, 8, 8, .18)),
+    url("public/visuals/ai-dashboard/reference-v14/iching-resonance-button-v14.webp") center / 100% 100% no-repeat;
+  border: 0;
+  border-radius: 4px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .42), inset 0 0 0 1px rgba(245, 209, 124, .12);
+  cursor: pointer;
+  display: grid;
+  justify-items: center;
+  min-height: 40px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 2px 5px 2px 24%;
+  position: relative;
+  width: 100%;
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-randomize::after {
+  background: linear-gradient(105deg, transparent 24%, rgba(255, 224, 140, .18) 48%, transparent 72%);
+  content: "";
+  inset: 2px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transform: translateX(-115%);
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-randomize-calligraphy {
+  display: block;
+  filter: drop-shadow(0 1px 4px rgba(234, 186, 71, .22));
+  height: 34px;
+  mix-blend-mode: screen;
+  object-fit: contain;
+  pointer-events: none;
+  width: min(100%, 126px);
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-randomize:is(:hover, :focus-visible) {
+  box-shadow: 0 0 0 2px rgba(239, 199, 105, .45), 0 5px 13px rgba(0, 0, 0, .5);
+  outline: none;
+}
+
+#analyzer-form[data-active-mode="iching"] .iching-randomize:active { filter: brightness(1.12); }
+#analyzer-form[data-active-mode="iching"] .iching-randomize:disabled { cursor: wait; opacity: .82; }
+
+#analyzer-form[data-active-mode="iching"] .iching-randomize.is-rolling::after {
+  animation: iching-resonance-sweep 540ms ease-out both;
+  opacity: 1;
+}
+
+@keyframes iching-resonance-sweep {
+  from { transform: translateX(-115%); }
+  to { transform: translateX(115%); }
+}
+
+#analyzer-form[data-active-mode="iching"] .form-meta {
+  align-items: center;
+  display: grid;
+  gap: 5px 9px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 34px;
+  min-width: 0;
+  overflow: visible;
+}
+
+#analyzer-form[data-active-mode="iching"] .form-meta p {
+  max-width: none;
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+#analyzer-form[data-active-mode="iching"] .form-meta .text-button {
+  flex: none;
+  min-width: 72px;
+  white-space: nowrap;
+}
+
+#analyzer-form[data-active-mode="iching"] .form-message {
+  display: none;
+  min-height: 0;
+  overflow: visible;
+}
+
+#analyzer-form[data-active-mode="iching"] .form-message:not(:empty) {
+  display: block;
+  min-height: 24px;
+  padding-top: 2px;
+}
+
+@media (min-width: 1181px) {
+  #analyzer-form[data-active-mode="iching"] { grid-template-rows: 52px minmax(0, 1fr); }
+  #analyzer-form[data-active-mode="iching"] :is(.desktop-result-preview, .method-strip) { display: none; }
+  #analyzer-form[data-active-mode="iching"] .mode-workbench { grid-template-rows: 30px minmax(0, 1fr); min-height: 0; }
+  #analyzer-form[data-active-mode="iching"] .mode-art { height: 30px; }
+  #analyzer-form[data-active-mode="iching"] .mode-controls {
+    align-content: center;
+    gap: 4px 7px;
+    grid-template-columns: minmax(0, 1fr) 132px;
+    grid-template-rows: auto auto auto;
+    min-height: 0;
+    padding: 4px 7px;
+  }
+  #analyzer-form[data-active-mode="iching"] .input-panel { grid-column: 1; grid-row: 1; }
+  #analyzer-form[data-active-mode="iching"] .analyze-submit { align-self: end; grid-column: 2; grid-row: 1; min-height: 44px; }
+  #analyzer-form[data-active-mode="iching"] .form-meta { grid-column: 1 / 3; grid-row: 2; }
+  #analyzer-form[data-active-mode="iching"] .form-message:not(:empty) { grid-column: 1 / 3; grid-row: 3; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block {
+    display: grid;
+    gap: 2px 4px;
+    grid-template-areas: "copy sensor" "input input";
+    grid-template-columns: minmax(0, 1fr) 42px;
+  }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span {
+    grid-area: copy;
+    min-height: 42px;
+    text-align: left;
+  }
+  #analyzer-form[data-active-mode="iching"] .iching-sensor-art { grid-area: sensor; height: 42px; width: 42px; }
+  #analyzer-form[data-active-mode="iching"] .iching-input { grid-area: input; min-height: 40px; }
+}
+
+@media (min-width: 1181px) and (max-height: 800px) {
+  #analyzer-form[data-active-mode="iching"] .mode-workbench { grid-template-rows: minmax(0, 1fr); }
+  #analyzer-form[data-active-mode="iching"] .form-meta { align-items: start; min-height: 0; }
+  #analyzer-form[data-active-mode="iching"] .form-meta p { font-size: 15px; line-height: 1.2; }
+  #analyzer-form[data-active-mode="iching"] .form-meta .text-button { align-self: start; }
+}
+
+@media (min-width: 1181px) and (max-width: 1600px) {
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block {
+    gap: 2px;
+    grid-template-areas: "sensor" "copy" "input";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span {
+    min-height: 20px;
+    overflow: hidden;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span small {
+    display: none;
+  }
+
+  #analyzer-form[data-active-mode="iching"] .iching-sensor-art {
+    height: 42px;
+    justify-self: center;
+    width: 42px;
+  }
+
+  #analyzer-form[data-active-mode="iching"] .iching-input { min-height: 44px; }
+}
+
+@media (min-width: 768px) and (max-width: 1180px) {
+  #analyzer-form[data-active-mode="iching"] { grid-template-rows: 54px minmax(0, 1fr); }
+  #analyzer-form[data-active-mode="iching"] :is(.desktop-result-preview, .method-strip, .mode-art) { display: none; }
+  #analyzer-form[data-active-mode="iching"] .mode-workbench { grid-template-rows: minmax(0, 1fr); }
+  #analyzer-form[data-active-mode="iching"] .mode-controls {
+    align-content: center;
+    gap: 1px 6px;
+    grid-template-columns: minmax(0, 1fr) 96px;
+    grid-template-rows: auto auto auto;
+    padding: 3px 7px;
+  }
+  #analyzer-form[data-active-mode="iching"] .input-panel { grid-column: 1; grid-row: 1; }
+  #analyzer-form[data-active-mode="iching"] .analyze-submit { align-self: end; grid-column: 2; grid-row: 1; }
+  #analyzer-form[data-active-mode="iching"] .form-meta { grid-column: 1 / 3; grid-row: 2; }
+  #analyzer-form[data-active-mode="iching"] .form-message:not(:empty) { grid-column: 1 / 3; grid-row: 3; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control { grid-template-rows: minmax(0, 1fr) 44px; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block {
+    display: grid;
+    gap: 2px 3px;
+    grid-template-areas: "copy sensor" "input input";
+    grid-template-columns: minmax(0, 1fr) 42px;
+  }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span {
+    grid-area: copy;
+    min-height: 42px;
+    text-align: left;
+  }
+  #analyzer-form[data-active-mode="iching"] .iching-sensor-art { grid-area: sensor; height: 42px; width: 42px; }
+  #analyzer-form[data-active-mode="iching"] .iching-input { grid-area: input; }
+  #analyzer-form[data-active-mode="iching"] :is(.iching-randomize, .form-meta .text-button) { min-height: 44px; }
+}
+
+@media (min-width: 981px) and (max-width: 1180px) {
+  .dashboard-home-screen.reference-v14 .dashboard-lead:has(#analyzer-form[data-active-mode="iching"]) { grid-template-rows: 270px; }
+}
+
+@media (max-width: 767px) {
+  #analyzer-form[data-active-mode="iching"] { grid-template-rows: 54px auto; }
+  #analyzer-form[data-active-mode="iching"] .mode-controls {
+    align-content: start;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+  }
+  #analyzer-form[data-active-mode="iching"] :is(.input-panel, .form-meta, .form-message, .analyze-submit) { grid-column: 1; grid-row: auto; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control { grid-template-rows: minmax(0, 1fr) 44px; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block {
+    display: grid;
+    gap: 2px 3px;
+    grid-template-areas: "copy sensor" "input input";
+    grid-template-columns: minmax(0, 1fr) 42px;
+  }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span { grid-area: copy; min-height: 42px; text-align: left; }
+  #analyzer-form[data-active-mode="iching"] .iching-sensor-art { grid-area: sensor; height: 42px; width: 42px; }
+  #analyzer-form[data-active-mode="iching"] .iching-input { grid-area: input; }
+  #analyzer-form[data-active-mode="iching"] :is(.iching-randomize, .form-meta .text-button) { min-height: 44px; }
+}
+
+@media (max-width: 390px) {
+  #analyzer-form[data-active-mode="iching"] .triple-input-grid { gap: 4px; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control { gap: 3px; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block { grid-template-columns: minmax(0, 1fr) 42px; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span { line-height: 1.15; min-height: 42px; }
+  #analyzer-form[data-active-mode="iching"] .iching-number-control .field-block > span small { display: block; font-size: 10px; margin: 0; }
+  #analyzer-form[data-active-mode="iching"] .iching-sensor-art { height: 42px; width: 42px; }
+  #analyzer-form[data-active-mode="iching"] .iching-input { font-size: 17px; padding-inline: 5px; }
+  #analyzer-form[data-active-mode="iching"] .iching-randomize { padding-left: 21%; }
+  #analyzer-form[data-active-mode="iching"] .iching-randomize-calligraphy { height: 30px; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #analyzer-form[data-active-mode="iching"] .iching-randomize.is-rolling::after { animation: none; }
+}

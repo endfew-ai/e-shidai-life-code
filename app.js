@@ -9,6 +9,7 @@ import {
 } from "./calculator-core.js";
 import { calculateModernThreeNumberHexagram } from "./kangjie-core.js";
 import { getIChingText } from "./iching-text.js";
+import { secureIChingNumber } from "./secure-random.js?v=20260803-reference-v14";
 import {
   hasIChingAccess,
   isIChingAccessCode,
@@ -50,9 +51,9 @@ const modeContent = {
   },
   iching: {
     label: "三數取卦",
-    description: "三數推算本卦、互卦、動爻與變卦",
+    description: "一數定上卦、二數定下卦、三數定動爻",
     button: "開始三數取卦",
-    help: "請分別輸入三個整數，不會自動切分生日或號碼。",
+    help: "三鍵各自取 1–1000，亦可手動輸入正整數。",
     art: "public/visuals/iching-instrument-b-v3.webp",
     artWidth: 1586,
     artHeight: 992,
@@ -758,6 +759,8 @@ function initializeAnalyzer() {
   const birthdayInput = document.querySelector("#birthday-input");
   const codeInput = document.querySelector("#number-code");
   const ichingInputs = [...document.querySelectorAll(".iching-input")];
+  const ichingRandomButtons = [...document.querySelectorAll("[data-iching-randomize]")];
+  const ichingRandomStatus = document.querySelector("#iching-random-status");
   const message = document.querySelector("#input-message");
   const help = document.querySelector("#input-help");
   const clearButton = document.querySelector("#clear-button");
@@ -774,6 +777,7 @@ function initializeAnalyzer() {
   const accessMessage = document.querySelector("[data-iching-access-message]");
   const accessCancel = document.querySelector("[data-iching-access-cancel]");
   const analyzeLabel = document.querySelector("[data-analyze-label]");
+  const analyzeButton = document.querySelector("#analyze-button");
   const cockpitMode = document.querySelector("[data-cockpit-mode]");
   const cockpitModeNote = document.querySelector("[data-cockpit-mode-note]");
   const cockpitCore = document.querySelector("[data-cockpit-core]");
@@ -782,6 +786,8 @@ function initializeAnalyzer() {
   let ichingUnlocked = hasIChingAccess();
   let birthdayAutoSubmitArmed = false;
   let birthdayResultTarget = "overview";
+  const ichingRandomTimers = new Map();
+  const ichingNumberLabels = ["第一數", "第二數", "第三數"];
 
   birthdayInput.max = localDateString();
   document.querySelector("#copyright-year").textContent = new Date().getFullYear();
@@ -790,6 +796,67 @@ function initializeAnalyzer() {
     if (mode === "birthday") return [birthdayInput];
     if (mode === "code") return [codeInput];
     return ichingInputs;
+  }
+
+  function finishIChingRoll(index) {
+    const button = ichingRandomButtons[index];
+    if (button) {
+      button.disabled = false;
+      button.classList.remove("is-rolling");
+      button.setAttribute("aria-busy", "false");
+    }
+    ichingRandomTimers.delete(index);
+    if (analyzeButton && ichingRandomTimers.size === 0) analyzeButton.disabled = false;
+  }
+
+  function stopIChingRolls() {
+    for (const [index, timer] of ichingRandomTimers) {
+      window.clearTimeout(timer);
+      finishIChingRoll(index);
+    }
+    if (ichingRandomStatus) ichingRandomStatus.textContent = "";
+  }
+
+  function randomizeIChingNumber(button) {
+    const index = Number(button.dataset.ichingRandomize);
+    const input = ichingInputs[index];
+    if (!input || !Number.isInteger(index)) return;
+
+    const previousTimer = ichingRandomTimers.get(index);
+    if (previousTimer) window.clearTimeout(previousTimer);
+    button.disabled = true;
+    if (analyzeButton) analyzeButton.disabled = true;
+    button.classList.add("is-rolling");
+    button.setAttribute("aria-busy", "true");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let stepsRemaining = reduceMotion ? 1 : 10;
+
+    const advance = () => {
+      try {
+        input.value = String(secureIChingNumber());
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      } catch (error) {
+        finishIChingRoll(index);
+        message.textContent = error instanceof Error ? error.message : "安全亂數暫時無法使用，請手動輸入正整數。";
+        input.focus({ preventScroll: true });
+        return;
+      }
+
+      stepsRemaining -= 1;
+      if (stepsRemaining > 0) {
+        const timer = window.setTimeout(advance, 54);
+        ichingRandomTimers.set(index, timer);
+        return;
+      }
+
+      finishIChingRoll(index);
+      if (ichingRandomStatus) {
+        ichingRandomStatus.textContent = `${ichingNumberLabels[index]}已取得 ${input.value}；此鍵只更改${ichingNumberLabels[index]}。`;
+      }
+      input.focus({ preventScroll: true });
+    };
+
+    advance();
   }
 
   function hasCurrentValue() { return currentInputs().some((input) => input.value.length > 0); }
@@ -912,6 +979,7 @@ function initializeAnalyzer() {
   }
 
   function changeMode(nextMode) {
+    stopIChingRolls();
     birthdayAutoSubmitArmed = false;
     form.classList.remove("is-awaiting-birthday");
     mode = nextMode;
@@ -979,6 +1047,7 @@ function initializeAnalyzer() {
   }
 
   function resetCurrent() {
+    stopIChingRolls();
     for (const input of currentInputs()) input.value = "";
     message.textContent = "";
     form.classList.remove("is-awaiting-birthday");
@@ -1025,6 +1094,9 @@ function initializeAnalyzer() {
       if (input === birthdayInput && input.value) form.classList.remove("is-awaiting-birthday");
       if (input === birthdayInput) updateBirthdayEntryLabel();
     });
+  }
+  for (const button of ichingRandomButtons) {
+    button.addEventListener("click", () => randomizeIChingNumber(button));
   }
   birthdayInput.addEventListener("change", () => {
     if (!birthdayAutoSubmitArmed || !birthdayInput.value) return;
@@ -1073,6 +1145,7 @@ function initializeAnalyzer() {
   });
 
   clearButton.addEventListener("click", resetCurrent);
+  window.addEventListener("pagehide", stopIChingRolls, { once: true });
   accessInput?.addEventListener("input", () => {
     accessInput.value = accessInput.value.replace(/\D/g, "").slice(0, 4);
     accessInput.setAttribute("aria-invalid", "false");

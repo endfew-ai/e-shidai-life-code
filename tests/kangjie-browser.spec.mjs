@@ -138,6 +138,8 @@ async function expectNoAnalyzerOverlap(page) {
         left: rect.left,
         width: rect.width,
         height: rect.height,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
         clientHeight: element.clientHeight,
         scrollHeight: element.scrollHeight,
       };
@@ -174,14 +176,23 @@ async function expectNoAnalyzerOverlap(page) {
       box(".form-meta"),
       box(".form-message"),
     ];
+    const meta = children[2];
+    const metaChildren = [box(".form-meta p"), box(".form-meta .text-button")];
+    const measurable = [...children, ...metaChildren];
     return {
       activeMode: form.dataset.activeMode,
       outerPairs: namedPairs(outer),
       controlPairs: namedPairs(children),
+      metaPairs: namedPairs(metaChildren),
       overflow: {
         modeArt: outer[1].scrollHeight - outer[1].clientHeight,
         controls: controls.scrollHeight - controls.clientHeight,
       },
+      contentOverflow: measurable.map((item) => ({
+        selector: item.selector,
+        horizontal: item.scrollWidth - item.clientWidth,
+        vertical: item.scrollHeight - item.clientHeight,
+      })),
       cardTrustOverlap: overlapArea(cardRect, trustRect),
       childEscapes: children
         .filter((item) => item.width > 0 && item.height > 0)
@@ -192,11 +203,20 @@ async function expectNoAnalyzerOverlap(page) {
             || item.top < controls.top - 1
             || item.bottom > controls.bottom + 1,
         })),
+      metaChildEscapes: metaChildren
+        .filter((item) => item.width > 0 && item.height > 0)
+        .map((item) => ({
+          selector: item.selector,
+          escaped: item.left < meta.left - 1
+            || item.right > meta.right + 1
+            || item.top < meta.top - 1
+            || item.bottom > meta.bottom + 1,
+        })),
     };
   });
 
   expect(layout.activeMode).toBe("iching");
-  for (const item of [...layout.outerPairs, ...layout.controlPairs]) {
+  for (const item of [...layout.outerPairs, ...layout.controlPairs, ...layout.metaPairs]) {
     expect(item.area, `${item.pair} 不可重疊`).toBeLessThanOrEqual(1);
   }
   expect(layout.overflow.modeArt, "模式說明不可溢出").toBeLessThanOrEqual(1);
@@ -204,6 +224,13 @@ async function expectNoAnalyzerOverlap(page) {
   expect(layout.cardTrustOverlap, "右上分析卡不可蓋住摘要列").toBeLessThanOrEqual(1);
   for (const item of layout.childEscapes) {
     expect(item.escaped, `${item.selector} 必須留在輸入區內`).toBe(false);
+  }
+  for (const item of layout.metaChildEscapes) {
+    expect(item.escaped, `${item.selector} 必須留在提示列內`).toBe(false);
+  }
+  for (const item of layout.contentOverflow) {
+    expect(item.horizontal, `${item.selector} 不可水平裁切`).toBeLessThanOrEqual(1);
+    expect(item.vertical, `${item.selector} 不可垂直裁切`).toBeLessThanOrEqual(1);
   }
 }
 
@@ -947,6 +974,70 @@ test("三數取卦右上分析卡在短螢幕與平板寬度都不重疊", async
     path: "output/playwright/home-iching-analyzer-short-1024.png",
   });
   await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+test("三個感而遂通按鍵各自安全取數，長數字與錯誤訊息在桌機手機都不跑版", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1536, height: 790 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await unlockIChingMode(page);
+
+  const buttons = page.locator("[data-iching-randomize]");
+  const inputs = page.locator(".iching-input");
+  await expect(buttons).toHaveCount(3);
+  await expect(page.locator(".iching-randomize-calligraphy")).toHaveCount(3);
+  expect(await page.locator(".iching-randomize-calligraphy").evaluateAll((images) => images.every((image) =>
+    image.complete && image.naturalWidth === 640 && image.naturalHeight === 256))).toBe(true);
+
+  for (const viewport of [
+    { width: 1536, height: 790, name: "desktop" },
+    { width: 1024, height: 768, name: "tablet" },
+    { width: 320, height: 720, name: "mobile" },
+  ]) {
+    await page.setViewportSize(viewport);
+    if (await page.locator("#clear-button").isVisible()) await page.locator("#clear-button").click();
+    await inputs.nth(0).fill("100");
+    await inputs.nth(1).fill("50");
+    await inputs.nth(2).fill("6");
+    await expectNoAnalyzerOverlap(page);
+
+    for (let index = 0; index < 3; index += 1) {
+      const before = await inputs.evaluateAll((fields) => fields.map((field) => field.value));
+      await buttons.nth(index).click();
+      await expect(buttons.nth(index)).toHaveAttribute("aria-busy", "true");
+      await expect(buttons.nth(index)).toHaveAttribute("aria-busy", "false", { timeout: 3000 });
+      const after = await inputs.evaluateAll((fields) => fields.map((field) => field.value));
+      expect(Number(after[index])).toBeGreaterThanOrEqual(1);
+      expect(Number(after[index])).toBeLessThanOrEqual(1000);
+      for (let other = 0; other < 3; other += 1) {
+        if (other !== index) expect(after[other], `第 ${index + 1} 鍵不可更改第 ${other + 1} 數`).toBe(before[other]);
+      }
+    }
+
+    await expect(page.locator("#iching-random-status")).toContainText("第三數已取得");
+    await page.locator("#analyzer-form").screenshot({
+      path: `output/playwright/home-iching-resonance-${viewport.name}.png`,
+    });
+    await inputs.nth(0).fill("9".repeat(256));
+    await inputs.nth(1).fill("50");
+    await inputs.nth(2).fill("6");
+    await expectNoAnalyzerOverlap(page);
+    await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+    await expect(page.locator("#result-anchor .iching-results")).toBeVisible();
+
+    await inputs.nth(1).fill("-1");
+    await page.locator("#analyzer-form").evaluate((form) => form.requestSubmit());
+    await expect(page.locator("#input-message")).toContainText("第二數不可小於 1");
+    await expectNoAnalyzerOverlap(page);
+    await expect(page.locator("#clear-button")).toBeVisible();
+    await expect(page.locator("#clear-button")).toHaveText("清除輸入");
+    await expectNoHorizontalOverflow(page);
+    await page.locator("#analyzer-form").screenshot({
+      path: `output/playwright/home-iching-resonance-stress-${viewport.name}.png`,
+    });
+  }
+
   expect(errors).toEqual([]);
 });
 

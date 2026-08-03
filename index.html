@@ -23,8 +23,8 @@
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" type="image/webp" fetchpriority="high" />
     <link rel="preload" as="image" href="public/visuals/ai-dashboard/reference-v13/hero-title-calligraphy-v13.webp" type="image/webp" fetchpriority="high" />
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=20260802-reference-v13" />
-    <script type="module" src="app.js?v=20260802-reference-v13"></script>
+    <link rel="stylesheet" href="styles.css?v=20260803-reference-v14" />
+    <script type="module" src="app.js?v=20260803-reference-v14"></script>
   </head>
   <body>
     <main class="site-shell" data-ui="xuanxing-aaa">
@@ -82,7 +82,7 @@
         </div>
       </nav>
 
-      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13">
+      <div class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14">
       <div class="dashboard-lead" data-ui-region="dashboard-lead">
       <header class="hero" id="top">
         <img class="hero-art" src="public/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width="1774" height="887" fetchpriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -112,10 +112,11 @@
               <div class="input-panel" data-mode-panel="code" hidden><label class="field-block" for="number-code"><span>手機末碼、門牌或自訂數字</span><input id="number-code" type="text" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="例如：１２ 34-5678" aria-describedby="input-help input-message" /></label></div>
               <div class="input-panel" data-mode-panel="iching" hidden>
                 <div class="triple-input-grid">
-                  <label class="field-block"><span>第一數<small>上卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-upper-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message" /></label>
-                  <label class="field-block"><span>第二數<small>下卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-lower-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message" /></label>
-                  <label class="field-block"><span>第三數<small>動爻 ÷ 6</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-moving-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message" /></label>
+                  <div class="iching-number-control" data-iching-number-control="0"><label class="field-block"><span>第一數<small>上卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-upper-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：9" aria-describedby="input-help input-message iching-random-status" /></label><button type="button" class="iching-randomize" data-iching-randomize="0" aria-label="感而遂通：為第一數取得 1 至 1000 安全亂數"><span class="sr-only">感而遂通</span><img class="iching-randomize-calligraphy" src="public/visuals/ai-dashboard/reference-v14/brush-feel-and-respond-v14.webp" width="640" height="256" loading="eager" decoding="async" alt="" aria-hidden="true" /></button></div>
+                  <div class="iching-number-control" data-iching-number-control="1"><label class="field-block"><span>第二數<small>下卦 ÷ 8</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-lower-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：13" aria-describedby="input-help input-message iching-random-status" /></label><button type="button" class="iching-randomize" data-iching-randomize="1" aria-label="感而遂通：為第二數取得 1 至 1000 安全亂數"><span class="sr-only">感而遂通</span><img class="iching-randomize-calligraphy" src="public/visuals/ai-dashboard/reference-v14/brush-feel-and-respond-v14.webp" width="640" height="256" loading="eager" decoding="async" alt="" aria-hidden="true" /></button></div>
+                  <div class="iching-number-control" data-iching-number-control="2"><label class="field-block"><span>第三數<small>動爻 ÷ 6</small></span><img class="iching-sensor-art" src="public/visuals/ai-dashboard/reference-v6/iching-sensor-moving-v6.webp" width="384" height="384" loading="eager" decoding="async" alt="" aria-hidden="true" /><input class="iching-input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：20" aria-describedby="input-help input-message iching-random-status" /></label><button type="button" class="iching-randomize" data-iching-randomize="2" aria-label="感而遂通：為第三數取得 1 至 1000 安全亂數"><span class="sr-only">感而遂通</span><img class="iching-randomize-calligraphy" src="public/visuals/ai-dashboard/reference-v14/brush-feel-and-respond-v14.webp" width="640" height="256" loading="eager" decoding="async" alt="" aria-hidden="true" /></button></div>
                 </div>
+                <p id="iching-random-status" class="sr-only" aria-live="polite"></p>
               </div>
               <div class="form-meta"><p id="input-help" aria-live="polite">只需生日；身分證請用下方獨立入口。</p><button type="button" class="text-button" id="clear-button" hidden>清除輸入</button></div>
               <p id="input-message" class="form-message" role="alert" aria-live="polite"></p>

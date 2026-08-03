@@ -100,6 +100,11 @@ const referenceV13DashboardAssets = [
   "vehicle-address-map-v13.webp",
 ];
 
+const referenceV14DashboardAssets = [
+  "brush-feel-and-respond-v14.webp",
+  "iching-resonance-button-v14.webp",
+];
+
 test("GitHub Pages entrypoint is numerology-first with three analyzers and a separate Shao Kangjie option", async () => {
   const [html, appSource, reactSource, styles, coreSource, typeSource, serviceSource, serviceTypes, advancedSource] = await Promise.all([
     readFile(new URL("../index.html", import.meta.url), "utf8"),
@@ -137,7 +142,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(html, /brand-life-numerology-aaa-web-v1\.webp/);
   assert.match(html, /data-ui="xuanxing-aaa"/);
   assert.match(html, /class="trust-rail cockpit-status"/);
-  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13"/);
+  assert.match(html, /class="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14"/);
   assert.match(html, /id="number-code"[^>]*maxlength="40"/);
   assert.match(reactSource, /id="number-code"[^>]*maxLength=\{40\}/);
   assert.match(html, /data-start-birthday/);
@@ -235,6 +240,14 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
   assert.match(advancedSource, /class="workspace-return" href="#analyzer"/);
   assert.equal((html.match(/class="iching-sensor-art"/g) ?? []).length, 3);
   assert.equal((reactSource.match(/iching-sensor-(?:upper|lower|moving)-v6\.webp/g) ?? []).length, 3);
+  assert.equal((html.match(/data-iching-randomize="[012]"/g) ?? []).length, 3);
+  assert.equal((reactSource.match(/data-iching-randomize=\{index\}/g) ?? []).length, 1);
+  assert.equal((html.match(/brush-feel-and-respond-v14\.webp/g) ?? []).length, 3);
+  assert.match(appSource, /secureIChingNumber/);
+  assert.match(reactSource, /secureIChingNumber/);
+  assert.match(appSource, /三鍵各自取 1–1000/);
+  assert.match(reactSource, /三鍵各自取 1–1000/);
+  assert.match(styles, /Reference v14: professional three-number divination controls/);
   assert.match(styles, /Reference v6: three distinct ImageGen instruments/);
   assert.match(styles, /開始三數取卦/);
   assert.match(html, /九宮配置/);
@@ -364,6 +377,7 @@ test("GitHub Pages entrypoint is numerology-first with three analyzers and a sep
     ...referenceV6DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v6/${asset}`, import.meta.url))),
     ...referenceV10DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v10/${asset}`, import.meta.url))),
     ...referenceV13DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v13/${asset}`, import.meta.url))),
+    ...referenceV14DashboardAssets.map((asset) => access(new URL(`../public/visuals/ai-dashboard/reference-v14/${asset}`, import.meta.url))),
     access(new URL("../public/visuals/ai-dashboard/life-path-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/number-wave-v1.webp", import.meta.url)),
     access(new URL("../public/visuals/ai-dashboard/lo-shu-v1.webp", import.meta.url)),

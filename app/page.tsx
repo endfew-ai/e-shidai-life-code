@@ -13,6 +13,7 @@ import {
 } from "../calculator-core.js";
 import { calculateModernThreeNumberHexagram, type KangjieAnalysis } from "../kangjie-core.js";
 import { getIChingText } from "../iching-text.js";
+import { secureIChingNumber } from "../secure-random.js";
 import {
   hasIChingAccess,
   isIChingAccessCode,
@@ -81,9 +82,9 @@ const modeContent = {
   iching: {
     label: "三數取卦",
     badge: "密碼",
-    description: "三數推算本卦、互卦、動爻與變卦",
+    description: "一數定上卦、二數定下卦、三數定動爻",
     button: "開始三數取卦",
-    help: "請分別輸入三個整數，不會自動切分生日或號碼。",
+    help: "三鍵各自取 1–1000，亦可手動輸入正整數。",
     art: "/visuals/iching-instrument-b-v3.webp",
     cardArt: "/visuals/iching-instrument-b-v3.webp",
     titleArt: "/visuals/brush/title-iching-web-v1.webp",
@@ -562,6 +563,8 @@ export default function Home() {
   const [birthday, setBirthday] = useState("");
   const [numberCode, setNumberCode] = useState("");
   const [ichingValues, setIChingValues] = useState(["", "", ""]);
+  const [ichingRolling, setIChingRolling] = useState([false, false, false]);
+  const [ichingRandomStatus, setIChingRandomStatus] = useState("");
   const [result, setResult] = useState<NumerologyResult | IChingResult | null>(null);
   const [message, setMessage] = useState("");
   const [entryHint, setEntryHint] = useState("");
@@ -580,6 +583,7 @@ export default function Home() {
   const birthdayResultTargetRef = useRef<BirthdayResultTarget>("overview");
   const codeRef = useRef<HTMLInputElement>(null);
   const ichingRef = useRef<HTMLInputElement>(null);
+  const ichingRandomTimersRef = useRef(new Map<number, number>());
   const accessDialogRef = useRef<HTMLDialogElement>(null);
   const accessInputRef = useRef<HTMLInputElement>(null);
 
@@ -636,13 +640,67 @@ export default function Home() {
     return mountNumerologyWorkspace(workspaceRef.current, { assetRoot: "/visuals" });
   }, []);
 
+  useEffect(() => () => {
+    for (const timer of ichingRandomTimersRef.current.values()) window.clearTimeout(timer);
+    ichingRandomTimersRef.current.clear();
+  }, []);
+
   function currentRef(targetMode = mode) {
     return targetMode === "birthday" ? birthdayRef : targetMode === "code" ? codeRef : ichingRef;
   }
 
   function focusCurrentInput() { window.setTimeout(() => currentRef().current?.focus(), 0); }
 
+  function finishIChingRoll(index: number) {
+    ichingRandomTimersRef.current.delete(index);
+    setIChingRolling((rolling) => rolling.map((value, valueIndex) => valueIndex === index ? false : value));
+  }
+
+  function stopIChingRolls() {
+    for (const timer of ichingRandomTimersRef.current.values()) window.clearTimeout(timer);
+    ichingRandomTimersRef.current.clear();
+    setIChingRolling([false, false, false]);
+    setIChingRandomStatus("");
+  }
+
+  function randomizeIChingNumber(index: number) {
+    const previousTimer = ichingRandomTimersRef.current.get(index);
+    if (previousTimer) window.clearTimeout(previousTimer);
+    setIChingRolling((rolling) => rolling.map((value, valueIndex) => valueIndex === index ? true : value));
+    setMessage("");
+    setResult(null);
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let stepsRemaining = reduceMotion ? 1 : 10;
+
+    const advance = () => {
+      let nextValue: string;
+      try {
+        nextValue = String(secureIChingNumber());
+      } catch (error) {
+        finishIChingRoll(index);
+        setMessage(error instanceof Error ? error.message : "安全亂數暫時無法使用，請手動輸入正整數。");
+        window.setTimeout(() => document.querySelectorAll<HTMLInputElement>(".iching-input")[index]?.focus({ preventScroll: true }), 0);
+        return;
+      }
+
+      setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? nextValue : value));
+      stepsRemaining -= 1;
+      if (stepsRemaining > 0) {
+        const timer = window.setTimeout(advance, 54);
+        ichingRandomTimersRef.current.set(index, timer);
+        return;
+      }
+
+      finishIChingRoll(index);
+      setIChingRandomStatus(`${ichingSensorInputs[index].label}已取得 ${nextValue}；此鍵只更改${ichingSensorInputs[index].label}。`);
+      window.setTimeout(() => document.querySelectorAll<HTMLInputElement>(".iching-input")[index]?.focus({ preventScroll: true }), 0);
+    };
+
+    advance();
+  }
+
   function changeMode(nextMode: AnalysisMode) {
+    stopIChingRolls();
     setMode(nextMode); setResult(null); setMessage(""); setEntryHint("");
     window.setTimeout(() => currentRef(nextMode).current?.focus(), 0);
   }
@@ -762,6 +820,7 @@ export default function Home() {
   }
 
   function handleReset() {
+    stopIChingRolls();
     if (mode === "birthday") setBirthday("");
     if (mode === "code") setNumberCode("");
     if (mode === "iching") setIChingValues(["", "", ""]);
@@ -854,7 +913,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13">
+      <div className="dashboard-home-screen reference-v3 reference-v4 reference-v10 reference-v11 reference-v12 reference-v13 reference-v14">
       <div className="dashboard-lead" data-ui-region="dashboard-lead">
       <header className="hero" id="top">
         <img className="hero-art" src="/visuals/ai-dashboard/reference-v10/hero-celestial-command-v10.webp" width={1774} height={887} fetchPriority="high" decoding="async" alt="" aria-hidden="true" />
@@ -887,12 +946,12 @@ export default function Home() {
               <div className="input-panel" data-mode-panel={mode}>
                 {mode === "birthday" && <label className="field-block" htmlFor="birthday-input"><span>出生日期（西元）</span><input ref={birthdayRef} id="birthday-input" type="date" autoComplete="bday" max={localDateString()} value={birthday} onChange={(event) => { const nextBirthday = event.target.value; setBirthday(nextBirthday); setMessage(""); setEntryHint(""); setResult(null); if (birthdayAutoSubmitRef.current && nextBirthday) { birthdayAutoSubmitRef.current = false; window.setTimeout(() => document.querySelector<HTMLFormElement>("#analyzer-form")?.requestSubmit(), 0); } }} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
                 {mode === "code" && <label className="field-block" htmlFor="number-code"><span>手機末碼、門牌或自訂數字</span><input ref={codeRef} id="number-code" type="text" inputMode="numeric" autoComplete="off" maxLength={40} value={numberCode} onChange={(event) => { setNumberCode(event.target.value); setMessage(""); setResult(null); }} placeholder="例如：１２ 34-5678" aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>}
-                {mode === "iching" && <div className="triple-input-grid">{ichingSensorInputs.map(({ label, help, placeholder, art }, index) => <label className="field-block" key={label}><span>{label}<small>{help}</small></span><img className="iching-sensor-art" src={art} width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); setResult(null); }} placeholder={placeholder} aria-invalid={Boolean(message)} aria-describedby="input-help input-message" /></label>)}</div>}
+                {mode === "iching" && <><div className="triple-input-grid">{ichingSensorInputs.map(({ label, help, placeholder, art }, index) => <div className="iching-number-control" data-iching-number-control={index} key={label}><label className="field-block"><span>{label}<small>{help}</small></span><img className="iching-sensor-art" src={art} width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><input className="iching-input" ref={index === 0 ? ichingRef : undefined} type="text" inputMode="numeric" autoComplete="off" value={ichingValues[index]} onChange={(event) => { setIChingValues((values) => values.map((value, valueIndex) => valueIndex === index ? event.target.value : value)); setMessage(""); setResult(null); }} placeholder={placeholder} aria-invalid={Boolean(message)} aria-describedby="input-help input-message iching-random-status" /></label><button type="button" className={`iching-randomize${ichingRolling[index] ? " is-rolling" : ""}`} data-iching-randomize={index} disabled={ichingRolling[index]} aria-busy={ichingRolling[index]} aria-label={`感而遂通：為${label}取得 1 至 1000 安全亂數`} onClick={() => randomizeIChingNumber(index)}><span className="sr-only">感而遂通</span><img className="iching-randomize-calligraphy" src="/visuals/ai-dashboard/reference-v14/brush-feel-and-respond-v14.webp" width={640} height={256} loading="eager" decoding="async" alt="" aria-hidden="true" /></button></div>)}</div><p id="iching-random-status" className="sr-only" aria-live="polite">{ichingRandomStatus}</p></>}
               </div>
 
               <div className="form-meta"><p id="input-help" aria-live="polite">{entryHint || modeContent[mode].help}</p>{hasValue && <button type="button" className="text-button" onClick={handleReset}>清除輸入</button>}</div>
               <p id="input-message" className="form-message" role="alert" aria-live="polite">{message}</p>
-              <button type="submit" className="primary-button analyze-submit" id="analyze-button"><span data-analyze-label>{modeContent[mode].button}</span><img className="analyze-seal" src="/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><b aria-hidden="true">↘</b></button>
+              <button type="submit" className="primary-button analyze-submit" id="analyze-button" disabled={mode === "iching" && ichingRolling.some(Boolean)}><span data-analyze-label>{modeContent[mode].button}</span><img className="analyze-seal" src="/visuals/ai-dashboard/reference-v2/analyze-dragon-seal-v2.webp" width={384} height={384} loading="eager" decoding="async" alt="" aria-hidden="true" /><b aria-hidden="true">↘</b></button>
             </div>
           </div>
           <section className="desktop-result-preview" aria-label="生命路徑即時總覽">
