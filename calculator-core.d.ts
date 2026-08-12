@@ -173,6 +173,7 @@ export type CodeAnalysis = {
   sum: number;
   core: number;
   profileNumber: number;
+  numberGuide: readonly NumberGuideItem[];
   headlineValue: string;
   counts: DigitCounts;
   zeroCount: number;

@@ -346,6 +346,7 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
               ? `「${selectedGuide.teachingLabel}」是照片中的教材代稱，只用來辨識原稿，不代表性別或人格本質。`
               : `「${selectedGuide.teachingLabel}」是本站為方便閱讀整理的中性摘要，不是照片原文。`}</p>
             {selectedGuide.healthFolkloreNotes.length > 0 && <p className="digit-profile-folklore"><strong>原教材身體類象・非診斷</strong>{selectedGuide.healthFolkloreNotes.join("；")}</p>}
+            {selectedGuide.sourceBoundaryNotes.map((note) => <p className="digit-profile-boundary" key={note}>{note}</p>)}
             <p className="digit-profile-basis">生命靈數由生日八位數加總化簡；格內次數只代表生日數字出現次數，兩者不是同一項計算。{selectedGuide.disclaimer}</p>
           </article>
         )}
@@ -459,6 +460,47 @@ function BirthdayColorGuide({ result }: { result: BirthdayResult }) {
   );
 }
 
+function CurrentNumberGuide({ result }: { result: NumerologyResult }) {
+  const guide = result.numberGuide.find((item) => item.number === result.profileNumber) ?? result.numberGuide[0];
+  const [wideGuide, setWideGuide] = useState(() => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const update = () => setWideGuide(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return (
+    <article className="result-current-profile" data-current-number-guide={guide.number} role="region" aria-labelledby="result-current-profile-title">
+      <div className="result-current-profile__header">
+        <p className="result-current-profile__eyebrow">{result.kind === "birthday" ? "本次生命靈數解說" : "本次號碼歸一解說"}</p>
+        <h3 id="result-current-profile-title">{guide.number}・{guide.teachingLabel}{guide.labelAuthority === "editorial" ? "*" : ""}｜{guide.quickMeaning}</h3>
+        <span className="result-current-profile__authority">{guide.labelAuthority === "photo" ? "照片教材代稱" : "本站中性摘要"}</span>
+        <small className="result-current-profile__basis">{result.kind === "birthday" ? `生日八位數加總化簡 → 生命靈數基底 ${guide.number}` : `輸入數字逐位加總化簡 → 號碼歸一數 ${guide.number}`}</small>
+      </div>
+      <p className="result-current-profile__summary">{guide.summary}</p>
+      <details className="result-current-profile__details" open={wideGuide}>
+        <summary>完整解說：核心、互動、工作與留意</summary>
+        <div className="result-current-profile__facets">
+          <p><strong>核心特質</strong>{guide.positiveTraits.join("、")}</p>
+          <p><strong>互動方式</strong>{guide.socialTraits.join("、")}</p>
+          <p><strong>工作觀察</strong>{guide.workTraits.join("、")}</p>
+          <p><strong>需要留意</strong>{guide.challengeTraits.join("、")}</p>
+        </div>
+      </details>
+      <p className="result-current-profile__marker"><strong>{guide.phraseAuthority === "photo" ? "原教材常用語" : "本站自我觀察句"}</strong>「{guide.observationPhrase}」</p>
+      {(guide.sourceBoundaryNotes.length > 0 || guide.healthFolkloreNotes.length > 0) && (
+        <details className="result-current-profile__source-notes">
+          <summary>教材原句與安全界線</summary>
+          {guide.sourceBoundaryNotes.map((note) => <p className="result-current-profile__boundary" key={note}>{note}</p>)}
+          {guide.healthFolkloreNotes.length > 0 && <><p className="result-current-profile__folklore"><strong>原教材身體類象・非診斷</strong>{guide.healthFolkloreNotes.join("；")}</p><p className="result-current-profile__source-disclaimer">{guide.disclaimer}</p></>}
+        </details>
+      )}
+      <p className="result-current-profile__disclaimer">民俗教材安全轉譯，僅供文化娛樂與自我觀察；不作醫療、升遷、宗教眷顧或命定保證。</p>
+    </article>
+  );
+}
+
 function NumerologyResults({ result, onReset }: { result: NumerologyResult; onReset: () => void }) {
   const profile = profiles[result.profileNumber];
   const resultArt = result.kind === "birthday" ? "/visuals/ai-dashboard/reference-v18/life-path-wayfinder-v18.webp" : "/visuals/digit-spectrum-panel-b-v3.webp";
@@ -480,14 +522,17 @@ function NumerologyResults({ result, onReset }: { result: NumerologyResult; onRe
 
   return (
     <section className="results" aria-labelledby="result-title">
-      <header className="result-hero" id={result.kind === "birthday" ? "result-life-path" : undefined}>
+      <header className="result-hero has-current-profile" id={result.kind === "birthday" ? "result-life-path" : undefined}>
         <div className="result-copy">
           <h2 id="result-title" className="brush-result-title" tabIndex={-1}><BrushTitle src="/visuals/brush/title-result-v4.webp" text="數理結果" /></h2>
           <div className="result-value">{result.headlineValue}<small>{profile.title}</small></div>
-          <p>{profile.symbol}。以下內容只作文化娛樂與自我提問參考。</p>
+          <p className="result-copy-note">{profile.symbol}。以下內容只作文化娛樂與自我提問參考。</p>
+          <div className="result-actions result-actions-top"><button type="button" className="secondary-button" onClick={onReset}>{result.kind === "birthday" ? "修改生日" : "修改數字"}</button></div>
         </div>
-        <figure className="result-art"><img src={resultArt} width={result.kind === "birthday" ? 768 : 1823} height={result.kind === "birthday" ? 768 : 863} loading="lazy" decoding="async" alt={result.kind === "birthday" ? "生命路徑玉石軌道視覺" : "古金數字節點分析視覺"} /><figcaption>{result.kind === "birthday" ? "生命路徑數" : "號碼歸一數"} {result.headlineValue}</figcaption></figure>
-        <div className="result-actions result-actions-top"><button type="button" className="secondary-button" onClick={onReset}>{result.kind === "birthday" ? "修改生日" : "修改數字"}</button></div>
+        <div className="result-profile-slot">
+          <figure className="result-art" aria-hidden="true"><img src={resultArt} width={result.kind === "birthday" ? 768 : 1823} height={result.kind === "birthday" ? 768 : 863} loading="lazy" decoding="async" alt="" /><figcaption>{result.kind === "birthday" ? "生命路徑數" : "號碼歸一數"} {result.headlineValue}</figcaption></figure>
+          <CurrentNumberGuide result={result} />
+        </div>
       </header>
 
       <div className={`metric-grid${result.kind === "birthday" ? " is-six" : ""}`}>{metrics.map((metric, index) => <MetricCard {...metric} id={result.kind === "birthday" && index === 3 ? "result-annual-cycle" : undefined} key={metric.label} />)}</div>

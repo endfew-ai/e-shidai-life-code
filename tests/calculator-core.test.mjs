@@ -85,6 +85,40 @@ test("生日九宮加入生命靈數時，首頁頻譜與 1 至 9 總覽使用�
   assert.equal(result.numberGuide[4].count, 3);
 });
 
+test("1 至 9 每個生命靈數都只選取自己的固定解說", () => {
+  const fixtures = [
+    [1, "2000-01-07", "亞當", "代表獨立"],
+    [2, "1985-05-01", "夏娃", "代表陪伴"],
+    [3, "2000-01-09", "小孩", "代表創意"],
+    [4, "1942-06-18", "四平八穩", "代表安全與秩序"],
+    [5, "1959-10-25", "口", "代表口語表達"],
+    [6, "1950-05-22", "照顧者", "代表關愛"],
+    [7, "2000-01-04", "好奇寶寶", "代表研究"],
+    [8, "2000-01-05", "成果", "代表成果動機"],
+    [9, "2000-01-06", "服務", "代表使命"],
+  ];
+  for (const [expected, date, label, meaning] of fixtures) {
+    const result = analyzeBirthday(date, 2026, "2026-08-12");
+    assert.equal(result.profileNumber, expected);
+    assert.equal(result.numberGuide.length, 9);
+    const selected = result.numberGuide.filter(({ isLifePath }) => isLifePath);
+    assert.equal(selected.length, 1);
+    assert.equal(selected[0].number, expected);
+    assert.equal(selected[0].teachingLabel, label);
+    assert.equal(selected[0].quickMeaning, meaning);
+    assert.equal(selected[0].count, result.birthGrid.counts[expected]);
+  }
+});
+
+test("號碼歸一結果也提供相同的目前數字解說", () => {
+  const result = analyzeDigitCode("128-357-649");
+  assert.equal(result.numberGuide.length, 9);
+  const selected = result.numberGuide.filter(({ isLifePath }) => isLifePath);
+  assert.equal(selected.length, 1);
+  assert.equal(selected[0].number, result.profileNumber);
+  assert.equal(selected[0].count, result.counts[result.profileNumber]);
+});
+
 test("舊版保留主數時仍以主數基底醒目標示 1 至 9 卡片", () => {
   const result = analyzeBirthdayLegacy("1950-05-22", 2026, "2026-08-12");
   assert.equal(result.lifePath.value, 33);

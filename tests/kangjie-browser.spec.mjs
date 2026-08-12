@@ -555,6 +555,7 @@ async function expectVisibleBrushTitlesUnclipped(page) {
     };
     const missingArtwork = [...document.querySelectorAll("h1, h2, h3, h4")]
       .filter(visible)
+      .filter((heading) => !heading.closest("[data-current-number-guide]"))
       .filter((heading) => !heading.querySelector("img.brush-title-image"))
       .map((heading) => heading.textContent?.trim().slice(0, 80) || heading.outerHTML.slice(0, 120));
     const clippedArtwork = [];

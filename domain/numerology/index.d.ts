@@ -73,6 +73,7 @@ export interface PersonalityProfile {
   readonly teachingLabel: string;
   readonly labelAuthority: "photo" | "editorial";
   readonly quickMeaning: string;
+  readonly summary: string;
   readonly positiveTraits: readonly string[];
   readonly challengeTraits: readonly string[];
   readonly socialTraits: readonly string[];
@@ -80,6 +81,7 @@ export interface PersonalityProfile {
   readonly observationPhrase: string;
   readonly phraseAuthority: "photo" | "editorial";
   readonly healthFolkloreNotes: readonly string[];
+  readonly sourceBoundaryNotes: readonly string[];
   readonly unresolvedSourceClaims?: readonly string[];
   readonly disclaimer: string;
   readonly sourceProfile: SourceProfileId;

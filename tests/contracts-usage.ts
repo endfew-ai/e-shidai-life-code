@@ -31,6 +31,8 @@ const birthdayAnalysis = analyzeBirthdayV2({
 });
 const fifthNumberTeachingLabel: string = birthdayAnalysis.numberGuide[4].teachingLabel;
 const fifthNumberLabelAuthority: "photo" | "editorial" = birthdayAnalysis.numberGuide[4].labelAuthority;
+const fifthNumberSummary: string = birthdayAnalysis.numberGuide[4].summary;
+const fifthNumberBoundaryNote: string | undefined = birthdayAnalysis.numberGuide[4].sourceBoundaryNotes[0];
 
 const calendar = detectCurrentCalendarParts(new Date("2026-08-02T04:00:00.000Z"));
 const calendarDataVersion: string | null = calendar.calendarDataVersion;
@@ -51,6 +53,8 @@ void [
   validationScope,
   fifthNumberTeachingLabel,
   fifthNumberLabelAuthority,
+  fifthNumberSummary,
+  fifthNumberBoundaryNote,
   calendarDataVersion,
   calendarProvider,
   oracleStatus,

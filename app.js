@@ -387,6 +387,9 @@ function createDigitDistribution(result) {
         folklore.append(element("strong", "", "原教材身體類象・非診斷"), document.createTextNode(guide.healthFolkloreNotes.join("；")));
         detail.append(folklore);
       }
+      for (const note of guide.sourceBoundaryNotes) {
+        detail.append(element("p", "digit-profile-boundary", note));
+      }
       detail.append(element("p", "digit-profile-basis", `生命靈數由生日八位數加總化簡；格內次數只代表生日數字出現次數，兩者不是同一項計算。${guide.disclaimer}`));
     };
     renderDetail(result.profileNumber);
@@ -572,12 +575,79 @@ function createResetButton(label, onReset, placement = "bottom") {
   return wrapper;
 }
 
+function createCurrentNumberGuide(result) {
+  const guide = result.numberGuide.find((item) => item.number === result.profileNumber) ?? result.numberGuide[0];
+  const article = element("article", "result-current-profile");
+  article.dataset.currentNumberGuide = String(guide.number);
+  article.setAttribute("role", "region");
+  article.setAttribute("aria-labelledby", "result-current-profile-title");
+
+  const header = element("div", "result-current-profile__header");
+  const heading = element("h3", "", `${guide.number}・${guide.teachingLabel}${guide.labelAuthority === "editorial" ? "*" : ""}｜${guide.quickMeaning}`);
+  heading.id = "result-current-profile-title";
+  const basisText = result.kind === "birthday"
+    ? `生日八位數加總化簡 → 生命靈數基底 ${guide.number}`
+    : `輸入數字逐位加總化簡 → 號碼歸一數 ${guide.number}`;
+  header.append(
+    element("p", "result-current-profile__eyebrow", result.kind === "birthday" ? "本次生命靈數解說" : "本次號碼歸一解說"),
+    heading,
+    element("span", "result-current-profile__authority", guide.labelAuthority === "photo" ? "照片教材代稱" : "本站中性摘要"),
+    element("small", "result-current-profile__basis", basisText),
+  );
+
+  const facets = element("div", "result-current-profile__facets");
+  for (const [label, values] of [
+    ["核心特質", guide.positiveTraits],
+    ["互動方式", guide.socialTraits],
+    ["工作觀察", guide.workTraits],
+    ["需要留意", guide.challengeTraits],
+  ]) {
+    const block = element("p");
+    block.append(element("strong", "", label), document.createTextNode(values.join("、")));
+    facets.append(block);
+  }
+
+  const summary = element("p", "result-current-profile__summary", guide.summary);
+  const marker = element("p", "result-current-profile__marker");
+  marker.append(
+    element("strong", "", guide.phraseAuthority === "photo" ? "原教材常用語" : "本站自我觀察句"),
+    document.createTextNode(`「${guide.observationPhrase}」`),
+  );
+  const fullDetails = element("details", "result-current-profile__details");
+  fullDetails.open = window.matchMedia("(min-width: 768px)").matches;
+  fullDetails.append(element("summary", "", "完整解說：核心、互動、工作與留意"), facets);
+  article.append(header, summary, fullDetails, marker);
+
+  if (guide.sourceBoundaryNotes.length || guide.healthFolkloreNotes.length) {
+    const sourceNotes = element("details", "result-current-profile__source-notes");
+    sourceNotes.append(element("summary", "", "教材原句與安全界線"));
+    for (const note of guide.sourceBoundaryNotes) {
+      sourceNotes.append(element("p", "result-current-profile__boundary", note));
+    }
+    if (guide.healthFolkloreNotes.length) {
+      const folklore = element("p", "result-current-profile__folklore");
+      folklore.append(
+        element("strong", "", "原教材身體類象・非診斷"),
+        document.createTextNode(guide.healthFolkloreNotes.join("；")),
+      );
+      sourceNotes.append(folklore, element("p", "result-current-profile__source-disclaimer", guide.disclaimer));
+    }
+    article.append(sourceNotes);
+  }
+  article.append(element(
+    "p",
+    "result-current-profile__disclaimer",
+    "民俗教材安全轉譯，僅供文化娛樂與自我觀察；不作醫療、升遷、宗教眷顧或命定保證。",
+  ));
+  return article;
+}
+
 function createNumerologyResult(result, onReset) {
   const profile = profiles[result.profileNumber];
   const section = element("section", "results");
   section.setAttribute("aria-labelledby", "result-title");
 
-  const hero = element("header", "result-hero");
+  const hero = element("header", "result-hero has-current-profile");
   if (result.kind === "birthday") hero.id = "result-life-path";
   const copy = element("div", "result-copy");
   const title = element("h2", "brush-result-title");
@@ -586,8 +656,9 @@ function createNumerologyResult(result, onReset) {
   title.append(brushTitleElement("public/visuals/brush/title-result-v4.webp", "數理結果"));
   const value = element("div", "result-value");
   value.append(document.createTextNode(result.headlineValue), element("small", "", profile.title));
-  copy.append(title, value, element("p", "", `${profile.symbol}。以下內容只作文化娛樂與自我提問參考。`));
+  copy.append(title, value, element("p", "result-copy-note", `${profile.symbol}。以下內容只作文化娛樂與自我提問參考。`));
   const art = element("figure", "result-art");
+  art.setAttribute("aria-hidden", "true");
   art.append(
     imageElement(
       result.kind === "birthday" ? "public/visuals/ai-dashboard/reference-v18/life-path-wayfinder-v18.webp" : "public/visuals/digit-spectrum-panel-b-v3.webp",
@@ -595,7 +666,10 @@ function createNumerologyResult(result, onReset) {
     ),
     element("figcaption", "", `${result.kind === "birthday" ? "生命路徑數" : "號碼歸一數"} ${result.headlineValue}`),
   );
-  hero.append(copy, art, createResetButton(result.kind === "birthday" ? "修改生日" : "修改數字", onReset, "top"));
+  const profileSlot = element("div", "result-profile-slot");
+  profileSlot.append(art, createCurrentNumberGuide(result));
+  copy.append(createResetButton(result.kind === "birthday" ? "修改生日" : "修改數字", onReset, "top"));
+  hero.append(copy, profileSlot);
   section.append(hero);
 
   const metrics = result.kind === "birthday"

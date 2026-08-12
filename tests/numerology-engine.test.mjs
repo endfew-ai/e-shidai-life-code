@@ -149,11 +149,13 @@ test("上傳照片的 1 至 9 直觀教材資料完整、安全且可建立總�
     assert.ok(profile.teachingLabel);
     assert.match(profile.labelAuthority, /^(photo|editorial)$/);
     assert.ok(profile.quickMeaning.startsWith("代表"));
+    assert.ok(profile.summary);
     assert.ok(profile.positiveTraits.length > 0);
     assert.ok(profile.challengeTraits.length > 0);
     assert.ok(profile.socialTraits.length > 0);
     assert.ok(profile.workTraits.length > 0);
     assert.ok(profile.observationPhrase);
+    assert.ok(Array.isArray(profile.sourceBoundaryNotes));
     assert.match(profile.phraseAuthority, /^(photo|editorial)$/);
     assert.equal(profile.sourceProfile, "uploaded-numerology-photo-2026-08-12-v1");
     assert.deepEqual(profile.sourceProfiles, ["uploaded-numerology-v2", "uploaded-numerology-photo-2026-08-12-v1"]);
@@ -161,6 +163,16 @@ test("上傳照片的 1 至 9 直觀教材資料完整、安全且可建立總�
   }
   assert.equal(PERSONALITY_PROFILES[1].teachingLabel, "亞當");
   assert.equal(PERSONALITY_PROFILES[1].quickMeaning, "代表獨立");
+  assert.match(PERSONALITY_PROFILES[1].summary, /獨立、自信.*尊重/);
+  assert.match(PERSONALITY_PROFILES[2].summary, /陪伴.*熱鬧/);
+  assert.match(PERSONALITY_PROFILES[3].summary, /孩子氣.*天真.*家人/);
+  assert.match(PERSONALITY_PROFILES[4].socialTraits.join("、"), /專情/);
+  assert.doesNotMatch(PERSONALITY_PROFILES[4].positiveTraits.join("、"), /專業/);
+  assert.match(PERSONALITY_PROFILES[5].sourceBoundaryNotes.join("、"), /有美食.*語意不足/);
+  assert.match(PERSONALITY_PROFILES[6].sourceBoundaryNotes.join("、"), /心裡治療師.*不代表心理師資格/);
+  assert.match(PERSONALITY_PROFILES[7].sourceBoundaryNotes.join("、"), /第六感很準.*不表示.*必然準確/);
+  assert.match(PERSONALITY_PROFILES[8].sourceBoundaryNotes.join("、"), /喜歡賺錢、常被提拔.*不保證財富或升遷/);
+  assert.match(PERSONALITY_PROFILES[9].sourceBoundaryNotes.join("、"), /受神明寵愛.*受長輩寵愛.*吃菜命.*不把/);
   const visibleClaims = Object.values(PERSONALITY_PROFILES).map((profile) => ({
     number: profile.number,
     title: profile.title,

@@ -11516,3 +11516,225 @@ body:has([data-ui="xuanxing-aaa"]) {
     background-size: auto, 104px 104px;
   }
 }
+
+/*
+ * Current number guide: the calculated 1-9 interpretation stays beside the
+ * numeric result on wide screens and follows it in normal document flow on
+ * phones. The artwork remains a quiet backdrop; live text is always HTML.
+ */
+[data-ui="xuanxing-aaa"] .results .result-hero.has-current-profile {
+  grid-template-columns: minmax(250px, .60fr) minmax(0, 1.40fr);
+  height: auto;
+  min-height: 390px;
+  overflow: visible;
+}
+
+.result-profile-slot {
+  background: rgba(4, 16, 25, .98);
+  border-left: 1px solid var(--aaa-edge, var(--line));
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.result-profile-slot > .result-art {
+  border: 0;
+  inset: 0;
+  margin: 0;
+  opacity: .13;
+  pointer-events: none;
+  position: absolute;
+}
+
+.result-profile-slot > .result-art::after {
+  background: rgba(3, 14, 22, .56);
+}
+
+.result-profile-slot > .result-art figcaption { display: none; }
+
+.result-current-profile {
+  box-sizing: border-box;
+  color: var(--paper-soft);
+  display: grid;
+  gap: 9px;
+  min-height: 100%;
+  overflow-wrap: anywhere;
+  padding: 18px 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.result-current-profile__header {
+  align-items: center;
+  display: grid;
+  gap: 4px 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding-right: 0;
+}
+
+.result-current-profile__eyebrow {
+  color: var(--gold);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  grid-column: 1 / -1;
+  letter-spacing: .1em;
+  margin: 0;
+}
+
+.result-current-profile__header h3 {
+  color: var(--gold-bright);
+  font-size: clamp(24px, 2vw, 31px);
+  font-weight: 600;
+  grid-column: 1 / -1;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.result-current-profile__authority,
+.result-current-profile__basis {
+  color: var(--paper-soft);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.result-current-profile__authority {
+  border: 1px solid var(--line);
+  justify-self: start;
+  padding: 2px 7px;
+}
+
+.result-current-profile__basis { justify-self: end; text-align: right; }
+
+.result-current-profile__summary {
+  border-left: 2px solid var(--gold);
+  color: var(--paper);
+  font-size: 17px;
+  line-height: 1.65;
+  margin: 0;
+  padding: 5px 0 5px 11px;
+}
+
+.result-current-profile__facets {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.result-current-profile__details,
+.result-current-profile__source-notes {
+  border: 1px solid rgba(188, 145, 57, .34);
+  margin: 0;
+}
+
+.result-current-profile__details > summary,
+.result-current-profile__source-notes > summary {
+  color: var(--gold);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.result-current-profile__details[open] > summary,
+.result-current-profile__source-notes[open] > summary {
+  border-bottom: 1px solid rgba(188, 145, 57, .26);
+}
+
+.result-current-profile__source-notes > p { padding: 8px 10px; }
+.result-current-profile__source-disclaimer { color: var(--muted); font-size: 15px; line-height: 1.55; margin: 0; }
+
+.result-current-profile__facets p {
+  background: rgba(1, 12, 19, .72);
+  color: var(--paper-soft);
+  font-size: 16px;
+  line-height: 1.58;
+  margin: 0;
+  padding: 8px 10px;
+}
+
+.result-current-profile :is(.result-current-profile__facets, .result-current-profile__marker, .result-current-profile__folklore) strong {
+  color: var(--gold);
+  display: block;
+  font-family: var(--sans);
+  font-size: 14px;
+}
+
+.result-current-profile__marker,
+.result-current-profile__boundary,
+.result-current-profile__folklore,
+.result-current-profile__disclaimer {
+  font-size: 16px;
+  line-height: 1.58;
+  margin: 0;
+}
+
+.result-current-profile__marker { color: var(--paper); }
+.result-current-profile__boundary { color: #d9c79c; }
+.result-current-profile__folklore { border-left: 2px solid var(--gold-dim); padding-left: 10px; }
+.result-current-profile__disclaimer { border-top: 1px solid var(--line-soft); color: var(--muted); padding-top: 8px; }
+.digit-profile-boundary { color: #d9c79c; font-size: 16px; line-height: 1.65; margin: 9px 0 0; }
+
+@media (max-width: 767px) {
+  [data-ui="xuanxing-aaa"] .results .result-hero.has-current-profile {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .has-current-profile > .result-copy {
+    align-items: center;
+    display: grid;
+    gap: 3px 10px;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 92px;
+    padding: 12px 112px 12px 14px;
+  }
+
+  .has-current-profile > .result-copy .result-copy-note { display: none; }
+  .has-current-profile > .result-copy .brush-result-title { grid-column: 1 / -1; }
+  .has-current-profile > .result-copy .result-value {
+    align-items: baseline;
+    display: contents;
+  }
+  .has-current-profile > .result-copy .result-value small {
+    display: block;
+    font-size: 21px;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .has-current-profile > .result-profile-slot {
+    border-left: 0;
+    border-top: 1px solid var(--aaa-edge, var(--line));
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .result-profile-slot > .result-art { opacity: .09; }
+  .result-current-profile { gap: 10px; padding: 14px; }
+  .result-current-profile__header { padding-right: 0; }
+  .result-current-profile__header h3 { font-size: 23px; }
+  .result-current-profile__basis { grid-column: 1 / -1; justify-self: start; text-align: left; }
+  .result-current-profile__facets { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .result-current-profile__summary,
+  .result-current-profile__facets p,
+  .result-current-profile__marker,
+  .result-current-profile__boundary,
+  .result-current-profile__folklore,
+  .result-current-profile__disclaimer { font-size: 16px; }
+
+  .result-current-profile__disclaimer {
+    font-size: 14px;
+    line-height: 1.45;
+    padding-top: 6px;
+  }
+}

@@ -52,6 +52,7 @@ test("rule settings switch the birthday engine between new and legacy results", 
   await page.locator("#birthday-input").fill("1950-05-22");
   await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
   await expect(page.locator("#result-anchor .metric-card").first()).toContainText("33／6");
+  await expect(page.locator('[data-current-number-guide="6"]')).toContainText("6・照顧者*｜代表關愛");
   await expect(page.locator("#result-anchor")).toContainText("舊版月、日、年分段化簡");
 
   await openWorkspaceView(page, "settings");
@@ -79,6 +80,34 @@ test("上傳教材 1 至 9 可直觀看到亞當與獨立，命數與連線可�
   await page.locator("#birthday-input").fill("1959-10-25");
   await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
 
+  const fixedGuide = page.locator("[data-current-number-guide]");
+  await expect(fixedGuide).toBeVisible();
+  await expect(fixedGuide).toHaveAttribute("data-current-number-guide", "5");
+  await expect(fixedGuide.locator("h3")).toHaveText("5・口｜代表口語表達");
+  await expect(fixedGuide).toContainText("重視口語表達與口才");
+  await expect(fixedGuide).toContainText("核心特質");
+  await expect(fixedGuide).toContainText("互動方式");
+  await expect(fixedGuide).toContainText("工作觀察");
+  await expect(fixedGuide).toContainText("需要留意");
+  await expect(fixedGuide).toContainText("生日八位數加總化簡 → 生命靈數基底 5");
+  await expect(fixedGuide).toContainText("原教材常用語");
+  await expect(fixedGuide).toContainText("有美食");
+  await expect(fixedGuide).toContainText("不作醫療、升遷、宗教眷顧或命定保證");
+  const desktopPlacement = await page.locator("#result-anchor .result-hero").evaluate((hero) => {
+    const copy = hero.querySelector(".result-copy").getBoundingClientRect();
+    const guide = hero.querySelector("[data-current-number-guide]").getBoundingClientRect();
+    const button = hero.querySelector(".result-actions-top").getBoundingClientRect();
+    const outer = hero.getBoundingClientRect();
+    const overlaps = !(guide.right <= button.left || guide.left >= button.right || guide.bottom <= button.top || guide.top >= button.bottom);
+    return {
+      toRight: guide.left >= copy.right - 1,
+      inHero: guide.left >= outer.left - 1 && guide.right <= outer.right + 1 && guide.top >= outer.top - 1 && guide.bottom <= outer.bottom + 1,
+      overlaps,
+    };
+  });
+  expect(desktopPlacement).toEqual({ toRight: true, inHero: true, overlaps: false });
+  await page.locator("#result-anchor .result-hero").screenshot({ path: "output/playwright/current-number-guide-desktop-1440.png" });
+
   const distribution = page.locator("#result-nine-grid");
   await expect(distribution.locator(".digit-profile-strip > i")).toHaveCount(9);
   await expect(distribution.locator(".digit-profile-strip > i.is-core")).toHaveText("5");
@@ -99,6 +128,7 @@ test("上傳教材 1 至 9 可直觀看到亞當與獨立，命數與連線可�
   await expect(distribution.locator(".grid-line-summary")).toContainText("可觀察：工作投入、目標、成果");
   await guides.nth(0).click();
   await expect(distribution.locator(".digit-profile-detail > header")).toContainText("1・亞當｜代表獨立");
+  await expect(fixedGuide).toHaveAttribute("data-current-number-guide", "5");
   await expect(distribution.locator(".digit-profile-marker")).toContainText("本站自我觀察句");
   await expect(distribution.locator(".digit-profile-label-note")).toContainText("不代表性別或人格本質");
   await expect(distribution.locator(".digit-profile-detail")).toContainText("無醫學診斷效力");
@@ -148,6 +178,61 @@ for (const viewport of [
     await expectNoHorizontalOverflow(page);
   });
 }
+
+for (const fixture of [
+  { width: 390, height: 844, date: "1959-10-25", number: "5" },
+  { width: 320, height: 568, date: "2000-01-05", number: "8" },
+]) {
+  test(`目前數字完整解說在 ${fixture.width}px 手機位於結果下方且不裁切`, async ({ page }) => {
+    await page.setViewportSize({ width: fixture.width, height: fixture.height });
+    await page.goto("/index.html", { waitUntil: "networkidle" });
+    await page.locator("#birthday-input").fill(fixture.date);
+    await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
+    const hero = page.locator("#result-anchor .result-hero");
+    const guide = page.locator("[data-current-number-guide]");
+    await expect(guide).toHaveAttribute("data-current-number-guide", fixture.number);
+    await expect(guide.locator(".result-current-profile__details")).not.toHaveAttribute("open", "");
+    const layout = await hero.evaluate((node) => {
+      const copy = node.querySelector(".result-copy").getBoundingClientRect();
+      const panel = node.querySelector("[data-current-number-guide]");
+      const panelBox = panel.getBoundingClientRect();
+      const outer = node.getBoundingClientRect();
+      const heading = panel.querySelector("h3");
+      const body = panel.querySelector(".result-current-profile__summary");
+      return {
+        below: panelBox.top >= copy.bottom - 1,
+        inHero: panelBox.bottom <= outer.bottom + 1,
+        heroFits: node.scrollHeight <= node.clientHeight + 1,
+        panelFits: panel.scrollWidth <= panel.clientWidth + 1 && panel.scrollHeight <= panel.clientHeight + 1,
+        headingFont: Number.parseFloat(getComputedStyle(heading).fontSize),
+        bodyFont: Number.parseFloat(getComputedStyle(body).fontSize),
+        height: outer.height,
+      };
+    });
+    expect(layout.below).toBe(true);
+    expect(layout.inHero).toBe(true);
+    expect(layout.heroFits).toBe(true);
+    expect(layout.panelFits).toBe(true);
+    expect(layout.headingFont).toBeGreaterThanOrEqual(20);
+    expect(layout.bodyFont).toBeGreaterThanOrEqual(16);
+    expect(layout.height).toBeLessThanOrEqual(fixture.height);
+    await hero.screenshot({ path: `output/playwright/current-number-guide-mobile-${fixture.width}.png` });
+    await expectNoHorizontalOverflow(page);
+  });
+}
+
+test("號碼歸一也會自動切換右側目前數字解說", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.locator('input[name="analysis-mode"][value="code"]').check();
+  await page.locator("#number-code").fill("128-357-649");
+  await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
+  const guide = page.locator("[data-current-number-guide]");
+  await expect(guide).toBeVisible();
+  await expect(guide.locator(".result-current-profile__eyebrow")).toHaveText("本次號碼歸一解說");
+  await expect(guide).toHaveAttribute("data-current-number-guide", "9");
+  await expect(guide.locator("h3")).toContainText("9・服務*");
+});
 
 test("命數數字出現四次時底條不會遮住命數標記", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 720 });

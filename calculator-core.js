@@ -579,6 +579,7 @@ export function analyzeDigitCode(rawValue) {
     sum,
     core: reduction.value,
     profileNumber: reduction.value,
+    numberGuide: buildNumberGuideOverview(counts, reduction.value),
     headlineValue: String(reduction.value),
     counts,
     zeroCount: counts[0],
