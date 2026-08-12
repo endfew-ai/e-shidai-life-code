@@ -8,6 +8,7 @@ export type SourceType =
 export type SourceCertainty = "folklore" | "legacy" | "official" | "unresolved";
 export type SourceProfileId =
   | "uploaded-numerology-v2"
+  | "uploaded-numerology-photo-2026-08-12-v1"
   | "legacy-project-v1"
   | "taiwan-national-id-official"
   | "taiwan-identity-document-official"
@@ -69,13 +70,20 @@ export type RuleSetReference = string | RuleSet;
 export interface PersonalityProfile {
   readonly number: number;
   readonly title: string;
+  readonly teachingLabel: string;
+  readonly labelAuthority: "photo" | "editorial";
+  readonly quickMeaning: string;
   readonly positiveTraits: readonly string[];
   readonly challengeTraits: readonly string[];
   readonly socialTraits: readonly string[];
   readonly workTraits: readonly string[];
+  readonly observationPhrase: string;
+  readonly phraseAuthority: "photo" | "editorial";
   readonly healthFolkloreNotes: readonly string[];
+  readonly unresolvedSourceClaims?: readonly string[];
   readonly disclaimer: string;
   readonly sourceProfile: SourceProfileId;
+  readonly sourceProfiles: readonly SourceProfileId[];
 }
 
 export type BirthGridLineKind = "main" | "secondary";
@@ -370,6 +378,18 @@ export const STANDARD_BIRTH_GRID_ORDER: readonly number[];
 export const LEGACY_LO_SHU_ORDER: readonly number[];
 export function evaluateBirthGridLines(counts: Readonly<Record<number, number>>): readonly BirthGridLineResult[];
 export function analyzeBirthGrid(dateValue: unknown, options?: BirthGridOptions): BirthGridAnalysis;
+
+export interface NumberGuideItem extends PersonalityProfile {
+  readonly count: number;
+  readonly isPresent: boolean;
+  readonly isLifePath: boolean;
+}
+
+export const NUMBER_GUIDE_DIGITS: readonly number[];
+export function buildNumberGuideOverview(
+  counts: BirthGridCounts,
+  lifePathBaseNumber: number,
+): readonly NumberGuideItem[];
 
 export type SymbolMode = "skip_spaces_hyphens" | "skip_all" | "error";
 
@@ -738,6 +758,7 @@ export interface ReportSection {
   readonly details: readonly string[];
   readonly calculationSteps: readonly string[];
   readonly sourceProfile: SourceProfileId;
+  readonly sourceProfiles: readonly SourceProfileId[];
 }
 
 export interface CalculationStep {
@@ -759,6 +780,7 @@ export interface AnalysisHistoryRecord {
   readonly maskedInput: string;
   readonly ruleSetId: string;
   readonly ruleSetVersion: string | null;
+  readonly interpretationVersion?: string | null;
   readonly createdAt: string;
   readonly warnings: readonly string[];
   readonly summary: readonly HistorySummary[];

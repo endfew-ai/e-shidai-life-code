@@ -178,7 +178,7 @@ function getDashboardAnalytics(result: NumerologyResult | IChingResult | null, m
       core: result.lifePath.display,
       title: profiles[result.profileNumber]?.title ?? "生命路徑",
       note: `生日數 ${result.birthday.display}，態度數 ${result.attitude.value}`,
-      counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
+      counts: Array.from({ length: 9 }, (_, index) => result.birthGrid.counts[index + 1] ?? 0),
       distributionTitle: "生日數字分佈",
       annual: String(result.personalYear.value),
       annualTitle: `個人流年數 ${result.personalYear.value}`,
@@ -278,9 +278,20 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
   const gridResult = result.kind === "birthday" ? result.birthGrid : null;
   const displayOrder = gridResult?.displayOrder ?? LO_SHU_ORDER;
   const displayCounts = gridResult?.counts ?? result.counts;
+  const [selection, setSelection] = useState<{ result: NumerologyResult; digit: number } | null>(null);
+  const selectedDigit = selection?.result === result
+    ? selection.digit
+    : result.kind === "birthday" ? result.profileNumber : 1;
+  const selectedGuide = result.kind === "birthday"
+    ? result.numberGuide.find((item) => item.number === selectedDigit) ?? result.numberGuide[0]
+    : null;
   return (
     <details className="result-disclosure calculation-card digit-distribution" id={result.kind === "birthday" ? "result-nine-grid" : undefined}>
-      <summary><span><small>數字分布</small><strong>查看完整九宮</strong></span><em>出現 {9 - result.missing.length} 種・缺少 {result.missing.length} 種</em></summary>
+      <summary className="digit-distribution-summary">
+        <span><small>數字分布</small><strong>{result.kind === "birthday" ? "1～9 數字與命數解說" : "查看完整九宮"}</strong></span>
+        <em>出現 {9 - result.missing.length} 種・缺少 {result.missing.length} 種</em>
+        {result.kind === "birthday" && <span className="digit-profile-strip" aria-label={`1 到 9 數字總覽；你的生命靈數基底為 ${result.profileNumber}`}>{result.numberGuide.map((item) => <i className={item.isLifePath ? "is-core" : ""} title={item.isLifePath ? `你的生命靈數 ${item.number}` : `數字 ${item.number}`} key={item.number}>{item.number}</i>)}</span>}
+      </summary>
       <div className="disclosure-body">
         <header className="panel-heading">
           <div><p>數字分布</p><h3 className="brush-fixed-heading"><FixedBrushTitle text={title} className="brush-panel-title" /></h3></div>
@@ -289,9 +300,27 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
         <p className="panel-copy">{gridResult?.layoutProfile === "standard_1_to_9"
           ? "依 1・2・3／4・5・6／7・8・9 排列；連線判定依規則資料，不由畫面位置猜測。"
           : "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。"}</p>
-        <div className="lo-shu-grid" aria-label="一到九數字出現次數">
+        <div className={`lo-shu-grid${result.kind === "birthday" ? " has-profile-overview" : ""}`} aria-label="一到九數字出現次數">
           {displayOrder.map((digit) => {
             const count = displayCounts[digit];
+            const guide = result.kind === "birthday" ? result.numberGuide.find((item) => item.number === digit) : null;
+            if (guide) return (
+              <button
+                type="button"
+                className={`digit-cell ${count ? "is-present" : "is-missing"}${guide.isLifePath ? " is-core" : ""}${selectedDigit === digit ? " is-selected" : ""}`}
+                data-digit-profile={digit}
+                aria-current={guide.isLifePath ? "true" : undefined}
+                aria-pressed={selectedDigit === digit}
+                onClick={() => setSelection({ result, digit })}
+                key={digit}
+              >
+                <strong className="digit-profile-number">{digit}・{guide.teachingLabel}{guide.labelAuthority === "editorial" ? "*" : ""}</strong>
+                <span className="digit-profile-title">{guide.quickMeaning}</span>
+                <span className="digit-profile-count">{count ? `生日出現 ${count} 次` : "生日未出現"}</span>
+                {guide.isLifePath && <b className="digit-profile-core-badge">你的命數</b>}
+                <i style={{ "--count": Math.min(count, 4) } as React.CSSProperties} aria-hidden="true" />
+              </button>
+            );
             return (
               <div className={`digit-cell ${count ? "is-present" : "is-missing"}`} key={digit}>
                 <strong>{digit}</strong><span>{count ? `${count} 次` : "未出現"}</span>
@@ -300,12 +329,31 @@ function DigitDistribution({ result }: { result: NumerologyResult }) {
             );
           })}
         </div>
+        {result.kind === "birthday" && <p className="digit-profile-editorial-legend">* 本站中性摘要，非照片原文</p>}
         <p className="missing-summary">{result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"}</p>
+        {selectedGuide && (
+          <article className="digit-profile-detail" role="region" aria-labelledby="digit-profile-detail-title">
+            <header><strong id="digit-profile-detail-title">{selectedGuide.number}・{selectedGuide.teachingLabel}{selectedGuide.labelAuthority === "editorial" ? "*" : ""}｜{selectedGuide.quickMeaning}</strong><span>{selectedGuide.isLifePath ? `你的生命靈數・生日出現 ${selectedGuide.count} 次` : `生日出現 ${selectedGuide.count} 次`}</span></header>
+            <span className="sr-only" aria-live="polite">已顯示數字 {selectedGuide.number}：{selectedGuide.quickMeaning}</span>
+            <div className="digit-profile-detail-grid">
+              <p><strong>核心特質</strong>{selectedGuide.positiveTraits.join("、")}</p>
+              <p><strong>互動方式</strong>{selectedGuide.socialTraits.join("、")}</p>
+              <p><strong>工作觀察</strong>{selectedGuide.workTraits.join("、")}</p>
+              <p><strong>需要留意</strong>{selectedGuide.challengeTraits.join("、")}</p>
+            </div>
+            <p className="digit-profile-marker"><strong>{selectedGuide.phraseAuthority === "photo" ? "原教材常用語" : "本站自我觀察句"}</strong>「{selectedGuide.observationPhrase}」</p>
+            <p className="digit-profile-label-note">{selectedGuide.labelAuthority === "photo"
+              ? `「${selectedGuide.teachingLabel}」是照片中的教材代稱，只用來辨識原稿，不代表性別或人格本質。`
+              : `「${selectedGuide.teachingLabel}」是本站為方便閱讀整理的中性摘要，不是照片原文。`}</p>
+            {selectedGuide.healthFolkloreNotes.length > 0 && <p className="digit-profile-folklore"><strong>原教材身體類象・非診斷</strong>{selectedGuide.healthFolkloreNotes.join("；")}</p>}
+            <p className="digit-profile-basis">生命靈數由生日八位數加總化簡；格內次數只代表生日數字出現次數，兩者不是同一項計算。{selectedGuide.disclaimer}</p>
+          </article>
+        )}
         {gridResult?.lines && (
           <div className="grid-line-summary">
             <p className="grid-line-title" role="heading" aria-level={4}>成立連線 {gridResult.establishedLines.length} 條</p>
             <ul>{gridResult.establishedLines.length
-              ? gridResult.establishedLines.map((line) => <li key={line.lineId}>{line.lineId}・{line.title}（強度 {line.strength}）</li>)
+              ? gridResult.establishedLines.map((line) => <li key={line.lineId}><strong>{line.lineId}・{line.title}（強度 {line.strength}）</strong><span>可觀察：{line.positiveTraits.join("、")}</span>{line.cautionTraits.length > 0 && <small>提醒：{line.cautionTraits.join("、")}</small>}</li>)
               : <li>目前沒有完整成立的連線。</li>}</ul>
           </div>
         )}

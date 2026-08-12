@@ -1662,6 +1662,57 @@ footer p { margin: 0; }
 .grid-line-summary { border-top: 1px solid var(--line-soft); margin-top: 16px; padding-top: 12px; }
 .grid-line-title { color: var(--gold-bright); font-size: 17px; font-weight: 500; margin: 0; }
 .grid-line-summary ul { color: var(--paper-soft); columns: 2; font-family: var(--sans); font-size: 15px; line-height: 1.6; margin: 8px 0 0; padding-left: 20px; }
+.grid-line-summary li { break-inside: avoid; margin-bottom: 8px; }
+.grid-line-summary li strong,
+.grid-line-summary li span,
+.grid-line-summary li small { display: block; }
+.grid-line-summary li strong { color: var(--paper); font-size: 16px; }
+.grid-line-summary li small { color: var(--muted); font-size: 14px; }
+
+/* 上傳教材 1～9 直觀總覽：摘要先看全數，展開後只顯示一份可切換細解。 */
+.digit-distribution-summary { display: grid !important; gap: 8px 14px; grid-template-columns: minmax(0, 1fr) auto 22px; }
+.digit-distribution-summary::after { grid-column: 3; grid-row: 1; margin-left: 0 !important; }
+.digit-distribution-summary > em { grid-column: 2; grid-row: 1; }
+.digit-profile-strip { display: grid !important; gap: 3px; grid-column: 1 / -1; grid-template-columns: repeat(9, minmax(0, 1fr)); grid-row: 2; width: 100%; }
+.digit-profile-strip > i { align-items: center; background: rgba(2, 20, 18, .78); border: 1px solid rgba(199, 154, 69, .32); color: var(--paper-soft); display: flex; font-family: var(--sans); font-size: 14px; font-style: normal; font-weight: 700; height: 28px; justify-content: center; min-width: 0; }
+.digit-profile-strip > i.is-core { background: rgba(199, 154, 69, .18); border-color: var(--gold-bright); color: var(--gold-bright); box-shadow: inset 0 0 0 1px rgba(231, 193, 105, .25); }
+.digit-distribution[open] .digit-profile-strip { display: none !important; }
+.lo-shu-grid.has-profile-overview { gap: 7px; }
+.lo-shu-grid.has-profile-overview .digit-cell { appearance: none; background: rgba(5, 18, 27, .9); color: inherit; cursor: pointer; display: grid; min-height: 112px; padding: 9px 10px 13px; text-align: left; width: 100%; }
+.lo-shu-grid.has-profile-overview .digit-cell:hover,
+.lo-shu-grid.has-profile-overview .digit-cell:focus-visible { background: rgba(16, 45, 44, .9); border-color: var(--gold); }
+.lo-shu-grid.has-profile-overview .digit-cell:focus-visible { outline: 3px solid #fff0b8; outline-offset: 2px; z-index: 3; }
+.lo-shu-grid.has-profile-overview .digit-cell.is-selected { border-color: var(--gold-bright); box-shadow: inset 0 0 0 1px rgba(231, 193, 105, .58), 0 0 18px rgba(199, 154, 69, .12); }
+.lo-shu-grid.has-profile-overview .digit-cell.is-missing { opacity: 1; }
+.lo-shu-grid.has-profile-overview .digit-cell.is-missing .digit-profile-count,
+.lo-shu-grid.has-profile-overview .digit-cell.is-missing > i { opacity: .58; }
+.digit-profile-number { color: var(--gold-bright) !important; font-size: 22px !important; line-height: 1.2; }
+.digit-profile-title { color: var(--paper) !important; display: block; font-size: 16px !important; font-weight: 600; line-height: 1.35; }
+.digit-profile-count { color: var(--paper-soft) !important; display: block; font-size: 14px !important; line-height: 1.35; }
+.digit-profile-core-badge { align-self: end; color: var(--gold-bright); font-family: var(--sans); font-size: 13px; line-height: 1.2; }
+.digit-profile-number,
+.digit-profile-title,
+.digit-profile-count,
+.digit-profile-core-badge { position: relative; z-index: 2; }
+.digit-profile-editorial-legend { color: var(--muted); font-family: var(--sans); font-size: 14px; margin: 7px 0 0; }
+.digit-profile-detail { background: linear-gradient(135deg, rgba(15, 48, 43, .54), rgba(4, 17, 27, .88)); border: 1px solid var(--line); margin-top: 9px; padding: 14px 16px; }
+.digit-profile-detail > header { align-items: baseline; display: flex; flex-wrap: wrap; gap: 5px 16px; justify-content: space-between; }
+.digit-profile-detail > header strong { color: var(--gold-bright); font-size: 22px; font-weight: 600; }
+.digit-profile-detail > header span { color: var(--paper-soft); font-family: var(--sans); font-size: 14px; }
+.digit-profile-detail-grid { display: grid; gap: 1px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 10px; }
+.digit-profile-detail-grid p { background: rgba(2, 13, 20, .46); color: var(--paper-soft); font-size: 16px; line-height: 1.65; margin: 0; padding: 9px 11px; }
+.digit-profile-detail-grid strong,
+.digit-profile-marker strong,
+.digit-profile-folklore strong { color: var(--gold); display: block; font-family: var(--sans); font-size: 14px; }
+.digit-profile-marker,
+.digit-profile-label-note,
+.digit-profile-folklore,
+.digit-profile-basis { font-size: 16px; line-height: 1.65; margin: 9px 0 0; }
+.digit-profile-marker { color: var(--paper); }
+.digit-profile-label-note { color: var(--muted); }
+.digit-profile-folklore { border-left: 2px solid var(--gold-dim); color: var(--paper-soft); padding-left: 10px; }
+.digit-profile-basis { border-top: 1px solid var(--line-soft); color: var(--muted); padding-top: 9px; }
+.dashboard-home-screen.reference-v18 .digit-bars :is(em, b) { color: #e3d6bf; font-size: 13px; font-weight: 700; }
 
 @media (max-width: 900px) {
   .workspace-heading { align-items: start; }
@@ -1709,6 +1760,32 @@ footer p { margin: 0; }
   .timeline-control { flex: 1; min-height: 48px; }
   .source-ledger { grid-template-columns: 1fr; }
   .grid-line-summary ul { columns: 1; }
+  .digit-distribution-summary { grid-template-columns: minmax(0, 1fr) 22px; }
+  .digit-distribution-summary > em { grid-column: 1; grid-row: 2; margin-left: 0; }
+  .digit-distribution-summary::after { grid-column: 2; }
+  .digit-profile-strip { grid-row: 3; }
+  .digit-profile-strip > i { font-size: 13px; height: 26px; }
+  .lo-shu-grid.has-profile-overview { gap: 4px; }
+  .lo-shu-grid.has-profile-overview .digit-cell { min-height: 98px; padding: 7px 6px 10px; }
+  .digit-profile-number { font-size: 18px !important; }
+  .digit-profile-title { font-size: 16px !important; }
+  .digit-profile-count { font-size: 14px !important; }
+  .digit-profile-core-badge { font-size: 14px; }
+  .digit-profile-detail { padding: 12px; }
+  .digit-profile-detail > header strong { font-size: 20px; }
+  .digit-profile-detail-grid { grid-template-columns: 1fr; }
+  .digit-profile-detail-grid p,
+  .digit-profile-marker,
+  .digit-profile-label-note,
+  .digit-profile-folklore,
+  .digit-profile-basis { font-size: 16px; }
+}
+
+@media (max-width: 360px) {
+  .lo-shu-grid.has-profile-overview .digit-cell { min-height: 104px; padding-left: 3px; padding-right: 3px; }
+  .digit-profile-number { font-size: 16px !important; letter-spacing: -.07em; }
+  .digit-profile-title { font-size: 16px !important; }
+  .digit-profile-count { font-size: 14px !important; letter-spacing: -.04em; }
 }
 
 @media (max-width: 360px) {

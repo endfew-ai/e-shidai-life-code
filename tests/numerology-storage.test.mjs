@@ -45,6 +45,7 @@ function syntheticAnalysis(index, overrides = {}) {
     ruleSet: {
       id: "uploaded-material-v2",
       version: "2.0.0",
+      interpretationVersion: "neutral-zh-tw-v4",
     },
     createdAt: `2026-07-23T04:${String(index).padStart(2, "0")}:00.000Z`,
     warnings: [],
@@ -121,6 +122,7 @@ test("身分證歷史只保存遮罩、摘要與規則，不寫入完整號碼�
   const history = saveAnalysisHistory(analysis, storage);
   assert.equal(history.length, 1);
   assert.equal(history[0].maskedInput, "A12*****89");
+  assert.equal(history[0].interpretationVersion, "neutral-zh-tw-v4");
   assert.equal(history[0].sensitiveDataStored, false);
   assert.equal(Object.hasOwn(history[0], "normalizedInput"), false);
   assert.equal(Object.hasOwn(history[0], "structuredResult"), false);

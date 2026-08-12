@@ -156,6 +156,7 @@ export type BirthdayAnalysis = {
   zeroCount: number;
   missing: number[];
   birthGrid: BirthGridAnalysis;
+  numberGuide: readonly NumberGuideItem[];
   calculations: CalculationItem[];
 };
 
@@ -241,6 +242,7 @@ export function normalizedRemainder(value: bigint, divisor: number): number;
 export function calculateIChing(rawValues: unknown[]): IChingAnalysis;
 import type {
   BirthGridAnalysis,
+  NumberGuideItem,
   LifePathRuleProfile,
   PersonalCalendarCycleRuleProfile,
   RuleSet,

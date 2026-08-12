@@ -177,7 +177,7 @@ export function buildTimelineStageInsight(stage, previousStage = null, options =
   });
 }
 
-function section(id, title, summary, details, calculationSteps, sourceProfile) {
+function section(id, title, summary, details, calculationSteps, sourceProfile, sourceProfiles = [sourceProfile]) {
   return Object.freeze({
     id,
     title,
@@ -185,6 +185,7 @@ function section(id, title, summary, details, calculationSteps, sourceProfile) {
     details: Object.freeze(details),
     calculationSteps: Object.freeze(calculationSteps),
     sourceProfile,
+    sourceProfiles: Object.freeze([...sourceProfiles]),
   });
 }
 
@@ -255,6 +256,7 @@ export function buildBirthdayReportSections(analysis) {
       ],
       [],
       personality.sourceProfile,
+      personality.sourceProfiles,
     ),
   ]);
 }
@@ -398,6 +400,7 @@ export function createHistoryRecord(analysis) {
     maskedInput: analysis.maskedInput,
     ruleSetId: analysis.ruleSet?.id ?? analysis.ruleSetId,
     ruleSetVersion: analysis.ruleSet?.version ?? null,
+    interpretationVersion: analysis.ruleSet?.interpretationVersion ?? null,
     createdAt: analysis.createdAt,
     warnings: [...(analysis.warnings ?? [])],
     summary: analysis.reportSections?.map(({ id, title, summary }) => ({ id, title, summary })) ?? [],

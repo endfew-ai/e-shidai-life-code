@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   BIRTH_GRID_LINE_RULES,
+  PERSONALITY_PROFILES,
   DEFAULT_RULE_SET,
   LEGACY_RULE_SET,
   MAGNETIC_FIELD_GROUPS,
@@ -12,6 +13,7 @@ import {
   TAIWAN_ID_LETTER_VALUES,
   alphabetToSequentialDigits,
   analyzeBirthGrid,
+  buildNumberGuideOverview,
   analyzeIdentityNumber,
   analyzeSlidingPairs,
   buildIdentityTimeline,
@@ -137,6 +139,88 @@ test("生日九宮格固定使用 1 至 9、排除 0，並完整評估 13 組線
     result.establishedLines.map(({ lineId }) => lineId),
     ["7-8-9", "1-4-7", "2-4", "2-6", "4-8", "6-8", "2-4-6-8"],
   );
+});
+
+test("上傳照片的 1 至 9 直觀教材資料完整、安全且可建立總覽", () => {
+  assert.deepEqual(Object.keys(PERSONALITY_PROFILES).map(Number), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  for (const number of Array.from({ length: 9 }, (_, index) => index + 1)) {
+    const profile = PERSONALITY_PROFILES[number];
+    assert.equal(profile.number, number);
+    assert.ok(profile.teachingLabel);
+    assert.match(profile.labelAuthority, /^(photo|editorial)$/);
+    assert.ok(profile.quickMeaning.startsWith("代表"));
+    assert.ok(profile.positiveTraits.length > 0);
+    assert.ok(profile.challengeTraits.length > 0);
+    assert.ok(profile.socialTraits.length > 0);
+    assert.ok(profile.workTraits.length > 0);
+    assert.ok(profile.observationPhrase);
+    assert.match(profile.phraseAuthority, /^(photo|editorial)$/);
+    assert.equal(profile.sourceProfile, "uploaded-numerology-photo-2026-08-12-v1");
+    assert.deepEqual(profile.sourceProfiles, ["uploaded-numerology-v2", "uploaded-numerology-photo-2026-08-12-v1"]);
+    assert.match(profile.disclaimer, /無醫學診斷效力/);
+  }
+  assert.equal(PERSONALITY_PROFILES[1].teachingLabel, "亞當");
+  assert.equal(PERSONALITY_PROFILES[1].quickMeaning, "代表獨立");
+  const visibleClaims = Object.values(PERSONALITY_PROFILES).map((profile) => ({
+    number: profile.number,
+    title: profile.title,
+    teachingLabel: profile.teachingLabel,
+    quickMeaning: profile.quickMeaning,
+    positiveTraits: profile.positiveTraits,
+    challengeTraits: profile.challengeTraits,
+    socialTraits: profile.socialTraits,
+    workTraits: profile.workTraits,
+    observationPhrase: profile.observationPhrase,
+  }));
+  assert.doesNotMatch(JSON.stringify(visibleClaims), /胃腸不好|鼻.*疾病|肺.*疾病|子宮.*疾病|肩頸痛|第六感很準|有錢|被提拔|老闆.*喜歡|佛緣|神明.*寵愛|吃菜命|憂鬱症/);
+  assert.doesNotMatch(
+    JSON.stringify(Object.values(PERSONALITY_PROFILES).flatMap(({ healthFolkloreNotes }) => healthFolkloreNotes)),
+    /胃腸不好|鼻子、肺、子宮疾病|肩頸痛|會有憂鬱症/,
+  );
+  assert.deepEqual(
+    Object.values(PERSONALITY_PROFILES).filter(({ labelAuthority }) => labelAuthority === "editorial").map(({ number }) => number),
+    [6, 8, 9],
+  );
+  assert.deepEqual(
+    Object.values(PERSONALITY_PROFILES).filter(({ phraseAuthority }) => phraseAuthority === "photo").map(({ number }) => number),
+    [3, 5, 7, 9],
+  );
+  assert.match(PERSONALITY_PROFILES[9].unresolvedSourceClaims[0], /不納入演算結論/);
+
+  const overview = buildNumberGuideOverview({ 1: 2, 2: 1, 3: 0, 4: 0, 5: 2, 6: 0, 7: 0, 8: 0, 9: 2 }, 5);
+  assert.equal(overview.length, 9);
+  assert.equal(overview[4].count, 2);
+  assert.equal(overview[4].isLifePath, true);
+  assert.equal(overview[2].isPresent, false);
+  assert.ok(Object.isFrozen(overview));
+});
+
+test("1959-10-25 對齊上傳教材範例、九格次數與 1-5-9 連線", () => {
+  const result = analyzeBirthdayV2({
+    id: "uploaded-photo-example",
+    date: "1959-10-25",
+    todayValue: "2026-08-12",
+    currentYear: 2026,
+    createdAt: "2026-08-12T00:00:00.000Z",
+  });
+  assert.equal(result.lifePathResult.firstSum, 32);
+  assert.equal(result.lifePathResult.lifePathNumber, 5);
+  assert.equal(result.lifePathResult.calculationText, "1 + 9 + 5 + 9 + 1 + 0 + 2 + 5 = 32 → 3 + 2 = 5");
+  assert.deepEqual(Array.from({ length: 9 }, (_, index) => result.birthGridResult.counts[index + 1]), [2, 1, 0, 0, 2, 0, 0, 0, 2]);
+  assert.equal(result.birthGridResult.zeroCount, 1);
+  assert.deepEqual(result.birthGridResult.establishedLines.map(({ lineId, strength }) => [lineId, strength]), [["1-5-9", 2]]);
+  assert.equal(result.numberGuide[4].teachingLabel, "口");
+  assert.equal(result.numberGuide[4].isLifePath, true);
+  assert.deepEqual(
+    result.reportSections.find(({ id }) => id === "personality").sourceProfiles,
+    ["uploaded-numerology-v2", "uploaded-numerology-photo-2026-08-12-v1"],
+  );
+});
+
+test("上傳照片 13 條連線 ID 完整且唯一", () => {
+  const lineIds = BIRTH_GRID_LINE_RULES.map(({ lineId }) => lineId);
+  assert.deepEqual(lineIds, ["1-2-3", "4-5-6", "7-8-9", "1-4-7", "2-5-8", "3-6-9", "1-5-9", "3-5-7", "2-4", "2-6", "4-8", "6-8", "2-4-6-8"]);
+  assert.equal(new Set(lineIds).size, 13);
 });
 
 test("九宮連線強度採各線最低出現次數，缺數時強度為零", () => {

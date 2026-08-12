@@ -102,7 +102,7 @@ function dashboardAnalytics(result, mode = "birthday") {
       core: result.lifePath.display,
       title: profiles[result.profileNumber]?.title ?? "生命路徑",
       note: `生日數 ${result.birthday.display}，態度數 ${result.attitude.value}`,
-      counts: Array.from({ length: 9 }, (_, index) => result.counts[index + 1] ?? 0),
+      counts: Array.from({ length: 9 }, (_, index) => result.birthGrid.counts[index + 1] ?? 0),
       distributionTitle: "生日數字分佈",
       annual: String(result.personalYear.value),
       annualTitle: `個人流年數 ${result.personalYear.value}`,
@@ -277,10 +277,24 @@ function createDigitDistribution(result) {
   const title = result.kind === "birthday" ? "生日數字九宮分布" : "自訂數字九宮分布";
   const card = element("details", "result-disclosure calculation-card digit-distribution");
   if (result.kind === "birthday") card.id = "result-nine-grid";
-  const summary = element("summary");
+  const summary = element("summary", "digit-distribution-summary");
   const summaryCopy = element("span");
-  summaryCopy.append(element("small", "", "數字分布"), element("strong", "", "查看完整九宮"));
+  summaryCopy.append(
+    element("small", "", "數字分布"),
+    element("strong", "", result.kind === "birthday" ? "1～9 數字與命數解說" : "查看完整九宮"),
+  );
   summary.append(summaryCopy, element("em", "", `出現 ${9 - result.missing.length} 種・缺少 ${result.missing.length} 種`));
+  if (result.kind === "birthday") {
+    const strip = element("span", "digit-profile-strip");
+    strip.setAttribute("aria-label", `1 到 9 數字總覽；你的生命靈數基底為 ${result.profileNumber}`);
+    for (const item of result.numberGuide) {
+      const marker = element("i", item.isLifePath ? "is-core" : "", String(item.number));
+      marker.title = item.isLifePath ? `你的生命靈數 ${item.number}` : `數字 ${item.number}`;
+      strip.append(marker);
+    }
+    summary.append(strip);
+  }
+
   const body = element("div", "disclosure-body");
   body.append(panelHeading("數字分布", title, `數字 0 出現 ${result.zeroCount} 次`));
   const gridResult = result.kind === "birthday" ? result.birthGrid : null;
@@ -290,18 +304,106 @@ function createDigitDistribution(result) {
     ? "依 1・2・3／4・5・6／7・8・9 排列；連線判定依規則資料，不由畫面位置猜測。"
     : "採洛書 4・9・2／3・5・7／8・1・6 版位呈現次數。這是現代視覺化，不宣稱為古法命盤。";
   body.append(element("p", "panel-copy", layoutCopy));
-  const grid = element("div", "lo-shu-grid");
+
+  const grid = element("div", `lo-shu-grid${result.kind === "birthday" ? " has-profile-overview" : ""}`);
   grid.setAttribute("aria-label", "一到九數字出現次數");
   for (const digit of displayOrder) {
     const count = displayCounts[digit];
-    const cell = element("div", `digit-cell ${count ? "is-present" : "is-missing"}`);
+    const guide = result.kind === "birthday" ? result.numberGuide.find((item) => item.number === digit) : null;
+    const cell = element(
+      guide ? "button" : "div",
+      `digit-cell ${count ? "is-present" : "is-missing"}${guide?.isLifePath ? " is-core is-selected" : ""}`,
+    );
+    if (guide) {
+      cell.type = "button";
+      cell.dataset.digitProfile = String(digit);
+      cell.setAttribute("aria-pressed", String(guide.isLifePath));
+      if (guide.isLifePath) cell.setAttribute("aria-current", "true");
+    }
     const bar = element("i");
     bar.style.setProperty("--count", String(Math.min(count, 4)));
     bar.setAttribute("aria-hidden", "true");
-    cell.append(element("strong", "", digit), element("span", "", count ? `${count} 次` : "未出現"), bar);
+    cell.append(
+      element("strong", guide ? "digit-profile-number" : "", guide ? `${digit}・${guide.teachingLabel}${guide.labelAuthority === "editorial" ? "*" : ""}` : digit),
+      ...(guide ? [element("span", "digit-profile-title", guide.quickMeaning)] : []),
+      element(
+        "span",
+        guide ? "digit-profile-count" : "",
+        guide
+          ? count ? `生日出現 ${count} 次` : "生日未出現"
+          : count ? `${count} 次` : "未出現",
+      ),
+      ...(guide?.isLifePath ? [element("b", "digit-profile-core-badge", "你的命數")] : []),
+      bar,
+    );
     grid.append(cell);
   }
-  body.append(grid, element("p", "missing-summary", result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"));
+  body.append(grid);
+  if (result.kind === "birthday") body.append(element("p", "digit-profile-editorial-legend", "* 本站中性摘要，非照片原文"));
+  body.append(element("p", "missing-summary", result.missing.length ? `未出現：${result.missing.join("、")}` : "1 到 9 都有出現"));
+
+  if (result.kind === "birthday") {
+    const detail = element("article", "digit-profile-detail");
+    detail.setAttribute("role", "region");
+    detail.setAttribute("aria-labelledby", "digit-profile-detail-title");
+    const renderDetail = (number) => {
+      const guide = result.numberGuide.find((item) => item.number === number) ?? result.numberGuide[0];
+      detail.replaceChildren();
+      const heading = element("header");
+      const headingTitle = element("strong", "", `${guide.number}・${guide.teachingLabel}${guide.labelAuthority === "editorial" ? "*" : ""}｜${guide.quickMeaning}`);
+      headingTitle.id = "digit-profile-detail-title";
+      heading.append(
+        headingTitle,
+        element("span", "", guide.isLifePath ? `你的生命靈數・生日出現 ${guide.count} 次` : `生日出現 ${guide.count} 次`),
+      );
+      const content = element("div", "digit-profile-detail-grid");
+      for (const [label, values] of [
+        ["核心特質", guide.positiveTraits],
+        ["互動方式", guide.socialTraits],
+        ["工作觀察", guide.workTraits],
+        ["需要留意", guide.challengeTraits],
+      ]) {
+        const block = element("p");
+        block.append(element("strong", "", label), document.createTextNode(values.join("、")));
+        content.append(block);
+      }
+      const marker = element("p", "digit-profile-marker");
+      marker.append(
+        element("strong", "", guide.phraseAuthority === "photo" ? "原教材常用語" : "本站自我觀察句"),
+        document.createTextNode(`「${guide.observationPhrase}」`),
+      );
+      detail.append(heading, content, marker);
+      detail.append(element("span", "sr-only digit-profile-live-status", `已顯示數字 ${guide.number}：${guide.quickMeaning}`));
+      detail.querySelector(".digit-profile-live-status").setAttribute("aria-live", "polite");
+      detail.append(element(
+        "p",
+        "digit-profile-label-note",
+        guide.labelAuthority === "photo"
+          ? `「${guide.teachingLabel}」是照片中的教材代稱，只用來辨識原稿，不代表性別或人格本質。`
+          : `「${guide.teachingLabel}」是本站為方便閱讀整理的中性摘要，不是照片原文。`,
+      ));
+      if (guide.healthFolkloreNotes.length) {
+        const folklore = element("p", "digit-profile-folklore");
+        folklore.append(element("strong", "", "原教材身體類象・非診斷"), document.createTextNode(guide.healthFolkloreNotes.join("；")));
+        detail.append(folklore);
+      }
+      detail.append(element("p", "digit-profile-basis", `生命靈數由生日八位數加總化簡；格內次數只代表生日數字出現次數，兩者不是同一項計算。${guide.disclaimer}`));
+    };
+    renderDetail(result.profileNumber);
+    grid.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-digit-profile]");
+      if (!(button instanceof HTMLButtonElement)) return;
+      const number = Number(button.dataset.digitProfile);
+      for (const candidate of grid.querySelectorAll("[data-digit-profile]")) {
+        const selected = candidate === button;
+        candidate.classList.toggle("is-selected", selected);
+        candidate.setAttribute("aria-pressed", String(selected));
+      }
+      renderDetail(number);
+    });
+    body.append(detail);
+  }
+
   if (gridResult?.lines) {
     const established = element("div", "grid-line-summary");
     const lineTitle = element("p", "grid-line-title", `成立連線 ${gridResult.establishedLines.length} 條`);
@@ -310,7 +412,13 @@ function createDigitDistribution(result) {
     established.append(lineTitle);
     const list = element("ul");
     for (const line of gridResult.establishedLines) {
-      list.append(element("li", "", `${line.lineId}・${line.title}（強度 ${line.strength}）`));
+      const item = element("li");
+      item.append(
+        element("strong", "", `${line.lineId}・${line.title}（強度 ${line.strength}）`),
+        element("span", "", `可觀察：${line.positiveTraits.join("、")}`),
+        ...(line.cautionTraits.length ? [element("small", "", `提醒：${line.cautionTraits.join("、")}`)] : []),
+      );
+      list.append(item);
     }
     if (!gridResult.establishedLines.length) list.append(element("li", "", "目前沒有完整成立的連線。"));
     established.append(list);

@@ -7,6 +7,7 @@ import {
   calculatePersonalDay,
   calculatePersonalMonth,
   calculatePersonalYear,
+  buildNumberGuideOverview,
   parseBirthday,
   resolveRuleSet,
 } from "./domain/numerology/index.js";
@@ -517,6 +518,7 @@ export function analyzeBirthday(dateValue, currentYear = new Date().getFullYear(
     zeroCount: counts[0],
     missing: birthGrid.missingNumbers,
     birthGrid,
+    numberGuide: buildNumberGuideOverview(birthGrid.counts, lifeBase),
     audit,
     calculations,
   };

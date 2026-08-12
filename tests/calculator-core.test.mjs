@@ -64,6 +64,34 @@ test("birthday analysis exposes original input, normalized input, rule version a
   assert.ok(Object.isFrozen(result.audit.steps));
 });
 
+test("上傳照片範例在首頁分析輸出 1 至 9 教材總覽", () => {
+  const result = analyzeBirthday("1959-10-25", 2026, "2026-08-12");
+  assert.equal(result.firstSum, 32);
+  assert.equal(result.lifePath.value, 5);
+  assert.equal(result.lifePath.calculationText, "1 + 9 + 5 + 9 + 1 + 0 + 2 + 5 = 32 → 3 + 2 = 5");
+  assert.deepEqual(Array.from({ length: 9 }, (_, index) => result.birthGrid.counts[index + 1]), [2, 1, 0, 0, 2, 0, 0, 0, 2]);
+  assert.deepEqual(result.birthGrid.establishedLines.map(({ lineId, strength }) => [lineId, strength]), [["1-5-9", 2]]);
+  assert.equal(result.numberGuide[0].teachingLabel, "亞當");
+  assert.equal(result.numberGuide[0].quickMeaning, "代表獨立");
+  assert.equal(result.numberGuide[4].isLifePath, true);
+});
+
+test("生日九宮加入生命靈數時，首頁頻譜與 1 至 9 總覽使用相同次數", () => {
+  const result = analyzeBirthday("1959-10-25", 2026, "2026-08-12", {
+    ruleOverrides: { birthGridMode: "raw_plus_life_path" },
+  });
+  assert.equal(result.counts[5], 2);
+  assert.equal(result.birthGrid.counts[5], 3);
+  assert.equal(result.numberGuide[4].count, 3);
+});
+
+test("舊版保留主數時仍以主數基底醒目標示 1 至 9 卡片", () => {
+  const result = analyzeBirthdayLegacy("1950-05-22", 2026, "2026-08-12");
+  assert.equal(result.lifePath.value, 33);
+  assert.equal(result.lifePath.base, 6);
+  assert.equal(result.numberGuide.find(({ isLifePath }) => isLifePath).number, 6);
+});
+
 test("personal years always reduce to 1-9 and are deterministic for a supplied year", () => {
   const result = analyzeBirthday("1990-08-12", 2026, TODAY);
   assert.deepEqual(result.cycles.map(({ year, value }) => [year, value]), [[2025, 2], [2026, 3], [2027, 4]]);

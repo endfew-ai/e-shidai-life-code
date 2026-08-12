@@ -8,6 +8,7 @@ import type {
   IdentityTimeline,
   LifePathResult,
   MagneticSequenceAnalysis,
+  NumberGuideItem,
   PersonalityProfile,
   PersonalYearResult,
   PersonalMonthResult,
@@ -85,6 +86,7 @@ export interface BirthdayAnalysisResult extends AnalysisResultBase {
   readonly lifePathResult: LifePathResult;
   readonly birthdayNumberResult: BirthdayNumberResult;
   readonly birthGridResult: BirthGridAnalysis;
+  readonly numberGuide: readonly NumberGuideItem[];
   readonly magneticFieldResult: null;
   readonly timelineResult: null;
   readonly personalYearResult: PersonalYearResult;

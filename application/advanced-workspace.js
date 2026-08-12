@@ -744,7 +744,8 @@ function renderHistory(container, status) {
     item.append(heading, el("strong", "", record.maskedInput));
     const summaries = el("ul");
     for (const summary of record.summary) summaries.append(el("li", "", `${summary.title}：${summary.summary}`));
-    item.append(summaries, el("small", "", `規則 ${record.ruleSetId} ${record.ruleSetVersion ?? ""}`.trim()));
+    const interpretationLabel = record.interpretationVersion ? `・解說 ${record.interpretationVersion}` : "";
+    item.append(summaries, el("small", "", `規則 ${record.ruleSetId} ${record.ruleSetVersion ?? ""}${interpretationLabel}`.trim()));
     list.append(item);
   }
   container.append(list);

@@ -10,6 +10,7 @@ import {
   calculatePersonalYear,
 } from "../domain/numerology/life-path.js";
 import { analyzeBirthGrid } from "../domain/numerology/birth-grid.js";
+import { buildNumberGuideOverview } from "../domain/numerology/number-guide.js";
 import { analyzeMagneticSequence } from "../domain/numerology/magnetic-field.js";
 import { analyzeIdentityNumber } from "../domain/numerology/identity-timeline.js";
 import {
@@ -100,6 +101,7 @@ export function analyzeBirthdayV2(input) {
     lifePathResult,
     birthdayNumberResult,
     birthGridResult,
+    numberGuide: buildNumberGuideOverview(birthGridResult.counts, lifePathResult.baseNumber),
     magneticFieldResult: null,
     timelineResult: null,
     personalYearResult,

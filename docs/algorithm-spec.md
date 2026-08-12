@@ -1,7 +1,7 @@
 # 生命靈數規則引擎規格
 
 版本：2.1.1
-日期：2026-07-23
+日期：2026-08-12
 
 ## 一、用途與邊界
 
@@ -50,7 +50,7 @@ infrastructure/numerology-storage.js + UI
 | `zeroFiveMode` | `bridge_modifier` |
 | `timelineProfile` | `first_10_then_5` |
 | 磁場表版本 | `uploaded-material-v1` |
-| 解讀版本 | `neutral-zh-tw-v1` |
+| 解讀版本 | `neutral-zh-tw-v4` |
 
 ### 舊版相容 `legacy-project-v1`
 
@@ -220,15 +220,24 @@ strength(line) = min(count[n])，未成立則為 0
 
 - `number`
 - `title`
+- `teachingLabel`
+- `labelAuthority`（`photo`／`editorial`）
+- `quickMeaning`
 - `positiveTraits`
 - `challengeTraits`
 - `socialTraits`
 - `workTraits`
+- `observationPhrase`
+- `phraseAuthority`（`photo`／`editorial`）
 - `healthFolkloreNotes`
+- `unresolvedSourceClaims`
 - `disclaimer`
-- `sourceProfile`
+- `sourceProfile`（主要顯示來源）
+- `sourceProfiles`（完整來源組合）
 
-人格以生命靈數基底 1～9 查表。任何健康對應都必須顯示：「此為原教材中的民俗對應，無醫學診斷效力；身體不適應諮詢合格醫療專業人員。」
+人格以生命靈數基底 1～9 查表；結果卡直接顯示「數字・代稱｜直觀短義」，例如「1・亞當｜代表獨立」。`labelAuthority=photo` 才稱照片教材代稱，`editorial` 必須顯示為本站摘要。常用語亦以 `phraseAuthority` 區分照片原句與本站自我觀察句。教材代稱只用於辨識原稿，不是性別、人格本質或命定結論。任何健康對應都必須顯示：「此為原教材中的民俗對應，無醫學診斷效力；身體不適應諮詢合格醫療專業人員。」
+
+規則版本維持 `2.1.1`，本次解說資料為 `neutral-zh-tw-v4`；新寫入的本機遮罩歷史會一併保存 `interpretationVersion`，舊歷史沒有該欄位時維持相容顯示。
 
 ## 九、八大磁場 64 組
 

@@ -72,6 +72,110 @@ test("rule settings switch the birthday engine between new and legacy results", 
   expect(errors).toEqual([]);
 });
 
+test("上傳教材 1 至 9 可直觀看到亞當與獨立，命數與連線可核對", async ({ page }) => {
+  const errors = collectBrowserErrors(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.locator("#birthday-input").fill("1959-10-25");
+  await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
+
+  const distribution = page.locator("#result-nine-grid");
+  await expect(distribution.locator(".digit-profile-strip > i")).toHaveCount(9);
+  await expect(distribution.locator(".digit-profile-strip > i.is-core")).toHaveText("5");
+  await distribution.locator("summary").click();
+  await expect(distribution.locator(".digit-profile-strip")).toBeHidden();
+  const guides = distribution.locator("[data-digit-profile]");
+  await expect(guides).toHaveCount(9);
+  await expect(guides.nth(0)).toContainText("1・亞當");
+  await expect(guides.nth(0)).toContainText("代表獨立");
+  await expect(guides.nth(4)).toHaveAttribute("aria-current", "true");
+  await expect(guides.nth(4)).toContainText("你的命數");
+  await expect(guides.locator(".digit-profile-count")).toHaveText([
+    "生日出現 2 次", "生日出現 1 次", "生日未出現", "生日未出現", "生日出現 2 次",
+    "生日未出現", "生日未出現", "生日未出現", "生日出現 2 次",
+  ]);
+  await expect(distribution.locator(".digit-profile-detail")).toContainText("生命靈數由生日八位數加總化簡");
+  await expect(distribution.locator(".grid-line-summary")).toContainText("1-5-9・事業線／執行線（強度 2）");
+  await expect(distribution.locator(".grid-line-summary")).toContainText("可觀察：工作投入、目標、成果");
+  await guides.nth(0).click();
+  await expect(distribution.locator(".digit-profile-detail > header")).toContainText("1・亞當｜代表獨立");
+  await expect(distribution.locator(".digit-profile-marker")).toContainText("本站自我觀察句");
+  await expect(distribution.locator(".digit-profile-label-note")).toContainText("不代表性別或人格本質");
+  await expect(distribution.locator(".digit-profile-detail")).toContainText("無醫學診斷效力");
+  await expect(distribution.locator(".digit-profile-editorial-legend")).toHaveText("* 本站中性摘要，非照片原文");
+  await guides.nth(1).focus();
+  await expect(guides.nth(1)).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(distribution.locator(".digit-profile-detail > header")).toContainText("2・夏娃｜代表陪伴");
+  await guides.nth(0).click();
+  await distribution.screenshot({ path: "output/playwright/numerology-number-guide-desktop-1440.png" });
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 320, height: 568 },
+]) {
+  test(`1 至 9 教材總覽在 ${viewport.width}px 手機維持三欄且可閱讀`, async ({ page }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/index.html", { waitUntil: "networkidle" });
+    await page.locator("#birthday-input").fill("1959-10-25");
+    await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
+    const distribution = page.locator("#result-nine-grid");
+    await distribution.locator("summary").click();
+    await expect(distribution.locator("[data-digit-profile]")).toHaveCount(9);
+    const measurements = await distribution.evaluate((node) => {
+      const grid = node.querySelector(".lo-shu-grid.has-profile-overview");
+      const title = node.querySelector(".digit-profile-title");
+      const cells = [...node.querySelectorAll("[data-digit-profile]")];
+      return {
+        columns: getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+        numberFont: Number.parseFloat(getComputedStyle(cells[0].querySelector(".digit-profile-number")).fontSize),
+        titleFont: Number.parseFloat(getComputedStyle(title).fontSize),
+        countFont: Number.parseFloat(getComputedStyle(cells[0].querySelector(".digit-profile-count")).fontSize),
+        minCellHeight: Math.min(...cells.map((cell) => cell.getBoundingClientRect().height)),
+        cellsFit: cells.every((cell) => cell.scrollHeight <= cell.clientHeight),
+      };
+    });
+    expect(measurements.columns).toBe(3);
+    expect(measurements.numberFont).toBeGreaterThanOrEqual(16);
+    expect(measurements.titleFont).toBeGreaterThanOrEqual(16);
+    expect(measurements.countFont).toBeGreaterThanOrEqual(14);
+    expect(measurements.minCellHeight).toBeGreaterThanOrEqual(84);
+    expect(measurements.cellsFit).toBe(true);
+    await distribution.screenshot({ path: `output/playwright/numerology-number-guide-mobile-${viewport.width}.png` });
+    await expectNoHorizontalOverflow(page);
+  });
+}
+
+test("命數數字出現四次時底條不會遮住命數標記", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await page.locator("#birthday-input").fill("1900-11-16");
+  await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
+  const distribution = page.locator("#result-nine-grid");
+  await distribution.locator("summary").click();
+  const core = distribution.locator('[data-digit-profile="1"]');
+  await expect(core).toContainText("生日出現 4 次");
+  await expect(core).toContainText("你的命數");
+  const layout = await core.evaluate((cell) => {
+    const badge = cell.querySelector(".digit-profile-core-badge");
+    const bar = cell.querySelector(":scope > i");
+    return {
+      fits: cell.scrollHeight <= cell.clientHeight,
+      badgeZ: Number.parseFloat(getComputedStyle(badge).zIndex),
+      barZ: getComputedStyle(bar).zIndex,
+      badgeFont: Number.parseFloat(getComputedStyle(badge).fontSize),
+    };
+  });
+  expect(layout.fits).toBe(true);
+  expect(layout.badgeZ).toBeGreaterThanOrEqual(2);
+  expect(layout.barZ).toBe("auto");
+  expect(layout.badgeFont).toBeGreaterThanOrEqual(14);
+  await expectNoHorizontalOverflow(page);
+});
+
 test("identity result is masked and local history never stores the full identifier", async ({ page }) => {
   const errors = collectBrowserErrors(page);
   await page.setViewportSize({ width: 1440, height: 1000 });

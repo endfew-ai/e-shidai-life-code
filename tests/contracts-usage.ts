@@ -1,4 +1,4 @@
-import { analyzeIdentityV2 } from "../application/numerology-analysis.js";
+import { analyzeBirthdayV2, analyzeIdentityV2 } from "../application/numerology-analysis.js";
 import {
   IDENTITY_SOURCE_REFS,
   type TaiwanIdentityAnalysisInputType,
@@ -24,6 +24,13 @@ const identityDocumentType: Exclude<TaiwanIdentityDocumentType, "foreign_ui_lega
   foreignIdentity.documentType;
 const sensitiveIdentityValue: string = foreignIdentity.sensitiveNormalizedInput;
 const validationScope: "format_checksum_only" = foreignIdentity.validationScope;
+const birthdayAnalysis = analyzeBirthdayV2({
+  date: "1959-10-25",
+  todayValue: "2026-08-12",
+  currentYear: 2026,
+});
+const fifthNumberTeachingLabel: string = birthdayAnalysis.numberGuide[4].teachingLabel;
+const fifthNumberLabelAuthority: "photo" | "editorial" = birthdayAnalysis.numberGuide[4].labelAuthority;
 
 const calendar = detectCurrentCalendarParts(new Date("2026-08-02T04:00:00.000Z"));
 const calendarDataVersion: string | null = calendar.calendarDataVersion;
@@ -42,6 +49,8 @@ void [
   identityDocumentType,
   sensitiveIdentityValue,
   validationScope,
+  fifthNumberTeachingLabel,
+  fifthNumberLabelAuthority,
   calendarDataVersion,
   calendarProvider,
   oracleStatus,
