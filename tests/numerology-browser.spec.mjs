@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test";
 test.use({ timezoneId: "Asia/Taipei" });
 
 test.beforeEach(async ({ page }) => {
-  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+  await page.route("https://page-views-api.ratneshc.com/**", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ count: 1284 }),
+    body: JSON.stringify(route.request().url().includes("/track?") ? { success: true } : { views: 1062 }),
   }));
 });
 
@@ -173,6 +173,19 @@ test("命數數字出現四次時底條不會遮住命數標記", async ({ page 
   expect(layout.badgeZ).toBeGreaterThanOrEqual(2);
   expect(layout.barZ).toBe("auto");
   expect(layout.badgeFont).toBeGreaterThanOrEqual(14);
+  await expectNoHorizontalOverflow(page);
+});
+
+test("公開計數服務離線時顯示可辨識最低值且不影響生命靈數分析", async ({ page }) => {
+  await page.unroute("https://page-views-api.ratneshc.com/**");
+  await page.route("https://page-views-api.ratneshc.com/**", (route) => route.abort("failed"));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/index.html", { waitUntil: "networkidle" });
+  await expect(page.locator("[data-visit-count]")).toHaveText("222+");
+  await expect(page.locator("[data-visit-counter]")).toHaveAttribute("data-quality", "verified-minimum");
+  await page.locator("#birthday-input").fill("1959-10-25");
+  await page.locator("#analyzer-form").evaluate((node) => node.requestSubmit());
+  await expect(page.locator("#result-nine-grid")).toBeVisible();
   await expectNoHorizontalOverflow(page);
 });
 

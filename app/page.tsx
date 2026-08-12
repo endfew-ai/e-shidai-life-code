@@ -1048,7 +1048,7 @@ export default function Home() {
           <a href="#numerology-workspace" onClick={openWorkspace("home")}><img src="/visuals/ai-dashboard/reference-v5/function-bay-6-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span>專業工作台</span></a>
           <a href="#method-source"><img src="/visuals/ai-dashboard/reference-v5/function-bay-7-v5.webp" width={384} height={384} alt="" aria-hidden="true" /><span>規則來源</span></a>
           <a href="#privacy-section"><img src="/visuals/ai-dashboard/reference-v5/function-bay-8-v5.webp" width={384} height={384} loading="lazy" decoding="async" alt="" aria-hidden="true" /><span>本機隱私</span></a>
-          <p className="visit-counter" data-visit-counter data-state={visitState} data-quality={visitFallback ? "verified-minimum" : "live"} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? visitFallback ? `累積造訪至少 ${visitCount} 次` : `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"} title={visitFallback ? "計數服務暫時無法讀取；目前顯示發佈前已驗證的最低累積值" : "累積造訪次數；同一瀏覽器分頁重新整理不重複累加"}><span>累積造訪</span><strong data-visit-count>{visitCount}{visitFallback ? "+" : ""}</strong><small>次</small></p>
+          <p className="visit-counter" data-visit-counter data-state={visitState} data-quality={visitState === "ready" ? visitFallback ? "verified-minimum" : "live" : visitState} role="status" aria-live="polite" aria-atomic="true" aria-label={visitState === "ready" ? visitFallback ? `累積造訪至少 ${visitCount} 次` : `累積造訪 ${visitCount} 次` : visitState === "unavailable" ? "累積造訪次數暫時無法讀取" : "正在讀取累積造訪次數"} title={visitState === "unavailable" ? "計數服務暫時無法讀取，其他功能仍可正常使用" : visitFallback ? "計數服務暫時無法讀取；目前顯示發佈前已驗證的最低累積值" : visitState === "loading" ? "正在讀取累積造訪次數" : "累積造訪次數；同一瀏覽器分頁重新整理不重複累加"}><span>累積造訪</span><strong data-visit-count>{visitCount}{visitFallback ? "+" : ""}</strong><small>次</small></p>
         </div>
       </nav>
 
@@ -1188,7 +1188,7 @@ export default function Home() {
         </details>
       </section>
 
-      <section className="disclaimer" id="privacy-section" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-web-v1.webp" text="使用提醒" className="brush-disclaimer" lazy width={640} height={180} /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出造訪請求，不包含任何分析輸入。</p></div></section>
+      <section className="disclaimer" id="privacy-section" aria-labelledby="disclaimer-title"><span aria-hidden="true">※</span><div><h2 id="disclaimer-title"><BrushTitle src="/visuals/brush/title-disclaimer-web-v1.webp" text="使用提醒" className="brush-disclaimer" lazy width={640} height={180} /></h2><p>本工具屬文化娛樂與自我反思用途，不是科學人格測驗或個人色彩測驗、命運預測、醫療診斷、心理評估或專業建議，也不應作為健康、財務、法律、工作或人事決策依據。</p><p className="counter-privacy-note">生日、身分證、密碼與輸入數字只在本機計算；完整身分證不寫入歷史。頁面只向公開計數服務送出網站路徑、一般連線資訊與造訪請求，不包含任何分析輸入；服務以短期雜湊在 30 分鐘內去重。</p></div></section>
       <section id="numerology-workspace" ref={workspaceRef}></section>
       <footer><p>© {new Date().getFullYear()} 生命靈數</p><p>同一網址，自動適配手機與電腦</p></footer>
       </div>

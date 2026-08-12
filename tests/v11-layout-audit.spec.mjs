@@ -13,10 +13,10 @@ const viewports = [
 ];
 
 test.beforeEach(async ({ page }) => {
-  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+  await page.route("https://page-views-api.ratneshc.com/**", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ count: 1284 }),
+    body: JSON.stringify(route.request().url().includes("/track?") ? { success: true } : { views: 1062 }),
   }));
 });
 
@@ -206,11 +206,11 @@ test("v16 適合色彩模組會使用生日分析並直達色彩結果", async (
 });
 
 test("v16 長造訪數在 1280 桌機不會和第八個導覽入口重疊", async ({ page }) => {
-  await page.unroute("https://api.counterapi.dev/**");
-  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+  await page.unroute("https://page-views-api.ratneshc.com/**");
+  await page.route("https://page-views-api.ratneshc.com/**", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ count: 1234567890 }),
+    body: JSON.stringify(route.request().url().includes("/track?") ? { success: true } : { views: 1234567668 }),
   }));
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("index.html", { waitUntil: "networkidle" });

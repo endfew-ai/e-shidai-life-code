@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test";
 test.use({ timezoneId: "Asia/Taipei" });
 
 test.beforeEach(async ({ page }) => {
-  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+  await page.route("https://page-views-api.ratneshc.com/**", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ count: 1284 }),
+    body: JSON.stringify(route.request().url().includes("/track?") ? { success: true } : { views: 1062 }),
   }));
 });
 
@@ -911,15 +911,16 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   const errors = collectBrowserErrors(page);
   const counterRequests = [];
   page.on("request", (request) => {
-    if (request.url().startsWith("https://api.counterapi.dev/")) counterRequests.push(request.url());
+    if (request.url().startsWith("https://page-views-api.ratneshc.com/")) counterRequests.push(request.url());
   });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/index.html", { waitUntil: "networkidle" });
   await expect(page.locator("[data-visit-count]")).toHaveText("1,284");
-  expect(counterRequests.at(-1)).toMatch(/homepage-visits\/up$/);
+  expect(counterRequests.at(-2)).toMatch(/\/track\?/);
+  expect(counterRequests.at(-1)).toMatch(/\/views\?/);
   await page.reload({ waitUntil: "networkidle" });
   await expect(page.locator("[data-visit-count]")).toHaveText("1,284");
-  expect(counterRequests.at(-1)).toMatch(/homepage-visits\/$/);
+  expect(counterRequests.at(-1)).toMatch(/\/views\?/);
   const desktopKangjieEntry = page.locator(".sidebar-quick a[href='kangjie.html']");
   await expect(desktopKangjieEntry).toBeVisible();
   await expect(desktopKangjieEntry).toContainText("康節");
@@ -972,8 +973,8 @@ test("desktop entry, four derivations, tabs, sources and screenshots", async ({ 
   await page.locator(".sidebar-quick a[data-quick-mode='iching']").click();
   await expect(page.locator("#iching-access-dialog")).toBeHidden();
   await expect(page.locator('[data-mode-panel="iching"]')).toBeVisible();
-  expect(counterRequests.at(-1)).toMatch(/homepage-visits\/$/);
-  expect(counterRequests.every((url) => /^https:\/\/api\.counterapi\.dev\/v1\/endfew-ai-e-shidai-life-code\/homepage-visits\/(?:up)?$/.test(url))).toBe(true);
+  expect(counterRequests.at(-1)).toMatch(/\/views\?/);
+  expect(counterRequests.every((url) => /^https:\/\/page-views-api\.ratneshc\.com\/api\/v1\/(?:track|views)\?/.test(url))).toBe(true);
 
   await desktopKangjieEntry.click();
   await expect(page).toHaveURL(/\/kangjie(?:\.html)?(?:[?#]|$)/);

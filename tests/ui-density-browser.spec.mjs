@@ -18,10 +18,10 @@ test.use({
 });
 
 test.beforeEach(async ({ page }) => {
-  await page.route("https://api.counterapi.dev/**", (route) => route.fulfill({
+  await page.route("https://page-views-api.ratneshc.com/**", (route) => route.fulfill({
     status: 200,
     contentType: "application/json",
-    body: JSON.stringify({ count: 1284 }),
+    body: JSON.stringify(route.request().url().includes("/track?") ? { success: true } : { views: 1062 }),
   }));
 });
 

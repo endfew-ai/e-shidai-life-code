@@ -24,7 +24,7 @@ import {
   rememberIChingAccess,
   VISIT_COUNTER_TIMEOUT_MS,
   VISIT_COUNTER_VERIFIED_MINIMUM,
-} from "./site-services.js?v=20260802-reference-v13";
+} from "./site-services.js?v=20260812-page-views-v1";
 import { analyzeBirthdayV2 } from "./application/numerology-analysis.js";
 import { mountNumerologyWorkspace } from "./application/advanced-workspace.js?v=20260803-reference-v18";
 import {
